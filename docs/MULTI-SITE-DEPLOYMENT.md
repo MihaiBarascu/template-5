@@ -401,6 +401,51 @@ Fiecare instanță Next.js/Payload consumă ~200-400MB RAM.
 
 ---
 
+## Ghid Pornire După Restart PC
+
+### Verificare status (ar trebui să pornească automat):
+
+```bash
+# Verifică cloudflared
+sudo systemctl status cloudflared
+
+# Verifică Docker containers
+sudo docker ps
+```
+
+### Dacă nu pornesc automat:
+
+```bash
+# Pornește cloudflared
+sudo systemctl start cloudflared
+
+# Pornește Docker
+sudo systemctl start docker
+
+# Așteaptă 30 sec, apoi verifică containerele
+sudo docker ps
+```
+
+### Dacă Dokploy nu apare în docker ps:
+
+```bash
+# Repornește Docker complet
+sudo systemctl restart docker
+
+# Așteaptă 1 minut
+sleep 60
+
+# Verifică din nou
+sudo docker ps
+```
+
+### Accesare:
+
+- **Dokploy local**: http://localhost:3000
+- **Dokploy public**: https://admin.multiwebsite.org
+
+---
+
 ## Surse și Referințe
 
 - [Payload CMS Docker Deployment](https://payloadcms.com/docs/production/deployment)

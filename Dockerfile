@@ -24,6 +24,12 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# Build-time arguments for Payload
+ARG PAYLOAD_SECRET
+ARG DATABASE_URI
+ENV PAYLOAD_SECRET=$PAYLOAD_SECRET
+ENV DATABASE_URI=$DATABASE_URI
+
 # Build with detected package manager
 RUN \
   if [ -f yarn.lock ]; then yarn run build; \
