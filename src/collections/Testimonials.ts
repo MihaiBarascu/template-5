@@ -1,0 +1,94 @@
+import type { CollectionConfig } from 'payload'
+import { anyone, authenticated } from '@/access'
+
+export const Testimonials: CollectionConfig = {
+  slug: 'testimonials',
+  labels: {
+    singular: 'Testimonial',
+    plural: 'Testimoniale',
+  },
+  access: {
+    create: authenticated,
+    delete: authenticated,
+    read: anyone,
+    update: authenticated,
+  },
+  admin: {
+    defaultColumns: ['name', 'role', 'rating', 'featured'],
+    useAsTitle: 'name',
+    group: 'Business',
+  },
+  fields: [
+    {
+      name: 'name',
+      type: 'text',
+      label: 'Nume client',
+      required: true,
+    },
+    {
+      name: 'role',
+      type: 'text',
+      label: 'Functie / Companie',
+    },
+    {
+      name: 'image',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Fotografie',
+    },
+    {
+      name: 'content',
+      type: 'textarea',
+      label: 'Testimonial',
+      required: true,
+    },
+    {
+      name: 'rating',
+      type: 'select',
+      label: 'Rating',
+      defaultValue: '5',
+      options: [
+        { label: '5 stele', value: '5' },
+        { label: '4 stele', value: '4' },
+        { label: '3 stele', value: '3' },
+        { label: '2 stele', value: '2' },
+        { label: '1 stea', value: '1' },
+      ],
+    },
+    {
+      name: 'service',
+      type: 'relationship',
+      relationTo: 'services',
+      label: 'Serviciu utilizat',
+    },
+    {
+      name: 'source',
+      type: 'select',
+      label: 'Sursa recenzie',
+      options: [
+        { label: 'Google', value: 'google' },
+        { label: 'Facebook', value: 'facebook' },
+        { label: 'Site', value: 'website' },
+        { label: 'Altele', value: 'other' },
+      ],
+    },
+    {
+      name: 'featured',
+      type: 'checkbox',
+      label: 'Afisat pe homepage',
+      defaultValue: false,
+      admin: {
+        position: 'sidebar',
+      },
+    },
+    {
+      name: 'order',
+      type: 'number',
+      label: 'Ordine afisare',
+      defaultValue: 0,
+      admin: {
+        position: 'sidebar',
+      },
+    },
+  ],
+}
