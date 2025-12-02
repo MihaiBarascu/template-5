@@ -31,10 +31,12 @@ ENV PAYLOAD_SECRET=$PAYLOAD_SECRET
 ENV DATABASE_URI=$DATABASE_URI
 
 # Build with detected package manager
+# Using --experimental-build-mode compile to skip static generation during build
+# This allows building without a database connection (pages will be generated at runtime with ISR)
 RUN \
-  if [ -f yarn.lock ]; then yarn run build; \
-  elif [ -f package-lock.json ]; then npm run build; \
-  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm run build; \
+  if [ -f yarn.lock ]; then yarn cross-env NODE_OPTIONS=--no-deprecation next build --experimental-build-mode compile; \
+  elif [ -f package-lock.json ]; then npx cross-env NODE_OPTIONS=--no-deprecation next build --experimental-build-mode compile; \
+  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm exec cross-env NODE_OPTIONS=--no-deprecation next build --experimental-build-mode compile; \
   else echo "Lockfile not found." && exit 1; \
   fi
 
