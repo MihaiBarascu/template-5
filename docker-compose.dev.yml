@@ -1,0 +1,37 @@
+# Docker Compose for DEVELOPMENT
+# Usage: docker compose -f docker-compose.dev.yml up
+# This runs the full app in Docker (not just MongoDB)
+
+version: '3.8'
+
+services:
+  app:
+    image: node:22-alpine
+    container_name: payload-dev
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+    working_dir: /app
+    command: sh -c "corepack enable pnpm && pnpm install && pnpm dev"
+    depends_on:
+      - mongo
+    environment:
+      - DATABASE_URI=mongodb://mongo:27017/payload
+      - PAYLOAD_SECRET=dev-secret-min-32-characters-long
+    env_file:
+      - .env
+
+  mongo:
+    image: mongo:7
+    container_name: payload-mongo
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+
+volumes:
+  mongo_data:
+  node_modules:

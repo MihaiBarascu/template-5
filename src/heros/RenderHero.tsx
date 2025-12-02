@@ -2,16 +2,31 @@ import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { cn } from '@/utilities/cn'
+import type { Page } from '@/payload-types'
+
+type HeroData = NonNullable<Page['hero']> & {
+  height?: 'small' | 'medium' | 'large' | 'fullscreen' | null
+  overlayOpacity?: string | null
+}
+type CTAButton = NonNullable<NonNullable<Page['hero']>['ctaButtons']>[number]
 
 interface RenderHeroProps {
   type: string
-  data: any
+  data: HeroData | null
+}
+
+// Helper to get image URL from string | Media | null
+function getImageData(image: HeroData['image']): { url: string; alt: string } | null {
+  if (!image || typeof image === 'string') return null
+  if (!image.url) return null
+  return { url: image.url, alt: image.alt || '' }
 }
 
 export function RenderHero({ type, data }: RenderHeroProps) {
   if (!data) return null
 
   const { headline, subheadline, image, ctaButtons } = data
+  const imageData = getImageData(image)
 
   // Height classes
   const heightClasses = {
@@ -31,11 +46,11 @@ export function RenderHero({ type, data }: RenderHeroProps) {
         )}
       >
         {/* Background Image */}
-        {image?.url && (
+        {imageData && (
           <div className="absolute inset-0">
             <Image
-              src={image.url}
-              alt={image.alt || headline || ''}
+              src={imageData.url}
+              alt={imageData.alt || headline || ''}
               fill
               className="object-cover"
               priority
@@ -61,7 +76,7 @@ export function RenderHero({ type, data }: RenderHeroProps) {
           )}
           {ctaButtons && ctaButtons.length > 0 && (
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              {ctaButtons.map((button: any, index: number) => (
+              {ctaButtons.map((button: CTAButton, index: number) => (
                 <Link
                   key={index}
                   href={button.link || '#'}
@@ -107,7 +122,7 @@ export function RenderHero({ type, data }: RenderHeroProps) {
               )}
               {ctaButtons && ctaButtons.length > 0 && (
                 <div className="flex flex-col sm:flex-row gap-4">
-                  {ctaButtons.map((button: any, index: number) => (
+                  {ctaButtons.map((button: CTAButton, index: number) => (
                     <Link
                       key={index}
                       href={button.link || '#'}
@@ -129,10 +144,10 @@ export function RenderHero({ type, data }: RenderHeroProps) {
 
             {/* Image */}
             <div className="order-1 md:order-2 relative aspect-square md:aspect-auto md:h-full">
-              {image?.url && (
+              {imageData && (
                 <Image
-                  src={image.url}
-                  alt={image.alt || headline || ''}
+                  src={imageData.url}
+                  alt={imageData.alt || headline || ''}
                   fill
                   className="object-cover rounded-theme-lg"
                   priority
@@ -166,7 +181,7 @@ export function RenderHero({ type, data }: RenderHeroProps) {
         )}
         {ctaButtons && ctaButtons.length > 0 && (
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            {ctaButtons.map((button: any, index: number) => (
+            {ctaButtons.map((button: CTAButton, index: number) => (
               <Link
                 key={index}
                 href={button.link || '#'}

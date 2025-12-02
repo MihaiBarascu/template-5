@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import type { ContactSubmission, Service } from '@/payload-types'
 import { authenticated } from '@/access'
 import {
   sendNotificationEmail,
@@ -6,6 +7,10 @@ import {
   formatContactEmail,
   formatContactConfirmationEmail,
 } from '@/utilities/sendNotificationEmail'
+
+interface PopulatedContactSubmission extends Omit<ContactSubmission, 'service'> {
+  service?: Service | string | null
+}
 
 export const ContactSubmissions: CollectionConfig = {
   slug: 'contact-submissions',
@@ -34,7 +39,7 @@ export const ContactSubmissions: CollectionConfig = {
           }
 
           // Populate service if it's an ID
-          const populatedDoc: Record<string, any> = { ...doc }
+          const populatedDoc: PopulatedContactSubmission = { ...doc }
 
           if (doc.service && typeof doc.service === 'string') {
             const service = await req.payload.findByID({

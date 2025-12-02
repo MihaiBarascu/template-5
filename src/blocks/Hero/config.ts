@@ -1,5 +1,4 @@
 import type { Block } from 'payload'
-import { linkGroup } from '@/fields/link'
 
 export const HeroBlock: Block = {
   slug: 'hero',

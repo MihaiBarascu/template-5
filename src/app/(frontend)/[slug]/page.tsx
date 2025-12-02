@@ -64,9 +64,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const pageData = page.docs[0]
 
+  const meta = (pageData as { meta?: { title?: string; description?: string } }).meta
   return {
-    title: (pageData as any).meta?.title || pageData.title,
-    description: (pageData as any).meta?.description,
+    title: meta?.title || pageData.title,
+    description: meta?.description,
   }
 }
 

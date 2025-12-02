@@ -7,23 +7,33 @@ import { cn } from '@/utilities/cn'
 interface CTAButton {
   label: string
   link: string
-  variant?: string
+  variant?: string | null
+  id?: string | null
+}
+
+interface ImageType {
+  url?: string | null
+  alt?: string | null
 }
 
 interface CTABlockProps {
   variant?: string
   headline: string
   subheadline?: string
-  image?: {
-    url: string
-    alt?: string
-  }
+  image?: ImageType | string | null
   buttons?: CTAButton[]
   showPhoneNumber?: boolean
   backgroundColor?: string
   textAlignment?: string
   size?: string
   businessPhone?: string
+}
+
+// Helper function to get image URL
+function getImageUrl(image: CTABlockProps['image']): string | null {
+  if (!image) return null
+  if (typeof image === 'string') return null
+  return image.url || null
 }
 
 export function CTABlock({
@@ -60,7 +70,7 @@ export function CTABlock({
 
   const buttonBaseClass = 'inline-flex items-center justify-center px-6 py-3 rounded-lg font-medium transition-all'
 
-  const getButtonClass = (btnVariant?: string) => {
+  const getButtonClass = (btnVariant?: string | null) => {
     if (backgroundColor === 'primary' || backgroundColor === 'dark' || backgroundColor === 'accent') {
       if (btnVariant === 'outline') {
         return cn(buttonBaseClass, 'border-2 border-white text-white hover:bg-white hover:text-gray-900')
@@ -80,12 +90,14 @@ export function CTABlock({
     }
   }
 
-  if (variant === 'with-image' && image?.url) {
+  const imageUrl = getImageUrl(image)
+
+  if (variant === 'with-image' && imageUrl) {
     return (
       <section
         className={cn('relative', sizeClass)}
         style={{
-          backgroundImage: `url(${image.url})`,
+          backgroundImage: `url(${imageUrl})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}

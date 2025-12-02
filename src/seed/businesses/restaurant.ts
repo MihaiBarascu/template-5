@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type { Payload } from 'payload'
 import {
   createAdminUser,
@@ -277,9 +276,30 @@ export async function seedRestaurant(payload: Payload) {
   console.log('━'.repeat(50))
 }
 
+// Block configuration type for homepage layout
+interface BlockConfig {
+  blockType: string
+  variant?: string
+  heading?: string
+  subheading?: string
+  source?: string
+  onlyFeatured?: boolean
+  limit?: number
+  showPrices?: boolean
+  showIcons?: boolean
+  showRating?: boolean
+  lightbox?: boolean
+  defaultOpen?: string
+  headline?: string
+  subheadline?: string
+  buttons?: Array<{ label: string; link: string; variant?: string }>
+  backgroundColor?: string
+  [key: string]: unknown
+}
+
 // Build homepage layout based on variant configuration
-function buildHomepageLayout(variant: DesignVariant, data: typeof restaurantData) {
-  const sectionConfigs: Record<string, any> = {
+function buildHomepageLayout(variant: DesignVariant, _data: typeof restaurantData) {
+  const sectionConfigs: Record<string, BlockConfig> = {
     services: {
       blockType: 'services',
       variant: variant.layout.servicesVariant,
@@ -325,7 +345,7 @@ function buildHomepageLayout(variant: DesignVariant, data: typeof restaurantData
       subheading: 'Imagini din restaurantul nostru',
       source: 'portfolio',
       limit: 6,
-      lightbox: true,
+      
       backgroundColor: 'default',
     },
     faq: {
@@ -409,7 +429,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
           subheading: 'Un loc unde gustul intalneste eleganta',
           source: 'portfolio',
           limit: 20,
-          lightbox: true,
+          
           backgroundColor: 'default',
         },
         {

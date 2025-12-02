@@ -9,45 +9,45 @@ interface ContactBlockProps {
   subheading?: string
   showForm?: boolean
   formFields?: {
-    showName?: boolean
-    showEmail?: boolean
-    showPhone?: boolean
-    showSubject?: boolean
-    showService?: boolean
-    showMessage?: boolean
-  }
+    showName?: boolean | null
+    showEmail?: boolean | null
+    showPhone?: boolean | null
+    showSubject?: boolean | null
+    showService?: boolean | null
+    showMessage?: boolean | null
+  } | null
   submitButtonText?: string
   successMessage?: string
   showContactInfo?: boolean
   contactInfoItems?: {
-    showAddress?: boolean
-    showPhone?: boolean
-    showEmail?: boolean
-    showWorkingHours?: boolean
-    showSocial?: boolean
-  }
+    showAddress?: boolean | null
+    showPhone?: boolean | null
+    showEmail?: boolean | null
+    showWorkingHours?: boolean | null
+    showSocial?: boolean | null
+  } | null
   showMap?: boolean
   mapPosition?: string
   backgroundColor?: string
   businessInfo?: {
-    phone?: string
-    email?: string
+    phone?: string | null
+    email?: string | null
     address?: {
-      street?: string
-      city?: string
-      county?: string
-      postalCode?: string
-    }
-    workingHours?: Array<{ days: string; hours: string }>
+      street?: string | null
+      city?: string | null
+      county?: string | null
+      postalCode?: string | null
+    } | null
+    workingHours?: Array<{ days?: string | null; hours?: string | null; id?: string | null }> | null
     social?: {
-      facebook?: string
-      instagram?: string
-      tiktok?: string
-      linkedin?: string
-    }
-    googleMapsEmbed?: string
-  }
-  services?: Array<{ id: string; title: string }>
+      facebook?: string | null
+      instagram?: string | null
+      tiktok?: string | null
+      linkedin?: string | null
+    } | null
+    googleMapsEmbed?: string | null
+  } | null
+  services?: Array<{ id: string; title: string }> | null
 }
 
 export function ContactBlock({
@@ -55,30 +55,34 @@ export function ContactBlock({
   heading = 'Contacteaza-ne',
   subheading,
   showForm = true,
-  formFields = {
+  formFields: formFieldsProp,
+  submitButtonText = 'Trimite mesajul',
+  successMessage = 'Multumim! Mesajul tau a fost trimis cu succes.',
+  showContactInfo = true,
+  contactInfoItems: contactInfoItemsProp,
+  showMap = false,
+  mapPosition = 'bottom',
+  backgroundColor = 'light',
+  businessInfo,
+  services,
+}: ContactBlockProps) {
+  // Handle null values with defaults
+  const formFields = formFieldsProp ?? {
     showName: true,
     showEmail: true,
     showPhone: true,
     showSubject: false,
     showService: false,
     showMessage: true,
-  },
-  submitButtonText = 'Trimite mesajul',
-  successMessage = 'Multumim! Mesajul tau a fost trimis cu succes.',
-  showContactInfo = true,
-  contactInfoItems = {
+  }
+  const contactInfoItems = contactInfoItemsProp ?? {
     showAddress: true,
     showPhone: true,
     showEmail: true,
     showWorkingHours: true,
     showSocial: false,
-  },
-  showMap = false,
-  mapPosition = 'bottom',
-  backgroundColor = 'light',
-  businessInfo,
-  services = [],
-}: ContactBlockProps) {
+  }
+  const servicesList = services ?? []
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -129,7 +133,7 @@ export function ContactBlock({
         service: '',
         message: '',
       })
-    } catch (err) {
+    } catch (_err) {
       setError('A aparut o eroare. Te rugam sa incerci din nou.')
     } finally {
       setIsSubmitting(false)
@@ -226,7 +230,7 @@ export function ContactBlock({
             </div>
           )}
 
-          {formFields.showService && services.length > 0 && (
+          {formFields.showService && servicesList.length > 0 && (
             <div>
               <label htmlFor="service" className="block text-sm font-medium mb-1">
                 Serviciu de interes
@@ -239,7 +243,7 @@ export function ContactBlock({
                 className={inputClass}
               >
                 <option value="">Selecteaza un serviciu</option>
-                {services.map((service) => (
+                {servicesList.map((service) => (
                   <option key={service.id} value={service.title}>
                     {service.title}
                   </option>
@@ -361,12 +365,14 @@ export function ContactBlock({
           <div>
             <h4 className="font-semibold mb-1">Program</h4>
             <div className={cn('text-sm space-y-1', backgroundColor === 'dark' ? 'text-gray-400' : 'text-gray-600')}>
-              {businessInfo.workingHours.map((schedule, index) => (
-                <div key={index} className="flex justify-between gap-4">
-                  <span>{schedule.days}</span>
-                  <span className="font-medium">{schedule.hours}</span>
-                </div>
-              ))}
+              {businessInfo.workingHours
+                .filter((schedule) => schedule.days && schedule.hours)
+                .map((schedule, index) => (
+                  <div key={schedule.id || index} className="flex justify-between gap-4">
+                    <span>{schedule.days}</span>
+                    <span className="font-medium">{schedule.hours}</span>
+                  </div>
+                ))}
             </div>
           </div>
         </div>

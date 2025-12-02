@@ -58,7 +58,7 @@ export default async function CategoriesPage() {
       <div className="container mx-auto px-4 py-16">
         {categoriesWithCount.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {categoriesWithCount.map((category: any) => (
+            {categoriesWithCount.map((category) => (
               <Link
                 key={category.id}
                 href={`/categorii/${category.slug}`}

@@ -1,19 +1,18 @@
 'use client'
 
 import React from 'react'
-import Link from 'next/link'
 import { cn } from '@/utilities/cn'
 
 interface Service {
   id: string
   title: string
   slug: string
-  shortDescription?: string
-  price?: number
-  priceFrom?: boolean
-  duration?: string
-  icon?: string
-  featured?: boolean
+  shortDescription?: string | null
+  price?: number | null
+  priceFrom?: boolean | null
+  duration?: string | null
+  icon?: string | null
+  featured?: boolean | null
 }
 
 interface ServicesBlockProps {

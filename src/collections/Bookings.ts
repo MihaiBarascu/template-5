@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import type { Booking, Service, Team } from '@/payload-types'
 import { authenticated } from '@/access'
 import {
   sendNotificationEmail,
@@ -6,6 +7,11 @@ import {
   formatBookingEmail,
   formatBookingConfirmationEmail,
 } from '@/utilities/sendNotificationEmail'
+
+interface PopulatedBooking extends Omit<Booking, 'service' | 'teamMember'> {
+  service?: Service | string
+  teamMember?: Team | string | null
+}
 
 export const Bookings: CollectionConfig = {
   slug: 'bookings',
@@ -34,7 +40,7 @@ export const Bookings: CollectionConfig = {
           }
 
           // Populate service and team member if they are IDs
-          const populatedDoc: Record<string, any> = { ...doc }
+          const populatedDoc: PopulatedBooking = { ...doc }
 
           if (doc.service && typeof doc.service === 'string') {
             const service = await req.payload.findByID({

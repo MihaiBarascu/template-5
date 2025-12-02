@@ -32,7 +32,7 @@ export default async function CategoryPage({ params }: PageProps) {
     notFound()
   }
 
-  const categoryData = category.docs[0] as any
+  const categoryData = category.docs[0]
 
   // Get products in this category
   const products = await payload.find({
@@ -80,20 +80,22 @@ export default async function CategoryPage({ params }: PageProps) {
       <div className="container mx-auto px-4">
         {products.docs.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {products.docs.map((product: any) => {
-              const productImage = product.images?.[0]?.image
-              const hasDiscount = product.salePrice && product.salePrice < product.price
+            {products.docs.map((product) => {
+              const firstImage = product.images?.[0]?.image
+              const imageUrl = firstImage && typeof firstImage !== 'string' ? firstImage.url : null
+              const salePrice = product.salePrice ?? 0
+              const hasDiscount = salePrice > 0 && salePrice < product.price
               const discountPercent = hasDiscount
-                ? Math.round((1 - product.salePrice / product.price) * 100)
+                ? Math.round((1 - salePrice / product.price) * 100)
                 : 0
 
               return (
                 <div key={product.id} className="group">
                   <Link href={`/produse/${product.slug}`} className="block">
                     <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 mb-3">
-                      {productImage?.url ? (
+                      {imageUrl ? (
                         <Image
-                          src={productImage.url}
+                          src={imageUrl}
                           alt={product.title}
                           fill
                           className="object-cover group-hover:scale-105 transition-transform"
@@ -133,11 +135,10 @@ export default async function CategoryPage({ params }: PageProps) {
                     product={{
                       id: product.id,
                       title: product.title,
-                      price: hasDiscount ? product.salePrice : product.price,
-                      image: productImage?.url,
+                      price: hasDiscount ? salePrice : product.price,
+                      image: imageUrl ?? undefined,
                     }}
                     className="w-full py-2 text-sm"
-                    disabled={product.stock <= 0}
                   />
                 </div>
               )
@@ -176,7 +177,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
   }
 
-  const categoryData = category.docs[0] as any
+  const categoryData = category.docs[0]
 
   return {
     title: `${categoryData.title} | EcoShop`,
@@ -193,6 +194,6 @@ export async function generateStaticParams() {
   })
 
   return categories.docs.map((category) => ({
-    slug: (category as any).slug,
+    slug: category.slug,
   }))
 }

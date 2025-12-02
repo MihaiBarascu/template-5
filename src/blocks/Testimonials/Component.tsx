@@ -7,15 +7,15 @@ import { cn } from '@/utilities/cn'
 interface Testimonial {
   id: string
   name: string
-  role?: string
+  role?: string | null
   content: string
-  rating?: string
+  rating?: string | null
   avatar?: {
-    url: string
-    alt?: string
-  }
-  source?: string
-  featured?: boolean
+    url?: string | null
+    alt?: string | null
+  } | string | null
+  source?: string | null
+  featured?: boolean | null
 }
 
 interface TestimonialsBlockProps {
@@ -31,6 +31,19 @@ interface TestimonialsBlockProps {
   autoplay?: boolean
   backgroundColor?: string
   testimonials?: Testimonial[]
+}
+
+// Helper function to get avatar URL
+function getAvatarUrl(avatar: Testimonial['avatar']): string | null {
+  if (!avatar) return null
+  if (typeof avatar === 'string') return null
+  return avatar.url || null
+}
+
+// Helper function to get avatar alt
+function getAvatarAlt(avatar: Testimonial['avatar'], fallback: string): string {
+  if (!avatar || typeof avatar === 'string') return fallback
+  return avatar.alt || fallback
 }
 
 function StarRating({ rating }: { rating: number }) {
@@ -107,10 +120,10 @@ export function TestimonialsBlock({
       <div className="flex items-center gap-4">
         {showAvatar && (
           <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
-            {testimonial.avatar?.url ? (
+            {getAvatarUrl(testimonial.avatar) ? (
               <Image
-                src={testimonial.avatar.url}
-                alt={testimonial.avatar.alt || testimonial.name}
+                src={getAvatarUrl(testimonial.avatar)!}
+                alt={getAvatarAlt(testimonial.avatar, testimonial.name)}
                 width={48}
                 height={48}
                 className="w-full h-full object-cover"
@@ -190,10 +203,10 @@ export function TestimonialsBlock({
             <div className="flex items-center justify-center gap-4">
               {showAvatar && (
                 <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200">
-                  {testimonials[0].avatar?.url ? (
+                  {getAvatarUrl(testimonials[0].avatar) ? (
                     <Image
-                      src={testimonials[0].avatar.url}
-                      alt={testimonials[0].avatar.alt || testimonials[0].name}
+                      src={getAvatarUrl(testimonials[0].avatar)!}
+                      alt={getAvatarAlt(testimonials[0].avatar, testimonials[0].name)}
                       width={64}
                       height={64}
                       className="w-full h-full object-cover"

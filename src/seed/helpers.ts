@@ -1,16 +1,15 @@
-// @ts-nocheck
-import type { Payload } from 'payload'
-import type { Media } from '@/payload-types'
-import path from 'path'
-import fs from 'fs'
+import type { DesignVariant, Page } from '@/payload-types';
+import fs from 'fs';
+import path from 'path';
+import type { Payload } from 'payload';
 
 // Image cache to avoid re-uploading the same image
-const imageCache: Map<string, string> = new Map()
+const imageCache: Map<string, string> = new Map();
 
 // Clear the image cache - call before each seed run
 export function clearImageCache(): void {
-  imageCache.clear()
-  console.log('   Image cache cleared')
+  imageCache.clear();
+  console.log('   Image cache cleared');
 }
 
 // Helper to upload image from URL
@@ -18,35 +17,35 @@ export async function uploadImageFromURL(
   payload: Payload,
   url: string,
   filename: string,
-  alt: string
+  alt: string,
 ): Promise<string | null> {
   // Check cache first
-  const cacheKey = `${url}-${filename}`
+  const cacheKey = `${url}-${filename}`;
   if (imageCache.has(cacheKey)) {
-    return imageCache.get(cacheKey) || null
+    return imageCache.get(cacheKey) || null;
   }
 
   try {
-    console.log(`   Downloading: ${filename}...`)
-    const response = await fetch(url)
+    console.log(`   Downloading: ${filename}...`);
+    const response = await fetch(url);
     if (!response.ok) {
-      console.error(`   Failed to fetch image: ${url}`)
-      return null
+      console.error(`   Failed to fetch image: ${url}`);
+      return null;
     }
 
-    const buffer = await response.arrayBuffer()
-    const tempDir = path.join(process.cwd(), 'temp-uploads')
+    const buffer = await response.arrayBuffer();
+    const tempDir = path.join(process.cwd(), 'temp-uploads');
 
     // Create temp directory if it doesn't exist
     if (!fs.existsSync(tempDir)) {
-      fs.mkdirSync(tempDir, { recursive: true })
+      fs.mkdirSync(tempDir, { recursive: true });
     }
 
-    const tempFilePath = path.join(tempDir, filename)
-    fs.writeFileSync(tempFilePath, Buffer.from(buffer))
+    const tempFilePath = path.join(tempDir, filename);
+    fs.writeFileSync(tempFilePath, new Uint8Array(buffer));
 
-    // Get content type from response
-    const contentType = response.headers.get('content-type') || 'image/jpeg'
+    // Content type from response (not needed for Payload upload which detects from file)
+    const _contentType = response.headers.get('content-type') || 'image/jpeg';
 
     // Upload to Payload
     const media = await payload.create({
@@ -55,81 +54,91 @@ export async function uploadImageFromURL(
         alt,
       },
       filePath: tempFilePath,
-    })
+    });
 
     // Clean up temp file
-    fs.unlinkSync(tempFilePath)
+    fs.unlinkSync(tempFilePath);
 
     // Cache the result
-    imageCache.set(cacheKey, media.id)
-    console.log(`   Uploaded: ${filename}`)
+    imageCache.set(cacheKey, media.id);
+    console.log(`   Uploaded: ${filename}`);
 
-    return media.id
+    return media.id;
   } catch (error) {
-    console.error(`   Error uploading image ${filename}:`, error)
-    return null
+    console.error(`   Error uploading image ${filename}:`, error);
+    return null;
   }
 }
 
 // Helper to upload multiple images and return their IDs
 export async function uploadImages(
   payload: Payload,
-  images: Array<{ url: string; filename: string; alt: string }>
+  images: Array<{ url: string; filename: string; alt: string }>,
 ): Promise<Map<string, string>> {
-  const imageMap = new Map<string, string>()
+  const imageMap = new Map<string, string>();
 
   for (const image of images) {
-    const mediaId = await uploadImageFromURL(payload, image.url, image.filename, image.alt)
+    const mediaId = await uploadImageFromURL(
+      payload,
+      image.url,
+      image.filename,
+      image.alt,
+    );
     if (mediaId) {
-      imageMap.set(image.filename, mediaId)
+      imageMap.set(image.filename, mediaId);
     }
   }
 
-  return imageMap
+  return imageMap;
 }
 
 // Helper to upload images from seed-data definitions
 export async function uploadSeedImages(
   payload: Payload,
   baseUrl: string,
-  images: Array<{ filename: string; alt: string }>
+  images: Array<{ filename: string; alt: string }>,
 ): Promise<Map<string, string>> {
-  const imageMap = new Map<string, string>()
+  const imageMap = new Map<string, string>();
 
-  console.log(`\n📸 Uploading ${images.length} images...`)
+  console.log(`\n📸 Uploading ${images.length} images...`);
 
   for (const image of images) {
-    const fullUrl = baseUrl + image.filename
-    const filenameOnly = image.filename.split('/').pop() || image.filename
-    const mediaId = await uploadImageFromURL(payload, fullUrl, filenameOnly, image.alt)
+    const fullUrl = baseUrl + image.filename;
+    const filenameOnly = image.filename.split('/').pop() || image.filename;
+    const mediaId = await uploadImageFromURL(
+      payload,
+      fullUrl,
+      filenameOnly,
+      image.alt,
+    );
     if (mediaId) {
-      imageMap.set(image.filename, mediaId)
+      imageMap.set(image.filename, mediaId);
     }
   }
 
-  console.log(`   ✅ Uploaded ${imageMap.size}/${images.length} images\n`)
-  return imageMap
+  console.log(`   ✅ Uploaded ${imageMap.size}/${images.length} images\n`);
+  return imageMap;
 }
 
 // Helper to upload local image from filesystem
 export async function uploadLocalImage(
   payload: Payload,
   filePath: string,
-  alt: string
+  alt: string,
 ): Promise<string | null> {
   // Check cache first
-  const cacheKey = `local-${filePath}`
+  const cacheKey = `local-${filePath}`;
   if (imageCache.has(cacheKey)) {
-    return imageCache.get(cacheKey) || null
+    return imageCache.get(cacheKey) || null;
   }
 
   try {
-    const filename = path.basename(filePath)
-    console.log(`   Uploading local: ${filename}...`)
+    const filename = path.basename(filePath);
+    console.log(`   Uploading local: ${filename}...`);
 
     if (!fs.existsSync(filePath)) {
-      console.error(`   File not found: ${filePath}`)
-      return null
+      console.error(`   File not found: ${filePath}`);
+      return null;
     }
 
     // Upload to Payload
@@ -139,39 +148,39 @@ export async function uploadLocalImage(
         alt,
       },
       filePath: filePath,
-    })
+    });
 
     // Cache the result
-    imageCache.set(cacheKey, media.id)
-    console.log(`   Uploaded: ${filename}`)
+    imageCache.set(cacheKey, media.id);
+    console.log(`   Uploaded: ${filename}`);
 
-    return media.id
+    return media.id;
   } catch (error) {
-    console.error(`   Error uploading local image ${filePath}:`, error)
-    return null
+    console.error(`   Error uploading local image ${filePath}:`, error);
+    return null;
   }
 }
 
 // Helper to upload local seed images from public/images folder
 export async function uploadLocalSeedImages(
   payload: Payload,
-  images: Array<{ filename: string; alt: string }>
+  images: Array<{ filename: string; alt: string }>,
 ): Promise<Map<string, string>> {
-  const imageMap = new Map<string, string>()
-  const publicImagesDir = path.join(process.cwd(), 'public', 'images')
+  const imageMap = new Map<string, string>();
+  const publicImagesDir = path.join(process.cwd(), 'public', 'images');
 
-  console.log(`\n📸 Uploading ${images.length} local images...`)
+  console.log(`\n📸 Uploading ${images.length} local images...`);
 
   for (const image of images) {
-    const localPath = path.join(publicImagesDir, image.filename)
-    const mediaId = await uploadLocalImage(payload, localPath, image.alt)
+    const localPath = path.join(publicImagesDir, image.filename);
+    const mediaId = await uploadLocalImage(payload, localPath, image.alt);
     if (mediaId) {
-      imageMap.set(image.filename, mediaId)
+      imageMap.set(image.filename, mediaId);
     }
   }
 
-  console.log(`   ✅ Uploaded ${imageMap.size}/${images.length} images\n`)
-  return imageMap
+  console.log(`   ✅ Uploaded ${imageMap.size}/${images.length} images\n`);
+  return imageMap;
 }
 
 // Helper to create admin user
@@ -183,7 +192,7 @@ export async function createAdminUser(payload: Payload) {
         equals: 'admin@example.com',
       },
     },
-  })
+  });
 
   if (existingUser.docs.length === 0) {
     await payload.create({
@@ -193,8 +202,8 @@ export async function createAdminUser(payload: Payload) {
         password: 'admin123',
         name: 'Administrator',
       },
-    })
-    console.log('   Created admin user')
+    });
+    console.log('   Created admin user');
   }
 }
 
@@ -202,25 +211,25 @@ export async function createAdminUser(payload: Payload) {
 export async function seedTheme(
   payload: Payload,
   options: {
-    preset?: 'modern' | 'classic' | 'bold' | 'custom'
+    preset?: 'modern' | 'classic' | 'bold' | 'custom' | 'minimal' | 'elegant';
     colors?: {
-      primary: string
-      secondary: string
-      accent: string
-      dark: string
-      light: string
-      surface: string
-      text: string
-      textLight: string
-      border: string
-    }
-    fontPreset?: 'modern' | 'elegant' | 'bold' | 'minimalist'
-    stylePreset?: 'modern' | 'classic' | 'bold'
-    borderRadius?: 'none' | 'small' | 'medium' | 'large' | 'full'
-    shadows?: 'none' | 'subtle' | 'moderate' | 'strong'
-    sectionSpacing?: 'compact' | 'normal' | 'spacious'
-    containerWidth?: string
-  }
+      primary: string;
+      secondary: string;
+      accent: string;
+      dark: string;
+      light: string;
+      surface: string;
+      text: string;
+      textLight: string;
+      border: string;
+    };
+    fontPreset?: 'modern' | 'elegant' | 'bold' | 'minimalist' | 'classic';
+    stylePreset?: 'modern' | 'classic' | 'bold' | 'minimal';
+    borderRadius?: 'none' | 'small' | 'medium' | 'large' | 'full';
+    shadows?: 'none' | 'subtle' | 'moderate' | 'strong';
+    sectionSpacing?: 'compact' | 'normal' | 'spacious';
+    containerWidth?: '1024' | '1280' | '1400' | '1600';
+  },
 ) {
   await payload.updateGlobal({
     slug: 'theme',
@@ -234,41 +243,41 @@ export async function seedTheme(
       sectionSpacing: options.sectionSpacing || 'normal',
       containerWidth: options.containerWidth || '1280',
     },
-  })
-  console.log('   Theme configured')
+  });
+  console.log('   Theme configured');
 }
 
 // Helper to seed business info
 export async function seedBusinessInfo(
   payload: Payload,
   data: {
-    name: string
-    tagline?: string
-    description?: string
-    yearEstablished?: number
-    phone?: string
-    phoneSecondary?: string
-    email?: string
-    whatsapp?: string
+    name: string;
+    tagline?: string;
+    description?: string;
+    yearEstablished?: number;
+    phone?: string;
+    phoneSecondary?: string;
+    email?: string;
+    whatsapp?: string;
     address?: {
-      street?: string
-      city?: string
-      county?: string
-      postalCode?: string
-      country?: string
-    }
-    workingHours?: Array<{ days: string; hours: string }>
+      street?: string;
+      city?: string;
+      county?: string;
+      postalCode?: string;
+      country?: string;
+    };
+    workingHours?: Array<{ days: string; hours: string }>;
     social?: {
-      facebook?: string
-      instagram?: string
-      tiktok?: string
-      youtube?: string
-      linkedin?: string
-    }
-    stats?: Array<{ value: string; label: string }>
-    googleMapsEmbed?: string
-    googleMapsLink?: string
-  }
+      facebook?: string;
+      instagram?: string;
+      tiktok?: string;
+      youtube?: string;
+      linkedin?: string;
+    };
+    stats?: Array<{ value: string; label: string }>;
+    googleMapsEmbed?: string;
+    googleMapsLink?: string;
+  },
 ) {
   await payload.updateGlobal({
     slug: 'business-info',
@@ -288,17 +297,17 @@ export async function seedBusinessInfo(
       googleMapsEmbed: data.googleMapsEmbed,
       googleMapsLink: data.googleMapsLink,
     },
-  })
-  console.log('   Business info configured')
+  });
+  console.log('   Business info configured');
 }
 
 // Helper to seed logo
 export async function seedLogo(
   payload: Payload,
   data: {
-    type: 'text' | 'image' | 'both'
-    text?: string
-  }
+    type: 'text' | 'image' | 'both';
+    text?: string;
+  },
 ) {
   await payload.updateGlobal({
     slug: 'logo',
@@ -310,27 +319,32 @@ export async function seedLogo(
         heightMobile: 32,
       },
     },
-  })
-  console.log('   Logo configured')
+  });
+  console.log('   Logo configured');
 }
 
 // Helper to seed header
 export async function seedHeader(
   payload: Payload,
   data: {
-    variant?: string
+    variant?:
+      | 'minimal'
+      | 'centered'
+      | 'standard'
+      | 'with-topbar'
+      | 'transparent';
     navItems: Array<{
-      label: string
-      type: 'reference' | 'custom'
-      url?: string
-    }>
+      label: string;
+      type: 'reference' | 'custom';
+      url?: string;
+    }>;
     ctaButton?: {
-      enabled: boolean
-      label: string
-      link: string
-      variant?: string
-    }
-  }
+      enabled: boolean;
+      label: string;
+      link: string;
+      variant?: 'default' | 'outline' | 'ghost';
+    };
+  },
 ) {
   await payload.updateGlobal({
     slug: 'header',
@@ -345,22 +359,28 @@ export async function seedHeader(
       },
       sticky: true,
     },
-  })
-  console.log('   Header configured')
+  });
+  console.log('   Header configured');
 }
 
 // Helper to seed footer
 export async function seedFooter(
   payload: Payload,
   data: {
-    variant?: string
+    variant?:
+      | 'minimal'
+      | 'centered'
+      | 'with-map'
+      | 'columns-4'
+      | 'columns-3'
+      | 'with-newsletter';
     columns?: Array<{
-      title: string
-      type: 'links' | 'contact' | 'schedule' | 'text' | 'social'
-      links?: Array<{ label: string; type: 'custom'; url: string }>
-    }>
-    legalLinks?: Array<{ label: string; type: 'custom'; url: string }>
-  }
+      title: string;
+      type: 'links' | 'contact' | 'schedule' | 'text' | 'social';
+      links?: Array<{ label: string; type: 'custom'; url: string }>;
+    }>;
+    legalLinks?: Array<{ label: string; type: 'custom'; url: string }>;
+  },
 ) {
   await payload.updateGlobal({
     slug: 'footer',
@@ -371,35 +391,46 @@ export async function seedFooter(
       showContactInfo: true,
       copyright: '© {year} {businessName}. Toate drepturile rezervate.',
       legalLinks: data.legalLinks || [
-        { label: 'Politica de confidentialitate', type: 'custom', url: '/politica-confidentialitate' },
-        { label: 'Termeni si conditii', type: 'custom', url: '/termeni-conditii' },
+        {
+          label: 'Politica de confidentialitate',
+          type: 'custom',
+          url: '/politica-confidentialitate',
+        },
+        {
+          label: 'Termeni si conditii',
+          type: 'custom',
+          url: '/termeni-conditii',
+        },
       ],
     },
-  })
-  console.log('   Footer configured')
+  });
+  console.log('   Footer configured');
 }
 
 // Helper to create services
 export async function seedServices(
   payload: Payload,
   services: Array<{
-    title: string
-    shortDescription?: string
-    price?: number
-    priceFrom?: boolean
-    duration?: string
-    icon?: string
-    featured?: boolean
-    order?: number
-    features?: string[]
-  }>
+    title: string;
+    shortDescription?: string;
+    price?: number;
+    priceFrom?: boolean;
+    duration?: string;
+    icon?: string;
+    featured?: boolean;
+    order?: number;
+    features?: string[];
+  }>,
 ) {
   for (const service of services) {
     await payload.create({
       collection: 'services',
       data: {
         title: service.title,
-        slug: service.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, ''),
+        slug: service.title
+          .toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^\w-]/g, ''),
         shortDescription: service.shortDescription,
         price: service.price,
         priceFrom: service.priceFrom || false,
@@ -407,55 +438,61 @@ export async function seedServices(
         icon: service.icon,
         featured: service.featured || false,
         order: service.order || 0,
-        features: service.features?.map((f) => ({ feature: f })),
+        features: service.features?.map(f => ({ feature: f })),
       },
-    })
+    });
   }
-  console.log(`   Created ${services.length} services`)
+  console.log(`   Created ${services.length} services`);
 }
 
 // Helper to create team members with optional images
 export async function seedTeam(
   payload: Payload,
   members: Array<{
-    name: string
-    role: string
-    experience?: string
-    featured?: boolean
-    order?: number
-    specializations?: string[]
-    imageId?: string // Optional media ID for photo
-  }>
+    name: string;
+    role: string;
+    experience?: string;
+    featured?: boolean;
+    order?: number;
+    specializations?: string[];
+    imageId?: string; // Optional media ID for photo
+  }>,
 ) {
   for (const member of members) {
     await payload.create({
       collection: 'team',
       data: {
         name: member.name,
-        slug: member.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, ''),
+        slug: member.name
+          .toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^\w-]/g, ''),
         role: member.role,
         experience: member.experience,
         featured: member.featured || false,
         order: member.order || 0,
-        specializations: member.specializations?.map((s) => ({ specialization: s })),
+        specializations: member.specializations?.map(s => ({
+          specialization: s,
+        })),
         image: member.imageId || undefined,
       },
-    })
+    });
   }
-  console.log(`   Created ${members.length} team members`)
+  console.log(`   Created ${members.length} team members`);
 }
 
 // Helper to create testimonials
 export async function seedTestimonials(
   payload: Payload,
   testimonials: Array<{
-    name: string
-    role?: string
-    content: string
-    rating?: string
-    featured?: boolean
-  }>
+    name: string;
+    role?: string;
+    content: string;
+    rating?: string;
+    featured?: boolean;
+  }>,
 ) {
+  type RatingType = '1' | '2' | '3' | '4' | '5';
   for (const testimonial of testimonials) {
     await payload.create({
       collection: 'testimonials',
@@ -463,22 +500,22 @@ export async function seedTestimonials(
         name: testimonial.name,
         role: testimonial.role,
         content: testimonial.content,
-        rating: testimonial.rating || '5',
+        rating: (testimonial.rating || '5') as RatingType,
         featured: testimonial.featured || true,
       },
-    })
+    });
   }
-  console.log(`   Created ${testimonials.length} testimonials`)
+  console.log(`   Created ${testimonials.length} testimonials`);
 }
 
 // Helper to create FAQ
 export async function seedFAQ(
   payload: Payload,
   faqs: Array<{
-    question: string
-    answer: string
-    order?: number
-  }>
+    question: string;
+    answer: string;
+    order?: number;
+  }>,
 ) {
   for (const faq of faqs) {
     await payload.create({
@@ -491,7 +528,8 @@ export async function seedFAQ(
             children: [
               {
                 type: 'paragraph',
-                children: [{ text: faq.answer }],
+                children: [{ text: faq.answer, version: 1 }],
+                version: 1,
               },
             ],
             direction: 'ltr',
@@ -502,27 +540,27 @@ export async function seedFAQ(
         },
         order: faq.order || 0,
       },
-    })
+    });
   }
-  console.log(`   Created ${faqs.length} FAQs`)
+  console.log(`   Created ${faqs.length} FAQs`);
 }
 
 // Helper to create price packages
 export async function seedPricePackages(
   payload: Payload,
   packages: Array<{
-    title: string
-    subtitle?: string
-    description?: string
-    price: number
-    oldPrice?: number
-    period?: 'luna' | 'an' | 'unic' | 'sedinta' | 'ora' | 'zi'
-    features?: Array<{ feature: string; included?: boolean }>
-    cta?: { label?: string; link?: string }
-    highlighted?: boolean
-    highlightLabel?: string
-    order?: number
-  }>
+    title: string;
+    subtitle?: string;
+    description?: string;
+    price: number;
+    oldPrice?: number;
+    period?: 'luna' | 'an' | 'unic' | 'sedinta' | 'ora' | 'zi';
+    features?: Array<{ feature: string; included?: boolean }>;
+    cta?: { label?: string; link?: string };
+    highlighted?: boolean;
+    highlightLabel?: string;
+    order?: number;
+  }>,
 ) {
   for (const pkg of packages) {
     await payload.create({
@@ -540,139 +578,173 @@ export async function seedPricePackages(
         highlightLabel: pkg.highlightLabel || 'Cel mai popular',
         order: pkg.order || 0,
       },
-    })
+    });
   }
-  console.log(`   Created ${packages.length} price packages`)
+  console.log(`   Created ${packages.length} price packages`);
 }
 
 // Helper to create homepage with optional hero image
+type HeroType =
+  | 'none'
+  | 'minimal'
+  | 'centered'
+  | 'fullscreen'
+  | 'split'
+  | 'withImage'
+  | 'video'
+  | 'slider';
+type ButtonVariant = 'default' | 'outline' | 'ghost';
+
 export async function seedHomePage(
   payload: Payload,
   data: {
-    heroType?: string
+    heroType?: string;
     hero?: {
-      headline?: string
-      subheadline?: string
-      ctaButtons?: Array<{ label: string; link: string; variant?: string }>
-      imageId?: string // Optional hero background image
-    }
+      headline?: string;
+      subheadline?: string;
+      ctaButtons?: Array<{ label: string; link: string; variant?: string }>;
+      imageId?: string; // Optional hero background image
+    };
     layout?: Array<{
-      blockType: string
-      [key: string]: any
-    }>
-  }
+      blockType: string;
+      [key: string]: unknown;
+    }>;
+  },
 ) {
   await payload.create({
     collection: 'pages',
     data: {
       title: 'Acasa',
       slug: 'home',
-      heroType: data.heroType || 'centered',
+      heroType: (data.heroType || 'centered') as HeroType,
       hero: {
         headline: data.hero?.headline,
         subheadline: data.hero?.subheadline,
-        ctaButtons: data.hero?.ctaButtons,
+        ctaButtons: data.hero?.ctaButtons?.map(btn => ({
+          ...btn,
+          variant: (btn.variant || 'default') as ButtonVariant,
+        })),
         image: data.hero?.imageId || undefined,
       },
-      layout: data.layout || [],
+      layout: (data.layout || []) as Page['layout'],
       _status: 'published',
     },
-  })
-  console.log('   Created homepage')
+  });
+  console.log('   Created homepage');
 }
 
 // Helper to create portfolio/gallery items
 export async function seedPortfolio(
   payload: Payload,
   items: Array<{
-    title: string
-    description?: string
-    imageId: string
-    featured?: boolean
-    order?: number
-  }>
+    title: string;
+    description?: string;
+    imageId: string;
+    featured?: boolean;
+    order?: number;
+  }>,
 ) {
   for (const item of items) {
     await payload.create({
       collection: 'portfolio',
       data: {
         title: item.title,
-        slug: item.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, ''),
+        slug: item.title
+          .toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^\w-]/g, ''),
         shortDescription: item.description,
         featuredImage: item.imageId,
         featured: item.featured || false,
         order: item.order || 0,
       },
-    })
+    });
   }
-  console.log(`   Created ${items.length} portfolio items`)
+  console.log(`   Created ${items.length} portfolio items`);
 }
 
 // Helper to create product categories
 export async function seedProductCategories(
   payload: Payload,
   categories: Array<{
-    title: string
-    description?: string
-    order?: number
-  }>
+    title: string;
+    description?: string;
+    order?: number;
+  }>,
 ): Promise<Map<string, string>> {
-  const categoryMap = new Map<string, string>()
+  const categoryMap = new Map<string, string>();
 
   for (const category of categories) {
     const created = await payload.create({
       collection: 'product-categories',
       data: {
         title: category.title,
-        slug: category.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, ''),
+        slug: category.title
+          .toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^\w-]/g, ''),
         description: category.description,
         order: category.order || 0,
       },
-    })
-    categoryMap.set(category.title, created.id)
+    });
+    categoryMap.set(category.title, created.id);
   }
-  console.log(`   Created ${categories.length} product categories`)
-  return categoryMap
+  console.log(`   Created ${categories.length} product categories`);
+  return categoryMap;
+}
+
+// Product data interface for seeding
+interface ProductSeedData {
+  title: string;
+  slug: string;
+  price: number;
+  badge?: string;
+  featured: boolean;
+  _status: 'published' | 'draft';
+  salePrice?: number;
+  category?: string;
+  images?: Array<{ image: string }>;
+  description?: unknown;
 }
 
 // Helper to create products (eCommerce plugin)
 export async function seedProducts(
   payload: Payload,
   products: Array<{
-    title: string
-    slug: string
-    description?: string
-    price: number
-    salePrice?: number
-    badge?: string
-    featured?: boolean
-    categoryId?: string
-    imageId?: string
-  }>
+    title: string;
+    slug: string;
+    description?: string;
+    price: number;
+    salePrice?: number;
+    badge?: string;
+    featured?: boolean;
+    categoryId?: string;
+    imageId?: string;
+  }>,
 ) {
   for (const product of products) {
-    const productData: any = {
+    const productData: ProductSeedData = {
       title: product.title,
       slug: product.slug,
       price: product.price,
       badge: product.badge,
       featured: product.featured || false,
       _status: 'published',
-    }
+    };
 
     // Add sale price if present
     if (product.salePrice) {
-      productData.salePrice = product.salePrice
+      productData.salePrice = product.salePrice;
     }
 
     // Add category if present
     if (product.categoryId) {
-      productData.category = product.categoryId
+      productData.category = product.categoryId;
     }
 
     // Add image if present
     if (product.imageId) {
-      productData.images = [{ image: product.imageId }]
+      productData.images = [{ image: product.imageId }];
     }
 
     // Add description as richText if present
@@ -691,37 +763,38 @@ export async function seedProducts(
           indent: 0,
           version: 1,
         },
-      }
+      };
     }
 
     await payload.create({
       collection: 'products',
-      data: productData,
-    })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      data: productData as any,
+    });
   }
-  console.log(`   Created ${products.length} products`)
+  console.log(`   Created ${products.length} products`);
 }
 
 // Helper to create blog posts
 export async function seedPosts(
   payload: Payload,
   posts: Array<{
-    title: string
-    excerpt?: string
-    content: string
-    publishedAt?: string
-    featured?: boolean
-    imageId?: string
-  }>
+    title: string;
+    excerpt?: string;
+    content: string;
+    publishedAt?: string;
+    featured?: boolean;
+    imageId?: string;
+  }>,
 ) {
   // First create a default category if it doesn't exist
-  let categoryId: string | undefined
+  let categoryId: string | undefined;
 
   try {
     const existingCategories = await payload.find({
       collection: 'categories',
       limit: 1,
-    })
+    });
 
     if (existingCategories.docs.length === 0) {
       const category = await payload.create({
@@ -730,12 +803,12 @@ export async function seedPosts(
           title: 'Blog',
           slug: 'blog',
         },
-      })
-      categoryId = category.id
+      });
+      categoryId = category.id;
     } else {
-      categoryId = existingCategories.docs[0].id
+      categoryId = existingCategories.docs[0].id;
     }
-  } catch (e) {
+  } catch (_e) {
     // Categories collection might not exist
   }
 
@@ -752,9 +825,10 @@ export async function seedPosts(
         content: {
           root: {
             type: 'root',
-            children: post.content.split('\n\n').map((paragraph) => ({
+            children: post.content.split('\n\n').map(paragraph => ({
               type: 'paragraph',
               children: [{ text: paragraph }],
+              version: 1,
             })),
             direction: 'ltr',
             format: '',
@@ -767,20 +841,20 @@ export async function seedPosts(
         featuredImage: post.imageId || undefined,
         _status: 'published',
       },
-    })
+    });
   }
-  console.log(`   Created ${posts.length} blog posts`)
+  console.log(`   Created ${posts.length} blog posts`);
 }
 
 // Helper to create blog categories
 export async function seedBlogCategories(
   payload: Payload,
   categories: Array<{
-    title: string
-    description?: string
-  }>
+    title: string;
+    description?: string;
+  }>,
 ): Promise<Map<string, string>> {
-  const categoryMap = new Map<string, string>()
+  const categoryMap = new Map<string, string>();
 
   for (const category of categories) {
     const created = await payload.create({
@@ -792,28 +866,28 @@ export async function seedBlogCategories(
           .replace(/\s+/g, '-')
           .replace(/[^\w-]/g, ''),
       },
-    })
-    categoryMap.set(category.title, created.id)
+    });
+    categoryMap.set(category.title, created.id);
   }
-  console.log(`   Created ${categories.length} blog categories`)
-  return categoryMap
+  console.log(`   Created ${categories.length} blog categories`);
+  return categoryMap;
 }
 
 // Helper to set design variant global
 export async function seedDesignVariant(
   payload: Payload,
   data: {
-    businessType: string
-    variantIndex: number
-    variantName: string
-    variantDescription: string
-  }
+    businessType: DesignVariant['businessType'];
+    variantIndex: number;
+    variantName: string;
+    variantDescription: string;
+  },
 ) {
   await payload.updateGlobal({
     slug: 'design-variant',
     data: {
       businessType: data.businessType,
-      variantIndex: String(data.variantIndex),
+      variantIndex: String(data.variantIndex) as DesignVariant['variantIndex'],
       variantDescription: `${data.variantName}\n\n${data.variantDescription}`,
       useOverride: false,
       homepageSections: [
@@ -827,6 +901,6 @@ export async function seedDesignVariant(
         { section: 'cta', enabled: true },
       ],
     },
-  })
-  console.log(`   Design variant set: ${data.variantName}`)
+  });
+  console.log(`   Design variant set: ${data.variantName}`);
 }

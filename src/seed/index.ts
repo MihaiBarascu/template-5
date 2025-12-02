@@ -1,7 +1,8 @@
-// @ts-nocheck
 import dotenv from 'dotenv'
 import path from 'path'
 import fs from 'fs'
+import type { Payload } from 'payload'
+import type { Config } from '@/payload-types'
 
 // Load environment variables BEFORE anything else
 dotenv.config({ path: path.resolve(process.cwd(), '.env') })
@@ -20,7 +21,7 @@ import { seedSalon } from './businesses/salon'
 import { seedMagazin } from './businesses/magazin'
 import { clearImageCache } from './helpers'
 
-const seeders: Record<string, (payload: any) => Promise<void>> = {
+const seeders: Record<string, (payload: Payload) => Promise<void>> = {
   frizerie: seedFrizerie,
   dentist: seedDentist,
   avocat: seedAvocat,
@@ -70,8 +71,8 @@ async function seed() {
   process.exit(0)
 }
 
-async function clearData(payload: any) {
-  const collections = [
+async function clearData(payload: Payload) {
+  const collections: (keyof Config['collections'])[] = [
     'pages',
     'posts',
     'services',
@@ -104,7 +105,7 @@ async function clearData(payload: any) {
         })
       }
       console.log(`   Cleared ${collection}: ${docs.docs.length} items`)
-    } catch (e) {
+    } catch (_e) {
       // Collection might not exist, skip
     }
   }

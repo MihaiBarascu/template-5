@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * SEED DATA - Configurare Universala pentru toate tipurile de Business
  *

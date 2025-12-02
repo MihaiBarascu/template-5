@@ -24,7 +24,7 @@ interface CategoriesBlockProps {
 }
 
 export function CategoriesBlock({
-  variant = 'grid',
+  variant: _variant = 'grid',
   heading,
   subheading,
   showDescription = true,

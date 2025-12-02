@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type { Payload } from 'payload'
 import {
   createAdminUser,
@@ -40,10 +39,10 @@ export async function seedAutoService(payload: Payload) {
 
   console.log('\n🎨 Configuring theme...')
   await seedTheme(payload, {
-    preset: variant.theme.preset as any,
+    preset: variant.theme.preset,
     colors: variant.theme.colors,
-    fontPreset: variant.theme.fontPreset as any,
-    stylePreset: variant.theme.stylePreset as any,
+    fontPreset: variant.theme.fontPreset,
+    stylePreset: variant.theme.stylePreset,
     borderRadius: variant.theme.borderRadius,
     shadows: variant.theme.shadows,
     sectionSpacing: 'normal',
@@ -156,8 +155,29 @@ export async function seedAutoService(payload: Payload) {
   console.log('━'.repeat(50))
 }
 
+// Block configuration type for homepage layout
+interface BlockConfig {
+  blockType: string
+  variant?: string
+  heading?: string
+  subheading?: string
+  source?: string
+  onlyFeatured?: boolean
+  limit?: number
+  showPrices?: boolean
+  showIcons?: boolean
+  showRating?: boolean
+  lightbox?: boolean
+  defaultOpen?: string
+  headline?: string
+  subheadline?: string
+  buttons?: Array<{ label: string; link: string; variant?: string }>
+  backgroundColor?: string
+  [key: string]: unknown
+}
+
 function buildHomepageLayout(variant: DesignVariant) {
-  const sectionConfigs: Record<string, any> = {
+  const sectionConfigs: Record<string, BlockConfig> = {
     services: {
       blockType: 'services',
       variant: variant.layout.servicesVariant,
@@ -203,7 +223,7 @@ function buildHomepageLayout(variant: DesignVariant) {
       subheading: 'Echipamente si spatii moderne',
       source: 'portfolio',
       limit: 6,
-      lightbox: true,
+      
       backgroundColor: 'default',
     },
     faq: {

@@ -1,6 +1,8 @@
 import React from 'react'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
+import type { Page, Portfolio } from '@/payload-types'
+import type { Where } from 'payload'
 
 // Import block components
 import { ServicesBlock } from './Services/Component'
@@ -17,15 +19,24 @@ import { ProductsBlock } from './Products/Component'
 import { CartBlock } from './Cart/Component'
 import { CheckoutBlock } from './Checkout/Component'
 
+type LayoutBlock = NonNullable<Page['layout']>[number]
+
+interface BlockParams {
+  limit?: number | null
+  onlyFeatured?: boolean | null
+  onlySale?: boolean | null
+  filterByCategory?: string | null
+}
+
 interface RenderBlocksProps {
-  blocks: any[]
+  blocks: LayoutBlock[]
 }
 
 // Fetch services data
-async function getServices(block: any) {
+async function getServices(block: BlockParams) {
   const payload = await getPayload({ config: configPromise })
 
-  const where: any = {}
+  const where: Where = {}
   if (block.onlyFeatured) {
     where.featured = { equals: true }
   }
@@ -41,10 +52,10 @@ async function getServices(block: any) {
 }
 
 // Fetch team members
-async function getTeamMembers(block: any) {
+async function getTeamMembers(block: BlockParams) {
   const payload = await getPayload({ config: configPromise })
 
-  const where: any = {}
+  const where: Where = {}
   if (block.onlyFeatured) {
     where.featured = { equals: true }
   }
@@ -60,10 +71,10 @@ async function getTeamMembers(block: any) {
 }
 
 // Fetch testimonials
-async function getTestimonials(block: any) {
+async function getTestimonials(block: BlockParams) {
   const payload = await getPayload({ config: configPromise })
 
-  const where: any = {}
+  const where: Where = {}
   if (block.onlyFeatured) {
     where.featured = { equals: true }
   }
@@ -78,7 +89,7 @@ async function getTestimonials(block: any) {
 }
 
 // Fetch FAQs
-async function getFAQs(block: any) {
+async function getFAQs(block: BlockParams) {
   const payload = await getPayload({ config: configPromise })
 
   const faqs = await payload.find({
@@ -102,7 +113,7 @@ async function getBusinessInfo() {
 }
 
 // Fetch price packages
-async function getPricePackages(block: any) {
+async function getPricePackages(block: BlockParams) {
   const payload = await getPayload({ config: configPromise })
 
   const packages = await payload.find({
@@ -115,7 +126,7 @@ async function getPricePackages(block: any) {
 }
 
 // Fetch portfolio items
-async function getPortfolioItems(block: any) {
+async function getPortfolioItems(block: BlockParams) {
   const payload = await getPayload({ config: configPromise })
 
   const portfolio = await payload.find({
@@ -129,10 +140,10 @@ async function getPortfolioItems(block: any) {
 }
 
 // Fetch products
-async function getProducts(block: any) {
+async function getProducts(block: BlockParams) {
   const payload = await getPayload({ config: configPromise })
 
-  const where: any = {}
+  const where: Where = {}
   if (block.onlyFeatured) {
     where.featured = { equals: true }
   }
@@ -169,83 +180,101 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
 
           switch (blockType) {
             case 'services': {
-              const services = await getServices(block)
+              const services = await getServices({
+                limit: block.limit,
+                onlyFeatured: block.onlyFeatured,
+              })
               return (
                 <ServicesBlock
                   key={block.id || index}
-                  variant={block.variant}
-                  heading={block.heading}
-                  subheading={block.subheading}
-                  showPrices={block.showPrices}
-                  showIcons={block.showIcons}
-                  backgroundColor={block.backgroundColor}
-                  services={services as any}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
+                  subheading={block.subheading ?? undefined}
+                  showPrices={block.showPrices ?? undefined}
+                  showIcons={block.showIcons ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
+                  services={services}
                 />
               )
             }
 
             case 'stats': {
-              const stats =
+              const rawStats =
                 block.source === 'custom'
-                  ? block.stats
+                  ? (block.stats ?? [])
                   : businessInfo?.stats || []
+              // Filter and transform stats to ensure valid values
+              const stats = rawStats
+                .filter((s) => s.value && s.label)
+                .map((s) => ({
+                  value: s.value!,
+                  label: s.label!,
+                }))
 
               return (
                 <StatsBlock
                   key={block.id || index}
-                  variant={block.variant}
-                  heading={block.heading}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
                   stats={stats}
                   animated={block.animated !== false}
-                  backgroundColor={block.backgroundColor}
+                  backgroundColor={block.backgroundColor ?? undefined}
                 />
               )
             }
 
             case 'team': {
-              const members = await getTeamMembers(block)
+              const members = await getTeamMembers({
+                limit: block.limit,
+                onlyFeatured: block.onlyFeatured,
+              })
               return (
                 <TeamBlock
                   key={block.id || index}
-                  variant={block.variant}
-                  heading={block.heading}
-                  subheading={block.subheading}
-                  showRole={block.showRole}
-                  showBio={block.showBio}
-                  columns={block.columns}
-                  backgroundColor={block.backgroundColor}
-                  members={members as any}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
+                  subheading={block.subheading ?? undefined}
+                  showRole={block.showRole ?? undefined}
+                  showBio={block.showBio ?? undefined}
+                  columns={block.columns ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
+                  members={members}
                 />
               )
             }
 
             case 'testimonials': {
-              const testimonials = await getTestimonials(block)
+              const testimonials = await getTestimonials({
+                limit: block.limit,
+                onlyFeatured: block.onlyFeatured,
+              })
               return (
                 <TestimonialsBlock
                   key={block.id || index}
-                  variant={block.variant}
-                  heading={block.heading}
-                  subheading={block.subheading}
-                  showRating={block.showRating}
-                  showAvatar={block.showAvatar}
-                  autoplay={block.autoplay}
-                  backgroundColor={block.backgroundColor}
-                  testimonials={testimonials as any}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
+                  subheading={block.subheading ?? undefined}
+                  showRating={block.showRating ?? undefined}
+                  showAvatar={block.showAvatar ?? undefined}
+                  autoplay={block.autoplay ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
+                  testimonials={testimonials}
                 />
               )
             }
 
             case 'faq': {
-              const faqs = await getFAQs(block)
+              const faqs = await getFAQs({
+                limit: block.limit,
+              })
               return (
                 <FAQBlock
                   key={block.id || index}
-                  variant={block.variant}
-                  heading={block.heading}
-                  subheading={block.subheading}
-                  defaultOpen={block.defaultOpen}
-                  backgroundColor={block.backgroundColor}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
+                  subheading={block.subheading ?? undefined}
+                  defaultOpen={block.defaultOpen ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
                   faqs={faqs}
                 />
               )
@@ -255,15 +284,15 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
               return (
                 <CTABlock
                   key={block.id || index}
-                  variant={block.variant}
-                  headline={block.headline}
-                  subheadline={block.subheadline}
-                  image={block.image}
-                  buttons={block.buttons}
-                  showPhoneNumber={block.showPhoneNumber}
-                  backgroundColor={block.backgroundColor}
-                  textAlignment={block.textAlignment}
-                  size={block.size}
+                  variant={block.variant ?? undefined}
+                  headline={block.headline ?? undefined}
+                  subheadline={block.subheadline ?? undefined}
+                  image={block.image ?? undefined}
+                  buttons={block.buttons ?? undefined}
+                  showPhoneNumber={block.showPhoneNumber ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
+                  textAlignment={block.textAlignment ?? undefined}
+                  size={block.size ?? undefined}
                   businessPhone={businessInfo?.phone || undefined}
                 />
               )
@@ -274,66 +303,93 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
               return (
                 <ContactBlock
                   key={block.id || index}
-                  variant={block.variant}
-                  heading={block.heading}
-                  subheading={block.subheading}
-                  showForm={block.showForm}
-                  formFields={block.formFields}
-                  submitButtonText={block.submitButtonText}
-                  successMessage={block.successMessage}
-                  showContactInfo={block.showContactInfo}
-                  contactInfoItems={block.contactInfoItems}
-                  showMap={block.showMap}
-                  mapPosition={block.mapPosition}
-                  backgroundColor={block.backgroundColor}
-                  businessInfo={businessInfo as any}
-                  services={services as any}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
+                  subheading={block.subheading ?? undefined}
+                  showForm={block.showForm ?? undefined}
+                  formFields={block.formFields ?? undefined}
+                  submitButtonText={block.submitButtonText ?? undefined}
+                  successMessage={block.successMessage ?? undefined}
+                  showContactInfo={block.showContactInfo ?? undefined}
+                  contactInfoItems={block.contactInfoItems ?? undefined}
+                  showMap={block.showMap ?? undefined}
+                  mapPosition={block.mapPosition ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
+                  businessInfo={businessInfo}
+                  services={services}
                 />
               )
             }
 
             case 'gallery': {
-              // Get images from portfolio or block's own images
-              let images = block.images || []
+              // Transform images into a consistent format
+              type GalleryImage = { id: string; url: string; alt?: string }
+              let images: GalleryImage[] = []
+
               if (block.source === 'portfolio') {
                 const portfolio = await getPortfolioItems(block)
-                images = portfolio
-                  .filter((item: any) => item.featuredImage?.url)
-                  .map((item: any) => ({
-                    id: item.id,
-                    url: item.featuredImage.url,
-                    alt: item.featuredImage.alt || item.title,
-                  }))
+                images = (portfolio as Portfolio[])
+                  .filter((item) => (item.featuredImage as { url?: string } | null)?.url)
+                  .map((item) => {
+                    const featuredImage = item.featuredImage as { url?: string; alt?: string } | null
+                    return {
+                      id: item.id,
+                      url: featuredImage?.url ?? '',
+                      alt: featuredImage?.alt || item.title,
+                    }
+                  })
+              } else if (block.images) {
+                images = block.images
+                  .filter((img) => {
+                    const imgData = img.image as { url?: string } | string | null
+                    return imgData && typeof imgData !== 'string' && imgData.url
+                  })
+                  .map((img) => {
+                    const imgData = img.image as { url?: string; alt?: string; id?: string } | null
+                    return {
+                      id: img.id || imgData?.id || '',
+                      url: imgData?.url ?? '',
+                      alt: imgData?.alt || img.caption || '',
+                    }
+                  })
               }
+
+              // Derive columns from variant (grid-3, grid-4, etc.)
+              const columns = block.variant?.includes('3') ? '3' : block.variant?.includes('4') ? '4' : '3'
 
               return (
                 <GalleryBlock
                   key={block.id || index}
-                  variant={block.variant}
-                  heading={block.heading}
-                  subheading={block.subheading}
-                  columns={block.columns}
-                  gap={block.gap}
-                  aspectRatio={block.aspectRatio}
-                  lightbox={block.lightbox !== false}
-                  backgroundColor={block.backgroundColor}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
+                  subheading={block.subheading ?? undefined}
+                  columns={columns}
+                  gap={block.gap ?? undefined}
+                  aspectRatio={block.aspectRatio ?? undefined}
+                  lightbox={block.variant === 'lightbox'}
+                  backgroundColor={block.backgroundColor ?? undefined}
                   images={images}
                 />
               )
             }
 
             case 'pricing': {
-              const packages = await getPricePackages(block)
+              const packages = await getPricePackages({
+                limit: block.limit,
+              })
+              // Derive columns from variant (cards-3, cards-4, etc.)
+              const pricingColumns = block.variant?.includes('3') ? '3' : block.variant?.includes('4') ? '4' : '3'
+
               return (
                 <PricingBlock
                   key={block.id || index}
-                  variant={block.variant}
-                  heading={block.heading}
-                  subheading={block.subheading}
-                  columns={block.columns}
-                  showBadge={block.showBadge !== false}
-                  backgroundColor={block.backgroundColor}
-                  packages={packages as any}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
+                  subheading={block.subheading ?? undefined}
+                  columns={pricingColumns}
+                  showBadge={block.showFeatures !== false}
+                  backgroundColor={block.backgroundColor ?? undefined}
+                  packages={packages}
                 />
               )
             }
@@ -344,18 +400,18 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
               return (
                 <BookingBlock
                   key={block.id || index}
-                  variant={block.variant}
-                  heading={block.heading}
-                  subheading={block.subheading}
-                  showServiceSelection={block.showServiceSelection}
-                  showStaffSelection={block.showTeamSelection}
-                  showDateSelection={block.showDatePicker}
-                  showTimeSlots={block.showTimePicker}
-                  submitButtonText={block.submitButtonText}
-                  successMessage={block.successMessage}
-                  backgroundColor={block.backgroundColor}
-                  services={services as any}
-                  staff={staff as any}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
+                  subheading={block.subheading ?? undefined}
+                  showServiceSelection={block.showServiceSelection ?? undefined}
+                  showStaffSelection={block.showTeamSelection ?? undefined}
+                  showDateSelection={block.showDatePicker ?? undefined}
+                  showTimeSlots={block.showTimePicker ?? undefined}
+                  submitButtonText={block.submitButtonText ?? undefined}
+                  successMessage={block.successMessage ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
+                  services={services}
+                  staff={staff}
                   businessPhone={businessInfo?.phone || undefined}
                   whatsapp={businessInfo?.whatsapp || undefined}
                 />
@@ -363,19 +419,24 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
             }
 
             case 'products': {
-              const products = await getProducts(block)
+              const products = await getProducts({
+                limit: block.limit,
+                onlyFeatured: block.onlyFeatured,
+                onlySale: block.onlySale,
+                filterByCategory: typeof block.filterByCategory === 'string' ? block.filterByCategory : undefined,
+              })
               return (
                 <ProductsBlock
                   key={block.id || index}
-                  variant={block.variant}
-                  heading={block.heading}
-                  subheading={block.subheading}
-                  showPrice={block.showPrice}
-                  showSalePrice={block.showSalePrice}
-                  showAddToCart={block.showAddToCart}
-                  ctaButton={block.ctaButton}
-                  backgroundColor={block.backgroundColor}
-                  products={products as any}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
+                  subheading={block.subheading ?? undefined}
+                  showPrice={block.showPrice ?? undefined}
+                  showSalePrice={block.showSalePrice ?? undefined}
+                  showAddToCart={block.showAddToCart ?? undefined}
+                  ctaButton={block.ctaButton ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
+                  products={products}
                 />
               )
             }
@@ -384,16 +445,16 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
               return (
                 <CartBlock
                   key={block.id || index}
-                  variant={block.variant}
-                  heading={block.heading}
-                  showQuantitySelector={block.showQuantitySelector}
-                  showRemoveButton={block.showRemoveButton}
-                  showSubtotal={block.showSubtotal}
-                  checkoutButtonText={block.checkoutButtonText}
-                  checkoutLink={block.checkoutLink}
-                  emptyCartMessage={block.emptyCartMessage}
-                  continueShoppingLink={block.continueShoppingLink}
-                  backgroundColor={block.backgroundColor}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
+                  showQuantitySelector={block.showQuantitySelector ?? undefined}
+                  showRemoveButton={block.showRemoveButton ?? undefined}
+                  showSubtotal={block.showSubtotal ?? undefined}
+                  checkoutButtonText={block.checkoutButtonText ?? undefined}
+                  checkoutLink={block.checkoutLink ?? undefined}
+                  emptyCartMessage={block.emptyCartMessage ?? undefined}
+                  continueShoppingLink={block.continueShoppingLink ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
                 />
               )
             }
@@ -402,14 +463,14 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
               return (
                 <CheckoutBlock
                   key={block.id || index}
-                  variant={block.variant}
-                  heading={block.heading}
-                  showOrderSummary={block.showOrderSummary}
-                  showShippingOptions={block.showShippingOptions}
-                  showPaymentOptions={block.showPaymentOptions}
-                  submitButtonText={block.submitButtonText}
-                  successMessage={block.successMessage}
-                  backgroundColor={block.backgroundColor}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
+                  showOrderSummary={block.showOrderSummary ?? undefined}
+                  showShippingOptions={block.showShippingOptions ?? undefined}
+                  showPaymentOptions={block.showPaymentOptions ?? undefined}
+                  submitButtonText={block.submitButtonText ?? undefined}
+                  successMessage={block.successMessage ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
                 />
               )
             }

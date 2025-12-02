@@ -1,32 +1,39 @@
 import React from 'react'
 import Image from 'next/image'
+import type { Logo as LogoType, Media } from '@/payload-types'
 
 interface LogoProps {
-  data: any
+  data: LogoType | null
   businessName?: string
   variant?: 'default' | 'light' | 'dark'
+}
+
+// Helper to extract URL from Media field
+const getMediaUrl = (media: string | Media | null | undefined): string | undefined => {
+  if (!media) return undefined
+  if (typeof media === 'string') return undefined
+  return media.url ?? undefined
 }
 
 export function Logo({ data, businessName, variant = 'default' }: LogoProps) {
   const logoType = data?.type || 'text'
   const logoText = data?.text || businessName || 'Business'
-  const logoImage = data?.image
-  const logoImageLight = data?.imageLight
-  const logoImageDark = data?.imageDark
   const height = data?.size?.height || 40
 
   // Determine which image to use based on variant
-  const getImageUrl = () => {
-    if (variant === 'light' && logoImageLight?.url) {
-      return logoImageLight.url
+  const getImageUrlForVariant = (): string | undefined => {
+    if (variant === 'light') {
+      const lightUrl = getMediaUrl(data?.imageLight)
+      if (lightUrl) return lightUrl
     }
-    if (variant === 'dark' && logoImageDark?.url) {
-      return logoImageDark.url
+    if (variant === 'dark') {
+      const darkUrl = getMediaUrl(data?.imageDark)
+      if (darkUrl) return darkUrl
     }
-    return logoImage?.url
+    return getMediaUrl(data?.image)
   }
 
-  const imageUrl = getImageUrl()
+  const imageUrl = getImageUrlForVariant()
 
   if (logoType === 'image' && imageUrl) {
     return (

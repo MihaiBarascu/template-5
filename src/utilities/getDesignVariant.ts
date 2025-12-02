@@ -12,6 +12,7 @@ import {
   constructiiVariants,
   type DesignVariant,
 } from '@/seed/design-variants'
+import type { DesignVariant as PayloadDesignVariant } from '@/payload-types'
 
 // Map business types to their variant arrays
 const variantsByType: Record<string, DesignVariant[]> = {
@@ -52,27 +53,27 @@ export async function getDesignVariant(): Promise<DesignVariant> {
 
       // Apply overrides if enabled
       if (designVariantGlobal.useOverride && designVariantGlobal.override) {
-        const override = designVariantGlobal.override as any
+        const override = designVariantGlobal.override as NonNullable<PayloadDesignVariant['override']>
         return {
           ...baseVariant,
           hero: {
             ...baseVariant.hero,
-            type: override.heroType || baseVariant.hero.type,
-            overlay: override.heroOverlay || baseVariant.hero.overlay,
+            type: override.heroType ?? baseVariant.hero.type,
+            overlay: override.heroOverlay ?? baseVariant.hero.overlay,
           },
           layout: {
             ...baseVariant.layout,
-            servicesVariant: override.servicesVariant || baseVariant.layout.servicesVariant,
-            teamVariant: override.teamVariant || baseVariant.layout.teamVariant,
-            testimonialsVariant: override.testimonialsVariant || baseVariant.layout.testimonialsVariant,
-            galleryVariant: override.galleryVariant || baseVariant.layout.galleryVariant,
+            servicesVariant: override.servicesVariant ?? baseVariant.layout.servicesVariant,
+            teamVariant: override.teamVariant ?? baseVariant.layout.teamVariant,
+            testimonialsVariant: override.testimonialsVariant ?? baseVariant.layout.testimonialsVariant,
+            galleryVariant: override.galleryVariant ?? baseVariant.layout.galleryVariant,
           },
-        }
+        } as DesignVariant
       }
 
       return baseVariant
     }
-  } catch (error) {
+  } catch (_error) {
     console.warn('Could not fetch design variant from global, using env fallback')
   }
 

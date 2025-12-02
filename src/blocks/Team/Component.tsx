@@ -4,18 +4,29 @@ import React from 'react'
 import Image from 'next/image'
 import { cn } from '@/utilities/cn'
 
+interface RichText {
+  root: {
+    type: string
+    children: unknown[]
+    direction: string | null
+    format: string
+    indent: number
+    version: number
+  }
+}
+
 interface TeamMember {
   id: string
   name: string
-  role?: string
-  bio?: string
-  experience?: string
+  role?: string | null
+  bio?: RichText | string | null
+  experience?: string | null
   image?: {
-    url: string
-    alt?: string
-  }
-  specializations?: Array<{ specialization: string }>
-  featured?: boolean
+    url?: string | null
+    alt?: string | null
+  } | string | null
+  specializations?: Array<{ specialization?: string | null; id?: string | null }> | null
+  featured?: boolean | null
 }
 
 interface TeamBlockProps {
@@ -32,6 +43,37 @@ interface TeamBlockProps {
   columns?: string
   backgroundColor?: string
   members?: TeamMember[]
+}
+
+// Helper function to get image URL from various image types
+function getImageUrl(image: TeamMember['image']): string | null {
+  if (!image) return null
+  if (typeof image === 'string') return null // String means just the ID, no URL
+  return image.url || null
+}
+
+// Helper function to get image alt text
+function getImageAlt(image: TeamMember['image'], fallback: string): string {
+  if (!image || typeof image === 'string') return fallback
+  return image.alt || fallback
+}
+
+// Helper function to render bio as string
+function getBioText(bio: TeamMember['bio']): string | null {
+  if (!bio) return null
+  if (typeof bio === 'string') return bio
+  // For rich text, extract plain text from children
+  const extractText = (children: unknown[]): string => {
+    return children.map((child) => {
+      if (typeof child === 'object' && child !== null) {
+        const node = child as { text?: string; children?: unknown[] }
+        if (node.text) return node.text
+        if (node.children) return extractText(node.children)
+      }
+      return ''
+    }).join('')
+  }
+  return extractText(bio.root.children)
 }
 
 export function TeamBlock({
@@ -98,10 +140,10 @@ export function TeamBlock({
                 )}
               >
                 <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
-                  {member.image?.url ? (
+                  {getImageUrl(member.image) ? (
                     <Image
-                      src={member.image.url}
-                      alt={member.image.alt || member.name}
+                      src={getImageUrl(member.image)!}
+                      alt={getImageAlt(member.image, member.name)}
                       width={96}
                       height={96}
                       className="w-full h-full object-cover"
@@ -124,9 +166,9 @@ export function TeamBlock({
                       {member.experience}
                     </p>
                   )}
-                  {showBio && member.bio && (
+                  {showBio && getBioText(member.bio) && (
                     <p className={cn('mt-2 text-sm', backgroundColor === 'dark' ? 'text-gray-300' : 'text-gray-600')}>
-                      {member.bio}
+                      {getBioText(member.bio)}
                     </p>
                   )}
                 </div>
@@ -147,10 +189,10 @@ export function TeamBlock({
                   'relative w-48 h-48 mx-auto mb-4 rounded-lg overflow-hidden',
                   variant === 'grid-centered' && 'rounded-full'
                 )}>
-                  {member.image?.url ? (
+                  {getImageUrl(member.image) ? (
                     <Image
-                      src={member.image.url}
-                      alt={member.image.alt || member.name}
+                      src={getImageUrl(member.image)!}
+                      alt={getImageAlt(member.image, member.name)}
                       fill
                       className="object-cover transition-transform group-hover:scale-105"
                     />
@@ -173,17 +215,20 @@ export function TeamBlock({
                 )}
                 {member.specializations && member.specializations.length > 0 && (
                   <div className="flex flex-wrap justify-center gap-1 mt-2">
-                    {member.specializations.slice(0, 3).map((spec, index) => (
-                      <span
-                        key={index}
-                        className={cn(
-                          'text-xs px-2 py-0.5 rounded-full',
-                          backgroundColor === 'dark' ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-600'
-                        )}
-                      >
-                        {spec.specialization}
-                      </span>
-                    ))}
+                    {member.specializations
+                      .filter((spec) => spec.specialization)
+                      .slice(0, 3)
+                      .map((spec, index) => (
+                        <span
+                          key={spec.id || index}
+                          className={cn(
+                            'text-xs px-2 py-0.5 rounded-full',
+                            backgroundColor === 'dark' ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-600'
+                          )}
+                        >
+                          {spec.specialization}
+                        </span>
+                      ))}
                   </div>
                 )}
               </div>

@@ -7,18 +7,18 @@ import { cn } from '@/utilities/cn'
 interface PricePackage {
   id: string
   title: string
-  subtitle?: string
-  description?: string
+  subtitle?: string | null
+  description?: string | null
   price: number
-  oldPrice?: number
-  period?: string
-  features?: Array<{ feature: string; included?: boolean }>
-  highlighted?: boolean
-  highlightLabel?: string
+  oldPrice?: number | null
+  period?: string | null
+  features?: Array<{ feature?: string | null; included?: boolean | null; id?: string | null }> | null
+  highlighted?: boolean | null
+  highlightLabel?: string | null
   cta?: {
-    label?: string
-    link?: string
-  }
+    label?: string | null
+    link?: string | null
+  } | null
 }
 
 interface PricingBlockProps {
@@ -235,25 +235,27 @@ export function PricingBlock({
 
                 {pkg.features && pkg.features.length > 0 && (
                   <ul className="space-y-3 mb-6">
-                    {pkg.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} className="flex items-start gap-2">
-                        {feature.included !== false ? (
-                          <svg className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                        ) : (
-                          <svg className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        )}
-                        <span className={cn(
-                          'text-sm',
-                          feature.included === false && 'text-gray-400 line-through'
-                        )}>
-                          {feature.feature}
-                        </span>
-                      </li>
-                    ))}
+                    {pkg.features
+                      .filter((feature) => feature.feature)
+                      .map((feature, featureIndex) => (
+                        <li key={feature.id || featureIndex} className="flex items-start gap-2">
+                          {feature.included !== false ? (
+                            <svg className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          ) : (
+                            <svg className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          )}
+                          <span className={cn(
+                            'text-sm',
+                            feature.included === false && 'text-gray-400 line-through'
+                          )}>
+                            {feature.feature}
+                          </span>
+                        </li>
+                      ))}
                   </ul>
                 )}
 

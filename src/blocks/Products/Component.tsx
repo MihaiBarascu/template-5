@@ -10,12 +10,12 @@ interface Product {
   id: string
   title: string
   slug: string
-  price?: number
-  salePrice?: number
-  badge?: string
-  featured?: boolean
-  images?: Array<{ image: Media | string }>
-  category?: { title: string; slug: string } | string
+  price?: number | null
+  salePrice?: number | null
+  badge?: string | null
+  featured?: boolean | null
+  images?: Array<{ image: Media | string }> | null
+  category?: { title: string; slug: string } | string | null
 }
 
 interface ProductsBlockProps {
@@ -26,10 +26,10 @@ interface ProductsBlockProps {
   showSalePrice?: boolean
   showAddToCart?: boolean
   ctaButton?: {
-    enabled?: boolean
-    label?: string
-    link?: string
-  }
+    enabled?: boolean | null
+    label?: string | null
+    link?: string | null
+  } | null
   backgroundColor?: 'default' | 'light' | 'dark'
   products: Product[]
 }

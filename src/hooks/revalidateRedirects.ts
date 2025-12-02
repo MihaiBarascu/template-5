@@ -5,7 +5,7 @@ export const revalidateRedirects: CollectionAfterChangeHook = ({ doc, req: { pay
   payload.logger.info(`Revalidating redirects`)
   try {
     revalidateTag('redirects')
-  } catch (e) {
+  } catch (_e) {
     payload.logger.warn(`Could not revalidate redirects (likely running outside Next.js context)`)
   }
   return doc

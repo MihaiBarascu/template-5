@@ -1,16 +1,22 @@
 import React from 'react'
 import Link from 'next/link'
 import { Logo } from '@/components/Logo'
+import type { Footer as FooterType, BusinessInfo, Logo as LogoType } from '@/payload-types'
+
+interface WorkingHoursItem {
+  days: string
+  hours: string
+}
 
 interface FooterProps {
-  data: any
-  businessInfo: any
-  logo: any
+  data: FooterType | null
+  businessInfo: BusinessInfo | null
+  logo: LogoType | null
 }
 
 export function Footer({ data, businessInfo, logo }: FooterProps) {
   const currentYear = new Date().getFullYear()
-  const variant = data?.variant || 'columns-4'
+  const _variant = data?.variant || 'columns-4'
 
   const getCopyrightText = () => {
     let text = data?.copyright || '© {year} {businessName}. Toate drepturile rezervate.'
@@ -37,7 +43,7 @@ export function Footer({ data, businessInfo, logo }: FooterProps) {
           </div>
 
           {/* Dynamic Columns */}
-          {data?.columns?.map((column: any, index: number) => (
+          {data?.columns?.map((column, index) => (
             <div key={index}>
               {column.title && (
                 <h4 className="font-semibold mb-4">{column.title}</h4>
@@ -45,17 +51,24 @@ export function Footer({ data, businessInfo, logo }: FooterProps) {
 
               {column.type === 'links' && column.links && (
                 <ul className="space-y-2">
-                  {column.links.map((link: any, linkIndex: number) => (
-                    <li key={linkIndex}>
-                      <Link
-                        href={link.type === 'reference' ? `/${link.reference?.value?.slug || ''}` : link.url || '#'}
-                        className="text-gray-400 hover:text-white transition-colors text-sm"
-                        target={link.newTab ? '_blank' : undefined}
-                      >
-                        {link.label}
-                      </Link>
-                    </li>
-                  ))}
+                  {column.links.map((link, linkIndex: number) => {
+                    // Handle both populated (object) and unpopulated (string) references
+                    const refValue = link.reference?.value
+                    const refSlug = refValue && typeof refValue !== 'string' ? refValue.slug : ''
+                    const href = link.type === 'reference' ? `/${refSlug || ''}` : link.url || '#'
+
+                    return (
+                      <li key={link.id || linkIndex}>
+                        <Link
+                          href={href}
+                          className="text-gray-400 hover:text-white transition-colors text-sm"
+                          target={link.newTab ? '_blank' : undefined}
+                        >
+                          {link.label}
+                        </Link>
+                      </li>
+                    )
+                  })}
                 </ul>
               )}
 
@@ -86,7 +99,7 @@ export function Footer({ data, businessInfo, logo }: FooterProps) {
 
               {column.type === 'schedule' && businessInfo?.workingHours && (
                 <ul className="space-y-2 text-sm text-gray-400">
-                  {businessInfo.workingHours.map((item: any, i: number) => (
+                  {(businessInfo.workingHours as WorkingHoursItem[]).map((item, i: number) => (
                     <li key={i} className="flex justify-between">
                       <span>{item.days}</span>
                       <span>{item.hours}</span>
@@ -142,15 +155,21 @@ export function Footer({ data, businessInfo, logo }: FooterProps) {
           {/* Legal Links */}
           {data?.legalLinks && data.legalLinks.length > 0 && (
             <div className="flex gap-4 text-sm">
-              {data.legalLinks.map((link: any, index: number) => (
-                <Link
-                  key={index}
-                  href={link.type === 'reference' ? `/${link.reference?.value?.slug || ''}` : link.url || '#'}
-                  className="text-gray-400 hover:text-white transition-colors"
-                >
-                  {link.label}
-                </Link>
-              ))}
+              {data.legalLinks.map((link, index) => {
+                const refValue = link.reference?.value
+                const refSlug = refValue && typeof refValue !== 'string' ? refValue.slug : ''
+                const href = link.type === 'reference' ? `/${refSlug || ''}` : link.url || '#'
+
+                return (
+                  <Link
+                    key={index}
+                    href={href}
+                    className="text-gray-400 hover:text-white transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                )
+              })}
             </div>
           )}
         </div>

@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 
 export function AdminBar() {
-  const pathname = usePathname()
+  const _pathname = usePathname()
 
   // Only show in development
   if (process.env.NODE_ENV !== 'development') {

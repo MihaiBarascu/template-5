@@ -7,7 +7,7 @@ export const revalidateGlobal: GlobalAfterChangeHook = ({ doc, req, global }) =>
   // Only revalidate if we're in a Next.js context (not during seed)
   try {
     revalidateTag(global.slug)
-  } catch (e) {
+  } catch (_e) {
     // Ignore revalidation errors during seeding
     req.payload.logger.warn(`Could not revalidate ${global.slug} (likely running outside Next.js context)`)
   }

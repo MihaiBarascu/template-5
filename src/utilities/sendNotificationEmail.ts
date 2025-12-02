@@ -29,7 +29,6 @@ export async function sendNotificationEmail(
       to: options.to,
       subject: options.subject,
       html: options.html,
-      // @ts-ignore - replyTo may not be in types but is supported
       replyTo: options.replyTo,
     })
 
@@ -62,22 +61,22 @@ export async function getBusinessEmail(payload: Payload): Promise<string | null>
 export function formatBookingEmail(booking: {
   clientName: string
   clientEmail: string
-  clientPhone: string
-  service?: { title?: string } | string
-  teamMember?: { name?: string } | string
-  date: string
-  time: string
-  notes?: string
+  clientPhone?: string | null
+  service?: { title?: string | null } | string | null
+  teamMember?: { name?: string | null } | string | null
+  date?: string | null
+  time?: string | null
+  notes?: string | null
 }): string {
-  const serviceName = typeof booking.service === 'object' ? booking.service?.title : 'N/A'
-  const staffName = typeof booking.teamMember === 'object' ? booking.teamMember?.name : 'Oricine disponibil'
+  const serviceName = typeof booking.service === 'object' ? booking.service?.title || 'N/A' : 'N/A'
+  const staffName = typeof booking.teamMember === 'object' ? booking.teamMember?.name || 'Oricine disponibil' : 'Oricine disponibil'
 
-  const formattedDate = new Date(booking.date).toLocaleDateString('ro-RO', {
+  const formattedDate = booking.date ? new Date(booking.date).toLocaleDateString('ro-RO', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-  })
+  }) : 'N/A'
 
   return `
     <!DOCTYPE html>
@@ -163,23 +162,23 @@ export function formatBookingEmail(booking: {
  */
 export function formatBookingConfirmationEmail(booking: {
   clientName: string
-  service?: { title?: string } | string
-  teamMember?: { name?: string } | string
-  date: string
-  time: string
-  businessName?: string
-  businessPhone?: string
-  businessAddress?: string
+  service?: { title?: string | null } | string | null
+  teamMember?: { name?: string | null } | string | null
+  date?: string | null
+  time?: string | null
+  businessName?: string | null
+  businessPhone?: string | null
+  businessAddress?: string | null
 }): string {
-  const serviceName = typeof booking.service === 'object' ? booking.service?.title : 'Serviciu'
-  const staffName = typeof booking.teamMember === 'object' ? booking.teamMember?.name : null
+  const serviceName = typeof booking.service === 'object' ? booking.service?.title || 'Serviciu' : 'Serviciu'
+  const staffName = typeof booking.teamMember === 'object' ? booking.teamMember?.name || null : null
 
-  const formattedDate = new Date(booking.date).toLocaleDateString('ro-RO', {
+  const formattedDate = booking.date ? new Date(booking.date).toLocaleDateString('ro-RO', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-  })
+  }) : 'N/A'
 
   return `
     <!DOCTYPE html>
@@ -269,12 +268,12 @@ export function formatBookingConfirmationEmail(booking: {
 export function formatContactEmail(contact: {
   name: string
   email: string
-  phone?: string
-  subject?: string
-  service?: { title?: string } | string
-  message: string
+  phone?: string | null
+  subject?: string | null
+  service?: { title?: string | null } | string | null
+  message?: string | null
 }): string {
-  const serviceName = typeof contact.service === 'object' ? contact.service?.title : contact.service
+  const serviceName = typeof contact.service === 'object' ? contact.service?.title || null : contact.service
 
   return `
     <!DOCTYPE html>
@@ -334,7 +333,7 @@ export function formatContactEmail(contact: {
 
           <div class="detail">
             <div class="label">💬 Mesaj:</div>
-            <div class="message-box">${contact.message.replace(/\n/g, '<br>')}</div>
+            <div class="message-box">${(contact.message || '').replace(/\n/g, '<br>')}</div>
           </div>
 
           <p style="margin-top: 20px;">
@@ -356,9 +355,9 @@ export function formatContactEmail(contact: {
  */
 export function formatContactConfirmationEmail(contact: {
   name: string
-  businessName?: string
-  businessPhone?: string
-  businessEmail?: string
+  businessName?: string | null
+  businessPhone?: string | null
+  businessEmail?: string | null
 }): string {
   return `
     <!DOCTYPE html>
@@ -410,7 +409,7 @@ export function formatContactConfirmationEmail(contact: {
  */
 interface OrderItem {
   product?: { title?: string } | string
-  quantity: number
+  quantity?: number
   price?: number
   priceAtPurchase?: number
 }
@@ -434,7 +433,7 @@ export function formatOrderEmail(order: {
     return `
       <tr>
         <td style="padding: 10px; border-bottom: 1px solid #eee;">${productName}</td>
-        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity || 1}</td>
         <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">${price.toFixed(2)} lei</td>
       </tr>
     `

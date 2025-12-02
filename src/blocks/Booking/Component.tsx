@@ -6,14 +6,14 @@ import { cn } from '@/utilities/cn'
 interface Service {
   id: string
   title: string
-  price?: number
-  duration?: string
+  price?: number | null
+  duration?: string | null
 }
 
 interface TeamMember {
   id: string
   name: string
-  role?: string
+  role?: string | null
 }
 
 interface BookingBlockProps {
@@ -111,7 +111,7 @@ export function BookingBlock({
         time: '',
         notes: '',
       })
-    } catch (err) {
+    } catch (_err) {
       setError('A aparut o eroare. Te rugam sa incerci din nou sau suna-ne direct.')
     } finally {
       setIsSubmitting(false)

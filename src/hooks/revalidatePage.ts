@@ -18,7 +18,7 @@ export const revalidatePageAfterChange: CollectionAfterChangeHook<Page> = ({
       try {
         revalidatePath(path)
         revalidateTag('pages-sitemap')
-      } catch (e) {
+      } catch (_e) {
         payload.logger.warn(`Could not revalidate ${path} (likely running outside Next.js context)`)
       }
     }
@@ -32,7 +32,7 @@ export const revalidatePageAfterChange: CollectionAfterChangeHook<Page> = ({
       try {
         revalidatePath(oldPath)
         revalidateTag('pages-sitemap')
-      } catch (e) {
+      } catch (_e) {
         payload.logger.warn(`Could not revalidate ${oldPath} (likely running outside Next.js context)`)
       }
     }
@@ -52,7 +52,7 @@ export const revalidatePageAfterDelete: CollectionAfterDeleteHook<Page> = ({
     try {
       revalidatePath(path)
       revalidateTag('pages-sitemap')
-    } catch (e) {
+    } catch (_e) {
       payload.logger.warn(`Could not revalidate ${path} (likely running outside Next.js context)`)
     }
   }

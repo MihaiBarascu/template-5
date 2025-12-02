@@ -25,7 +25,7 @@ interface CheckoutBlockProps {
 }
 
 export function CheckoutBlock({
-  variant = 'full',
+  variant: _variant = 'full',
   heading = 'Finalizare comanda',
   showOrderSummary = true,
   showShippingOptions = true,

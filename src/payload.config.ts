@@ -5,7 +5,8 @@ import { ecommercePlugin } from '@payloadcms/plugin-ecommerce'
 
 import sharp from 'sharp'
 import path from 'path'
-import { buildConfig, PayloadRequest } from 'payload'
+import { buildConfig, PayloadRequest, CollectionConfig } from 'payload'
+import type { CollectionAfterChangeHook } from 'payload'
 import { fileURLToPath } from 'url'
 
 // Collections
@@ -67,8 +68,16 @@ const PagesWithBlocks = {
   }),
 }
 
+// Order item interface
+interface OrderItem {
+  product?: string | { id?: string; title?: string }
+  priceAtPurchase?: number
+  price?: number
+  quantity?: number
+}
+
 // Order email notification hook
-const orderEmailHook = async ({ doc, operation, req }: any) => {
+const orderEmailHook: CollectionAfterChangeHook = async ({ doc, operation, req }) => {
   // Only send email for new orders
   if (operation !== 'create') return doc
 
@@ -86,10 +95,10 @@ const orderEmailHook = async ({ doc, operation, req }: any) => {
     })
 
     // Populate items with product titles
-    let populatedItems = doc.items || []
+    let populatedItems: OrderItem[] = doc.items || []
     if (Array.isArray(populatedItems)) {
       populatedItems = await Promise.all(
-        populatedItems.map(async (item: any) => {
+        populatedItems.map(async (item: OrderItem) => {
           if (item.product && typeof item.product === 'string') {
             try {
               const product = await req.payload.findByID({
@@ -97,7 +106,7 @@ const orderEmailHook = async ({ doc, operation, req }: any) => {
                 id: item.product,
               })
               return { ...item, product }
-            } catch (e) {
+            } catch (_e) {
               return item
             }
           }
@@ -116,7 +125,7 @@ const orderEmailHook = async ({ doc, operation, req }: any) => {
         const customer = await req.payload.findByID({
           collection: 'users',
           id: doc.customer,
-        })
+        }) as { name?: string | null; email?: string | null; phone?: string | null }
         customerName = customer?.name || customer?.email || 'Client'
         customerEmail = customer?.email || ''
         customerPhone = customer?.phone || ''
@@ -124,13 +133,14 @@ const orderEmailHook = async ({ doc, operation, req }: any) => {
         console.log('Could not fetch customer:', e)
       }
     } else if (doc.customer) {
-      customerName = doc.customer?.name || doc.customer?.email || 'Client'
-      customerEmail = doc.customer?.email || ''
-      customerPhone = doc.customer?.phone || ''
+      const customer = doc.customer as { name?: string | null; email?: string | null; phone?: string | null }
+      customerName = customer?.name || customer?.email || 'Client'
+      customerEmail = customer?.email || ''
+      customerPhone = customer?.phone || ''
     }
 
     // Calculate total
-    const total = doc.totals?.total || doc.total || populatedItems.reduce((sum: number, item: any) => {
+    const total = doc.totals?.total || doc.total || populatedItems.reduce((sum: number, item: OrderItem) => {
       const price = item.priceAtPurchase || item.price || 0
       return sum + (price * (item.quantity || 1))
     }, 0)
@@ -164,9 +174,9 @@ const orderEmailHook = async ({ doc, operation, req }: any) => {
         items: populatedItems,
         total,
         shippingAddress: doc.shippingAddress?.formatted || '',
-        businessName: businessInfo?.name,
-        businessPhone: businessInfo?.phone,
-        businessEmail: businessInfo?.email,
+        businessName: businessInfo?.name ?? undefined,
+        businessPhone: businessInfo?.phone ?? undefined,
+        businessEmail: businessInfo?.email ?? undefined,
       })
 
       await sendNotificationEmail(req.payload, {
@@ -184,30 +194,36 @@ const orderEmailHook = async ({ doc, operation, req }: any) => {
   return doc
 }
 
+// User type for access control
+interface EcommerceUser {
+  id?: string
+  role?: string
+}
+
 // Build ecommerce plugin config
 const ecommerceConfig: Parameters<typeof ecommercePlugin>[0] = {
   access: {
-    adminOnly: ({ req }: { req: any }) => {
+    adminOnly: ({ req }: { req: { user?: EcommerceUser | null } }) => {
       const user = req.user
       if (user && 'role' in user) return user.role === 'admin'
       return false
     },
-    adminOnlyFieldAccess: ({ req }: { req: any }) => {
+    adminOnlyFieldAccess: ({ req }: { req: { user?: EcommerceUser | null } }) => {
       const user = req.user
       if (user && 'role' in user) return user.role === 'admin'
       return false
     },
-    adminOrCustomerOwner: ({ req }: { req: any }) => {
+    adminOrCustomerOwner: ({ req }: { req: { user?: EcommerceUser | null } }) => {
       const user = req.user
       if (user && 'role' in user && user.role === 'admin') return true
       return { customer: { equals: req.user?.id } }
     },
-    adminOrPublishedStatus: ({ req }: { req: any }) => {
+    adminOrPublishedStatus: ({ req }: { req: { user?: EcommerceUser | null } }) => {
       const user = req.user
       if (user && 'role' in user && user.role === 'admin') return true
       return { _status: { equals: 'published' } }
     },
-    customerOnlyFieldAccess: ({ req }: { req: any }) => Boolean(req.user),
+    customerOnlyFieldAccess: ({ req }: { req: { user?: EcommerceUser | null } }) => Boolean(req.user),
   },
   customers: { slug: 'users' },
   currencies: {
@@ -217,7 +233,7 @@ const ecommerceConfig: Parameters<typeof ecommercePlugin>[0] = {
     ],
   },
   products: {
-    productsCollectionOverride: ({ defaultCollection }: { defaultCollection: any }) => ({
+    productsCollectionOverride: ({ defaultCollection }: { defaultCollection: CollectionConfig }) => ({
       ...defaultCollection,
       admin: {
         ...defaultCollection.admin,
@@ -240,7 +256,7 @@ const ecommerceConfig: Parameters<typeof ecommercePlugin>[0] = {
     }),
   },
   orders: {
-    ordersCollectionOverride: ({ defaultCollection }: { defaultCollection: any }) => ({
+    ordersCollectionOverride: ({ defaultCollection }: { defaultCollection: CollectionConfig }) => ({
       ...defaultCollection,
       admin: {
         ...defaultCollection.admin,

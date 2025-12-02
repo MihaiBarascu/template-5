@@ -4,11 +4,15 @@ import React, { useState, useRef, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { Logo } from '@/components/Logo'
 import { cn } from '@/utilities/cn'
+import type { Header as HeaderType, Logo as LogoType, BusinessInfo, Page } from '@/payload-types'
+
+type NavItem = NonNullable<HeaderType['navItems']>[number]
+type SubmenuItem = NonNullable<NavItem['submenu']>[number]
 
 interface HeaderProps {
-  data: any
-  logo: any
-  businessInfo: any
+  data: HeaderType | null
+  logo: LogoType | null
+  businessInfo: BusinessInfo | null
 }
 
 export function Header({ data, logo, businessInfo }: HeaderProps) {
@@ -131,10 +135,13 @@ export function Header({ data, logo, businessInfo }: HeaderProps) {
   const ctaButton = data?.ctaButton
   const showTopBar = variant === 'with-topbar'
 
-  const getItemHref = (item: any) => {
-    return item.type === 'reference'
-      ? `/${item.reference?.value?.slug || ''}`
-      : item.url || '#'
+  const getItemHref = (item: NavItem | SubmenuItem): string => {
+    if (item.type === 'reference' && item.reference) {
+      const page = item.reference.value
+      const slug = typeof page === 'string' ? page : (page as Page)?.slug
+      return `/${slug || ''}`
+    }
+    return item.url || '#'
   }
 
   return (
@@ -195,8 +202,8 @@ export function Header({ data, logo, businessInfo }: HeaderProps) {
 
             {/* Navigation - Desktop */}
             <nav className="hidden md:flex items-center gap-1">
-              {navItems.map((item: any, index: number) => {
-                const hasSubmenu = item.hasSubmenu && item.submenu?.length > 0
+              {navItems.map((item: NavItem, index: number) => {
+                const hasSubmenu = item.hasSubmenu && (item.submenu?.length ?? 0) > 0
 
                 if (hasSubmenu) {
                   const isOpen = openDropdown === index
@@ -247,7 +254,7 @@ export function Header({ data, logo, businessInfo }: HeaderProps) {
                         aria-orientation="vertical"
                       >
                         <div className="min-w-[200px] bg-white rounded-lg shadow-lg border border-gray-100 py-2">
-                          {submenuItems.map((subItem: any, subIndex: number) => (
+                          {submenuItems.map((subItem: SubmenuItem, subIndex: number) => (
                             <Link
                               key={subIndex}
                               ref={(el) => { submenuRefs.current[subIndex] = el }}
@@ -356,8 +363,8 @@ export function Header({ data, logo, businessInfo }: HeaderProps) {
         mobileMenuOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
       )}>
         <nav className="container mx-auto px-4 py-4 flex flex-col gap-1">
-          {navItems.map((item: any, index: number) => {
-            const hasSubmenu = item.hasSubmenu && item.submenu?.length > 0
+          {navItems.map((item: NavItem, index: number) => {
+            const hasSubmenu = item.hasSubmenu && (item.submenu?.length ?? 0) > 0
 
             if (hasSubmenu) {
               const isOpen = mobileOpenSubmenu === index
@@ -412,7 +419,7 @@ export function Header({ data, logo, businessInfo }: HeaderProps) {
                     isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
                   )}>
                     <div className="pl-4 py-2 space-y-1">
-                      {item.submenu.map((subItem: any, subIndex: number) => (
+                      {item.submenu?.map((subItem: SubmenuItem, subIndex: number) => (
                         <Link
                           key={subIndex}
                           href={getItemHref(subItem)}

@@ -1,9 +1,10 @@
 'use client'
 
 import React, { createContext, useContext, useEffect } from 'react'
+import type { Theme } from '@/payload-types'
 
 interface ThemeContextType {
-  theme: any
+  theme: Theme | null
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
@@ -92,7 +93,7 @@ export function ThemeProvider({
   theme,
 }: {
   children: React.ReactNode
-  theme: any
+  theme: Theme | null
 }) {
   useEffect(() => {
     if (!theme) return
@@ -100,9 +101,21 @@ export function ThemeProvider({
     const root = document.documentElement
 
     // Apply color preset or custom colors
+    const defaultColors = colorPresets.modern
+    const presetColors = colorPresets[theme.preset as keyof typeof colorPresets]
     const colors = theme.preset === 'custom' && theme.colors
-      ? theme.colors
-      : colorPresets[theme.preset as keyof typeof colorPresets] || colorPresets.modern
+      ? {
+          primary: theme.colors.primary || defaultColors.primary,
+          secondary: theme.colors.secondary || defaultColors.secondary,
+          accent: theme.colors.accent || defaultColors.accent,
+          dark: theme.colors.dark || defaultColors.dark,
+          light: theme.colors.light || defaultColors.light,
+          surface: theme.colors.surface || defaultColors.surface,
+          text: theme.colors.text || defaultColors.text,
+          textLight: theme.colors.textLight || defaultColors.textLight,
+          border: theme.colors.border || defaultColors.border,
+        }
+      : presetColors || defaultColors
 
     root.style.setProperty('--theme-primary', colors.primary)
     root.style.setProperty('--theme-secondary', colors.secondary || colors.primary)

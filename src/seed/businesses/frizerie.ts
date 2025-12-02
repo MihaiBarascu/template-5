@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type { Payload } from 'payload'
 import {
   createAdminUser,
@@ -19,7 +18,7 @@ import {
   seedPosts,
 } from '../helpers'
 import { barbershopImages, barbershopData } from '../seed-data'
-import { getVariant, barbershopVariants, type DesignVariant } from '../design-variants'
+import { getVariant, type DesignVariant } from '../design-variants'
 
 // Get variant from environment or default to 0
 const VARIANT_INDEX = parseInt(process.env.DESIGN_VARIANT || '0', 10)
@@ -183,9 +182,30 @@ export async function seedFrizerie(payload: Payload) {
   console.log('━'.repeat(50))
 }
 
+// Block configuration type for homepage layout
+interface BlockConfig {
+  blockType: string
+  variant?: string
+  heading?: string
+  subheading?: string
+  source?: string
+  onlyFeatured?: boolean
+  limit?: number
+  showPrices?: boolean
+  showIcons?: boolean
+  showRating?: boolean
+  lightbox?: boolean
+  defaultOpen?: string
+  headline?: string
+  subheadline?: string
+  buttons?: Array<{ label: string; link: string; variant?: string }>
+  backgroundColor?: string
+  [key: string]: unknown
+}
+
 // Build homepage layout based on variant configuration
-function buildHomepageLayout(variant: DesignVariant, data: typeof barbershopData) {
-  const sectionConfigs: Record<string, any> = {
+function buildHomepageLayout(variant: DesignVariant, _data: typeof barbershopData) {
+  const sectionConfigs: Record<string, BlockConfig> = {
     services: {
       blockType: 'services',
       variant: variant.layout.servicesVariant,
@@ -231,7 +251,7 @@ function buildHomepageLayout(variant: DesignVariant, data: typeof barbershopData
       subheading: 'Rezultate din activitatea noastra',
       source: 'portfolio',
       limit: 6,
-      lightbox: true,
+      
       backgroundColor: 'default',
     },
     faq: {
@@ -352,7 +372,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
           subheading: 'De la tunsori clasice la stiluri moderne, fiecare client pleaca multumit',
           source: 'portfolio',
           limit: 20,
-          lightbox: true,
+          
           backgroundColor: 'default',
         },
         {

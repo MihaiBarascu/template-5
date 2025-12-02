@@ -1,5 +1,8 @@
-export const beforeSyncWithSearch = async ({ originalDoc, searchDoc }: any) => {
-  const categories = originalDoc?.category?.title ? [{ category: originalDoc.category.title }] : []
+import type { BeforeSync } from '@payloadcms/plugin-search/types'
+
+export const beforeSyncWithSearch: BeforeSync = async ({ searchDoc, originalDoc }) => {
+  const typedDoc = originalDoc as { category?: { title?: string } }
+  const categories = typedDoc?.category?.title ? [{ category: typedDoc.category.title }] : []
 
   return {
     ...searchDoc,

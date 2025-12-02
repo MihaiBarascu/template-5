@@ -193,9 +193,12 @@ export default function CartPage() {
                   </div>
                 </div>
 
-                <button className="w-full bg-theme-primary text-white py-3 px-6 rounded-lg font-medium hover:opacity-90 transition-opacity">
+                <Link
+                  href="/checkout"
+                  className="w-full bg-theme-primary text-white py-3 px-6 rounded-lg font-medium hover:opacity-90 transition-opacity text-center block"
+                >
                   Finalizeaza Comanda
-                </button>
+                </Link>
 
                 <Link
                   href="/produse"

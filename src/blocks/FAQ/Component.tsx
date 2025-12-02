@@ -3,10 +3,22 @@
 import React, { useState } from 'react'
 import { cn } from '@/utilities/cn'
 
+interface LexicalContent {
+  root?: {
+    children?: LexicalNode[]
+  }
+}
+
+interface LexicalNode {
+  type?: string
+  text?: string
+  children?: LexicalNode[]
+}
+
 interface FAQ {
   id: string
   question: string
-  answer: any // richText
+  answer: LexicalContent
 }
 
 interface FAQBlockProps {
@@ -20,13 +32,13 @@ interface FAQBlockProps {
   faqs?: FAQ[]
 }
 
-function RichTextContent({ content }: { content: any }) {
+function RichTextContent({ content }: { content: LexicalContent }) {
   // Simple rich text renderer - extracts text from Lexical format
   if (!content?.root?.children) {
     return null
   }
 
-  const extractText = (node: any): string => {
+  const extractText = (node: LexicalNode): string => {
     if (node.text) return node.text
     if (node.children) {
       return node.children.map(extractText).join('')
@@ -36,7 +48,7 @@ function RichTextContent({ content }: { content: any }) {
 
   return (
     <>
-      {content.root.children.map((node: any, index: number) => {
+      {content.root.children.map((node: LexicalNode, index: number) => {
         const text = extractText(node)
         if (node.type === 'paragraph') {
           return <p key={index} className="mb-2 last:mb-0">{text}</p>

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type { Payload } from 'payload'
 import {
   createAdminUser,
@@ -173,8 +172,31 @@ export async function seedMagazin(payload: Payload) {
   console.log('━'.repeat(50))
 }
 
+// Block configuration type for homepage layout
+interface BlockConfig {
+  blockType: string
+  variant?: string
+  heading?: string
+  subheading?: string
+  source?: string
+  onlyFeatured?: boolean
+  limit?: number
+  showPrice?: boolean
+  showSalePrice?: boolean
+  showAddToCart?: boolean
+  showRating?: boolean
+  lightbox?: boolean
+  defaultOpen?: string
+  headline?: string
+  subheadline?: string
+  buttons?: Array<{ label: string; link: string; variant?: string }>
+  ctaButton?: { enabled: boolean; label: string; link: string }
+  backgroundColor?: string
+  [key: string]: unknown
+}
+
 function buildHomepageLayout(variant: DesignVariant) {
-  const sectionConfigs: Record<string, any> = {
+  const sectionConfigs: Record<string, BlockConfig> = {
     products: {
       blockType: 'products',
       variant: 'grid-4',
@@ -216,7 +238,7 @@ function buildHomepageLayout(variant: DesignVariant) {
       subheading: 'Magazinul nostru',
       source: 'portfolio',
       limit: 6,
-      lightbox: true,
+      
       backgroundColor: 'default',
     },
     faq: {
@@ -279,21 +301,28 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
       layout: [
         {
           blockType: 'content',
-          content: {
-            root: {
-              type: 'root',
-              children: [
-                {
-                  type: 'paragraph',
-                  children: [{ text: 'Alege o categorie pentru a vedea produsele disponibile.' }],
+          columns: [
+            {
+              width: 'full',
+              contentType: 'richText',
+              richText: {
+                root: {
+                  type: 'root',
+                  children: [
+                    {
+                      type: 'paragraph',
+                      children: [{ text: 'Alege o categorie pentru a vedea produsele disponibile.', version: 1 }],
+                      version: 1,
+                    },
+                  ],
+                  direction: 'ltr',
+                  format: '',
+                  indent: 0,
+                  version: 1,
                 },
-              ],
-              direction: 'ltr',
-              format: '',
-              indent: 0,
-              version: 1,
+              },
             },
-          },
+          ],
           backgroundColor: 'default',
         },
       ],
@@ -313,33 +342,43 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
       layout: [
         {
           blockType: 'content',
-          content: {
-            root: {
-              type: 'root',
-              children: [
-                {
-                  type: 'paragraph',
+          columns: [
+            {
+              width: 'full',
+              contentType: 'richText',
+              richText: {
+                root: {
+                  type: 'root',
                   children: [
                     {
-                      text: 'EcoShop a fost fondat in 2019 cu o misiune simpla: sa oferim produse naturale, organice si eco-friendly la preturi accesibile. Credem ca fiecare dintre noi poate face alegeri mai bune pentru sanatatea noastra si a planetei.',
+                      type: 'paragraph',
+                      children: [
+                        {
+                          text: 'EcoShop a fost fondat in 2019 cu o misiune simpla: sa oferim produse naturale, organice si eco-friendly la preturi accesibile. Credem ca fiecare dintre noi poate face alegeri mai bune pentru sanatatea noastra si a planetei.',
+                          version: 1,
+                        },
+                      ],
+                      version: 1,
                     },
-                  ],
-                },
-                {
-                  type: 'paragraph',
-                  children: [
                     {
-                      text: 'Toate produsele noastre sunt selectate cu grija, de la producatori certificati care respecta standardele cele mai inalte de calitate si sustenabilitate.',
+                      type: 'paragraph',
+                      children: [
+                        {
+                          text: 'Toate produsele noastre sunt selectate cu grija, de la producatori certificati care respecta standardele cele mai inalte de calitate si sustenabilitate.',
+                          version: 1,
+                        },
+                      ],
+                      version: 1,
                     },
                   ],
+                  direction: 'ltr',
+                  format: '',
+                  indent: 0,
+                  version: 1,
                 },
-              ],
-              direction: 'ltr',
-              format: '',
-              indent: 0,
-              version: 1,
+              },
             },
-          },
+          ],
           backgroundColor: 'default',
         },
         {
