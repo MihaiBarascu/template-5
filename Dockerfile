@@ -59,13 +59,23 @@ RUN chown nextjs:nodejs .next
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+# Copy files for manual seeding (run-seed.sh)
+COPY --from=builder --chown=nextjs:nodejs /app/src ./src
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/tsconfig.json ./tsconfig.json
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
+COPY --from=builder --chown=nextjs:nodejs /app/run-seed.sh ./run-seed.sh
+RUN chmod +x ./run-seed.sh
+
 # For uploads (media files)
 RUN mkdir -p media && chown -R nextjs:nodejs media
+RUN mkdir -p temp-uploads && chown -R nextjs:nodejs temp-uploads
 
 USER nextjs
 
 EXPOSE 3000
 
 ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
-CMD HOSTNAME="0.0.0.0" node server.js
+CMD ["node", "server.js"]
