@@ -72,19 +72,25 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export async function generateStaticParams() {
-  const payload = await getPayload({ config: configPromise })
+  try {
+    const payload = await getPayload({ config: configPromise })
 
-  const pages = await payload.find({
-    collection: 'pages',
-    where: {
-      slug: {
-        not_equals: 'home',
+    const pages = await payload.find({
+      collection: 'pages',
+      where: {
+        slug: {
+          not_equals: 'home',
+        },
       },
-    },
-    limit: 100,
-  })
+      limit: 100,
+    })
 
-  return pages.docs.map((page) => ({
-    slug: page.slug,
-  }))
+    return pages.docs.map((page) => ({
+      slug: page.slug,
+    }))
+  } catch {
+    // Return empty array during build when DB is not available
+    // Pages will be generated on-demand with ISR
+    return []
+  }
 }

@@ -134,14 +134,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export async function generateStaticParams() {
-  const payload = await getPayload({ config: configPromise })
+  try {
+    const payload = await getPayload({ config: configPromise })
 
-  const products = await payload.find({
-    collection: 'products',
-    limit: 100,
-  })
+    const products = await payload.find({
+      collection: 'products',
+      limit: 100,
+    })
 
-  return products.docs.map((product) => ({
-    slug: product.slug,
-  }))
+    return products.docs.map((product) => ({
+      slug: product.slug,
+    }))
+  } catch {
+    // Return empty array during build when DB is not available
+    // Pages will be generated on-demand with ISR
+    return []
+  }
 }
