@@ -1,4 +1,4 @@
-import type { DesignVariant, Page } from '@/payload-types';
+import type { Page, SiteTheme } from '@/payload-types';
 import fs from 'fs';
 import path from 'path';
 import type { Payload } from 'payload';
@@ -207,45 +207,42 @@ export async function createAdminUser(payload: Payload) {
   }
 }
 
-// Helper to seed theme
-export async function seedTheme(
+// Helper to seed site theme (unified theme system)
+export async function seedSiteTheme(
   payload: Payload,
   options: {
-    preset?: 'modern' | 'classic' | 'bold' | 'custom' | 'minimal' | 'elegant';
-    colors?: {
-      primary: string;
-      secondary: string;
-      accent: string;
-      dark: string;
-      light: string;
-      surface: string;
-      text: string;
-      textLight: string;
-      border: string;
-    };
-    fontPreset?: 'modern' | 'elegant' | 'bold' | 'minimalist' | 'classic';
-    stylePreset?: 'modern' | 'classic' | 'bold' | 'minimal';
-    borderRadius?: 'none' | 'small' | 'medium' | 'large' | 'full';
-    shadows?: 'none' | 'subtle' | 'moderate' | 'strong';
-    sectionSpacing?: 'compact' | 'normal' | 'spacious';
-    containerWidth?: '1024' | '1280' | '1400' | '1600';
+    variant: SiteTheme['variant'];
+    borderRadius?: SiteTheme['borderRadius'];
+    shadows?: SiteTheme['shadows'];
+    animations?: SiteTheme['animations'];
+    containerWidth?: SiteTheme['containerWidth'];
+    sectionSpacing?: SiteTheme['sectionSpacing'];
+    useCustomColors?: boolean;
+    colors?: SiteTheme['colors'];
+    useCustomFonts?: boolean;
+    fonts?: SiteTheme['fonts'];
   },
 ) {
   await payload.updateGlobal({
-    slug: 'theme',
+    slug: 'site-theme',
     data: {
-      preset: options.preset || 'modern',
+      variant: options.variant,
+      borderRadius: options.borderRadius,
+      shadows: options.shadows,
+      animations: options.animations,
+      containerWidth: options.containerWidth,
+      sectionSpacing: options.sectionSpacing,
+      useCustomColors: options.useCustomColors || false,
       colors: options.colors,
-      fontPreset: options.fontPreset || 'modern',
-      stylePreset: options.stylePreset || 'modern',
-      borderRadius: options.borderRadius || 'medium',
-      shadows: options.shadows || 'subtle',
-      sectionSpacing: options.sectionSpacing || 'normal',
-      containerWidth: options.containerWidth || '1280',
+      useCustomFonts: options.useCustomFonts || false,
+      fonts: options.fonts,
     },
   });
-  console.log('   Theme configured');
+  console.log(`   Site theme configured: ${options.variant}`);
 }
+
+// Alias for backwards compatibility
+export const seedTheme = seedSiteTheme;
 
 // Helper to seed business info
 export async function seedBusinessInfo(
@@ -277,6 +274,14 @@ export async function seedBusinessInfo(
     stats?: Array<{ value: string; label: string }>;
     googleMapsEmbed?: string;
     googleMapsLink?: string;
+    whatsappFloat?: {
+      enabled?: boolean;
+      position?: 'bottom-right' | 'bottom-left';
+      showOnMobile?: boolean;
+      defaultMessage?: string;
+      tooltipText?: string;
+      pulseAnimation?: boolean;
+    };
   },
 ) {
   await payload.updateGlobal({
@@ -296,6 +301,7 @@ export async function seedBusinessInfo(
       stats: data.stats,
       googleMapsEmbed: data.googleMapsEmbed,
       googleMapsLink: data.googleMapsLink,
+      whatsappFloat: data.whatsappFloat,
     },
   });
   console.log('   Business info configured');
@@ -873,34 +879,18 @@ export async function seedBlogCategories(
   return categoryMap;
 }
 
-// Helper to set design variant global
+// DEPRECATED: seedDesignVariant - use seedSiteTheme instead
+// The old per-business variant system has been replaced with 10 universal design variants
+// that work for any business type. Use seedSiteTheme with a variant option.
 export async function seedDesignVariant(
-  payload: Payload,
+  _payload: Payload,
   data: {
-    businessType: DesignVariant['businessType'];
-    variantIndex: number;
+    businessType?: string;
+    variantIndex?: number;
     variantName: string;
-    variantDescription: string;
+    variantDescription?: string;
   },
 ) {
-  await payload.updateGlobal({
-    slug: 'design-variant',
-    data: {
-      businessType: data.businessType,
-      variantIndex: String(data.variantIndex) as DesignVariant['variantIndex'],
-      variantDescription: `${data.variantName}\n\n${data.variantDescription}`,
-      useOverride: false,
-      homepageSections: [
-        { section: 'hero', enabled: true },
-        { section: 'services', enabled: true },
-        { section: 'stats', enabled: true },
-        { section: 'team', enabled: true },
-        { section: 'testimonials', enabled: true },
-        { section: 'gallery', enabled: true },
-        { section: 'faq', enabled: true },
-        { section: 'cta', enabled: true },
-      ],
-    },
-  });
-  console.log(`   Design variant set: ${data.variantName}`);
+  console.log(`   [DEPRECATED] seedDesignVariant called for: ${data.variantName}`);
+  console.log(`   Use seedSiteTheme with variant option instead.`);
 }

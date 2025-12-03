@@ -1,7 +1,8 @@
 import React from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Logo } from '@/components/Logo'
-import type { Footer as FooterType, BusinessInfo, Logo as LogoType } from '@/payload-types'
+import type { Footer as FooterType, BusinessInfo, Logo as LogoType, Media } from '@/payload-types'
 
 interface WorkingHoursItem {
   days: string
@@ -145,6 +146,73 @@ export function Footer({ data, businessInfo, logo }: FooterProps) {
             </div>
           ))}
         </div>
+
+        {/* Badges & Payment Methods */}
+        {((data?.badges && data.badges.length > 0) || (data?.showPaymentIcons && data?.paymentMethods && data.paymentMethods.length > 0)) && (
+          <div className="border-t border-gray-800 pt-8 mb-8 flex flex-wrap justify-center items-center gap-6">
+            {/* ANPC and other badges */}
+            {data?.badges?.map((badge, index) => {
+              const imageData = badge.image as Media | null
+              const imageUrl = imageData?.url
+
+              if (!imageUrl) return null
+
+              const BadgeImage = (
+                <Image
+                  src={imageUrl}
+                  alt={badge.alt || 'Badge'}
+                  width={100}
+                  height={40}
+                  className="h-10 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity"
+                />
+              )
+
+              if (badge.link) {
+                return (
+                  <a
+                    key={badge.id || index}
+                    href={badge.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block"
+                  >
+                    {BadgeImage}
+                  </a>
+                )
+              }
+
+              return <div key={badge.id || index}>{BadgeImage}</div>
+            })}
+
+            {/* Payment Methods */}
+            {data?.showPaymentIcons && data?.paymentMethods && data.paymentMethods.length > 0 && (
+              <div className="flex items-center gap-3">
+                {data.paymentMethods.map((method) => (
+                  <div
+                    key={method}
+                    className="w-12 h-8 bg-white/10 rounded flex items-center justify-center text-xs font-medium text-gray-400"
+                    title={method}
+                  >
+                    {method === 'visa' && (
+                      <svg className="w-8 h-5" viewBox="0 0 48 32" fill="currentColor">
+                        <path d="M18.5 21.5h-3.1l1.9-12h3.1l-1.9 12zm13.6-11.7c-.6-.2-1.6-.5-2.8-.5-3.1 0-5.3 1.7-5.3 4 0 1.8 1.6 2.8 2.8 3.4 1.2.6 1.6 1 1.6 1.5 0 .8-1 1.2-1.9 1.2-1.3 0-1.9-.2-3-.7l-.4-.2-.4 2.6c.7.3 2.1.6 3.5.6 3.3 0 5.4-1.6 5.5-4.1 0-1.4-.8-2.4-2.6-3.3-1.1-.6-1.7-.9-1.7-1.5 0-.5.6-1 1.7-1 1 0 1.7.2 2.3.4l.3.2.4-2.6zM40.6 9.5h-2.4c-.8 0-1.3.2-1.7 1l-4.7 11h3.3l.7-1.8h4l.4 1.8h2.9l-2.5-12zm-3.8 7.7c.3-.7 1.3-3.5 1.3-3.5s.3-.7.4-1.2l.2 1.1.8 3.6h-2.7z" />
+                      </svg>
+                    )}
+                    {method === 'mastercard' && (
+                      <svg className="w-8 h-5" viewBox="0 0 48 32" fill="currentColor">
+                        <circle cx="18" cy="16" r="10" fillOpacity="0.8" />
+                        <circle cx="30" cy="16" r="10" fillOpacity="0.6" />
+                      </svg>
+                    )}
+                    {method === 'paypal' && 'PayPal'}
+                    {method === 'cash' && 'Cash'}
+                    {method === 'bank' && 'Bank'}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Bottom Bar */}
         <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">

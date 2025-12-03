@@ -1,48 +1,197 @@
 'use client'
 
 import React, { createContext, useContext, useEffect } from 'react'
-import type { Theme } from '@/payload-types'
+import type { SiteTheme } from '@/payload-types'
 
 interface ThemeContextType {
-  theme: Theme | null
+  siteTheme: SiteTheme | null
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
-// Color presets
-const colorPresets = {
-  modern: {
-    primary: '#000000',
-    secondary: '#666666',
-    accent: '#c9a962',
-    dark: '#1a1a1a',
-    light: '#f5f5f5',
-    surface: '#ffffff',
-    text: '#1a1a1a',
-    textLight: '#666666',
-    border: '#e5e5e5',
+// =============================================================================
+// 10 VARIANTE UNIVERSALE DE DESIGN
+// =============================================================================
+
+interface ThemeColors {
+  primary: string
+  secondary: string
+  accent: string
+  dark: string
+  light: string
+  surface: string
+  text: string
+  textLight: string
+  border: string
+}
+
+interface ThemeVariant {
+  colors: ThemeColors
+  fonts: { heading: string; body: string }
+  borderRadius: 'none' | 'small' | 'medium' | 'large' | 'full'
+  shadows: 'none' | 'subtle' | 'moderate' | 'strong'
+}
+
+const THEME_VARIANTS: Record<string, ThemeVariant> = {
+  'dark-gold': {
+    colors: {
+      primary: '#1a1a1a',
+      secondary: '#c9a227',
+      accent: '#d4af37',
+      dark: '#0d0d0d',
+      light: '#f5f5f5',
+      surface: '#ffffff',
+      text: '#1a1a1a',
+      textLight: '#666666',
+      border: '#e5e5e5',
+    },
+    fonts: { heading: 'Playfair Display', body: 'Inter' },
+    borderRadius: 'small',
+    shadows: 'moderate',
   },
-  classic: {
-    primary: '#1e3a5f',
-    secondary: '#2563eb',
-    accent: '#b8860b',
-    dark: '#0f172a',
-    light: '#f1f5f9',
-    surface: '#ffffff',
-    text: '#1a1a1a',
-    textLight: '#64748b',
-    border: '#e2e8f0',
+  'modern-red': {
+    colors: {
+      primary: '#dc2626',
+      secondary: '#1e3a5f',
+      accent: '#ef4444',
+      dark: '#1e293b',
+      light: '#f8fafc',
+      surface: '#ffffff',
+      text: '#0f172a',
+      textLight: '#64748b',
+      border: '#e2e8f0',
+    },
+    fonts: { heading: 'Montserrat', body: 'Open Sans' },
+    borderRadius: 'medium',
+    shadows: 'subtle',
   },
-  bold: {
-    primary: '#dc2626',
-    secondary: '#ef4444',
-    accent: '#f59e0b',
-    dark: '#18181b',
-    light: '#fafafa',
-    surface: '#ffffff',
-    text: '#18181b',
-    textLight: '#71717a',
-    border: '#e4e4e7',
+  'classic-blue': {
+    colors: {
+      primary: '#2563eb',
+      secondary: '#1e40af',
+      accent: '#3b82f6',
+      dark: '#1e3a8a',
+      light: '#eff6ff',
+      surface: '#ffffff',
+      text: '#1e3a8a',
+      textLight: '#64748b',
+      border: '#bfdbfe',
+    },
+    fonts: { heading: 'Inter', body: 'Inter' },
+    borderRadius: 'medium',
+    shadows: 'subtle',
+  },
+  'fresh-green': {
+    colors: {
+      primary: '#16a34a',
+      secondary: '#15803d',
+      accent: '#22c55e',
+      dark: '#14532d',
+      light: '#f0fdf4',
+      surface: '#ffffff',
+      text: '#14532d',
+      textLight: '#166534',
+      border: '#bbf7d0',
+    },
+    fonts: { heading: 'Poppins', body: 'Open Sans' },
+    borderRadius: 'large',
+    shadows: 'subtle',
+  },
+  'minimal-black': {
+    colors: {
+      primary: '#000000',
+      secondary: '#404040',
+      accent: '#171717',
+      dark: '#000000',
+      light: '#fafafa',
+      surface: '#ffffff',
+      text: '#171717',
+      textLight: '#737373',
+      border: '#e5e5e5',
+    },
+    fonts: { heading: 'Inter', body: 'Inter' },
+    borderRadius: 'none',
+    shadows: 'none',
+  },
+  'purple-premium': {
+    colors: {
+      primary: '#7c3aed',
+      secondary: '#6d28d9',
+      accent: '#a78bfa',
+      dark: '#4c1d95',
+      light: '#f5f3ff',
+      surface: '#ffffff',
+      text: '#4c1d95',
+      textLight: '#7c3aed',
+      border: '#ede9fe',
+    },
+    fonts: { heading: 'Playfair Display', body: 'Lato' },
+    borderRadius: 'medium',
+    shadows: 'moderate',
+  },
+  'warm-orange': {
+    colors: {
+      primary: '#ea580c',
+      secondary: '#9a3412',
+      accent: '#fb923c',
+      dark: '#7c2d12',
+      light: '#fff7ed',
+      surface: '#ffffff',
+      text: '#7c2d12',
+      textLight: '#c2410c',
+      border: '#fed7aa',
+    },
+    fonts: { heading: 'Poppins', body: 'Open Sans' },
+    borderRadius: 'medium',
+    shadows: 'moderate',
+  },
+  'teal-modern': {
+    colors: {
+      primary: '#0d9488',
+      secondary: '#0f766e',
+      accent: '#14b8a6',
+      dark: '#134e4a',
+      light: '#f0fdfa',
+      surface: '#ffffff',
+      text: '#134e4a',
+      textLight: '#0f766e',
+      border: '#ccfbf1',
+    },
+    fonts: { heading: 'Montserrat', body: 'Inter' },
+    borderRadius: 'large',
+    shadows: 'subtle',
+  },
+  'brown-vintage': {
+    colors: {
+      primary: '#8b4513',
+      secondary: '#d4a574',
+      accent: '#cd853f',
+      dark: '#3d2914',
+      light: '#faf8f5',
+      surface: '#fffef9',
+      text: '#3d2914',
+      textLight: '#8b7355',
+      border: '#e8e0d5',
+    },
+    fonts: { heading: 'Lora', body: 'Source Sans Pro' },
+    borderRadius: 'none',
+    shadows: 'none',
+  },
+  'pink-soft': {
+    colors: {
+      primary: '#ec4899',
+      secondary: '#db2777',
+      accent: '#f472b6',
+      dark: '#831843',
+      light: '#fdf2f8',
+      surface: '#ffffff',
+      text: '#831843',
+      textLight: '#be185d',
+      border: '#fbcfe8',
+    },
+    fonts: { heading: 'Playfair Display', body: 'Lato' },
+    borderRadius: 'full',
+    shadows: 'subtle',
   },
 }
 
@@ -90,45 +239,46 @@ const spacingPresets = {
 
 export function ThemeProvider({
   children,
-  theme,
+  siteTheme,
 }: {
   children: React.ReactNode
-  theme: Theme | null
+  siteTheme: SiteTheme | null
 }) {
   useEffect(() => {
-    if (!theme) return
-
     const root = document.documentElement
 
-    // Apply color preset or custom colors
-    const defaultColors = colorPresets.modern
-    const presetColors = colorPresets[theme.preset as keyof typeof colorPresets]
-    const colors = theme.preset === 'custom' && theme.colors
+    // Get the selected variant or default to dark-gold
+    const variantKey = siteTheme?.variant || 'dark-gold'
+    const variant = THEME_VARIANTS[variantKey] || THEME_VARIANTS['dark-gold']
+
+    // Apply colors - use custom if enabled, otherwise use variant
+    const colors = siteTheme?.useCustomColors && siteTheme.colors
       ? {
-          primary: theme.colors.primary || defaultColors.primary,
-          secondary: theme.colors.secondary || defaultColors.secondary,
-          accent: theme.colors.accent || defaultColors.accent,
-          dark: theme.colors.dark || defaultColors.dark,
-          light: theme.colors.light || defaultColors.light,
-          surface: theme.colors.surface || defaultColors.surface,
-          text: theme.colors.text || defaultColors.text,
-          textLight: theme.colors.textLight || defaultColors.textLight,
-          border: theme.colors.border || defaultColors.border,
+          primary: siteTheme.colors.primary || variant.colors.primary,
+          secondary: siteTheme.colors.secondary || variant.colors.secondary,
+          accent: siteTheme.colors.accent || variant.colors.accent,
+          dark: siteTheme.colors.dark || variant.colors.dark,
+          light: siteTheme.colors.light || variant.colors.light,
+          surface: siteTheme.colors.surface || variant.colors.surface,
+          text: siteTheme.colors.text || variant.colors.text,
+          textLight: siteTheme.colors.textLight || variant.colors.textLight,
+          border: siteTheme.colors.border || variant.colors.border,
         }
-      : presetColors || defaultColors
+      : variant.colors
 
     root.style.setProperty('--theme-primary', colors.primary)
-    root.style.setProperty('--theme-secondary', colors.secondary || colors.primary)
+    root.style.setProperty('--theme-secondary', colors.secondary)
     root.style.setProperty('--theme-accent', colors.accent)
     root.style.setProperty('--theme-dark', colors.dark)
     root.style.setProperty('--theme-light', colors.light)
     root.style.setProperty('--theme-surface', colors.surface)
     root.style.setProperty('--theme-text', colors.text)
-    root.style.setProperty('--theme-text-light', colors.textLight || colors.text)
+    root.style.setProperty('--theme-text-light', colors.textLight)
     root.style.setProperty('--theme-border', colors.border)
 
-    // Apply border radius
-    const radius = radiusPresets[theme.borderRadius as keyof typeof radiusPresets] || radiusPresets.medium
+    // Apply border radius - use override if set, otherwise use variant
+    const borderRadiusKey = siteTheme?.borderRadius || variant.borderRadius
+    const radius = radiusPresets[borderRadiusKey as keyof typeof radiusPresets] || radiusPresets.medium
     root.style.setProperty('--radius-sm', radius.sm)
     root.style.setProperty('--radius-md', radius.md)
     root.style.setProperty('--radius-lg', radius.lg)
@@ -137,8 +287,9 @@ export function ThemeProvider({
     root.style.setProperty('--radius-card', radius.card)
     root.style.setProperty('--radius-input', radius.input)
 
-    // Apply shadows
-    const shadows = shadowPresets[theme.shadows as keyof typeof shadowPresets] || shadowPresets.subtle
+    // Apply shadows - use override if set, otherwise use variant
+    const shadowsKey = siteTheme?.shadows || variant.shadows
+    const shadows = shadowPresets[shadowsKey as keyof typeof shadowPresets] || shadowPresets.subtle
     root.style.setProperty('--shadow-sm', shadows.sm)
     root.style.setProperty('--shadow-md', shadows.md)
     root.style.setProperty('--shadow-lg', shadows.lg)
@@ -146,19 +297,33 @@ export function ThemeProvider({
     root.style.setProperty('--shadow-card-hover', shadows.cardHover)
 
     // Apply section spacing
-    const spacing = spacingPresets[theme.sectionSpacing as keyof typeof spacingPresets] || spacingPresets.normal
+    const spacingKey = siteTheme?.sectionSpacing || 'normal'
+    const spacing = spacingPresets[spacingKey as keyof typeof spacingPresets] || spacingPresets.normal
     root.style.setProperty('--spacing-section', spacing.section)
     root.style.setProperty('--spacing-section-mobile', spacing.sectionMobile)
 
     // Apply container width
-    if (theme.containerWidth) {
-      root.style.setProperty('--container-max', `${theme.containerWidth}px`)
+    if (siteTheme?.containerWidth) {
+      root.style.setProperty('--container-max', `${siteTheme.containerWidth}px`)
+    } else {
+      root.style.setProperty('--container-max', '1280px')
     }
 
-  }, [theme])
+    // Apply fonts - use custom if enabled, otherwise use variant
+    const headingFont = siteTheme?.useCustomFonts && siteTheme.fonts?.headingFont
+      ? siteTheme.fonts.headingFont
+      : variant.fonts.heading
+    const bodyFont = siteTheme?.useCustomFonts && siteTheme.fonts?.bodyFont
+      ? siteTheme.fonts.bodyFont
+      : variant.fonts.body
+
+    root.style.setProperty('--font-heading', headingFont)
+    root.style.setProperty('--font-body', bodyFont)
+
+  }, [siteTheme])
 
   return (
-    <ThemeContext.Provider value={{ theme }}>
+    <ThemeContext.Provider value={{ siteTheme }}>
       {children}
     </ThemeContext.Provider>
   )
@@ -171,3 +336,7 @@ export function useTheme() {
   }
   return context
 }
+
+// Export variant data for use in other components
+export { THEME_VARIANTS }
+export type { ThemeVariant, ThemeColors }

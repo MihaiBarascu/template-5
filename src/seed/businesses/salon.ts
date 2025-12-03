@@ -1,7 +1,7 @@
 import type { Payload } from 'payload'
 import {
   createAdminUser,
-  seedTheme,
+  seedSiteTheme,
   seedBusinessInfo,
   seedLogo,
   seedHeader,
@@ -13,7 +13,6 @@ import {
   seedHomePage,
   seedPortfolio,
   uploadLocalSeedImages,
-  seedDesignVariant,
   seedPosts,
 } from '../helpers'
 import { salonImages, salonData } from '../seed-data'
@@ -37,12 +36,11 @@ export async function seedSalon(payload: Payload) {
 
   const getImageId = (filename: string): string | undefined => imageMap.get(filename) || undefined
 
-  console.log('\n🎨 Configuring theme...')
-  await seedTheme(payload, {
-    preset: variant.theme.preset,
-    colors: variant.theme.colors,
-    fontPreset: variant.theme.fontPreset,
-    stylePreset: variant.theme.stylePreset,
+  // Configure theme - use universal variant based on business style
+  // Salon beauty typically uses pink-soft (feminine, delicate) or purple-premium (luxury)
+  console.log('\n🎨 Configuring site theme...')
+  await seedSiteTheme(payload, {
+    variant: 'pink-soft', // Best for beauty salon - feminine, delicate, romantic
     borderRadius: variant.theme.borderRadius,
     shadows: variant.theme.shadows,
     sectionSpacing: 'normal',
@@ -140,14 +138,8 @@ export async function seedSalon(payload: Payload) {
     await seedPosts(payload, salonData.posts)
   }
 
-  // Set design variant global
-  console.log('\n🎨 Setting design variant global...')
-  await seedDesignVariant(payload, {
-    businessType: 'salon',
-    variantIndex: VARIANT_INDEX,
-    variantName: variant.name,
-    variantDescription: variant.description,
-  })
+  // Note: Design variant global has been replaced by unified SiteTheme system
+  // Theme is now configured at the start of seeding via seedSiteTheme()
 
   console.log('\n' + '━'.repeat(50))
   console.log('✅ Salon seeding complete!')

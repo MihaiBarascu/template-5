@@ -1,7 +1,7 @@
 import type { Payload } from 'payload'
 import {
   createAdminUser,
-  seedTheme,
+  seedSiteTheme,
   seedBusinessInfo,
   seedLogo,
   seedHeader,
@@ -13,7 +13,6 @@ import {
   seedHomePage,
   seedPortfolio,
   uploadLocalSeedImages,
-  seedDesignVariant,
   seedPosts,
 } from '../helpers'
 import { constructiiImages, constructiiData } from '../seed-data'
@@ -37,12 +36,11 @@ export async function seedConstructii(payload: Payload) {
 
   const getImageId = (filename: string): string | undefined => imageMap.get(filename) || undefined
 
-  console.log('\n🎨 Configuring theme...')
-  await seedTheme(payload, {
-    preset: variant.theme.preset,
-    colors: variant.theme.colors,
-    fontPreset: variant.theme.fontPreset,
-    stylePreset: variant.theme.stylePreset,
+  // Configure theme - use universal variant based on business style
+  // Construction typically uses warm-orange (strong, reliable) or modern-red (bold, powerful)
+  console.log('\n🎨 Configuring site theme...')
+  await seedSiteTheme(payload, {
+    variant: 'warm-orange', // Best for construction - strong, reliable, professional
     borderRadius: variant.theme.borderRadius,
     shadows: variant.theme.shadows,
     sectionSpacing: 'normal',
@@ -140,14 +138,8 @@ export async function seedConstructii(payload: Payload) {
     await seedPosts(payload, constructiiData.posts)
   }
 
-  // Set design variant global
-  console.log('\n🎨 Setting design variant global...')
-  await seedDesignVariant(payload, {
-    businessType: 'constructii',
-    variantIndex: VARIANT_INDEX,
-    variantName: variant.name,
-    variantDescription: variant.description,
-  })
+  // Note: Design variant global has been replaced by unified SiteTheme system
+  // Theme is now configured at the start of seeding via seedSiteTheme()
 
   console.log('\n' + '━'.repeat(50))
   console.log('✅ Constructii seeding complete!')

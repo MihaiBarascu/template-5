@@ -18,10 +18,8 @@ export const ServicesBlock: Block = {
         { label: 'Grid 4 coloane', value: 'grid-4' },
         { label: 'Grid 2 coloane', value: 'grid-2' },
         { label: 'Lista', value: 'list' },
-        { label: 'Lista cu imagini alternante', value: 'list-alternating' },
-        { label: 'Carousel', value: 'carousel' },
-        { label: 'Tabs', value: 'tabs' },
-        { label: 'Cu preturi', value: 'with-prices' },
+        { label: 'Lista alternanta', value: 'list-alternating' },
+        { label: 'Lista preturi (dotted)', value: 'price-list' },
       ],
     },
     {
@@ -135,6 +133,36 @@ export const ServicesBlock: Block = {
       type: 'checkbox',
       label: 'Afiseaza iconite',
       defaultValue: true,
+    },
+    {
+      name: 'showDuration',
+      type: 'checkbox',
+      label: 'Afiseaza durata',
+      defaultValue: true,
+    },
+    {
+      name: 'showBookButton',
+      type: 'checkbox',
+      label: 'Afiseaza buton programare',
+      defaultValue: false,
+    },
+    {
+      name: 'bookButtonText',
+      type: 'text',
+      label: 'Text buton programare',
+      defaultValue: 'Programeaza-te',
+      admin: {
+        condition: (_, siblingData) => siblingData?.showBookButton,
+      },
+    },
+    {
+      name: 'bookButtonLink',
+      type: 'text',
+      label: 'Link buton programare',
+      defaultValue: '/contact',
+      admin: {
+        condition: (_, siblingData) => siblingData?.showBookButton,
+      },
     },
     {
       name: 'ctaButton',

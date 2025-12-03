@@ -15,6 +15,10 @@ import { MapBlock } from './Map/config'
 import { BookingBlock } from './Booking/config'
 import { CartBlock } from './Cart/config'
 import { CheckoutBlock } from './Checkout/config'
+import { VideoEmbedBlock } from './VideoEmbed/config'
+import { PriceListDottedBlock } from './PriceListDotted/config'
+import { BeforeAfterBlock } from './BeforeAfter/config'
+import { NewsletterBlock } from './Newsletter/config'
 
 export const blocks = [
   HeroBlock,
@@ -34,6 +38,10 @@ export const blocks = [
   BookingBlock,
   CartBlock,
   CheckoutBlock,
+  VideoEmbedBlock,
+  PriceListDottedBlock,
+  BeforeAfterBlock,
+  NewsletterBlock,
 ]
 
 export {
@@ -54,4 +62,8 @@ export {
   BookingBlock,
   CartBlock,
   CheckoutBlock,
+  VideoEmbedBlock,
+  PriceListDottedBlock,
+  BeforeAfterBlock,
+  NewsletterBlock,
 }

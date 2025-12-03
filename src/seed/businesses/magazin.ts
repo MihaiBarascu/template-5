@@ -1,7 +1,7 @@
 import type { Payload } from 'payload'
 import {
   createAdminUser,
-  seedTheme,
+  seedSiteTheme,
   seedBusinessInfo,
   seedLogo,
   seedHeader,
@@ -13,7 +13,6 @@ import {
   uploadLocalSeedImages,
   seedProductCategories,
   seedProducts,
-  seedDesignVariant,
   seedPosts,
 } from '../helpers'
 import { magazinImages, magazinData } from '../seed-data'
@@ -42,12 +41,11 @@ export async function seedMagazin(payload: Payload) {
 
   const getImageId = (filename: string): string | undefined => imageMap.get(filename) || undefined
 
-  console.log('\n🎨 Configuring theme...')
-  await seedTheme(payload, {
-    preset: variant.theme.preset,
-    colors: variant.theme.colors,
-    fontPreset: variant.theme.fontPreset,
-    stylePreset: variant.theme.stylePreset,
+  // Configure theme - use universal variant based on business style
+  // Magazin/Shop typically uses fresh-green (natural products) or minimal-black (fashion)
+  console.log('\n🎨 Configuring site theme...')
+  await seedSiteTheme(payload, {
+    variant: 'fresh-green', // Best for shop/magazine - natural, eco-friendly
     borderRadius: variant.theme.borderRadius,
     shadows: variant.theme.shadows,
     sectionSpacing: 'normal',
@@ -157,13 +155,8 @@ export async function seedMagazin(payload: Payload) {
     await seedPosts(payload, magazinData.posts)
   }
 
-  console.log('\n🎨 Setting design variant global...')
-  await seedDesignVariant(payload, {
-    businessType: 'magazin',
-    variantIndex: VARIANT_INDEX,
-    variantName: variant.name,
-    variantDescription: variant.description,
-  })
+  // Note: Design variant global has been replaced by unified SiteTheme system
+  // Theme is now configured at the start of seeding via seedSiteTheme()
 
   console.log('\n' + '━'.repeat(50))
   console.log('✅ Magazin seeding complete!')

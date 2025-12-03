@@ -121,6 +121,58 @@ export const Pages: CollectionConfig = {
             },
           ],
         },
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'showSocialIcons',
+              type: 'checkbox',
+              label: 'Afiseaza iconite social media',
+              defaultValue: true,
+              admin: { width: '50%' },
+            },
+            {
+              name: 'socialIconsPosition',
+              type: 'select',
+              label: 'Pozitie iconite social',
+              defaultValue: 'left',
+              options: [
+                { label: 'Stanga', value: 'left' },
+                { label: 'Dreapta', value: 'right' },
+              ],
+              admin: {
+                width: '50%',
+                condition: (_, siblingData) => siblingData?.showSocialIcons,
+              },
+            },
+          ],
+        },
+        {
+          name: 'height',
+          type: 'select',
+          label: 'Inaltime Hero',
+          defaultValue: 'large',
+          options: [
+            { label: 'Mica', value: 'small' },
+            { label: 'Medie', value: 'medium' },
+            { label: 'Mare', value: 'large' },
+            { label: 'Fullscreen', value: 'fullscreen' },
+          ],
+        },
+        {
+          name: 'badge',
+          type: 'text',
+          label: 'Badge (optional)',
+          admin: {
+            description: 'Ex: Premium Quality, Since 2015',
+          },
+        },
+        {
+          name: 'showScrollIndicator',
+          type: 'checkbox',
+          label: 'Afiseaza indicator scroll',
+          defaultValue: false,
+        },
       ],
     },
     {

@@ -18,6 +18,10 @@ import { BookingBlock } from './Booking/Component'
 import { ProductsBlock } from './Products/Component'
 import { CartBlock } from './Cart/Component'
 import { CheckoutBlock } from './Checkout/Component'
+import { VideoEmbedBlock } from './VideoEmbed/Component'
+import { PriceListDottedBlock } from './PriceListDotted/Component'
+import { BeforeAfterBlock } from './BeforeAfter/Component'
+import { NewsletterBlock } from './Newsletter/Component'
 
 type LayoutBlock = NonNullable<Page['layout']>[number]
 
@@ -366,7 +370,7 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   columns={columns}
                   gap={block.gap ?? undefined}
                   aspectRatio={block.aspectRatio ?? undefined}
-                  lightbox={block.variant === 'lightbox'}
+                  lightbox={true}
                   backgroundColor={block.backgroundColor ?? undefined}
                   images={images}
                 />
@@ -471,6 +475,84 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   submitButtonText={block.submitButtonText ?? undefined}
                   successMessage={block.successMessage ?? undefined}
                   backgroundColor={block.backgroundColor ?? undefined}
+                />
+              )
+            }
+
+            case 'videoEmbed': {
+              return (
+                <VideoEmbedBlock
+                  key={block.id || index}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
+                  subheading={block.subheading ?? undefined}
+                  videoUrl={block.videoUrl}
+                  thumbnail={block.thumbnail ?? undefined}
+                  sideContent={block.sideContent ?? undefined}
+                  aspectRatio={block.aspectRatio ?? undefined}
+                  autoplay={block.autoplay ?? undefined}
+                  loop={block.loop ?? undefined}
+                  showControls={block.showControls ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
+                  maxWidth={block.maxWidth ?? undefined}
+                />
+              )
+            }
+
+            case 'priceListDotted': {
+              const priceListServices = block.source === 'services'
+                ? await getServices({
+                    limit: block.limit,
+                    filterByCategory: block.filterByCategory,
+                  })
+                : []
+
+              return (
+                <PriceListDottedBlock
+                  key={block.id || index}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
+                  subheading={block.subheading ?? undefined}
+                  items={block.items ?? undefined}
+                  categories={block.categories ?? undefined}
+                  services={priceListServices}
+                  currency={block.currency ?? undefined}
+                  showDuration={block.showDuration ?? undefined}
+                  dotStyle={block.dotStyle ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
+                  ctaButton={block.ctaButton ?? undefined}
+                />
+              )
+            }
+
+            case 'beforeAfter': {
+              return (
+                <BeforeAfterBlock
+                  key={block.id || index}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
+                  subheading={block.subheading ?? undefined}
+                  items={block.items ?? undefined}
+                  sliderPosition={block.sliderPosition ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
+                />
+              )
+            }
+
+            case 'newsletter': {
+              return (
+                <NewsletterBlock
+                  key={block.id || index}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
+                  subheading={block.subheading ?? undefined}
+                  placeholder={block.placeholder ?? undefined}
+                  buttonText={block.buttonText ?? undefined}
+                  successMessage={block.successMessage ?? undefined}
+                  backgroundImage={block.backgroundImage ?? undefined}
+                  privacyText={block.privacyText ?? undefined}
+                  showPrivacyLink={block.showPrivacyLink ?? undefined}
+                  benefits={block.benefits ?? undefined}
                 />
               )
             }

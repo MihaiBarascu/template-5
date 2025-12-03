@@ -1,6 +1,5 @@
-export { Theme } from './Theme'
+export { SiteTheme } from './SiteTheme'
 export { BusinessInfo } from './BusinessInfo'
 export { Header } from './Header'
 export { Footer } from './Footer'
 export { Logo } from './Logo'
-export { DesignVariant } from './DesignVariant'

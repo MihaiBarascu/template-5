@@ -1,52 +1,313 @@
-import React from 'react'
+'use client'
+
+import React, { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { cn } from '@/utilities/cn'
 import type { Page } from '@/payload-types'
+import { SocialFloat } from '@/components/SocialFloat'
+
+interface SocialLinks {
+  facebook?: string | null
+  instagram?: string | null
+  tiktok?: string | null
+  youtube?: string | null
+  linkedin?: string | null
+  twitter?: string | null
+}
 
 type HeroData = NonNullable<Page['hero']> & {
   height?: 'small' | 'medium' | 'large' | 'fullscreen' | null
   overlayOpacity?: string | null
+  overlayGradient?: string | null
+  videoUrl?: string | null
+  parallax?: boolean | null
+  showScrollIndicator?: boolean | null
+  showSocialIcons?: boolean | null
+  socialIconsPosition?: 'left' | 'right' | null
+  badge?: string | null
+  slides?: Array<{
+    image?: { url?: string; alt?: string } | string | null
+    headline?: string
+    subheadline?: string
+  }> | null
 }
 type CTAButton = NonNullable<NonNullable<Page['hero']>['ctaButtons']>[number]
 
 interface RenderHeroProps {
   type: string
   data: HeroData | null
+  social?: SocialLinks | null
 }
 
-// Helper to get image URL from string | Media | null
-function getImageData(image: HeroData['image']): { url: string; alt: string } | null {
+// Helper to get image URL
+function getImageData(image: unknown): { url: string; alt: string } | null {
   if (!image || typeof image === 'string') return null
-  if (!image.url) return null
-  return { url: image.url, alt: image.alt || '' }
+  const imgData = image as { url?: string; alt?: string }
+  if (!imgData.url) return null
+  return { url: imgData.url, alt: imgData.alt || '' }
 }
 
-export function RenderHero({ type, data }: RenderHeroProps) {
+// CSS-only scroll indicator
+function ScrollIndicator() {
+  return (
+    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce-slow">
+      <div className="w-7 h-12 border-2 border-white/60 rounded-full flex justify-center pt-2">
+        <div className="w-1.5 h-3 bg-white/80 rounded-full animate-scroll-indicator" />
+      </div>
+    </div>
+  )
+}
+
+// Feature badge
+function FeatureBadge({ text, variant = 'light' }: { text: string; variant?: 'light' | 'dark' }) {
+  return (
+    <span className={cn(
+      'inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold animate-fade-in-down',
+      variant === 'light'
+        ? 'bg-white/20 text-white backdrop-blur-sm border border-white/30'
+        : 'bg-theme-primary/10 text-theme-primary border border-theme-primary/20'
+    )}>
+      <span className="w-2 h-2 bg-current rounded-full animate-pulse-soft" />
+      {text}
+    </span>
+  )
+}
+
+// Hero Carousel/Slider component - CSS animations with minimal JS for state
+function HeroCarousel({ slides, ctaButtons, height, overlayOpacity }: {
+  slides: NonNullable<HeroData['slides']>
+  ctaButtons?: CTAButton[] | null
+  height: string
+  overlayOpacity: number
+}) {
+  const [currentSlide, setCurrentSlide] = useState(0)
+  const [isTransitioning, setIsTransitioning] = useState(false)
+
+  const nextSlide = useCallback(() => {
+    if (isTransitioning) return
+    setIsTransitioning(true)
+    setCurrentSlide((prev) => (prev + 1) % slides.length)
+    setTimeout(() => setIsTransitioning(false), 700)
+  }, [slides.length, isTransitioning])
+
+  const prevSlide = useCallback(() => {
+    if (isTransitioning) return
+    setIsTransitioning(true)
+    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length)
+    setTimeout(() => setIsTransitioning(false), 700)
+  }, [slides.length, isTransitioning])
+
+  // Auto-advance slides
+  useEffect(() => {
+    const timer = setInterval(nextSlide, 6000)
+    return () => clearInterval(timer)
+  }, [nextSlide])
+
+  return (
+    <section className={cn('relative overflow-hidden', height)}>
+      {/* Slides */}
+      {slides.map((slide, index) => {
+        const slideImage = getImageData(slide.image)
+        const isActive = index === currentSlide
+
+        return (
+          <div
+            key={index}
+            className={cn(
+              'absolute inset-0 transition-all duration-700 ease-in-out',
+              isActive ? 'opacity-100 z-10' : 'opacity-0 z-0'
+            )}
+          >
+            {/* Background Image */}
+            {slideImage && (
+              <>
+                <Image
+                  src={slideImage.url}
+                  alt={slideImage.alt || slide.headline || ''}
+                  fill
+                  className={cn(
+                    'object-cover transition-transform duration-[8000ms] ease-out',
+                    isActive ? 'scale-105' : 'scale-100'
+                  )}
+                  priority={index === 0}
+                />
+                {/* Overlay */}
+                <div
+                  className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20"
+                  style={{ opacity: overlayOpacity / 100 }}
+                />
+              </>
+            )}
+
+            {/* Content */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="container mx-auto px-4 text-center text-white">
+                {slide.headline && (
+                  <h1
+                    className={cn(
+                      'text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-6 leading-tight drop-shadow-2xl transition-all duration-700',
+                      isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                    )}
+                    style={{ transitionDelay: isActive ? '200ms' : '0ms' }}
+                  >
+                    {slide.headline}
+                  </h1>
+                )}
+                {slide.subheadline && (
+                  <p
+                    className={cn(
+                      'text-lg md:text-xl lg:text-2xl mb-8 max-w-3xl mx-auto opacity-90 drop-shadow-lg transition-all duration-700',
+                      isActive ? 'opacity-90 translate-y-0' : 'opacity-0 translate-y-6'
+                    )}
+                    style={{ transitionDelay: isActive ? '400ms' : '0ms' }}
+                  >
+                    {slide.subheadline}
+                  </p>
+                )}
+                {ctaButtons && ctaButtons.length > 0 && (
+                  <div
+                    className={cn(
+                      'flex flex-col sm:flex-row gap-4 justify-center transition-all duration-700',
+                      isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                    )}
+                    style={{ transitionDelay: isActive ? '600ms' : '0ms' }}
+                  >
+                    {ctaButtons.map((button, btnIndex) => (
+                      <Link
+                        key={btnIndex}
+                        href={button.link || '#'}
+                        className={cn(
+                          'group inline-flex items-center justify-center px-8 py-4 rounded-[var(--radius-button)] font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-xl',
+                          button.variant === 'outline'
+                            ? 'border-2 border-white text-white hover:bg-white hover:text-black'
+                            : 'bg-theme-secondary text-white hover:bg-theme-accent'
+                        )}
+                      >
+                        {button.label}
+                        <svg className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )
+      })}
+
+      {/* Navigation arrows */}
+      <button
+        onClick={prevSlide}
+        className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all duration-300 hover:scale-110"
+        aria-label="Previous slide"
+      >
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+      <button
+        onClick={nextSlide}
+        className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all duration-300 hover:scale-110"
+        aria-label="Next slide"
+      >
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+
+      {/* Slide indicators */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-3">
+        {slides.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => {
+              if (!isTransitioning) {
+                setIsTransitioning(true)
+                setCurrentSlide(index)
+                setTimeout(() => setIsTransitioning(false), 700)
+              }
+            }}
+            className={cn(
+              'transition-all duration-300',
+              index === currentSlide
+                ? 'w-8 h-2 bg-white rounded-full'
+                : 'w-2 h-2 bg-white/50 rounded-full hover:bg-white/70'
+            )}
+            aria-label={`Go to slide ${index + 1}`}
+          />
+        ))}
+      </div>
+
+      {/* Progress bar */}
+      <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20 z-20">
+        <div
+          key={currentSlide}
+          className="h-full bg-theme-secondary animate-progress-bar"
+        />
+      </div>
+    </section>
+  )
+}
+
+export function RenderHero({ type, data, social }: RenderHeroProps) {
   if (!data) return null
 
-  const { headline, subheadline, image, ctaButtons } = data
+  const {
+    headline,
+    subheadline,
+    image,
+    ctaButtons,
+    videoUrl,
+    showScrollIndicator,
+    showSocialIcons = true,
+    socialIconsPosition = 'left',
+    badge,
+    slides,
+  } = data
   const imageData = getImageData(image)
+  const overlayOpacity = parseInt(data.overlayOpacity || '50')
 
   // Height classes
   const heightClasses = {
-    small: 'min-h-[300px] md:min-h-[400px]',
-    medium: 'min-h-[400px] md:min-h-[500px]',
-    large: 'min-h-[500px] md:min-h-[600px]',
+    small: 'min-h-[400px] md:min-h-[500px]',
+    medium: 'min-h-[500px] md:min-h-[600px]',
+    large: 'min-h-[600px] md:min-h-[750px]',
     fullscreen: 'min-h-screen',
   }
 
-  // Base hero component for fullscreen/image backgrounds
+  const heightClass = heightClasses[data.height as keyof typeof heightClasses] || heightClasses.large
+
+  // CAROUSEL HERO - for multiple slides
+  if (type === 'carousel' && slides && slides.length > 0) {
+    return (
+      <HeroCarousel
+        slides={slides}
+        ctaButtons={ctaButtons}
+        height={heightClass}
+        overlayOpacity={overlayOpacity}
+      />
+    )
+  }
+
+  // FULLSCREEN / WITH IMAGE HERO
   if (type === 'fullscreen' || type === 'withImage') {
     return (
-      <section
-        className={cn(
-          'relative flex items-center justify-center',
-          heightClasses[data.height as keyof typeof heightClasses] || heightClasses.large
+      <section className={cn('relative flex items-center justify-center overflow-hidden', heightClass)}>
+        {/* Video Background */}
+        {videoUrl && (
+          <div className="absolute inset-0 overflow-hidden">
+            <video autoPlay muted loop playsInline className="absolute w-full h-full object-cover">
+              <source src={videoUrl} type="video/mp4" />
+            </video>
+            <div className="absolute inset-0 bg-black" style={{ opacity: overlayOpacity / 100 }} />
+          </div>
         )}
-      >
-        {/* Background Image */}
-        {imageData && (
+
+        {/* Image Background */}
+        {!videoUrl && imageData && (
           <div className="absolute inset-0">
             <Image
               src={imageData.url}
@@ -55,87 +316,125 @@ export function RenderHero({ type, data }: RenderHeroProps) {
               className="object-cover"
               priority
             />
-            <div
-              className="absolute inset-0 bg-black"
-              style={{ opacity: parseInt(data.overlayOpacity || '50') / 100 }}
-            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/30" />
           </div>
         )}
 
+        {/* Gradient fallback */}
+        {!videoUrl && !imageData && (
+          <div className="absolute inset-0 bg-gradient-to-br from-theme-dark via-theme-primary to-theme-secondary" />
+        )}
+
+        {/* Decorative blobs */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute -top-1/4 -left-1/4 w-[600px] h-[600px] bg-theme-secondary/20 rounded-full blur-[100px] animate-float-slow" />
+          <div className="absolute -bottom-1/4 -right-1/4 w-[600px] h-[600px] bg-theme-accent/20 rounded-full blur-[100px] animate-float-slow-reverse" />
+        </div>
+
         {/* Content */}
-        <div className="relative z-10 container mx-auto px-4 text-center text-white">
+        <div className="relative z-10 container mx-auto px-4 text-center text-white py-20">
+          {badge && (
+            <div className="mb-8">
+              <FeatureBadge text={badge} />
+            </div>
+          )}
+
           {headline && (
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-6 leading-tight drop-shadow-2xl animate-fade-in-up">
               {headline}
             </h1>
           )}
+
           {subheadline && (
-            <p className="text-lg md:text-xl lg:text-2xl mb-6 md:mb-8 max-w-3xl mx-auto opacity-90">
+            <p className="text-lg md:text-xl lg:text-2xl mb-10 max-w-3xl mx-auto opacity-90 leading-relaxed drop-shadow-lg animate-fade-in-up animation-delay-200">
               {subheadline}
             </p>
           )}
+
           {ctaButtons && ctaButtons.length > 0 && (
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              {ctaButtons.map((button: CTAButton, index: number) => (
+            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up animation-delay-400">
+              {ctaButtons.map((button, index) => (
                 <Link
                   key={index}
                   href={button.link || '#'}
                   className={cn(
-                    'inline-flex items-center justify-center px-6 py-3 rounded-theme-button font-medium transition-all',
+                    'group inline-flex items-center justify-center px-8 py-4 rounded-[var(--radius-button)] font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl',
                     button.variant === 'outline'
-                      ? 'border-2 border-white text-white hover:bg-white hover:text-black'
+                      ? 'border-2 border-white text-white hover:bg-white hover:text-black backdrop-blur-sm'
                       : button.variant === 'ghost'
-                        ? 'text-white hover:bg-white/20'
-                        : 'bg-white text-black hover:bg-gray-100'
+                        ? 'text-white hover:bg-white/20 backdrop-blur-sm'
+                        : 'bg-theme-secondary text-white hover:bg-theme-accent shadow-xl'
                   )}
                 >
                   {button.label}
+                  <svg className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
                 </Link>
               ))}
             </div>
           )}
         </div>
+
+        {/* Social Float Icons */}
+        {showSocialIcons && social && (
+          <SocialFloat
+            social={social}
+            position={socialIconsPosition || 'left'}
+            variant="glass"
+          />
+        )}
+
+        {showScrollIndicator && <ScrollIndicator />}
       </section>
     )
   }
 
-  // Split hero (image on one side, text on the other)
+  // SPLIT HERO
   if (type === 'split') {
     return (
-      <section className={cn(
-        'relative',
-        heightClasses[data.height as keyof typeof heightClasses] || heightClasses.large
-      )}>
-        <div className="container mx-auto h-full">
-          <div className="grid md:grid-cols-2 gap-8 items-center h-full py-12 md:py-20">
+      <section className={cn('relative bg-theme-surface overflow-hidden', heightClass)}>
+        <div className="absolute inset-0 pattern-dots opacity-30" />
+
+        <div className="container mx-auto h-full relative">
+          <div className="grid md:grid-cols-2 gap-8 lg:gap-16 items-center h-full py-16 md:py-24 px-4">
             {/* Text Content */}
-            <div className="order-2 md:order-1">
+            <div className="order-2 md:order-1 space-y-6">
+              {badge && (
+                <div className="animate-fade-in-up">
+                  <FeatureBadge text={badge} variant="dark" />
+                </div>
+              )}
+
               {headline && (
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-theme-text">
+                <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-theme-text leading-tight animate-fade-in-up animation-delay-100">
                   {headline}
                 </h1>
               )}
+
               {subheadline && (
-                <p className="text-lg md:text-xl text-theme-text-light mb-6">
+                <p className="text-lg md:text-xl text-theme-text-light leading-relaxed animate-fade-in-up animation-delay-200">
                   {subheadline}
                 </p>
               )}
+
               {ctaButtons && ctaButtons.length > 0 && (
-                <div className="flex flex-col sm:flex-row gap-4">
-                  {ctaButtons.map((button: CTAButton, index: number) => (
+                <div className="flex flex-col sm:flex-row gap-4 pt-4 animate-fade-in-up animation-delay-300">
+                  {ctaButtons.map((button, index) => (
                     <Link
                       key={index}
                       href={button.link || '#'}
                       className={cn(
-                        'inline-flex items-center justify-center px-6 py-3 rounded-theme-button font-medium transition-all',
+                        'group inline-flex items-center justify-center px-8 py-4 rounded-[var(--radius-button)] font-semibold transition-all duration-300 hover:scale-105',
                         button.variant === 'outline'
                           ? 'border-2 border-theme-primary text-theme-primary hover:bg-theme-primary hover:text-white'
-                          : button.variant === 'ghost'
-                            ? 'text-theme-primary hover:bg-theme-primary/10'
-                            : 'bg-theme-primary text-white hover:opacity-90'
+                          : 'bg-theme-primary text-white hover:opacity-90 shadow-lg hover:shadow-xl'
                       )}
                     >
                       {button.label}
+                      <svg className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
                     </Link>
                   ))}
                 </div>
@@ -143,15 +442,28 @@ export function RenderHero({ type, data }: RenderHeroProps) {
             </div>
 
             {/* Image */}
-            <div className="order-1 md:order-2 relative aspect-square md:aspect-auto md:h-full">
+            <div className="order-1 md:order-2 relative animate-fade-in-up animation-delay-200">
               {imageData && (
-                <Image
-                  src={imageData.url}
-                  alt={imageData.alt || headline || ''}
-                  fill
-                  className="object-cover rounded-theme-lg"
-                  priority
-                />
+                <div className="relative">
+                  <div className="absolute -inset-4 bg-theme-primary/10 rounded-3xl transform rotate-3 animate-pulse-soft" />
+                  <div className="absolute -inset-4 bg-theme-secondary/10 rounded-3xl transform -rotate-3" />
+
+                  <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl">
+                    <Image
+                      src={imageData.url}
+                      alt={imageData.alt || headline || ''}
+                      fill
+                      className="object-cover hover:scale-105 transition-transform duration-700"
+                      priority
+                    />
+                  </div>
+
+                  {/* Stats badge */}
+                  <div className="absolute -bottom-6 -right-6 bg-theme-secondary text-white px-6 py-4 rounded-2xl shadow-2xl">
+                    <div className="text-3xl font-bold">10+</div>
+                    <div className="text-sm opacity-90">ani experienta</div>
+                  </div>
+                </div>
               )}
             </div>
           </div>
@@ -160,46 +472,85 @@ export function RenderHero({ type, data }: RenderHeroProps) {
     )
   }
 
-  // Centered hero (default)
+  // DEFAULT CENTERED HERO
   return (
-    <section
-      className={cn(
-        'relative flex items-center justify-center bg-theme-light',
-        heightClasses[data.height as keyof typeof heightClasses] || heightClasses.medium
+    <section className={cn(
+      'relative flex items-center justify-center overflow-hidden',
+      imageData ? 'text-white' : 'bg-gradient-to-br from-theme-light via-theme-surface to-theme-light',
+      heightClass
+    )}>
+      {imageData && (
+        <div className="absolute inset-0">
+          <Image src={imageData.url} alt={imageData.alt || headline || ''} fill className="object-cover" priority />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-black/30" />
+        </div>
       )}
-    >
-      <div className="container mx-auto px-4 text-center">
+
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-theme-primary/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-theme-accent/20 rounded-full blur-3xl" />
+      </div>
+
+      <div className="relative z-10 container mx-auto px-4 text-center py-20">
+        {badge && (
+          <div className="mb-6">
+            <FeatureBadge text={badge} variant={imageData ? 'light' : 'dark'} />
+          </div>
+        )}
+
         {headline && (
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-theme-text">
+          <h1 className={cn(
+            'text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6 leading-tight animate-fade-in-up',
+            imageData ? 'text-white drop-shadow-2xl' : 'text-theme-text'
+          )}>
             {headline}
           </h1>
         )}
+
         {subheadline && (
-          <p className="text-lg md:text-xl text-theme-text-light mb-6 max-w-2xl mx-auto">
+          <p className={cn(
+            'text-lg md:text-xl mb-10 max-w-3xl mx-auto leading-relaxed animate-fade-in-up animation-delay-200',
+            imageData ? 'text-white/90 drop-shadow-lg' : 'text-theme-text-light'
+          )}>
             {subheadline}
           </p>
         )}
+
         {ctaButtons && ctaButtons.length > 0 && (
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            {ctaButtons.map((button: CTAButton, index: number) => (
+          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up animation-delay-400">
+            {ctaButtons.map((button, index) => (
               <Link
                 key={index}
                 href={button.link || '#'}
                 className={cn(
-                  'inline-flex items-center justify-center px-6 py-3 rounded-theme-button font-medium transition-all',
-                  button.variant === 'outline'
-                    ? 'border-2 border-theme-primary text-theme-primary hover:bg-theme-primary hover:text-white'
-                    : button.variant === 'ghost'
-                      ? 'text-theme-primary hover:bg-theme-primary/10'
-                      : 'bg-theme-primary text-white hover:opacity-90'
+                  'group inline-flex items-center justify-center px-8 py-4 rounded-[var(--radius-button)] font-semibold transition-all duration-300 hover:scale-105',
+                  imageData
+                    ? button.variant === 'outline'
+                      ? 'border-2 border-white text-white hover:bg-white hover:text-black'
+                      : 'bg-theme-secondary text-white hover:bg-theme-accent shadow-xl'
+                    : button.variant === 'outline'
+                      ? 'border-2 border-theme-primary text-theme-primary hover:bg-theme-primary hover:text-white'
+                      : 'bg-theme-primary text-white hover:opacity-90 shadow-lg'
                 )}
               >
                 {button.label}
+                <svg className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
               </Link>
             ))}
           </div>
         )}
       </div>
+
+      {/* Social Float Icons */}
+      {showSocialIcons && social && imageData && (
+        <SocialFloat
+          social={social}
+          position={socialIconsPosition || 'left'}
+          variant="glass"
+        />
+      )}
     </section>
   )
 }

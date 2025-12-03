@@ -2,7 +2,9 @@
 
 ## Viziune
 
-Rulezi **5 website-uri diferite** din **același repository Git** (main branch), fiecare cu **seed diferit** (frizerie, dentist, avocat, etc.), accesibile prin **subdomenii** pe domeniul tău.
+Rulezi **5+ website-uri diferite** din **același repository Git** (main branch), fiecare cu **seed diferit** (frizerie, dentist, avocat, etc.), accesibile prin **subdomenii** pe domeniul tău.
+
+**Naming Convention**: Folosim nume generice (`site-1`, `site-2`, etc.) pentru infrastructură. Tipul de business este definit doar prin `SEED_TYPE`.
 
 ---
 
@@ -21,16 +23,17 @@ Rulezi **5 website-uri diferite** din **același repository Git** (main branch),
 │                    (pe VPS-ul tău)                           │
 │                                                               │
 │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐            │
-│  │   App 1     │ │   App 2     │ │   App 3     │  ...       │
-│  │  frizerie   │ │  dentist    │ │   avocat    │            │
+│  │   site-1    │ │   site-2    │ │   site-3    │  ...       │
 │  │             │ │             │ │             │            │
 │  │ SEED_TYPE=  │ │ SEED_TYPE=  │ │ SEED_TYPE=  │            │
 │  │ frizerie    │ │ dentist     │ │ avocat      │            │
+│  │             │ │             │ │             │            │
+│  │ [media-1]   │ │ [media-2]   │ │ [media-3]   │  volumes   │
 │  └──────┬──────┘ └──────┬──────┘ └──────┬──────┘            │
 │         │               │               │                    │
 │         ▼               ▼               ▼                    │
 │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐            │
-│  │  MongoDB 1  │ │  MongoDB 2  │ │  MongoDB 3  │  ...       │
+│  │  mongo-1    │ │  mongo-2    │ │  mongo-3    │  ...       │
 │  └─────────────┘ └─────────────┘ └─────────────┘            │
 │                                                               │
 │                    Traefik (reverse proxy)                   │
@@ -45,11 +48,11 @@ Rulezi **5 website-uri diferite** din **același repository Git** (main branch),
                 │      CLOUDFLARE       │
                 │   (DNS + SSL automat) │
                 │                       │
-                │ frizerie.domain.com   │
-                │ dentist.domain.com    │
-                │ avocat.domain.com     │
-                │ restaurant.domain.com │
-                │ salon.domain.com      │
+                │ 1.multisite.org       │
+                │ 2.multisite.org       │
+                │ 3.multisite.org       │
+                │ 4.multisite.org       │
+                │ 5.multisite.org       │
                 └───────────────────────┘
 ```
 
@@ -222,23 +225,28 @@ docker run -d --name cloudflared --restart always \
 
 ### Pas 4: Creare Aplicații în Dokploy
 
-Pentru **fiecare site** (frizerie, dentist, avocat, restaurant, salon):
-
 #### 4.1 Creare Proiect
 
-1. **Projects** → **Create Project** → "Business Sites"
+1. **Projects** → **Create Project** → "Multi Sites"
 
 #### 4.2 Creare MongoDB pentru fiecare site
 
 1. **Create Service** → **Database** → **MongoDB**
-2. Nume: `mongo-frizerie`
-3. Repetă pentru: `mongo-dentist`, `mongo-avocat`, `mongo-restaurant`, `mongo-salon`
+2. Configurează pe rând:
+
+| Nume DB |
+|---------|
+| `mongo-1` |
+| `mongo-2` |
+| `mongo-3` |
+| `mongo-4` |
+| `mongo-5` |
 
 #### 4.3 Creare Aplicație pentru fiecare site
 
 1. **Create Service** → **Application**
 2. Configurează:
-   - **Name**: `site-frizerie`
+   - **Name**: `site-1`
    - **Source**: Git Repository
    - **Repository URL**: `https://github.com/USER/template-5`
    - **Branch**: `main`
@@ -247,22 +255,40 @@ Pentru **fiecare site** (frizerie, dentist, avocat, restaurant, salon):
 
 3. Tab **Environment Variables**:
 ```env
-DATABASE_URI=mongodb://mongo-frizerie:27017/payload
-PAYLOAD_SECRET=secret-unic-frizerie-minim-32-caractere
+DATABASE_URI=mongodb://mongo-1:27017/payload
+PAYLOAD_SECRET=<generat-cu-openssl-rand-hex-32>
 SEED_TYPE=frizerie
-NEXT_PUBLIC_SERVER_URL=https://frizerie.tudomeniu.com
+NEXT_PUBLIC_SERVER_URL=https://1.multisite.org
 RESEND_API_KEY=re_xxxxx
 ```
 
-4. Tab **Domains**:
-   - Adaugă: `frizerie.tudomeniu.com`
+4. Tab **Advanced** → **Volumes** (IMPORTANT pentru persistența fișierelor!):
+   - Click **Add Volume**
+   - **Type**: Volume
+   - **Source**: `media-1`
+   - **Target**: `/app/media`
 
-5. Tab **Network**:
-   - Asigură-te că e în aceeași rețea cu `mongo-frizerie`
+5. Tab **Advanced** → **Ports** (pentru Cloudflare Tunnel):
+   - **Published Port**: `3001` (pentru site-1)
+   - **Target Port**: `3000`
 
-6. **Deploy**
+6. Tab **Domains**:
+   - Adaugă: `1.multisite.org`
 
-7. **Repetă pentru celelalte 4 site-uri** cu valorile corespunzătoare
+7. Tab **Network**:
+   - Asigură-te că e în aceeași rețea cu `mongo-1`
+
+8. **Deploy**
+
+9. **Repetă pentru celelalte site-uri** cu valorile corespunzătoare:
+
+| App    | Port Extern | Volume  | Domeniu         |
+|--------|-------------|---------|-----------------|
+| site-1 | 3001        | media-1 | 1.multisite.org |
+| site-2 | 3002        | media-2 | 2.multisite.org |
+| site-3 | 3003        | media-3 | 3.multisite.org |
+| site-4 | 3004        | media-4 | 4.multisite.org |
+| site-5 | 3005        | media-5 | 5.multisite.org |
 
 ---
 
@@ -270,15 +296,15 @@ RESEND_API_KEY=re_xxxxx
 
 În **Cloudflare Dashboard** → **Zero Trust** → **Tunnels** → click pe tunnel → **Public Hostname**:
 
-| Subdomain  | Domain         | Service                    |
-|------------|----------------|----------------------------|
-| frizerie   | tudomeniu.com  | http://site-frizerie:3000  |
-| dentist    | tudomeniu.com  | http://site-dentist:3000   |
-| avocat     | tudomeniu.com  | http://site-avocat:3000    |
-| restaurant | tudomeniu.com  | http://site-restaurant:3000|
-| salon      | tudomeniu.com  | http://site-salon:3000     |
+| Subdomain | Domain        | Service                 |
+|-----------|---------------|-------------------------|
+| 1         | multisite.org | http://localhost:3001   |
+| 2         | multisite.org | http://localhost:3002   |
+| 3         | multisite.org | http://localhost:3003   |
+| 4         | multisite.org | http://localhost:3004   |
+| 5         | multisite.org | http://localhost:3005   |
 
-**Notă**: Numele serviciului trebuie să fie exact cum l-ai numit în Dokploy.
+**Notă**: În Dokploy, configurează portul extern pentru fiecare aplicație (3001, 3002, etc.) în **Advanced** → **Ports**.
 
 ---
 
@@ -290,29 +316,34 @@ După primul deploy, rulează seed-ul pentru fiecare site.
 1. Click pe aplicație → **Terminal** (sau **Logs** → **Shell**)
 2. Rulează:
 ```bash
-node -e "import('./src/seed/index.js')"
+sh run-seed.sh frizerie
 ```
 
 SAU prin SSH pe VPS:
 ```bash
-docker exec -it site-frizerie sh -c "node -e \"import('./src/seed/index.js')\""
+docker exec -it site-1 sh run-seed.sh frizerie
+docker exec -it site-2 sh run-seed.sh dentist
+docker exec -it site-3 sh run-seed.sh avocat
+# etc.
 ```
+
+**Tipuri disponibile pentru seed**: `frizerie`, `dentist`, `avocat`, `restaurant`, `auto-service`, `constructii`, `salon`, `pensiune`, `magazin`, `fitness`, `curatenie`, `transport`, `foto-video`, `producator`
 
 ---
 
 ## Environment Variables per Site
 
-| Site       | SEED_TYPE  | DATABASE_URI                        | NEXT_PUBLIC_SERVER_URL              |
-|------------|------------|-------------------------------------|-------------------------------------|
-| Frizerie   | frizerie   | mongodb://mongo-frizerie:27017/payload   | https://frizerie.tudomeniu.com    |
-| Dentist    | dentist    | mongodb://mongo-dentist:27017/payload    | https://dentist.tudomeniu.com     |
-| Avocat     | avocat     | mongodb://mongo-avocat:27017/payload     | https://avocat.tudomeniu.com      |
-| Restaurant | restaurant | mongodb://mongo-restaurant:27017/payload | https://restaurant.tudomeniu.com  |
-| Salon      | salon      | mongodb://mongo-salon:27017/payload      | https://salon.tudomeniu.com       |
+| App    | SEED_TYPE  | DATABASE_URI                   | NEXT_PUBLIC_SERVER_URL      | Volume   |
+|--------|------------|--------------------------------|-----------------------------|----------|
+| site-1 | frizerie   | mongodb://mongo-1:27017/payload | https://1.multisite.org    | media-1  |
+| site-2 | dentist    | mongodb://mongo-2:27017/payload | https://2.multisite.org    | media-2  |
+| site-3 | avocat     | mongodb://mongo-3:27017/payload | https://3.multisite.org    | media-3  |
+| site-4 | restaurant | mongodb://mongo-4:27017/payload | https://4.multisite.org    | media-4  |
+| site-5 | salon      | mongodb://mongo-5:27017/payload | https://5.multisite.org    | media-5  |
 
-**Important**: Fiecare site are nevoie de un `PAYLOAD_SECRET` unic! Generează cu:
+**Important**: Fiecare site are nevoie de un `PAYLOAD_SECRET` unic! Generează 5 secrete:
 ```bash
-openssl rand -hex 32
+for i in 1 2 3 4 5; do echo "SITE-$i: $(openssl rand -hex 32)"; done
 ```
 
 ---
@@ -337,13 +368,13 @@ SAU în Dokploy: click **Redeploy** pe fiecare aplicație.
 
 ## Rezultat Final
 
-| URL                              | Business Type | Admin Panel                                |
-|----------------------------------|---------------|--------------------------------------------|
-| https://frizerie.tudomeniu.com   | Frizerie      | https://frizerie.tudomeniu.com/admin      |
-| https://dentist.tudomeniu.com    | Dentist       | https://dentist.tudomeniu.com/admin       |
-| https://avocat.tudomeniu.com     | Avocat        | https://avocat.tudomeniu.com/admin        |
-| https://restaurant.tudomeniu.com | Restaurant    | https://restaurant.tudomeniu.com/admin    |
-| https://salon.tudomeniu.com      | Salon         | https://salon.tudomeniu.com/admin         |
+| URL                      | Business Type | Admin Panel                    | Local URL           |
+|--------------------------|---------------|--------------------------------|---------------------|
+| https://1.multisite.org  | Frizerie      | https://1.multisite.org/admin  | localhost:3001      |
+| https://2.multisite.org  | Dentist       | https://2.multisite.org/admin  | localhost:3002      |
+| https://3.multisite.org  | Avocat        | https://3.multisite.org/admin  | localhost:3003      |
+| https://4.multisite.org  | Restaurant    | https://4.multisite.org/admin  | localhost:3004      |
+| https://5.multisite.org  | Salon         | https://5.multisite.org/admin  | localhost:3005      |
 
 ---
 
@@ -403,46 +434,92 @@ Fiecare instanță Next.js/Payload consumă ~200-400MB RAM.
 
 ## Ghid Pornire După Restart PC
 
-### Verificare status (ar trebui să pornească automat):
+### Servicii care trebuie să ruleze:
+
+1. **Docker** - gestionează containerele (Dokploy, aplicații, MongoDB)
+2. **Cloudflared** - tunelul către Cloudflare
+
+### Verificare status:
 
 ```bash
+# Verifică Docker
+sudo systemctl status docker
+
 # Verifică cloudflared
 sudo systemctl status cloudflared
 
-# Verifică Docker containers
+# Verifică containerele
 sudo docker ps
 ```
 
-### Dacă nu pornesc automat:
+### Pornire automată (configurare o singură dată):
 
 ```bash
-# Pornește cloudflared
-sudo systemctl start cloudflared
+# Docker să pornească automat la boot
+sudo systemctl enable docker
 
-# Pornește Docker
+# Cloudflared să pornească automat la boot
+sudo systemctl enable cloudflared
+```
+
+### Dacă nu pornesc automat după restart:
+
+```bash
+# 1. Pornește Docker
 sudo systemctl start docker
 
-# Așteaptă 30 sec, apoi verifică containerele
+# 2. Așteaptă 30 secunde (containerele pornesc automat)
+sleep 30
+
+# 3. Pornește cloudflared
+sudo systemctl start cloudflared
+
+# 4. Verifică
 sudo docker ps
 ```
 
-### Dacă Dokploy nu apare în docker ps:
+### Dacă containerele Dokploy nu apar:
 
 ```bash
 # Repornește Docker complet
 sudo systemctl restart docker
 
-# Așteaptă 1 minut
-sleep 60
+# Așteaptă 1-2 minute
+sleep 90
 
 # Verifică din nou
 sudo docker ps
 ```
 
+### Comenzi utile:
+
+```bash
+# Vezi toate containerele (inclusiv oprite)
+sudo docker ps -a
+
+# Logs pentru un container
+sudo docker logs <container-name>
+
+# Restart manual cloudflared
+sudo systemctl restart cloudflared
+```
+
 ### Accesare:
 
-- **Dokploy local**: http://localhost:3000
-- **Dokploy public**: https://admin.multiwebsite.org
+| Serviciu   | URL Local             | URL Public              |
+|------------|-----------------------|-------------------------|
+| Dokploy    | http://localhost:3000 | https://admin.multisite.org |
+| Site 1     | http://localhost:3001 | https://1.multisite.org |
+| Site 2     | http://localhost:3002 | https://2.multisite.org |
+| Site 3     | http://localhost:3003 | https://3.multisite.org |
+| Site 4     | http://localhost:3004 | https://4.multisite.org |
+| Site 5     | http://localhost:3005 | https://5.multisite.org |
+
+### Ordine pornire după restart:
+
+1. Docker pornește automat → containerele pornesc
+2. Cloudflared pornește automat → tunelul se conectează
+3. După ~1-2 minute totul e funcțional
 
 ---
 

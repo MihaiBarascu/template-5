@@ -90,11 +90,13 @@ export function StatsBlock({
   backgroundColor = 'primary',
 }: StatsBlockProps) {
   const bgClass = {
-    default: 'bg-white text-gray-900',
-    light: 'bg-gray-50 text-gray-900',
-    dark: 'bg-gray-900 text-white',
+    default: 'bg-theme-surface text-theme-text',
+    light: 'bg-theme-light text-theme-text',
+    dark: 'bg-theme-dark text-white',
     primary: 'bg-theme-primary text-white',
   }[backgroundColor] || 'bg-theme-primary text-white'
+
+  const isDark = backgroundColor === 'dark' || backgroundColor === 'primary'
 
   if (stats.length === 0) {
     return null
@@ -127,7 +129,7 @@ export function StatsBlock({
                 <div className="text-4xl md:text-5xl font-bold mb-2">
                   {animated ? <AnimatedNumber value={stat.value} suffix={stat.suffix} /> : stat.value}
                 </div>
-                <div className={cn('text-sm uppercase tracking-wide', backgroundColor === 'primary' || backgroundColor === 'dark' ? 'text-white/80' : 'text-gray-600')}>
+                <div className={cn('text-sm uppercase tracking-wide', isDark ? 'text-white/80' : 'text-theme-text-light')}>
                   {stat.label}
                 </div>
               </div>
@@ -139,18 +141,18 @@ export function StatsBlock({
               <div
                 key={index}
                 className={cn(
-                  'text-center p-6 rounded-lg',
+                  'text-center p-6 rounded-[var(--radius-card)]',
                   variant === 'with-icons' && 'flex flex-col items-center',
                   backgroundColor === 'primary' && 'bg-white/10',
                   backgroundColor === 'dark' && 'bg-white/5',
-                  backgroundColor === 'light' && 'bg-white shadow-sm',
-                  backgroundColor === 'default' && 'bg-gray-50'
+                  backgroundColor === 'light' && 'bg-white shadow-sm border border-theme-border',
+                  backgroundColor === 'default' && 'bg-theme-light'
                 )}
               >
                 <div className="text-4xl md:text-5xl font-bold mb-2">
                   {animated ? <AnimatedNumber value={stat.value} suffix={stat.suffix} /> : stat.value}
                 </div>
-                <div className={cn('text-sm uppercase tracking-wide', backgroundColor === 'primary' || backgroundColor === 'dark' ? 'text-white/80' : 'text-gray-600')}>
+                <div className={cn('text-sm uppercase tracking-wide', isDark ? 'text-white/80' : 'text-theme-text-light')}>
                   {stat.label}
                 </div>
               </div>

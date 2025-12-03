@@ -70,6 +70,14 @@ export const GalleryBlock: Block = {
           type: 'text',
           label: 'Descriere',
         },
+        {
+          name: 'category',
+          type: 'text',
+          label: 'Categorie',
+          admin: {
+            description: 'Ex: Tunsori, Barba, Colorare (pentru filtrare)',
+          },
+        },
       ],
     },
     {

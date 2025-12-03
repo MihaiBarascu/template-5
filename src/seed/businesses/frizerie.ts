@@ -1,7 +1,7 @@
 import type { Payload } from 'payload'
 import {
   createAdminUser,
-  seedTheme,
+  seedSiteTheme,
   seedBusinessInfo,
   seedLogo,
   seedHeader,
@@ -14,7 +14,6 @@ import {
   seedHomePage,
   seedPortfolio,
   uploadLocalSeedImages,
-  seedDesignVariant,
   seedPosts,
 } from '../helpers'
 import { barbershopImages, barbershopData } from '../seed-data'
@@ -49,13 +48,11 @@ export async function seedFrizerie(payload: Payload) {
     return imageMap.get(filename) || undefined
   }
 
-  // 3. Configure theme based on variant
-  console.log('\n🎨 Configuring theme...')
-  await seedTheme(payload, {
-    preset: variant.theme.preset,
-    colors: variant.theme.colors,
-    fontPreset: variant.theme.fontPreset,
-    stylePreset: variant.theme.stylePreset,
+  // 3. Configure theme - use universal variant based on business style
+  // Barbershop/Frizerie typically uses dark-gold (elegant, masculine) or brown-vintage (traditional)
+  console.log('\n🎨 Configuring site theme...')
+  await seedSiteTheme(payload, {
+    variant: 'dark-gold', // Best for barbershop - elegant, premium, masculine
     borderRadius: variant.theme.borderRadius,
     shadows: variant.theme.shadows,
     sectionSpacing: 'normal',
@@ -77,6 +74,15 @@ export async function seedFrizerie(payload: Payload) {
     stats: barbershopData.business.stats,
     googleMapsEmbed:
       'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2848.8444388671917!2d26.0976553!3d44.4379832!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDTCsDI2JzE2LjciTiAyNsKwMDUnNTEuNiJF!5e0!3m2!1sen!2sro!4v1234567890',
+    // WhatsApp Float settings
+    whatsappFloat: {
+      enabled: true,
+      position: 'bottom-right',
+      showOnMobile: true,
+      defaultMessage: 'Buna! Doresc sa fac o programare la frizerie.',
+      tooltipText: 'Programeaza-te pe WhatsApp',
+      pulseAnimation: true,
+    },
   })
 
   // 5. Logo
@@ -167,14 +173,8 @@ export async function seedFrizerie(payload: Payload) {
   console.log('\n📄 Creating additional pages...')
   await createAdditionalPages(payload, variant)
 
-  // 16. Set design variant global
-  console.log('\n🎨 Setting design variant global...')
-  await seedDesignVariant(payload, {
-    businessType: 'barbershop',
-    variantIndex: VARIANT_INDEX,
-    variantName: variant.name,
-    variantDescription: variant.description,
-  })
+  // Note: Design variant global has been replaced by unified SiteTheme system
+  // Theme is now configured at the start of seeding via seedSiteTheme()
 
   console.log('\n' + '━'.repeat(50))
   console.log('✅ Frizerie seeding complete!')
@@ -200,12 +200,77 @@ interface BlockConfig {
   subheadline?: string
   buttons?: Array<{ label: string; link: string; variant?: string }>
   backgroundColor?: string
+  videoUrl?: string
+  showDuration?: boolean
+  dotStyle?: string
+  currency?: string
+  ctaButton?: { show: boolean; label: string; link: string }
   [key: string]: unknown
 }
 
 // Build homepage layout based on variant configuration
 function buildHomepageLayout(variant: DesignVariant, _data: typeof barbershopData) {
   const sectionConfigs: Record<string, BlockConfig> = {
+    // New: Price list with dotted lines (barbershop specific)
+    priceList: {
+      blockType: 'priceListDotted',
+      variant: 'two-columns',
+      heading: 'Lista de Preturi',
+      subheading: 'Tarife transparente pentru toate serviciile noastre',
+      source: 'services',
+      limit: 12,
+      showDuration: true,
+      dotStyle: 'dotted',
+      currency: 'RON',
+      backgroundColor: 'light',
+      ctaButton: {
+        show: true,
+        label: 'Programeaza-te',
+        link: '/programare',
+      },
+    },
+    // New: Video presentation
+    video: {
+      blockType: 'videoEmbed',
+      variant: 'centered',
+      heading: 'Descopera Salonul Nostru',
+      subheading: 'Un scurt tur al spatiului si echipei noastre',
+      videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+      backgroundColor: 'dark',
+    },
+    // New: Before/After slider for transformations
+    beforeAfter: {
+      blockType: 'beforeAfter',
+      variant: 'horizontal',
+      heading: 'Transformari Spectaculoase',
+      subheading: 'Vezi diferenta dintre inainte si dupa la clientii nostri',
+      layout: 'grid-2',
+      initialPosition: 50,
+      showLabels: true,
+      backgroundColor: 'default',
+      ctaButton: {
+        show: true,
+        label: 'Vreau si eu o transformare',
+        link: '/programare',
+      },
+    },
+    // New: Newsletter subscription
+    newsletter: {
+      blockType: 'newsletter',
+      variant: 'dark',
+      heading: 'Ramai la Curent',
+      subheading: 'Aboneaza-te pentru oferte exclusive si sfaturi de ingrijire',
+      placeholder: 'Adresa ta de email',
+      buttonText: 'Aboneaza-te',
+      successMessage: 'Multumim! Te-ai abonat cu succes.',
+      privacyText: 'Datele tale sunt in siguranta. Nu facem spam.',
+      showPrivacyLink: true,
+      benefits: [
+        { text: 'Oferte exclusive' },
+        { text: 'Sfaturi de ingrijire' },
+        { text: 'Noutati despre servicii' },
+      ],
+    },
     services: {
       blockType: 'services',
       variant: variant.layout.servicesVariant,
@@ -251,7 +316,7 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof barbershopDat
       subheading: 'Rezultate din activitatea noastra',
       source: 'portfolio',
       limit: 6,
-      
+
       backgroundColor: 'default',
     },
     faq: {
@@ -414,7 +479,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
         },
         {
           blockType: 'services',
-          variant: 'with-prices',
+          variant: 'price-list',
           heading: 'Lista Completa Preturi Servicii',
           subheading: 'Toate serviciile noastre cu preturi detaliate',
           source: 'collection',

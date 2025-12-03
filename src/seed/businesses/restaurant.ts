@@ -1,7 +1,7 @@
 import type { Payload } from 'payload'
 import {
   createAdminUser,
-  seedTheme,
+  seedSiteTheme,
   seedBusinessInfo,
   seedLogo,
   seedHeader,
@@ -13,7 +13,6 @@ import {
   seedHomePage,
   seedPortfolio,
   uploadLocalSeedImages,
-  seedDesignVariant,
   seedPosts,
 } from '../helpers'
 import { restaurantImages, restaurantData } from '../seed-data'
@@ -43,13 +42,11 @@ export async function seedRestaurant(payload: Payload) {
     return imageMap.get(filename) || undefined
   }
 
-  // 3. Configure theme based on variant
-  console.log('\n🎨 Configuring theme...')
-  await seedTheme(payload, {
-    preset: variant.theme.preset,
-    colors: variant.theme.colors,
-    fontPreset: variant.theme.fontPreset,
-    stylePreset: variant.theme.stylePreset,
+  // 3. Configure theme - use universal variant based on business style
+  // Restaurant typically uses warm-orange (friendly, warm) or modern-red (bold, appetizing)
+  console.log('\n🎨 Configuring site theme...')
+  await seedSiteTheme(payload, {
+    variant: 'warm-orange', // Best for restaurant - warm, inviting, food-friendly
     borderRadius: variant.theme.borderRadius,
     shadows: variant.theme.shadows,
     sectionSpacing: 'normal',
@@ -261,14 +258,8 @@ export async function seedRestaurant(payload: Payload) {
   console.log('\n📄 Creating additional pages...')
   await createAdditionalPages(payload, variant)
 
-  // 16. Set design variant global
-  console.log('\n🎨 Setting design variant global...')
-  await seedDesignVariant(payload, {
-    businessType: 'restaurant',
-    variantIndex: VARIANT_INDEX,
-    variantName: variant.name,
-    variantDescription: variant.description,
-  })
+  // Note: Design variant global has been replaced by unified SiteTheme system
+  // Theme is now configured at the start of seeding via seedSiteTheme()
 
   console.log('\n' + '━'.repeat(50))
   console.log('✅ Restaurant seeding complete!')

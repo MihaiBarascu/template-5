@@ -78,10 +78,12 @@ export function FAQBlock({
   })
 
   const bgClass = {
-    default: 'bg-white',
-    light: 'bg-gray-50',
-    dark: 'bg-gray-900 text-white',
-  }[backgroundColor] || 'bg-white'
+    default: 'bg-theme-surface',
+    light: 'bg-theme-light',
+    dark: 'bg-theme-dark text-white',
+  }[backgroundColor] || 'bg-theme-surface'
+
+  const isDark = backgroundColor === 'dark'
 
   const toggleItem = (index: number) => {
     setOpenItems((prev) => {
@@ -97,24 +99,35 @@ export function FAQBlock({
 
   if (faqs.length === 0) {
     return (
-      <section className={cn('py-16', bgClass)}>
+      <section className={cn('py-section', bgClass)}>
         <div className="container mx-auto px-4">
-          <p className="text-center text-gray-500">Nu sunt intrebari frecvente disponibile.</p>
+          <div className={cn(
+            'text-center py-16 border-2 border-dashed rounded-xl',
+            isDark ? 'border-white/20' : 'border-theme-border'
+          )}>
+            <svg className={cn('w-16 h-16 mx-auto mb-4', isDark ? 'text-white/40' : 'text-theme-text-muted')} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className={isDark ? 'text-white/60' : 'text-theme-text-muted'}>Nu sunt întrebări frecvente disponibile.</p>
+          </div>
         </div>
       </section>
     )
   }
 
   return (
-    <section className={cn('py-16', bgClass)}>
+    <section className={cn('py-section', bgClass)}>
       <div className="container mx-auto px-4">
         {(heading || subheading) && (
           <div className="text-center mb-12">
             {heading && (
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">{heading}</h2>
+              <h2 className={cn(
+                'text-3xl md:text-4xl font-bold mb-4',
+                isDark ? 'text-white' : 'text-theme-text'
+              )}>{heading}</h2>
             )}
             {subheading && (
-              <p className={cn('text-lg max-w-2xl mx-auto', backgroundColor === 'dark' ? 'text-gray-300' : 'text-gray-600')}>
+              <p className={cn('text-lg max-w-2xl mx-auto', isDark ? 'text-white/70' : 'text-theme-text-light')}>
                 {subheading}
               </p>
             )}
@@ -127,12 +140,12 @@ export function FAQBlock({
               <div
                 key={faq.id || index}
                 className={cn(
-                  'p-6 rounded-lg border',
-                  backgroundColor === 'dark' ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'
+                  'p-6 rounded-[var(--radius-card)] border',
+                  isDark ? 'border-white/10 bg-white/5' : 'border-theme-border bg-white'
                 )}
               >
-                <h3 className="text-lg font-semibold mb-3">{faq.question}</h3>
-                <div className={cn('text-sm', backgroundColor === 'dark' ? 'text-gray-300' : 'text-gray-600')}>
+                <h3 className={cn('text-lg font-semibold mb-3', isDark ? 'text-white' : 'text-theme-text')}>{faq.question}</h3>
+                <div className={cn('text-sm', isDark ? 'text-white/70' : 'text-theme-text-light')}>
                   <RichTextContent content={faq.answer} />
                 </div>
               </div>
@@ -147,13 +160,13 @@ export function FAQBlock({
               >
                 <div className={cn(
                   'w-10 h-10 rounded-full flex items-center justify-center font-bold flex-shrink-0',
-                  backgroundColor === 'dark' ? 'bg-gray-700 text-white' : 'bg-theme-primary text-white'
+                  isDark ? 'bg-white/10 text-white' : 'bg-theme-primary text-white'
                 )}>
                   {index + 1}
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold mb-2">{faq.question}</h3>
-                  <div className={cn('text-sm', backgroundColor === 'dark' ? 'text-gray-300' : 'text-gray-600')}>
+                  <h3 className={cn('text-lg font-semibold mb-2', isDark ? 'text-white' : 'text-theme-text')}>{faq.question}</h3>
+                  <div className={cn('text-sm', isDark ? 'text-white/70' : 'text-theme-text-light')}>
                     <RichTextContent content={faq.answer} />
                   </div>
                 </div>
@@ -162,17 +175,21 @@ export function FAQBlock({
           </div>
         ) : (
           // Default accordion
-          <div className="max-w-3xl mx-auto divide-y divide-gray-200">
+          <div className={cn('max-w-3xl mx-auto divide-y', isDark ? 'divide-white/10' : 'divide-theme-border')}>
             {faqs.map((faq, index) => (
               <div key={faq.id || index} className="py-4">
                 <button
                   onClick={() => toggleItem(index)}
-                  className="w-full flex items-center justify-between text-left"
+                  className="w-full flex items-center justify-between text-left group"
                 >
-                  <span className="text-lg font-semibold pr-4">{faq.question}</span>
+                  <span className={cn(
+                    'text-lg font-semibold pr-4 transition-colors',
+                    isDark ? 'text-white group-hover:text-theme-accent' : 'text-theme-text group-hover:text-theme-primary'
+                  )}>{faq.question}</span>
                   <svg
                     className={cn(
                       'w-5 h-5 flex-shrink-0 transition-transform',
+                      isDark ? 'text-white/60' : 'text-theme-text-muted',
                       openItems.has(index) && 'rotate-180'
                     )}
                     fill="none"
@@ -188,7 +205,7 @@ export function FAQBlock({
                     openItems.has(index) ? 'max-h-96 mt-4' : 'max-h-0'
                   )}
                 >
-                  <div className={cn('text-sm', backgroundColor === 'dark' ? 'text-gray-300' : 'text-gray-600')}>
+                  <div className={cn('text-sm', isDark ? 'text-white/70' : 'text-theme-text-light')}>
                     <RichTextContent content={faq.answer} />
                   </div>
                 </div>

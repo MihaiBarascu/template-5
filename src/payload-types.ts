@@ -151,20 +151,18 @@ export interface Config {
   globals: {
     header: Header;
     footer: Footer;
-    theme: Theme;
+    'site-theme': SiteTheme;
     logo: Logo;
     'business-info': BusinessInfo;
     'shop-settings': ShopSetting;
-    'design-variant': DesignVariant;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
-    theme: ThemeSelect<false> | ThemeSelect<true>;
+    'site-theme': SiteThemeSelect<false> | SiteThemeSelect<true>;
     logo: LogoSelect<false> | LogoSelect<true>;
     'business-info': BusinessInfoSelect<false> | BusinessInfoSelect<true>;
     'shop-settings': ShopSettingsSelect<false> | ShopSettingsSelect<true>;
-    'design-variant': DesignVariantSelect<false> | DesignVariantSelect<true>;
   };
   locale: null;
   user: User & {
@@ -240,6 +238,14 @@ export interface Page {
           id?: string | null;
         }[]
       | null;
+    showSocialIcons?: boolean | null;
+    socialIconsPosition?: ('left' | 'right') | null;
+    height?: ('small' | 'medium' | 'large' | 'fullscreen') | null;
+    /**
+     * Ex: Premium Quality, Since 2015
+     */
+    badge?: string | null;
+    showScrollIndicator?: boolean | null;
   };
   layout?:
     | (
@@ -273,9 +279,7 @@ export interface Page {
             blockType: 'hero';
           }
         | {
-            variant?:
-              | ('grid-3' | 'grid-4' | 'grid-2' | 'list' | 'list-alternating' | 'carousel' | 'tabs' | 'with-prices')
-              | null;
+            variant?: ('grid-3' | 'grid-4' | 'grid-2' | 'list' | 'list-alternating' | 'price-list') | null;
             heading?: string | null;
             subheading?: string | null;
             source?: ('collection' | 'manual' | 'custom') | null;
@@ -296,6 +300,10 @@ export interface Page {
               | null;
             showPrices?: boolean | null;
             showIcons?: boolean | null;
+            showDuration?: boolean | null;
+            showBookButton?: boolean | null;
+            bookButtonText?: string | null;
+            bookButtonLink?: string | null;
             ctaButton?: {
               enabled?: boolean | null;
               label?: string | null;
@@ -480,6 +488,10 @@ export interface Page {
               | {
                   image: string | Media;
                   caption?: string | null;
+                  /**
+                   * Ex: Tunsori, Barba, Colorare (pentru filtrare)
+                   */
+                  category?: string | null;
                   id?: string | null;
                 }[]
               | null;
@@ -630,6 +642,29 @@ export interface Page {
             id?: string | null;
             blockName?: string | null;
             blockType: 'checkout';
+          }
+        | VideoEmbedBlock
+        | PriceListDottedBlock
+        | BeforeAfterBlock
+        | {
+            variant?: ('simple' | 'with-image' | 'dark' | 'with-pattern' | 'inline') | null;
+            heading?: string | null;
+            subheading?: string | null;
+            placeholder?: string | null;
+            buttonText?: string | null;
+            successMessage?: string | null;
+            backgroundImage?: (string | null) | Media;
+            privacyText?: string | null;
+            showPrivacyLink?: boolean | null;
+            benefits?:
+              | {
+                  text?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'newsletter';
           }
       )[]
     | null;
@@ -1076,6 +1111,126 @@ export interface Variant {
   createdAt: string;
   deletedAt?: string | null;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "VideoEmbedBlock".
+ */
+export interface VideoEmbedBlock {
+  variant?: ('centered' | 'full-width' | 'with-text' | 'custom-thumbnail' | 'lightbox') | null;
+  heading?: string | null;
+  subheading?: string | null;
+  /**
+   * Link YouTube sau Vimeo (ex: https://www.youtube.com/watch?v=xxxxx)
+   */
+  videoUrl: string;
+  /**
+   * Daca nu este selectat, se va folosi thumbnail-ul default de pe YouTube/Vimeo
+   */
+  thumbnail?: (string | null) | Media;
+  sideContent?: {
+    title?: string | null;
+    description?: string | null;
+    ctaButton?: {
+      label?: string | null;
+      link?: string | null;
+    };
+    position?: ('left' | 'right') | null;
+  };
+  aspectRatio?: ('16-9' | '4-3' | '1-1' | '21-9') | null;
+  /**
+   * Video-ul va porni automat (fara sunet)
+   */
+  autoplay?: boolean | null;
+  loop?: boolean | null;
+  showControls?: boolean | null;
+  backgroundColor?: ('default' | 'light' | 'dark') | null;
+  maxWidth?: ('sm' | 'md' | 'lg' | 'xl') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'videoEmbed';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PriceListDottedBlock".
+ */
+export interface PriceListDottedBlock {
+  variant?: ('single-column' | 'two-columns' | 'categorized' | 'with-images') | null;
+  heading?: string | null;
+  subheading?: string | null;
+  source?: ('services' | 'custom') | null;
+  limit?: number | null;
+  /**
+   * Lasa gol pentru toate serviciile
+   */
+  filterByCategory?: string | null;
+  categories?:
+    | {
+        name: string;
+        items?:
+          | {
+              name: string;
+              price: string;
+              duration?: string | null;
+              description?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  items?:
+    | {
+        name: string;
+        price: string;
+        duration?: string | null;
+        description?: string | null;
+        image?: (string | null) | Media;
+        featured?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  currency?: string | null;
+  showDuration?: boolean | null;
+  dotStyle?: ('dotted' | 'solid' | 'dashed' | 'none') | null;
+  backgroundColor?: ('default' | 'light' | 'dark') | null;
+  ctaButton?: {
+    show?: boolean | null;
+    label?: string | null;
+    link?: string | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'priceListDotted';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BeforeAfterBlock".
+ */
+export interface BeforeAfterBlock {
+  variant?: ('slider' | 'grid' | 'carousel') | null;
+  backgroundColor?: ('default' | 'light' | 'dark') | null;
+  heading?: string | null;
+  subheading?: string | null;
+  items?:
+    | {
+        beforeImage: string | Media;
+        afterImage: string | Media;
+        /**
+         * Ex: Tunsoare Fade, Tratament Albire
+         */
+        title?: string | null;
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Procentajul de la stanga (50 = centrat)
+   */
+  sliderPosition?: number | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'beforeAfter';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1867,6 +2022,11 @@ export interface PagesSelect<T extends boolean = true> {
               variant?: T;
               id?: T;
             };
+        showSocialIcons?: T;
+        socialIconsPosition?: T;
+        height?: T;
+        badge?: T;
+        showScrollIndicator?: T;
       };
   layout?:
     | T
@@ -1925,6 +2085,10 @@ export interface PagesSelect<T extends boolean = true> {
                   };
               showPrices?: T;
               showIcons?: T;
+              showDuration?: T;
+              showBookButton?: T;
+              bookButtonText?: T;
+              bookButtonLink?: T;
               ctaButton?:
                 | T
                 | {
@@ -2107,6 +2271,7 @@ export interface PagesSelect<T extends boolean = true> {
                 | {
                     image?: T;
                     caption?: T;
+                    category?: T;
                     id?: T;
                   };
               showCaptions?: T;
@@ -2250,11 +2415,140 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        videoEmbed?: T | VideoEmbedBlockSelect<T>;
+        priceListDotted?: T | PriceListDottedBlockSelect<T>;
+        beforeAfter?: T | BeforeAfterBlockSelect<T>;
+        newsletter?:
+          | T
+          | {
+              variant?: T;
+              heading?: T;
+              subheading?: T;
+              placeholder?: T;
+              buttonText?: T;
+              successMessage?: T;
+              backgroundImage?: T;
+              privacyText?: T;
+              showPrivacyLink?: T;
+              benefits?:
+                | T
+                | {
+                    text?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
       };
   publishedAt?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "VideoEmbedBlock_select".
+ */
+export interface VideoEmbedBlockSelect<T extends boolean = true> {
+  variant?: T;
+  heading?: T;
+  subheading?: T;
+  videoUrl?: T;
+  thumbnail?: T;
+  sideContent?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        ctaButton?:
+          | T
+          | {
+              label?: T;
+              link?: T;
+            };
+        position?: T;
+      };
+  aspectRatio?: T;
+  autoplay?: T;
+  loop?: T;
+  showControls?: T;
+  backgroundColor?: T;
+  maxWidth?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PriceListDottedBlock_select".
+ */
+export interface PriceListDottedBlockSelect<T extends boolean = true> {
+  variant?: T;
+  heading?: T;
+  subheading?: T;
+  source?: T;
+  limit?: T;
+  filterByCategory?: T;
+  categories?:
+    | T
+    | {
+        name?: T;
+        items?:
+          | T
+          | {
+              name?: T;
+              price?: T;
+              duration?: T;
+              description?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  items?:
+    | T
+    | {
+        name?: T;
+        price?: T;
+        duration?: T;
+        description?: T;
+        image?: T;
+        featured?: T;
+        id?: T;
+      };
+  currency?: T;
+  showDuration?: T;
+  dotStyle?: T;
+  backgroundColor?: T;
+  ctaButton?:
+    | T
+    | {
+        show?: T;
+        label?: T;
+        link?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BeforeAfterBlock_select".
+ */
+export interface BeforeAfterBlockSelect<T extends boolean = true> {
+  variant?: T;
+  backgroundColor?: T;
+  heading?: T;
+  subheading?: T;
+  items?:
+    | T
+    | {
+        beforeImage?: T;
+        afterImage?: T;
+        title?: T;
+        description?: T;
+        id?: T;
+      };
+  sliderPosition?: T;
+  id?: T;
+  blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3161,12 +3455,45 @@ export interface Footer {
   createdAt?: string | null;
 }
 /**
+ * Schimba instantaneu aspectul complet al site-ului. Variantele functioneaza pentru orice tip de afacere.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "theme".
+ * via the `definition` "site-theme".
  */
-export interface Theme {
+export interface SiteTheme {
   id: string;
-  preset?: ('modern' | 'classic' | 'bold' | 'elegant' | 'minimal' | 'custom') | null;
+  /**
+   * Varianta selectata schimba culorile, fonturile si stilul intregului site
+   */
+  variant:
+    | 'dark-gold'
+    | 'modern-red'
+    | 'classic-blue'
+    | 'fresh-green'
+    | 'minimal-black'
+    | 'purple-premium'
+    | 'warm-orange'
+    | 'teal-modern'
+    | 'brown-vintage'
+    | 'pink-soft';
+  /**
+   * Lasa gol pentru default din varianta
+   */
+  borderRadius?: ('none' | 'small' | 'medium' | 'large' | 'full') | null;
+  /**
+   * Lasa gol pentru default din varianta
+   */
+  shadows?: ('none' | 'subtle' | 'moderate' | 'strong') | null;
+  /**
+   * Lasa gol pentru default din varianta
+   */
+  animations?: ('none' | 'subtle' | 'moderate' | 'dynamic') | null;
+  containerWidth?: ('1024' | '1280' | '1400' | '1600') | null;
+  sectionSpacing?: ('compact' | 'normal' | 'spacious') | null;
+  /**
+   * Bifat = culorile de mai jos suprascriu varianta. Nebifat = culorile din varianta.
+   */
+  useCustomColors?: boolean | null;
   colors?: {
     primary?: string | null;
     secondary?: string | null;
@@ -3178,17 +3505,11 @@ export interface Theme {
     textLight?: string | null;
     border?: string | null;
   };
-  fontPreset?: ('modern' | 'elegant' | 'bold' | 'minimalist' | 'classic') | null;
+  useCustomFonts?: boolean | null;
   fonts?: {
-    headingFont?: ('Inter' | 'Playfair Display' | 'Montserrat' | 'Poppins' | 'Geist' | 'Roboto') | null;
-    bodyFont?: ('Inter' | 'Source Sans Pro' | 'Open Sans' | 'Roboto' | 'Geist' | 'Poppins') | null;
+    headingFont?: ('Inter' | 'Playfair Display' | 'Montserrat' | 'Poppins' | 'Oswald' | 'Lora' | 'Roboto') | null;
+    bodyFont?: ('Inter' | 'Open Sans' | 'Roboto' | 'Lato' | 'Source Sans Pro' | 'Poppins') | null;
   };
-  stylePreset?: ('modern' | 'classic' | 'bold' | 'minimal') | null;
-  borderRadius?: ('none' | 'small' | 'medium' | 'large' | 'full') | null;
-  shadows?: ('none' | 'subtle' | 'moderate' | 'strong') | null;
-  animations?: ('none' | 'subtle' | 'moderate' | 'dynamic') | null;
-  containerWidth?: ('1024' | '1280' | '1400' | '1600') | null;
-  sectionSpacing?: ('compact' | 'normal' | 'spacious') | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -3247,6 +3568,17 @@ export interface BusinessInfo {
   phoneSecondary?: string | null;
   email?: string | null;
   whatsapp?: string | null;
+  whatsappFloat?: {
+    enabled?: boolean | null;
+    position?: ('bottom-right' | 'bottom-left') | null;
+    showOnMobile?: boolean | null;
+    /**
+     * Mesajul care va fi pre-completat in WhatsApp
+     */
+    defaultMessage?: string | null;
+    tooltipText?: string | null;
+    pulseAnimation?: boolean | null;
+  };
   workingHours?:
     | {
         /**
@@ -3296,6 +3628,29 @@ export interface BusinessInfo {
     regCom?: string | null;
     bankAccount?: string | null;
     bank?: string | null;
+  };
+  /**
+   * Bara pentru promotii sau anunturi importante in header
+   */
+  announcementBar?: {
+    enabled?: boolean | null;
+    message?: string | null;
+    linkText?: string | null;
+    linkUrl?: string | null;
+    backgroundColor?: ('primary' | 'secondary' | 'accent' | 'dark' | 'gradient') | null;
+    icon?: ('megaphone' | 'gift' | 'star' | 'fire' | 'sparkles' | 'none') | null;
+    dismissible?: boolean | null;
+  };
+  /**
+   * Banner pentru consimtamant cookies conform GDPR
+   */
+  cookieConsent?: {
+    enabled?: boolean | null;
+    message?: string | null;
+    position?: ('bottom' | 'bottom-left' | 'bottom-right') | null;
+    variant?: ('bar' | 'popup' | 'minimal') | null;
+    acceptButtonText?: string | null;
+    showDeclineButton?: boolean | null;
   };
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -3356,67 +3711,6 @@ export interface ShopSetting {
   checkoutText?: string | null;
   emptyCartMessage?: string | null;
   orderSuccessMessage?: string | null;
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * Schimba rapid aspectul site-ului selectand o varianta predefinita
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "design-variant".
- */
-export interface DesignVariant {
-  id: string;
-  /**
-   * Selecteaza tipul de afacere pentru a vedea variantele disponibile
-   */
-  businessType:
-    | 'barbershop'
-    | 'dentist'
-    | 'restaurant'
-    | 'magazin'
-    | 'auto-service'
-    | 'salon'
-    | 'avocat'
-    | 'constructii';
-  /**
-   * Fiecare varianta are culori, fonturi si layout diferit
-   */
-  variantIndex: '0' | '1' | '2' | '3' | '4';
-  /**
-   * Informatii despre varianta selectata
-   */
-  variantDescription?: string | null;
-  useOverride?: boolean | null;
-  override?: {
-    heroType?: ('fullscreen' | 'centered' | 'split' | 'minimal') | null;
-    heroOverlay?: ('dark' | 'light' | 'gradient' | 'none') | null;
-    servicesVariant?: ('grid-3' | 'grid-4' | 'list' | 'cards' | 'with-prices') | null;
-    teamVariant?: ('grid' | 'grid-centered' | 'list' | 'carousel') | null;
-    testimonialsVariant?: ('carousel' | 'grid' | 'masonry' | 'single') | null;
-    galleryVariant?: ('grid-3' | 'grid-4' | 'masonry' | 'carousel') | null;
-  };
-  /**
-   * Trage pentru a reordona sectiunile pe homepage
-   */
-  homepageSections?:
-    | {
-        section:
-          | 'hero'
-          | 'services'
-          | 'products'
-          | 'stats'
-          | 'team'
-          | 'testimonials'
-          | 'gallery'
-          | 'faq'
-          | 'pricing'
-          | 'cta'
-          | 'contact';
-        enabled?: boolean | null;
-        id?: string | null;
-      }[]
-    | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -3534,10 +3828,16 @@ export interface FooterSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "theme_select".
+ * via the `definition` "site-theme_select".
  */
-export interface ThemeSelect<T extends boolean = true> {
-  preset?: T;
+export interface SiteThemeSelect<T extends boolean = true> {
+  variant?: T;
+  borderRadius?: T;
+  shadows?: T;
+  animations?: T;
+  containerWidth?: T;
+  sectionSpacing?: T;
+  useCustomColors?: T;
   colors?:
     | T
     | {
@@ -3551,19 +3851,13 @@ export interface ThemeSelect<T extends boolean = true> {
         textLight?: T;
         border?: T;
       };
-  fontPreset?: T;
+  useCustomFonts?: T;
   fonts?:
     | T
     | {
         headingFont?: T;
         bodyFont?: T;
       };
-  stylePreset?: T;
-  borderRadius?: T;
-  shadows?: T;
-  animations?: T;
-  containerWidth?: T;
-  sectionSpacing?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -3611,6 +3905,16 @@ export interface BusinessInfoSelect<T extends boolean = true> {
   phoneSecondary?: T;
   email?: T;
   whatsapp?: T;
+  whatsappFloat?:
+    | T
+    | {
+        enabled?: T;
+        position?: T;
+        showOnMobile?: T;
+        defaultMessage?: T;
+        tooltipText?: T;
+        pulseAnimation?: T;
+      };
   workingHours?:
     | T
     | {
@@ -3652,6 +3956,27 @@ export interface BusinessInfoSelect<T extends boolean = true> {
         bankAccount?: T;
         bank?: T;
       };
+  announcementBar?:
+    | T
+    | {
+        enabled?: T;
+        message?: T;
+        linkText?: T;
+        linkUrl?: T;
+        backgroundColor?: T;
+        icon?: T;
+        dismissible?: T;
+      };
+  cookieConsent?:
+    | T
+    | {
+        enabled?: T;
+        message?: T;
+        position?: T;
+        variant?: T;
+        acceptButtonText?: T;
+        showDeclineButton?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -3685,36 +4010,6 @@ export interface ShopSettingsSelect<T extends boolean = true> {
   checkoutText?: T;
   emptyCartMessage?: T;
   orderSuccessMessage?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "design-variant_select".
- */
-export interface DesignVariantSelect<T extends boolean = true> {
-  businessType?: T;
-  variantIndex?: T;
-  variantDescription?: T;
-  useOverride?: T;
-  override?:
-    | T
-    | {
-        heroType?: T;
-        heroOverlay?: T;
-        servicesVariant?: T;
-        teamVariant?: T;
-        testimonialsVariant?: T;
-        galleryVariant?: T;
-      };
-  homepageSections?:
-    | T
-    | {
-        section?: T;
-        enabled?: T;
-        id?: T;
-      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

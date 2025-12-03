@@ -27,13 +27,12 @@ import { ContactSubmissions } from './collections/ContactSubmissions'
 import { ProductCategories } from './collections/ProductCategories'
 
 // Globals
-import { Theme } from './globals/Theme'
+import { SiteTheme } from './globals/SiteTheme'
 import { BusinessInfo } from './globals/BusinessInfo'
 import { Header } from './globals/Header'
 import { Footer } from './globals/Footer'
 import { Logo } from './globals/Logo'
 import { ShopSettings } from './globals/ShopSettings'
-import { DesignVariant } from './globals/DesignVariant'
 
 // Blocks
 import { blocks } from './blocks'
@@ -321,7 +320,7 @@ export default buildConfig({
     ProductCategories,
   ],
   cors: [getServerSideURL()].filter(Boolean),
-  globals: [Header, Footer, Theme, Logo, BusinessInfo, ShopSettings, DesignVariant],
+  globals: [Header, Footer, SiteTheme, Logo, BusinessInfo, ShopSettings],
   plugins: [
     ...plugins,
     // Ecommerce plugin cu Orders email notifications
