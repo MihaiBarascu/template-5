@@ -201,6 +201,7 @@ export async function createAdminUser(payload: Payload) {
         email: 'admin@example.com',
         password: 'admin123',
         name: 'Administrator',
+        role: 'admin',
       },
     });
     console.log('   Created admin user');
@@ -601,6 +602,9 @@ type HeroType =
   | 'slider';
 type ButtonVariant = 'default' | 'outline' | 'ghost';
 
+type OverlayStyle = 'gradient' | 'dark' | 'primary' | 'secondary' | 'radial';
+type OverlayOpacity = '30' | '40' | '50' | '60' | '70' | '80' | '90';
+
 export async function seedHomePage(
   payload: Payload,
   data: {
@@ -610,6 +614,14 @@ export async function seedHomePage(
       subheadline?: string;
       ctaButtons?: Array<{ label: string; link: string; variant?: string }>;
       imageId?: string; // Optional hero background image
+      // Overlay settings
+      overlayEnabled?: boolean;
+      overlayOpacity?: string;
+      overlayStyle?: string;
+      // Other hero settings
+      height?: 'small' | 'medium' | 'large' | 'fullscreen';
+      badge?: string;
+      showScrollIndicator?: boolean;
     };
     layout?: Array<{
       blockType: string;
@@ -631,6 +643,14 @@ export async function seedHomePage(
           variant: (btn.variant || 'default') as ButtonVariant,
         })),
         image: data.hero?.imageId || undefined,
+        // Overlay settings - default to enabled with gradient style
+        overlayEnabled: data.hero?.overlayEnabled ?? true,
+        overlayOpacity: (data.hero?.overlayOpacity || '60') as OverlayOpacity,
+        overlayStyle: (data.hero?.overlayStyle || 'gradient') as OverlayStyle,
+        // Other hero settings
+        height: data.hero?.height || 'large',
+        badge: data.hero?.badge,
+        showScrollIndicator: data.hero?.showScrollIndicator ?? false,
       },
       layout: (data.layout || []) as Page['layout'],
       _status: 'published',
@@ -893,4 +913,35 @@ export async function seedDesignVariant(
 ) {
   console.log(`   [DEPRECATED] seedDesignVariant called for: ${data.variantName}`);
   console.log(`   Use seedSiteTheme with variant option instead.`);
+}
+
+// Helper to seed sample newsletter subscribers for demo purposes
+export async function seedNewsletterSubscribers(
+  payload: Payload,
+  subscribers: Array<{
+    email: string;
+    source?: 'website' | 'footer' | 'popup' | 'page' | 'import' | 'manual';
+    status?: 'active' | 'unsubscribed' | 'bounced';
+  }>,
+) {
+  for (const subscriber of subscribers) {
+    try {
+      await payload.create({
+        collection: 'newsletter-subscribers',
+        data: {
+          email: subscriber.email.toLowerCase(),
+          source: subscriber.source || 'import',
+          status: subscriber.status || 'active',
+          subscribedAt: new Date().toISOString(),
+        },
+      });
+    } catch (error) {
+      // Skip duplicates silently (unique constraint on email)
+      const err = error as Error;
+      if (!err.message?.includes('duplicate')) {
+        console.error(`   Error creating subscriber ${subscriber.email}:`, err.message);
+      }
+    }
+  }
+  console.log(`   Created ${subscribers.length} newsletter subscribers`);
 }

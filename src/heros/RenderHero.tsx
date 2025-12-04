@@ -18,8 +18,9 @@ interface SocialLinks {
 
 type HeroData = NonNullable<Page['hero']> & {
   height?: 'small' | 'medium' | 'large' | 'fullscreen' | null
+  overlayEnabled?: boolean | null
   overlayOpacity?: string | null
-  overlayGradient?: string | null
+  overlayStyle?: 'gradient' | 'dark' | 'primary' | 'secondary' | 'radial' | null
   videoUrl?: string | null
   parallax?: boolean | null
   showScrollIndicator?: boolean | null
@@ -46,6 +47,52 @@ function getImageData(image: unknown): { url: string; alt: string } | null {
   const imgData = image as { url?: string; alt?: string }
   if (!imgData.url) return null
   return { url: imgData.url, alt: imgData.alt || '' }
+}
+
+// Helper to generate overlay styles based on settings
+function getOverlayStyles(
+  enabled: boolean | null | undefined,
+  opacity: string | null | undefined,
+  style: string | null | undefined
+): { className: string; style: React.CSSProperties } | null {
+  if (enabled === false) return null
+
+  const opacityValue = parseInt(opacity || '60') / 100
+  const overlayStyle = style || 'gradient'
+
+  // Generate CSS class and inline styles based on overlay style
+  switch (overlayStyle) {
+    case 'dark':
+      return {
+        className: 'absolute inset-0 bg-black',
+        style: { opacity: opacityValue }
+      }
+    case 'primary':
+      return {
+        className: 'absolute inset-0 bg-theme-primary',
+        style: { opacity: opacityValue }
+      }
+    case 'secondary':
+      return {
+        className: 'absolute inset-0 bg-theme-secondary',
+        style: { opacity: opacityValue }
+      }
+    case 'radial':
+      return {
+        className: 'absolute inset-0',
+        style: {
+          background: `radial-gradient(circle at center, transparent 0%, rgba(0,0,0,${opacityValue}) 100%)`
+        }
+      }
+    case 'gradient':
+    default:
+      return {
+        className: 'absolute inset-0',
+        style: {
+          background: `linear-gradient(to top, rgba(0,0,0,${opacityValue * 1.2}) 0%, rgba(0,0,0,${opacityValue * 0.6}) 50%, rgba(0,0,0,${opacityValue * 0.3}) 100%)`
+        }
+      }
+  }
 }
 
 // CSS-only scroll indicator
@@ -75,11 +122,11 @@ function FeatureBadge({ text, variant = 'light' }: { text: string; variant?: 'li
 }
 
 // Hero Carousel/Slider component - CSS animations with minimal JS for state
-function HeroCarousel({ slides, ctaButtons, height, overlayOpacity }: {
+function HeroCarousel({ slides, ctaButtons, height, overlayConfig }: {
   slides: NonNullable<HeroData['slides']>
   ctaButtons?: CTAButton[] | null
   height: string
-  overlayOpacity: number
+  overlayConfig: { className: string; style: React.CSSProperties } | null
 }) {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
@@ -133,20 +180,19 @@ function HeroCarousel({ slides, ctaButtons, height, overlayOpacity }: {
                   priority={index === 0}
                 />
                 {/* Overlay */}
-                <div
-                  className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20"
-                  style={{ opacity: overlayOpacity / 100 }}
-                />
+                {overlayConfig && (
+                  <div className={overlayConfig.className} style={overlayConfig.style} />
+                )}
               </>
             )}
 
             {/* Content */}
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="container mx-auto px-4 text-center text-white">
+              <div className="container mx-auto px-4 text-center">
                 {slide.headline && (
                   <h1
                     className={cn(
-                      'text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-6 leading-tight drop-shadow-2xl transition-all duration-700',
+                      'text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-6 leading-tight text-white drop-shadow-lg transition-all duration-700',
                       isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
                     )}
                     style={{ transitionDelay: isActive ? '200ms' : '0ms' }}
@@ -157,8 +203,8 @@ function HeroCarousel({ slides, ctaButtons, height, overlayOpacity }: {
                 {slide.subheadline && (
                   <p
                     className={cn(
-                      'text-lg md:text-xl lg:text-2xl mb-8 max-w-3xl mx-auto opacity-90 drop-shadow-lg transition-all duration-700',
-                      isActive ? 'opacity-90 translate-y-0' : 'opacity-0 translate-y-6'
+                      'text-lg md:text-xl lg:text-2xl mb-8 max-w-3xl mx-auto text-white/90 drop-shadow-md transition-all duration-700',
+                      isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
                     )}
                     style={{ transitionDelay: isActive ? '400ms' : '0ms' }}
                   >
@@ -266,9 +312,14 @@ export function RenderHero({ type, data, social }: RenderHeroProps) {
     socialIconsPosition = 'left',
     badge,
     slides,
+    overlayEnabled = true,
+    overlayOpacity,
+    overlayStyle,
   } = data
   const imageData = getImageData(image)
-  const overlayOpacity = parseInt(data.overlayOpacity || '50')
+
+  // Get overlay configuration
+  const overlayConfig = getOverlayStyles(overlayEnabled, overlayOpacity, overlayStyle)
 
   // Height classes
   const heightClasses = {
@@ -287,7 +338,7 @@ export function RenderHero({ type, data, social }: RenderHeroProps) {
         slides={slides}
         ctaButtons={ctaButtons}
         height={heightClass}
-        overlayOpacity={overlayOpacity}
+        overlayConfig={overlayConfig}
       />
     )
   }
@@ -302,7 +353,9 @@ export function RenderHero({ type, data, social }: RenderHeroProps) {
             <video autoPlay muted loop playsInline className="absolute w-full h-full object-cover">
               <source src={videoUrl} type="video/mp4" />
             </video>
-            <div className="absolute inset-0 bg-black" style={{ opacity: overlayOpacity / 100 }} />
+            {overlayConfig && (
+              <div className={overlayConfig.className} style={overlayConfig.style} />
+            )}
           </div>
         )}
 
@@ -316,7 +369,9 @@ export function RenderHero({ type, data, social }: RenderHeroProps) {
               className="object-cover"
               priority
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/30" />
+            {overlayConfig && (
+              <div className={overlayConfig.className} style={overlayConfig.style} />
+            )}
           </div>
         )}
 
@@ -332,7 +387,7 @@ export function RenderHero({ type, data, social }: RenderHeroProps) {
         </div>
 
         {/* Content */}
-        <div className="relative z-10 container mx-auto px-4 text-center text-white py-20">
+        <div className="relative z-10 container mx-auto px-4 text-center py-20">
           {badge && (
             <div className="mb-8">
               <FeatureBadge text={badge} />
@@ -340,13 +395,13 @@ export function RenderHero({ type, data, social }: RenderHeroProps) {
           )}
 
           {headline && (
-            <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-6 leading-tight drop-shadow-2xl animate-fade-in-up">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-6 leading-tight animate-fade-in-up text-white/80 [text-shadow:_0_1px_0_rgba(255,255,255,0.4),_0_-1px_0_rgba(0,0,0,0.2),_0_4px_8px_rgba(0,0,0,0.3)] backdrop-blur-[1px]">
               {headline}
             </h1>
           )}
 
           {subheadline && (
-            <p className="text-lg md:text-xl lg:text-2xl mb-10 max-w-3xl mx-auto opacity-90 leading-relaxed drop-shadow-lg animate-fade-in-up animation-delay-200">
+            <p className="text-lg md:text-xl lg:text-2xl mb-10 max-w-3xl mx-auto text-white/90 leading-relaxed drop-shadow-md animate-fade-in-up animation-delay-200">
               {subheadline}
             </p>
           )}
@@ -472,6 +527,33 @@ export function RenderHero({ type, data, social }: RenderHeroProps) {
     )
   }
 
+  // MINIMAL HERO - compact page header for inner pages
+  if (type === 'minimal') {
+    return (
+      <section className="relative bg-gradient-to-r from-theme-primary to-theme-primary-dark py-12 md:py-16 overflow-hidden">
+        {/* Subtle decorative elements */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute -top-1/2 -right-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
+          <div className="absolute -bottom-1/2 -left-1/4 w-96 h-96 bg-black/5 rounded-full blur-3xl" />
+        </div>
+
+        <div className="relative z-10 container mx-auto px-4 text-center">
+          {headline && (
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2 animate-fade-in-up">
+              {headline}
+            </h1>
+          )}
+
+          {subheadline && (
+            <p className="text-base md:text-lg text-white/80 max-w-2xl mx-auto animate-fade-in-up animation-delay-100">
+              {subheadline}
+            </p>
+          )}
+        </div>
+      </section>
+    )
+  }
+
   // DEFAULT CENTERED HERO
   return (
     <section className={cn(
@@ -482,7 +564,9 @@ export function RenderHero({ type, data, social }: RenderHeroProps) {
       {imageData && (
         <div className="absolute inset-0">
           <Image src={imageData.url} alt={imageData.alt || headline || ''} fill className="object-cover" priority />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-black/30" />
+          {overlayConfig && (
+            <div className={overlayConfig.className} style={overlayConfig.style} />
+          )}
         </div>
       )}
 
@@ -499,19 +583,23 @@ export function RenderHero({ type, data, social }: RenderHeroProps) {
         )}
 
         {headline && (
-          <h1 className={cn(
-            'text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6 leading-tight animate-fade-in-up',
-            imageData ? 'text-white drop-shadow-2xl' : 'text-theme-text'
-          )}>
+          <h1
+            className={cn(
+              'text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6 leading-tight animate-fade-in-up',
+              imageData ? 'text-white drop-shadow-lg' : 'text-theme-text'
+            )}
+          >
             {headline}
           </h1>
         )}
 
         {subheadline && (
-          <p className={cn(
-            'text-lg md:text-xl mb-10 max-w-3xl mx-auto leading-relaxed animate-fade-in-up animation-delay-200',
-            imageData ? 'text-white/90 drop-shadow-lg' : 'text-theme-text-light'
-          )}>
+          <p
+            className={cn(
+              'text-lg md:text-xl mb-10 max-w-3xl mx-auto leading-relaxed animate-fade-in-up animation-delay-200',
+              imageData ? 'text-white/90 drop-shadow-md' : 'text-theme-text-light'
+            )}
+          >
             {subheadline}
           </p>
         )}

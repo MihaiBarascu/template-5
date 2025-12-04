@@ -2,16 +2,43 @@ import { revalidateRedirects } from '@/hooks/revalidateRedirects'
 import { beforeSyncWithSearch } from '@/search/beforeSync'
 import { searchFields } from '@/search/fieldOverrides'
 import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
+import { importExportPlugin } from '@payloadcms/plugin-import-export'
 import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
 import { redirectsPlugin } from '@payloadcms/plugin-redirects'
 import { searchPlugin } from '@payloadcms/plugin-search'
 import { seoPlugin } from '@payloadcms/plugin-seo'
+import { s3Storage } from '@payloadcms/storage-s3'
 import { GenerateTitle, GenerateURL } from '@payloadcms/plugin-seo/types'
 import { FixedToolbarFeature, HeadingFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import { Plugin } from 'payload'
 
 import type { Page, Post } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
+
+// S3/R2 Storage configuration (optional - for production)
+const s3StoragePlugin: Plugin | null =
+  process.env.R2_BUCKET &&
+  process.env.R2_ACCESS_KEY_ID &&
+  process.env.R2_SECRET_ACCESS_KEY &&
+  process.env.R2_ENDPOINT
+    ? s3Storage({
+        collections: {
+          media: {
+            prefix: 'media',
+          },
+        },
+        bucket: process.env.R2_BUCKET,
+        config: {
+          credentials: {
+            accessKeyId: process.env.R2_ACCESS_KEY_ID,
+            secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+          },
+          region: 'auto',
+          endpoint: process.env.R2_ENDPOINT,
+          forcePathStyle: true,
+        },
+      })
+    : null
 
 const generateTitle: GenerateTitle<Post | Page> = ({ doc }) => {
   return doc?.title ? `${doc.title} | Site Business` : 'Site Business Romania'
@@ -88,4 +115,21 @@ export const plugins: Plugin[] = [
       },
     },
   }),
+  // Import/Export plugin - permite backup si migrare continut
+  // Admin-ul poate exporta colectii in JSON si le poate reimporta
+  importExportPlugin({
+    collections: [
+      'pages',
+      'posts',
+      'services',
+      'team',
+      'portfolio',
+      'testimonials',
+      'faq',
+      'price-packages',
+      'categories',
+    ],
+  }),
+  // S3/R2 storage for production (optional - only if env vars are set)
+  ...(s3StoragePlugin ? [s3StoragePlugin] : []),
 ]

@@ -7,7 +7,7 @@ export const PriceListDottedBlock: Block = {
     plural: 'Liste Preturi',
   },
   interfaceName: 'PriceListDottedBlock',
-  imageURL: '/blocks/price-list.png',
+  imageURL: '/blocks/price-list.svg',
   fields: [
     {
       name: 'variant',

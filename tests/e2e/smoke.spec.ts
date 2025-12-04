@@ -6,8 +6,6 @@
 import { test, expect } from '@playwright/test'
 import { execSync } from 'child_process'
 
-const BASE_URL = 'http://localhost:3000'
-
 const BUSINESS_TYPES = [
   'frizerie',
   'dentist',
@@ -23,24 +21,26 @@ type BusinessType = (typeof BUSINESS_TYPES)[number]
 
 async function seedBusiness(type: BusinessType): Promise<void> {
   console.log(`\n🌱 Seeding ${type}...`)
-  execSync(`SEED_TYPE=${type} DESIGN_VARIANT=0 pnpm seed`, {
+  execSync(`pnpm seed:${type}`, {
     cwd: process.cwd(),
     stdio: 'inherit',
+    timeout: 120000, // 2 minutes for seed
   })
-  // Wait for ISR cache to update
-  await new Promise((resolve) => setTimeout(resolve, 3000))
+  // Wait for ISR cache to update and Next.js to rebuild
+  console.log('⏳ Waiting for cache update...')
+  await new Promise((resolve) => setTimeout(resolve, 5000))
 }
 
 test.describe('Smoke Tests - All Business Types', () => {
   test.describe.configure({ mode: 'serial' })
 
   for (const businessType of BUSINESS_TYPES) {
-    test(`${businessType} loads correctly`, async ({ page }) => {
+    test(`${businessType} loads correctly`, async ({ page, baseURL }) => {
       // Seed this business type
       await seedBusiness(businessType)
 
-      // Navigate to homepage
-      await page.goto(BASE_URL, { waitUntil: 'networkidle' })
+      // Navigate to homepage using baseURL from config
+      await page.goto(baseURL || 'http://localhost:3000', { waitUntil: 'domcontentloaded', timeout: 30000 })
 
       // 1. Page should have header
       const header = page.locator('header').first()

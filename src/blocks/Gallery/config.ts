@@ -6,7 +6,7 @@ export const GalleryBlock: Block = {
     singular: 'Galerie',
     plural: 'Galerie',
   },
-  imageURL: '/blocks/gallery.png',
+  imageURL: '/blocks/gallery.svg',
   fields: [
     {
       name: 'variant',

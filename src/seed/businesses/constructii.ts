@@ -14,9 +14,10 @@ import {
   seedPortfolio,
   uploadLocalSeedImages,
   seedPosts,
+  seedNewsletterSubscribers,
 } from '../helpers'
 import { constructiiImages, constructiiData } from '../seed-data'
-import { getVariant, type DesignVariant } from '../design-variants'
+import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
 
 const VARIANT_INDEX = parseInt(process.env.DESIGN_VARIANT || '0', 10)
 
@@ -118,6 +119,7 @@ export async function seedConstructii(payload: Payload) {
   const heroImageId = getImageId(constructiiImages.hero[0]?.filename)
   const homepageLayout = buildHomepageLayout(variant)
 
+  const overlaySettings = getHeroOverlaySettings(variant)
   await seedHomePage(payload, {
     heroType: variant.hero.type,
     hero: {
@@ -125,6 +127,7 @@ export async function seedConstructii(payload: Payload) {
       subheadline: constructiiData.hero.subheadline,
       ctaButtons: constructiiData.hero.ctaButtons,
       imageId: heroImageId,
+      ...overlaySettings,
     },
     layout: homepageLayout,
   })
@@ -137,6 +140,14 @@ export async function seedConstructii(payload: Payload) {
   if (constructiiData.posts) {
     await seedPosts(payload, constructiiData.posts)
   }
+
+  // Sample newsletter subscribers for demo
+  console.log('\n📧 Creating sample newsletter subscribers...')
+  await seedNewsletterSubscribers(payload, [
+    { email: 'constructor1@mailinator.com', source: 'website' },
+    { email: 'constructor2@mailinator.com', source: 'footer' },
+    { email: 'constructor3@mailinator.com', source: 'popup' },
+  ])
 
   // Note: Design variant global has been replaced by unified SiteTheme system
   // Theme is now configured at the start of seeding via seedSiteTheme()
@@ -165,11 +176,186 @@ interface BlockConfig {
   subheadline?: string
   buttons?: Array<{ label: string; link: string; variant?: string }>
   backgroundColor?: string
+  ctaButton?: { show: boolean; label: string; link: string }
   [key: string]: unknown
 }
 
 function buildHomepageLayout(variant: DesignVariant) {
   const sectionConfigs: Record<string, BlockConfig> = {
+    // NEW: Trust Badges - construction credibility (bar variant - professional)
+    trustBadges: {
+      blockType: 'trust-badges',
+      variant: 'bar',
+      source: 'preset',
+      presets: ['warranty', 'experience-years', 'happy-customers', 'quality'],
+      customValues: {
+        experienceYears: 15,
+        happyCustomersCount: '500+',
+        warrantyPeriod: '10 ani garantie lucrari',
+      },
+      showDescriptions: true,
+      iconSize: 'medium',
+      backgroundColor: 'primary',
+    },
+    // NEW: How It Works - construction process (connected variant - project flow)
+    howItWorks: {
+      blockType: 'how-it-works',
+      variant: 'connected',
+      heading: 'Etapele Proiectului',
+      subheading: 'Procesul nostru transparent de lucru',
+      steps: [
+        {
+          title: 'Consultatie si Evaluare',
+          description: 'Vizita la locatie, masuratori si discutie despre nevoi',
+          icon: 'ClipboardCheck',
+        },
+        {
+          title: 'Proiect si Oferta',
+          description: 'Proiect tehnic detaliat cu materiale si costuri',
+          icon: 'FileText',
+        },
+        {
+          title: 'Executie Profesionala',
+          description: 'Echipa experimentata cu materiale de calitate',
+          icon: 'Settings',
+        },
+        {
+          title: 'Receptie si Garantie',
+          description: 'Verificare finala si garantie scrisa pe lucrari',
+          icon: 'CheckCircle',
+        },
+      ],
+      showNumbers: true,
+      ctaButton: {
+        show: true,
+        label: 'Cere Oferta Gratuita',
+        link: '/contact',
+      },
+      backgroundColor: 'light',
+    },
+    // NEW: Logo Cloud - certifications and partners
+    logoCloud: {
+      blockType: 'logo-cloud',
+      variant: 'grayscale',
+      heading: 'Certificari si Parteneriate',
+      subheading: 'Lucram doar cu materiale de calitate',
+      logos: [],
+      logoSize: 'medium',
+      columns: '5',
+      grayscale: true,
+      backgroundColor: 'default',
+    },
+    // NEW: Opening Hours - program firma constructii
+    openingHours: {
+      blockType: 'openingHours',
+      variant: 'inline',
+      heading: 'Program de Lucru',
+      subheading: 'Contactează-ne pentru evaluări și oferte',
+      source: 'businessInfo',
+      showCurrentStatus: true,
+      backgroundColor: 'default',
+    },
+    // NEW: Locations - sediu firma + santiere
+    locations: {
+      blockType: 'locations',
+      variant: 'cards',
+      heading: 'Sediul și Aria de Acoperire',
+      subheading: 'Executăm lucrări în București și împrejurimi',
+      locations: [
+        {
+          name: 'BuildPro - Sediu Central',
+          address: 'Strada Constructorilor 100',
+          city: 'București',
+          phone: '0722 111 333',
+          email: 'office@buildpro.ro',
+          schedule: [
+            { days: 'Luni - Vineri', hours: '07:00 - 17:00' },
+            { days: 'Sâmbătă', hours: '08:00 - 13:00' },
+            { days: 'Duminică', hours: 'Închis' },
+          ],
+          rating: 4.9,
+          ctaButton: {
+            label: 'Cere Ofertă',
+            link: '/contact',
+          },
+        },
+      ],
+      showRating: true,
+      showSchedule: true,
+      backgroundColor: 'light',
+    },
+    // NEW: Brand Logos - furnizori materiale
+    brandLogos: {
+      blockType: 'brandLogos',
+      variant: 'sectioned',
+      heading: 'Parteneri și Furnizori',
+      subheading: 'Colaborăm cu cei mai buni furnizori de materiale',
+      source: 'sections',
+      sections: [
+        {
+          title: 'Materiale de Construcții',
+          logos: [],
+        },
+        {
+          title: 'Echipamente',
+          logos: [],
+        },
+      ],
+      grayscale: true,
+      logoSize: 'medium',
+      backgroundColor: 'default',
+    },
+    // NEW: Timeline - proiecte majore
+    timeline: {
+      blockType: 'timeline',
+      variant: 'vertical',
+      heading: '15 Ani de Construcții de Calitate',
+      subheading: 'Proiecte și realizări',
+      events: [
+        {
+          year: '2009',
+          title: 'Înființare',
+          description: 'Am început cu renovări de apartamente în București',
+          icon: 'Building',
+        },
+        {
+          year: '2013',
+          title: 'Extindere',
+          description: 'Am trecut la construcții rezidențiale complete',
+          icon: 'Home',
+        },
+        {
+          year: '2018',
+          title: 'Proiecte Comerciale',
+          description: 'Am finalizat primul proiect comercial major - 2000 mp',
+          icon: 'Building2',
+        },
+        {
+          year: '2024',
+          title: 'Prezent',
+          description: 'Peste 500 de proiecte finalizate cu garanție 10 ani',
+          icon: 'Star',
+        },
+      ],
+      showConnector: true,
+      backgroundColor: 'light',
+    },
+    // NEW: Announcement Bar - oferta evaluare
+    announcementBar: {
+      blockType: 'announcementBar',
+      variant: 'simple',
+      messages: [
+        {
+          text: '📐 Evaluare GRATUITĂ la fața locului pentru orice proiect!',
+          link: '/contact',
+          linkText: 'Solicită evaluare',
+        },
+      ],
+      icon: 'HardHat',
+      backgroundColor: 'primary',
+      position: 'top',
+      sticky: false,
+    },
     services: {
       blockType: 'services',
       variant: variant.layout.servicesVariant,
@@ -215,7 +401,6 @@ function buildHomepageLayout(variant: DesignVariant) {
       subheading: 'Proiecte realizate',
       source: 'portfolio',
       limit: 6,
-      
       backgroundColor: 'default',
     },
     faq: {
@@ -227,6 +412,24 @@ function buildHomepageLayout(variant: DesignVariant) {
       limit: 10,
       defaultOpen: 'first',
       backgroundColor: 'default',
+    },
+    latestPosts: {
+      blockType: 'latestPosts',
+      variant: 'grid-3',
+      heading: 'Din Blogul Nostru',
+      subheading: 'Sfaturi si tendinte in constructii si renovari',
+      source: 'collection',
+      limit: 3,
+      showImage: true,
+      showCategory: true,
+      showDate: true,
+      showExcerpt: true,
+      ctaButton: {
+        show: true,
+        label: 'Vezi toate articolele',
+        link: '/blog',
+      },
+      backgroundColor: 'light',
     },
     cta: {
       blockType: 'cta',
@@ -246,7 +449,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
     data: {
       title: 'Servicii',
       slug: 'servicii',
-      heroType: 'centered',
+      heroType: 'minimal',
       hero: { headline: 'Serviciile Noastre', subheadline: 'Constructii si renovari complete' },
       layout: [
         { blockType: 'services', variant: variant.layout.servicesVariant, heading: 'Toate Serviciile', source: 'collection', limit: 20, showPrices: true, showIcons: true, backgroundColor: 'default' },
@@ -262,7 +465,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
     data: {
       title: 'Portofoliu',
       slug: 'portofoliu',
-      heroType: 'centered',
+      heroType: 'minimal',
       hero: { headline: 'Portofoliu', subheadline: 'Proiecte realizate' },
       layout: [
         { blockType: 'gallery', variant: variant.layout.galleryVariant, heading: 'Proiectele Noastre', source: 'portfolio', limit: 20,  backgroundColor: 'default' },
@@ -277,7 +480,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
     data: {
       title: 'Echipa',
       slug: 'echipa',
-      heroType: 'centered',
+      heroType: 'minimal',
       hero: { headline: 'Echipa Noastra', subheadline: 'Profesionisti cu experienta' },
       layout: [
         { blockType: 'team', variant: variant.layout.teamVariant, heading: 'Echipa', source: 'collection', limit: 20, showRole: true, showBio: true, backgroundColor: 'default' },
@@ -292,7 +495,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
     data: {
       title: 'Contact',
       slug: 'contact',
-      heroType: 'centered',
+      heroType: 'minimal',
       hero: { headline: 'Contact', subheadline: 'Cere o oferta gratuita' },
       layout: [
         { blockType: 'contact', variant: 'split', heading: 'Contacteaza-ne', showForm: true, formFields: { showName: true, showEmail: true, showPhone: true, showSubject: true, showMessage: true }, showContactInfo: true, showMap: true, mapPosition: 'bottom', backgroundColor: 'light' },

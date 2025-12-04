@@ -6,7 +6,7 @@ export const StatsBlock: Block = {
     singular: 'Statistici',
     plural: 'Statistici',
   },
-  imageURL: '/blocks/stats.png',
+  imageURL: '/blocks/stats.svg',
   fields: [
     {
       name: 'variant',

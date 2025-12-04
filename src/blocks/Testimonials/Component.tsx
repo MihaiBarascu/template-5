@@ -183,16 +183,17 @@ export function TestimonialsBlock({
       )}
       style={{ transitionDelay: `${index * 100}ms` }}
     >
-      {/* Quote Icon */}
-      <QuoteIcon className={cn(
-        'absolute w-12 h-12',
-        featured ? 'top-4 left-1/2 -translate-x-1/2' : 'top-4 right-4',
-        isDark ? 'text-white/10' : 'text-theme-primary/10'
-      )} />
+      {/* Quote Icon - decorative, only for non-featured cards */}
+      {!featured && (
+        <QuoteIcon className={cn(
+          'absolute w-12 h-12 top-4 right-4',
+          isDark ? 'text-white/10' : 'text-theme-primary/10'
+        )} />
+      )}
 
       {/* Rating */}
       {showRating && testimonial.rating && (
-        <div className={cn('mb-4', featured ? 'flex justify-center' : '')}>
+        <div className={cn('mb-4 relative z-10', featured ? 'flex justify-center' : '')}>
           <StarRating rating={parseInt(testimonial.rating) || 5} size={featured ? 'lg' : 'md'} />
         </div>
       )}

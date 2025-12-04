@@ -6,7 +6,7 @@ export const ContentBlock: Block = {
     singular: 'Continut',
     plural: 'Continut',
   },
-  imageURL: '/blocks/content.png',
+  imageURL: '/blocks/content.svg',
   fields: [
     {
       name: 'columns',

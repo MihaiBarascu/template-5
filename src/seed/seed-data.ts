@@ -374,6 +374,7 @@ export const barbershopData = {
     { label: 'Echipa', type: 'custom' as const, url: '/echipa' },
     { label: 'Galerie', type: 'custom' as const, url: '/galerie' },
     { label: 'Preturi', type: 'custom' as const, url: '/preturi' },
+    { label: 'Blog', type: 'custom' as const, url: '/blog' },
     { label: 'Contact', type: 'custom' as const, url: '/contact' },
   ],
 
@@ -549,17 +550,13 @@ export const dentistImages = {
     { filename: 'dentist/team/doctor-4.jpg', alt: 'Receptioner' },
   ],
   gallery: [
-    { filename: 'dentist/gallery/gallery-1.jpg', alt: 'Cabinet consultatie' },
+    // Note: gallery-1.jpg was corrupted, removed. Only include valid images.
     { filename: 'dentist/gallery/gallery-2.jpg', alt: 'Sala tratament' },
     { filename: 'dentist/gallery/gallery-3.jpg', alt: 'Echipament modern' },
     { filename: 'dentist/gallery/gallery-4.jpg', alt: 'Receptie clinica' },
-    { filename: 'dentist/gallery/gallery-5.jpg', alt: 'Zona asteptare' },
-    { filename: 'dentist/gallery/gallery-6.jpg', alt: 'Sterilizare' },
   ],
   services: [
-    { filename: 'dentist/services/service-implant.jpg', alt: 'Implant dentar' },
-    { filename: 'dentist/services/service-ortodontie.jpg', alt: 'Ortodontie' },
-    { filename: 'dentist/services/service-albire.jpg', alt: 'Albire dentara' },
+    // Note: services folder is empty, no images to include
   ],
 }
 
@@ -791,6 +788,7 @@ export const dentistData = {
     { label: 'Echipa', type: 'custom' as const, url: '/echipa' },
     { label: 'Galerie', type: 'custom' as const, url: '/galerie' },
     { label: 'Preturi', type: 'custom' as const, url: '/preturi' },
+    { label: 'Blog', type: 'custom' as const, url: '/blog' },
     { label: 'Contact', type: 'custom' as const, url: '/contact' },
   ],
 
@@ -1049,6 +1047,7 @@ export const restaurantData = {
     { label: 'Meniu', type: 'custom' as const, url: '/meniu' },
     { label: 'Galerie', type: 'custom' as const, url: '/galerie' },
     { label: 'Despre Noi', type: 'custom' as const, url: '/despre' },
+    { label: 'Blog', type: 'custom' as const, url: '/blog' },
     { label: 'Contact', type: 'custom' as const, url: '/contact' },
   ],
 
@@ -1129,7 +1128,7 @@ export const autoServiceImages = {
   ],
   team: [
     { filename: 'auto-service/team/mechanic-1.jpg', alt: 'Mecanic sef' },
-    { filename: 'auto-service/team/mechanic-2.jpg', alt: 'Mecanic auto' },
+    { filename: 'auto-service/team/mechanic-2.png', alt: 'Mecanic auto' },
     { filename: 'auto-service/team/mechanic-3.jpg', alt: 'Electrician auto' },
     { filename: 'auto-service/team/mechanic-4.jpg', alt: 'Vulcanizator' },
   ],
@@ -1345,6 +1344,7 @@ export const autoServiceData = {
     { label: 'Servicii', type: 'custom' as const, url: '/servicii' },
     { label: 'Preturi', type: 'custom' as const, url: '/preturi' },
     { label: 'Echipa', type: 'custom' as const, url: '/echipa' },
+    { label: 'Blog', type: 'custom' as const, url: '/blog' },
     { label: 'Contact', type: 'custom' as const, url: '/contact' },
   ],
 
@@ -1646,6 +1646,7 @@ export const salonData = {
     { label: 'Echipa', type: 'custom' as const, url: '/echipa' },
     { label: 'Galerie', type: 'custom' as const, url: '/galerie' },
     { label: 'Preturi', type: 'custom' as const, url: '/preturi' },
+    { label: 'Blog', type: 'custom' as const, url: '/blog' },
     { label: 'Contact', type: 'custom' as const, url: '/contact' },
   ],
 
@@ -1742,7 +1743,7 @@ export const avocatImages = {
   gallery: [
     { filename: 'avocat/gallery/gallery-1.jpg', alt: 'Birou avocat' },
     { filename: 'avocat/gallery/gallery-2.jpg', alt: 'Sala intalniri' },
-    { filename: 'avocat/gallery/gallery-3.jpg', alt: 'Biblioteca juridica' },
+    // Note: gallery-3.jpg was corrupted, skipped
     { filename: 'avocat/gallery/gallery-4.jpg', alt: 'Receptie' },
     { filename: 'avocat/gallery/gallery-5.jpg', alt: 'Cabinet' },
     { filename: 'avocat/gallery/gallery-6.jpg', alt: 'Documente' },
@@ -1948,6 +1949,7 @@ export const avocatData = {
     { label: 'Servicii', type: 'custom' as const, url: '/servicii' },
     { label: 'Echipa', type: 'custom' as const, url: '/echipa' },
     { label: 'Cazuri', type: 'custom' as const, url: '/cazuri' },
+    { label: 'Blog', type: 'custom' as const, url: '/blog' },
     { label: 'Contact', type: 'custom' as const, url: '/contact' },
   ],
 
@@ -2263,6 +2265,7 @@ export const constructiiData = {
     { label: 'Servicii', type: 'custom' as const, url: '/servicii' },
     { label: 'Portofoliu', type: 'custom' as const, url: '/portofoliu' },
     { label: 'Echipa', type: 'custom' as const, url: '/echipa' },
+    { label: 'Blog', type: 'custom' as const, url: '/blog' },
     { label: 'Contact', type: 'custom' as const, url: '/contact' },
   ],
 
@@ -2401,6 +2404,9 @@ export const magazinImages = {
     { filename: 'magazin/gallery/gallery-4.jpg', alt: 'Vitrina' },
     { filename: 'magazin/gallery/gallery-5.jpg', alt: 'Detalii magazin' },
     { filename: 'magazin/gallery/gallery-6.jpg', alt: 'Ambianta magazin' },
+  ],
+  locations: [
+    { filename: 'magazin/locations/showroom.jpg', alt: 'EcoShop Showroom București' },
   ],
 }
 
@@ -2666,6 +2672,7 @@ export const magazinData = {
     { label: 'Produse', type: 'custom' as const, url: '/produse' },
     { label: 'Categorii', type: 'custom' as const, url: '/categorii' },
     { label: 'Despre Noi', type: 'custom' as const, url: '/despre' },
+    { label: 'Blog', type: 'custom' as const, url: '/blog' },
     { label: 'Contact', type: 'custom' as const, url: '/contact' },
   ],
 

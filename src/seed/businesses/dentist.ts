@@ -14,9 +14,10 @@ import {
   seedPortfolio,
   uploadLocalSeedImages,
   seedPosts,
+  seedNewsletterSubscribers,
 } from '../helpers'
 import { dentistImages, dentistData } from '../seed-data'
-import { getVariant, type DesignVariant } from '../design-variants'
+import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
 
 // Get variant from environment or default to 0
 const VARIANT_INDEX = parseInt(process.env.DESIGN_VARIANT || '0', 10)
@@ -161,6 +162,7 @@ export async function seedDentist(payload: Payload) {
   const heroImageId = getImageId(dentistImages.hero[0]?.filename)
   const homepageLayout = buildHomepageLayout(variant, dentistData)
 
+  const overlaySettings = getHeroOverlaySettings(variant)
   await seedHomePage(payload, {
     heroType: variant.hero.type,
     hero: {
@@ -168,6 +170,7 @@ export async function seedDentist(payload: Payload) {
       subheadline: dentistData.hero.subheadline,
       ctaButtons: dentistData.hero.ctaButtons,
       imageId: heroImageId,
+      ...overlaySettings,
     },
     layout: homepageLayout,
   })
@@ -181,6 +184,14 @@ export async function seedDentist(payload: Payload) {
   // 15. Create additional pages
   console.log('\n📄 Creating additional pages...')
   await createAdditionalPages(payload, variant)
+
+  // Sample newsletter subscribers for demo
+  console.log('\n📧 Creating sample newsletter subscribers...')
+  await seedNewsletterSubscribers(payload, [
+    { email: 'pacient1@mailinator.com', source: 'website' },
+    { email: 'pacient2@mailinator.com', source: 'footer' },
+    { email: 'pacient3@mailinator.com', source: 'popup' },
+  ])
 
   // Note: Design variant global has been replaced by unified SiteTheme system
   // Theme is now configured at the start of seeding via seedSiteTheme()
@@ -209,12 +220,191 @@ interface BlockConfig {
   subheadline?: string
   buttons?: Array<{ label: string; link: string; variant?: string }>
   backgroundColor?: string
+  ctaButton?: { show: boolean; label: string; link: string }
   [key: string]: unknown
 }
 
 // Build homepage layout based on variant configuration
 function buildHomepageLayout(variant: DesignVariant, _data: typeof dentistData) {
   const sectionConfigs: Record<string, BlockConfig> = {
+    // NEW: Trust Badges - medical credibility (grid-4 variant, different from barbershop)
+    trustBadges: {
+      blockType: 'trust-badges',
+      variant: 'grid-4',
+      source: 'preset',
+      presets: ['quality', 'experience-years', 'happy-customers', 'secure-payment'],
+      customValues: {
+        experienceYears: 10,
+        happyCustomersCount: '10000+',
+      },
+      showDescriptions: true,
+      iconSize: 'medium',
+      backgroundColor: 'primary',
+    },
+    // NEW: How It Works - patient journey (timeline variant - different from barbershop)
+    howItWorks: {
+      blockType: 'how-it-works',
+      variant: 'timeline',
+      heading: 'Drumul Tau Catre un Zambet Perfect',
+      subheading: 'Pasi simpli pentru tratamentul stomatologic',
+      steps: [
+        {
+          title: 'Programare Consultatie',
+          description: 'Suna sau completeaza formularul online pentru o consultatie initiala',
+          icon: 'Calendar',
+        },
+        {
+          title: 'Diagnostic Complet',
+          description: 'Evaluare detaliata cu radiografii digitale si plan de tratament personalizat',
+          icon: 'ClipboardCheck',
+        },
+        {
+          title: 'Tratament Profesional',
+          description: 'Proceduri realizate cu tehnologie de ultima generatie si materiale premium',
+          icon: 'Heart',
+        },
+        {
+          title: 'Zambet Sanatos',
+          description: 'Rezultate de durata si sfaturi pentru mentinerea sanatatii orale',
+          icon: 'Star',
+        },
+      ],
+      showNumbers: true,
+      ctaButton: {
+        show: true,
+        label: 'Programeaza Consultatie',
+        link: '/programare',
+      },
+      backgroundColor: 'light',
+    },
+    // NEW: Newsletter for dental tips
+    newsletter: {
+      blockType: 'newsletter',
+      variant: 'simple',
+      heading: 'Sfaturi pentru Sanatatea Orala',
+      subheading: 'Primeste sfaturi de la medicii nostri direct in inbox',
+      placeholder: 'Email-ul tau',
+      buttonText: 'Aboneaza-te',
+      successMessage: 'Te-ai abonat cu succes!',
+      privacyText: 'Respectam confidentialitatea datelor tale.',
+      benefits: [
+        { text: 'Sfaturi de preventie' },
+        { text: 'Promotii exclusive' },
+        { text: 'Noutati in stomatologie' },
+      ],
+    },
+    // NEW: Opening Hours - program functionare
+    openingHours: {
+      blockType: 'openingHours',
+      variant: 'with-cta',
+      heading: 'Program Consultații',
+      subheading: 'Suntem disponibili în următoarele intervale orare',
+      source: 'businessInfo',
+      showCurrentStatus: true,
+      ctaButton: {
+        show: true,
+        label: 'Programează Consultație',
+        link: '/programare',
+      },
+      backgroundColor: 'default',
+    },
+    // NEW: Locations - locatii clinica
+    locations: {
+      blockType: 'locations',
+      variant: 'cards',
+      heading: 'Clinicile Noastre',
+      subheading: 'Găsește clinica cea mai aproape de tine',
+      locations: [
+        {
+          name: 'Clinica Centrală',
+          address: 'Bulevardul Unirii 25',
+          city: 'București',
+          phone: '0722 111 222',
+          email: 'contact@dentalmed.ro',
+          schedule: [
+            { days: 'Luni - Vineri', hours: '09:00 - 20:00' },
+            { days: 'Sâmbătă', hours: '09:00 - 14:00' },
+            { days: 'Duminică', hours: 'Închis' },
+          ],
+          rating: 4.9,
+          ctaButton: {
+            label: 'Programează-te',
+            link: '/programare',
+          },
+        },
+      ],
+      showRating: true,
+      showSchedule: true,
+      backgroundColor: 'light',
+    },
+    // NEW: Brand Logos - echipamente si branduri medicale
+    brandLogos: {
+      blockType: 'brandLogos',
+      variant: 'row',
+      heading: 'Echipamente de Ultima Generație',
+      subheading: 'Folosim doar echipamente și materiale certificate',
+      source: 'custom',
+      logos: [],
+      grayscale: true,
+      logoSize: 'medium',
+      backgroundColor: 'default',
+    },
+    // NEW: Timeline - istoria clinicii
+    timeline: {
+      blockType: 'timeline',
+      variant: 'vertical-alternating',
+      heading: 'Istoria Clinicii',
+      subheading: 'Evoluția noastră de-a lungul anilor',
+      events: [
+        {
+          year: '2010',
+          title: 'Înființarea',
+          description: 'Am deschis prima clinică stomatologică cu viziunea de a oferi servicii de excelență',
+          icon: 'Building',
+        },
+        {
+          year: '2015',
+          title: 'Extindere',
+          description: 'Am investit în echipamente de ultimă generație și am extins echipa',
+          icon: 'Users',
+        },
+        {
+          year: '2020',
+          title: 'Certificări',
+          description: 'Am obținut certificări internaționale pentru calitatea serviciilor',
+          icon: 'Award',
+        },
+        {
+          year: '2024',
+          title: 'Prezent',
+          description: 'Peste 10.000 de pacienți mulțumiți și servicii complete de stomatologie',
+          icon: 'Star',
+        },
+      ],
+      showConnector: true,
+      backgroundColor: 'light',
+    },
+    // NEW: Announcement Bar - anunturi promotii
+    announcementBar: {
+      blockType: 'announcementBar',
+      variant: 'with-button',
+      messages: [
+        {
+          text: 'Consultație GRATUITĂ pentru pacienții noi!',
+          link: '/programare',
+          linkText: 'Programează acum',
+        },
+      ],
+      ctaButton: {
+        show: true,
+        label: 'Programează Consultație',
+        link: '/programare',
+      },
+      icon: 'Gift',
+      backgroundColor: 'primary',
+      position: 'top',
+      sticky: false,
+    },
     services: {
       blockType: 'services',
       variant: variant.layout.servicesVariant,
@@ -260,7 +450,6 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof dentistData) 
       subheading: 'Echipamente moderne si spatii prietenoase',
       source: 'portfolio',
       limit: 6,
-      
       backgroundColor: 'default',
     },
     faq: {
@@ -272,6 +461,24 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof dentistData) 
       limit: 10,
       defaultOpen: 'first',
       backgroundColor: 'default',
+    },
+    latestPosts: {
+      blockType: 'latestPosts',
+      variant: 'grid-3',
+      heading: 'Din Blogul Nostru',
+      subheading: 'Sfaturi si informatii pentru sanatatea dentara',
+      source: 'collection',
+      limit: 3,
+      showImage: true,
+      showCategory: true,
+      showDate: true,
+      showExcerpt: true,
+      ctaButton: {
+        show: true,
+        label: 'Vezi toate articolele',
+        link: '/blog',
+      },
+      backgroundColor: 'light',
     },
     cta: {
       blockType: 'cta',
@@ -295,7 +502,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
     data: {
       title: 'Servicii',
       slug: 'servicii',
-      heroType: 'centered',
+      heroType: 'minimal',
       hero: {
         headline: 'Servicii Stomatologice',
         subheadline: 'Tratamente complete pentru sanatatea si estetica zambetului tau',
@@ -331,7 +538,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
     data: {
       title: 'Echipa',
       slug: 'echipa',
-      heroType: 'centered',
+      heroType: 'minimal',
       hero: {
         headline: 'Echipa Medicala',
         subheadline: 'Cunoaste specialistii care vor avea grija de zambetul tau',
@@ -368,7 +575,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
     data: {
       title: 'Galerie',
       slug: 'galerie',
-      heroType: 'centered',
+      heroType: 'minimal',
       hero: {
         headline: 'Galerie',
         subheadline: 'Descopera clinica noastra moderna',
@@ -404,7 +611,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
     data: {
       title: 'Programare',
       slug: 'programare',
-      heroType: 'centered',
+      heroType: 'minimal',
       hero: {
         headline: 'Programeaza-te Online',
         subheadline: 'Completeaza formularul si te vom contacta pentru confirmare',
@@ -438,7 +645,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
     data: {
       title: 'Contact',
       slug: 'contact',
-      heroType: 'centered',
+      heroType: 'minimal',
       hero: {
         headline: 'Contact',
         subheadline: 'Suntem aici pentru zambetul tau. Contacteaza-ne pentru programari.',

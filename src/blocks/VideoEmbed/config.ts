@@ -7,7 +7,7 @@ export const VideoEmbedBlock: Block = {
     plural: 'Video Embeds',
   },
   interfaceName: 'VideoEmbedBlock',
-  imageURL: '/blocks/video.png',
+  imageURL: '/blocks/video.svg',
   fields: [
     {
       name: 'variant',

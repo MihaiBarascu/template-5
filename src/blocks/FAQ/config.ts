@@ -6,7 +6,7 @@ export const FAQBlock: Block = {
     singular: 'FAQ',
     plural: 'FAQ',
   },
-  imageURL: '/blocks/faq.png',
+  imageURL: '/blocks/faq.svg',
   fields: [
     {
       name: 'variant',

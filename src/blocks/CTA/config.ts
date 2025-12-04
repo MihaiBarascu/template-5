@@ -6,7 +6,7 @@ export const CTABlock: Block = {
     singular: 'Call to Action',
     plural: 'Call to Action',
   },
-  imageURL: '/blocks/cta.png',
+  imageURL: '/blocks/cta.svg',
   fields: [
     {
       name: 'variant',

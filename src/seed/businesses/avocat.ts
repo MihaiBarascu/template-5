@@ -14,9 +14,10 @@ import {
   seedPortfolio,
   uploadLocalSeedImages,
   seedPosts,
+  seedNewsletterSubscribers,
 } from '../helpers'
 import { avocatImages, avocatData } from '../seed-data'
-import { getVariant, type DesignVariant } from '../design-variants'
+import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
 
 const VARIANT_INDEX = parseInt(process.env.DESIGN_VARIANT || '0', 10)
 
@@ -118,6 +119,7 @@ export async function seedAvocat(payload: Payload) {
   const heroImageId = getImageId(avocatImages.hero[0]?.filename)
   const homepageLayout = buildHomepageLayout(variant)
 
+  const overlaySettings = getHeroOverlaySettings(variant)
   await seedHomePage(payload, {
     heroType: variant.hero.type,
     hero: {
@@ -125,6 +127,7 @@ export async function seedAvocat(payload: Payload) {
       subheadline: avocatData.hero.subheadline,
       ctaButtons: avocatData.hero.ctaButtons,
       imageId: heroImageId,
+      ...overlaySettings,
     },
     layout: homepageLayout,
   })
@@ -137,6 +140,14 @@ export async function seedAvocat(payload: Payload) {
   if (avocatData.posts) {
     await seedPosts(payload, avocatData.posts)
   }
+
+  // Sample newsletter subscribers for demo
+  console.log('\n📧 Creating sample newsletter subscribers...')
+  await seedNewsletterSubscribers(payload, [
+    { email: 'client.juridic1@mailinator.com', source: 'website' },
+    { email: 'client.juridic2@mailinator.com', source: 'footer' },
+    { email: 'client.juridic3@mailinator.com', source: 'popup' },
+  ])
 
   // Note: Design variant global has been replaced by unified SiteTheme system
   // Theme is now configured at the start of seeding via seedSiteTheme()
@@ -165,11 +176,174 @@ interface BlockConfig {
   subheadline?: string
   buttons?: Array<{ label: string; link: string; variant?: string }>
   backgroundColor?: string
+  ctaButton?: { show: boolean; label: string; link: string }
   [key: string]: unknown
 }
 
 function buildHomepageLayout(variant: DesignVariant) {
   const sectionConfigs: Record<string, BlockConfig> = {
+    // NEW: Trust Badges - law firm credibility (minimal variant - formal)
+    trustBadges: {
+      blockType: 'trust-badges',
+      variant: 'minimal',
+      source: 'preset',
+      presets: ['experience-years', 'happy-customers', 'free-consultation', 'quality'],
+      customValues: {
+        experienceYears: 25,
+        happyCustomersCount: '2000+',
+      },
+      showDescriptions: false,
+      iconSize: 'small',
+      backgroundColor: 'transparent',
+    },
+    // NEW: How It Works - legal process (timeline variant - formal, step by step)
+    howItWorks: {
+      blockType: 'how-it-works',
+      variant: 'timeline',
+      heading: 'Procesul de Colaborare',
+      subheading: 'Pasi clari pentru rezolvarea cazului tau',
+      steps: [
+        {
+          title: 'Consultatie Initiala',
+          description: 'Programeaza o intalnire gratuita pentru evaluarea cazului tau',
+          icon: 'Phone',
+        },
+        {
+          title: 'Analiza Juridica',
+          description: 'Studiem documentele si identificam solutiile legale optime',
+          icon: 'FileText',
+        },
+        {
+          title: 'Strategie si Contract',
+          description: 'Stabilim strategia de actiune si semnam contractul de asistenta',
+          icon: 'ClipboardCheck',
+        },
+        {
+          title: 'Reprezentare si Rezolvare',
+          description: 'Te reprezentam in instanta sau negociem pentru rezolvarea amiabila',
+          icon: 'CheckCircle',
+        },
+      ],
+      showNumbers: true,
+      ctaButton: {
+        show: true,
+        label: 'Solicita Consultatie Gratuita',
+        link: '/contact',
+      },
+      backgroundColor: 'light',
+    },
+    // NEW: Opening Hours - program cabinet avocat
+    openingHours: {
+      blockType: 'openingHours',
+      variant: 'with-cta',
+      heading: 'Program Consultații',
+      subheading: 'Programează o întâlnire pentru a discuta cazul tău',
+      source: 'businessInfo',
+      showCurrentStatus: true,
+      ctaButton: {
+        show: true,
+        label: 'Solicită Consultație',
+        link: '/contact',
+      },
+      backgroundColor: 'default',
+    },
+    // NEW: Locations - sediu cabinet
+    locations: {
+      blockType: 'locations',
+      variant: 'minimal',
+      heading: 'Sediul Cabinetului',
+      subheading: 'Te așteptăm pentru consultații',
+      locations: [
+        {
+          name: 'Cabinet Avocat Ionescu',
+          address: 'Bulevardul Republicii 80',
+          city: 'București',
+          phone: '0722 999 000',
+          email: 'cabinet@avocat-ionescu.ro',
+          schedule: [
+            { days: 'Luni - Vineri', hours: '09:00 - 18:00' },
+            { days: 'Sâmbătă', hours: 'Cu programare' },
+            { days: 'Duminică', hours: 'Închis' },
+          ],
+          rating: 5.0,
+          ctaButton: {
+            label: 'Solicită Consultație',
+            link: '/contact',
+          },
+        },
+      ],
+      showRating: true,
+      showSchedule: true,
+      backgroundColor: 'light',
+    },
+    // NEW: Brand Logos - asociatii profesionale
+    brandLogos: {
+      blockType: 'brandLogos',
+      variant: 'row',
+      heading: 'Membru în',
+      subheading: 'Asociații și organizații profesionale',
+      source: 'custom',
+      logos: [],
+      grayscale: true,
+      logoSize: 'medium',
+      backgroundColor: 'default',
+    },
+    // NEW: Timeline - cariera si experienta
+    timeline: {
+      blockType: 'timeline',
+      variant: 'vertical-alternating',
+      heading: 'Experiență și Recunoaștere',
+      subheading: '25 de ani de practică juridică de succes',
+      events: [
+        {
+          year: '1999',
+          title: 'Admitere în Barou',
+          description: 'Am obținut licența de avocat și am început practica individuală',
+          icon: 'Scale',
+        },
+        {
+          year: '2008',
+          title: 'Parteneriat',
+          description: 'Am format un parteneriat cu specialiști în diverse ramuri ale dreptului',
+          icon: 'Users',
+        },
+        {
+          year: '2015',
+          title: 'Cazuri de Referință',
+          description: 'Am câștigat cazuri importante cu impact în jurisprudența românească',
+          icon: 'Award',
+        },
+        {
+          year: '2024',
+          title: 'Prezent',
+          description: 'Peste 2000 de clienți reprezentați cu succes în instanță',
+          icon: 'Star',
+        },
+      ],
+      showConnector: true,
+      backgroundColor: 'light',
+    },
+    // NEW: Announcement Bar - consultatie gratuita
+    announcementBar: {
+      blockType: 'announcementBar',
+      variant: 'with-button',
+      messages: [
+        {
+          text: 'Prima consultație juridică este GRATUITĂ',
+          link: '/contact',
+          linkText: 'Programează acum',
+        },
+      ],
+      ctaButton: {
+        show: true,
+        label: 'Solicită Consultație Gratuită',
+        link: '/contact',
+      },
+      icon: 'Scale',
+      backgroundColor: 'blue',
+      position: 'top',
+      sticky: false,
+    },
     services: {
       blockType: 'services',
       variant: variant.layout.servicesVariant,
@@ -215,7 +389,6 @@ function buildHomepageLayout(variant: DesignVariant) {
       subheading: 'Un spatiu profesional pentru consultari',
       source: 'portfolio',
       limit: 6,
-      
       backgroundColor: 'default',
     },
     faq: {
@@ -227,6 +400,24 @@ function buildHomepageLayout(variant: DesignVariant) {
       limit: 10,
       defaultOpen: 'first',
       backgroundColor: 'default',
+    },
+    latestPosts: {
+      blockType: 'latestPosts',
+      variant: 'grid-3',
+      heading: 'Din Blogul Nostru',
+      subheading: 'Articole juridice si informatii legale utile',
+      source: 'collection',
+      limit: 3,
+      showImage: true,
+      showCategory: true,
+      showDate: true,
+      showExcerpt: true,
+      ctaButton: {
+        show: true,
+        label: 'Vezi toate articolele',
+        link: '/blog',
+      },
+      backgroundColor: 'light',
     },
     cta: {
       blockType: 'cta',
@@ -246,7 +437,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
     data: {
       title: 'Servicii',
       slug: 'servicii',
-      heroType: 'centered',
+      heroType: 'minimal',
       hero: { headline: 'Domenii de Practica', subheadline: 'Servicii juridice complete' },
       layout: [
         { blockType: 'services', variant: variant.layout.servicesVariant, heading: 'Toate Serviciile', source: 'collection', limit: 20, showPrices: true, showIcons: true, backgroundColor: 'default' },
@@ -262,7 +453,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
     data: {
       title: 'Echipa',
       slug: 'echipa',
-      heroType: 'centered',
+      heroType: 'minimal',
       hero: { headline: 'Echipa de Avocati', subheadline: 'Profesionisti cu experienta' },
       layout: [
         { blockType: 'team', variant: variant.layout.teamVariant, heading: 'Avocatii Nostri', source: 'collection', limit: 20, showRole: true, showBio: true, backgroundColor: 'default' },
@@ -272,12 +463,30 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
   })
   console.log('   Created Team page')
 
+  // Cazuri (Cases/Portfolio) page - linked from navigation
+  await payload.create({
+    collection: 'pages',
+    data: {
+      title: 'Cazuri',
+      slug: 'cazuri',
+      heroType: 'minimal',
+      hero: { headline: 'Cazuri Reprezentative', subheadline: 'Experiente si rezultate din practica noastra' },
+      layout: [
+        { blockType: 'gallery', variant: variant.layout.galleryVariant, heading: 'Domenii de Activitate', subheading: 'Cazuri rezolvate cu succes in diverse domenii juridice', source: 'portfolio', limit: 20, backgroundColor: 'default' },
+        { blockType: 'testimonials', variant: variant.layout.testimonialsVariant, heading: 'Feedback Clienti', subheading: 'Ce spun clientii despre colaborarea cu noi', source: 'collection', showRating: true, backgroundColor: 'light' },
+        { blockType: 'cta', variant: 'centered', headline: 'Ai un caz similar?', subheadline: 'Contacteaza-ne pentru o evaluare gratuita', buttons: [{ label: 'Solicita Consultatie', link: '/contact', variant: 'default' }], backgroundColor: 'dark' },
+      ],
+      _status: 'published',
+    },
+  })
+  console.log('   Created Cases page')
+
   await payload.create({
     collection: 'pages',
     data: {
       title: 'Contact',
       slug: 'contact',
-      heroType: 'centered',
+      heroType: 'minimal',
       hero: { headline: 'Contact', subheadline: 'Programeaza o consultatie' },
       layout: [
         { blockType: 'contact', variant: 'split', heading: 'Contacteaza-ne', showForm: true, formFields: { showName: true, showEmail: true, showPhone: true, showSubject: true, showMessage: true }, showContactInfo: true, showMap: true, mapPosition: 'bottom', backgroundColor: 'light' },

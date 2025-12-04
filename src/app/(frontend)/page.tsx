@@ -70,15 +70,16 @@ export async function generateMetadata() {
       },
     },
     limit: 1,
+    depth: 1,
   })
 
   if (!page.docs[0]) {
     return {
       title: 'Acasa',
+      description: 'Bine ai venit pe site-ul nostru',
     }
   }
 
-  return {
-    title: page.docs[0].title || 'Acasa',
-  }
+  const { generateMeta } = await import('@/utilities/generateMeta')
+  return generateMeta({ doc: page.docs[0] })
 }

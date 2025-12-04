@@ -2,14 +2,25 @@ import { defineConfig, devices } from '@playwright/test'
 
 import 'dotenv/config'
 
+// Use port 3005 to avoid conflicts with other services (e.g., Dokploy on 3000)
+const TEST_PORT = process.env.TEST_PORT || '3005'
+const BASE_URL = process.env.BASE_URL || `http://localhost:${TEST_PORT}`
+
 export default defineConfig({
   testDir: './tests/e2e',
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
+  timeout: 90000, // 90 seconds per test (increased for seeding)
+  expect: {
+    timeout: 15000, // 15 seconds for assertions
+  },
   use: {
     trace: 'on-first-retry',
+    baseURL: BASE_URL,
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
   },
   projects: [
     {
@@ -18,8 +29,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'pnpm dev',
-    reuseExistingServer: true,
-    url: 'http://localhost:3000',
+    command: `PORT=${TEST_PORT} pnpm dev`,
+    reuseExistingServer: !process.env.CI,
+    url: BASE_URL,
+    timeout: 120000, // 2 minutes for server startup
   },
 })

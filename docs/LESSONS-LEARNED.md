@@ -654,5 +654,281 @@ const [pageResult, businessInfo] = await Promise.all([
 
 ---
 
+## 21. Seed Data - Probleme Comune și Soluții
+
+### 21.1 Imagini Corupte (HTML salvat ca .jpg)
+
+**Problema:** Unele imagini descărcate de pe internet sunt pagini de eroare HTML (403/404) salvate cu extensie .jpg/.png.
+
+**Simptome:**
+```
+ValidationError: File buffer returned no detectable MIME type
+```
+
+**Diagnostic rapid:**
+```bash
+# Verifică toate imaginile din proiect
+find public/images -name "*.jpg" -exec file {} \; | grep -v "JPEG"
+find public/images -name "*.png" -exec file {} \; | grep -v "PNG"
+
+# Găsește fișiere HTML mascate ca imagini
+find public/images -type f \( -name "*.jpg" -o -name "*.png" \) \
+  -exec sh -c 'file "$1" | grep -q "HTML" && echo "$1"' _ {} \;
+```
+
+**Soluție:**
+1. Șterge fișierele corupte
+2. Actualizează `src/seed/seed-data.ts` să nu mai referențieze imaginile lipsă
+3. Sau descarcă imagini noi valide
+
+---
+
+### 21.2 Extensie Greșită (.jpg pentru PNG)
+
+**Problema:** Fișiere PNG salvate cu extensie .jpg (sau invers).
+
+**Diagnostic:**
+```bash
+file public/images/auto-service/team/mechanic-2.jpg
+# Output: PNG image data... (dar extensia e .jpg)
+```
+
+**Soluție:**
+```bash
+mv public/images/auto-service/team/mechanic-2.jpg \
+   public/images/auto-service/team/mechanic-2.png
+```
+Apoi actualizează `seed-data.ts`:
+```typescript
+{ filename: 'auto-service/team/mechanic-2.png', alt: 'Mecanic auto' },
+```
+
+---
+
+### 21.3 Email Validation în Payload CMS
+
+**Problema:** Payload validează email-urile și respinge `@example.com` (domeniu rezervat RFC 2606).
+
+**Simptome:**
+```
+ValidationError: The following field is invalid: email
+```
+
+**Soluție pentru seed data:**
+Folosește domenii de test acceptate:
+- `@mailinator.com` ✅
+- `@test.com` ✅
+- `@yopmail.com` ✅
+
+**Schimbare în masă:**
+```bash
+sed -i "s/@example\.com/@mailinator.com/g" src/seed/businesses/*.ts
+```
+
+**NU folosi:**
+- `@example.com` ❌
+- `@test.test` ❌
+
+---
+
+### 21.4 Checklist Imagini Noi
+
+Înainte de a adăuga imagini noi în `public/images/`:
+
+- [ ] Verifică cu `file imagine.jpg` că formatul real matchează extensia
+- [ ] Verifică dimensiunea (minim 100KB pentru hero, 50KB pentru gallery)
+- [ ] Verifică că nu e o pagină de eroare HTML
+- [ ] Actualizează `seed-data.ts` cu calea corectă
+
+---
+
+### 21.5 Structura Seed Data
+
+```
+src/seed/
+├── index.ts              # Entry point, detectează SEED_TYPE
+├── seed-data.ts          # Definițiile imaginilor per business
+├── helpers.ts            # uploadLocalSeedImages, seedServices, etc.
+└── businesses/
+    ├── frizerie.ts
+    ├── dentist.ts
+    ├── avocat.ts
+    ├── restaurant.ts
+    ├── auto-service.ts
+    ├── constructii.ts
+    ├── salon.ts
+    ├── pensiune.ts
+    ├── magazin.ts
+    ├── fitness.ts
+    ├── curatenie.ts
+    ├── transport.ts
+    ├── foto-video.ts
+    └── producator.ts
+```
+
+---
+
+### 21.6 Template pentru Imagini în seed-data.ts
+
+```typescript
+export const nouBusinessImages = {
+  hero: [
+    { filename: 'nou-business/hero/hero-main.jpg', alt: 'Descriere' },
+  ],
+  team: [
+    { filename: 'nou-business/team/person-1.jpg', alt: 'Nume Prenume' },
+  ],
+  gallery: [
+    // Doar imaginile care EXISTĂ în public/images/
+    { filename: 'nou-business/gallery/gallery-1.jpg', alt: 'Descriere' },
+    // Nu include imagini care lipsesc sau sunt corupte!
+  ],
+  services: [
+    { filename: 'nou-business/services/service-1.jpg', alt: 'Serviciu' },
+  ],
+}
+```
+
+---
+
+### 21.7 Comenzi de Test Rapide
+
+```bash
+# Seed un business specific
+pnpm seed:dentist
+
+# Test rapid pentru site-ul curent (fără re-seed)
+pnpm test:quick
+
+# Seed + test pentru un business
+pnpm seed:dentist && pnpm test:quick
+
+# Test complet toate variantele (~10-15 min)
+pnpm test:e2e tests/e2e/smoke.spec.ts
+
+# Vezi ce variante sunt disponibile
+pnpm variants:info
+```
+
+---
+
+### 21.8 Erori Comune și Soluții Rapide
+
+| Eroare | Cauză | Soluție |
+|--------|-------|---------|
+| `File buffer returned no detectable MIME type` | Imagine coruptă/HTML | Verifică cu `file`, șterge și actualizează seed-data.ts |
+| `File not found: .../image.jpg` | Imagine lipsă | Adaugă imaginea sau elimină din seed-data.ts |
+| `The following field is invalid: email` | Email invalid | Schimbă @example.com în @mailinator.com |
+| `ECONNREFUSED 127.0.0.1:3000` | Server nu rulează | Pornește `pnpm dev` înainte de teste |
+| `Resend API error` | Rate limit/API key | Normal în teste, ignoră sau configurează RESEND_API_KEY |
+
+---
+
+### 21.9 Workflow pentru Adăugare Business Nou
+
+**Pas 1:** Pregătește imaginile
+```bash
+mkdir -p public/images/nou-business/{hero,team,gallery,services}
+# Adaugă imaginile și verifică formatul
+find public/images/nou-business -type f -exec file {} \;
+```
+
+**Pas 2:** Adaugă în seed-data.ts
+```typescript
+export const nouBusinessImages = { /* ... */ }
+```
+
+**Pas 3:** Creează fișierul de seed
+```bash
+cp src/seed/businesses/frizerie.ts src/seed/businesses/nou-business.ts
+# Editează pentru noul business
+```
+
+**Pas 4:** Adaugă script în package.json
+```json
+"seed:nou-business": "cross-env SEED_TYPE=nou-business NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/seed/index.ts"
+```
+
+**Pas 5:** Adaugă în index.ts
+```typescript
+case 'nou-business':
+  await seedNouBusiness(payload)
+  break
+```
+
+**Pas 6:** Testează
+```bash
+pnpm seed:nou-business
+pnpm test:quick
+```
+
+---
+
+### 21.10 Debugging Tips
+
+**Vezi ce imagini sunt încărcate în DB:**
+```bash
+# În mongo shell sau Compass
+db.media.find({}, {filename: 1, mimeType: 1})
+```
+
+**Verifică dacă toate paginile există:**
+```bash
+curl -s http://localhost:3000/api/pages | jq '.docs[].slug'
+```
+
+**Curăță cache-ul dacă ai probleme:**
+```bash
+rm -rf .next/cache
+pnpm dev
+```
+
+---
+
+### 21.11 Avertismente Non-Critice (de ignorat)
+
+Acestea apar normal în timpul seed-ului și nu afectează funcționalitatea:
+
+1. **Email validation pentru newsletter** - subscribers sunt creați oricum
+2. **Resend API rate limits** - normal când trimiți multe emailuri de bun venit
+3. **Hydration warnings** - temporare, dispar la refresh
+
+---
+
+## 22. CI/CD și Testare Automată
+
+### GitHub Actions Workflow
+
+Fișier: `.github/workflows/test.yml`
+
+- **Smoke test**: rulează la fiecare push (doar frizerie, ~15 min)
+- **Full test**: rulează pe main branch (toate 8 business-uri, ~60 min)
+- **MongoDB**: service container cu mongo:7
+
+### Testare Locală Completă
+
+```bash
+# Rulează toate testele pentru toate business-urile
+for business in frizerie dentist avocat restaurant auto-service constructii salon magazin; do
+  echo "Testing $business..."
+  pnpm seed:$business
+  pnpm test:quick
+done
+```
+
+---
+
+## 23. Checklist Pre-Deploy
+
+- [ ] Toate seed-urile rulează fără erori
+- [ ] `pnpm test:quick` trece
+- [ ] Imaginile sunt optimizate (nu >2MB)
+- [ ] Email-urile sunt configurate corect (nu @example.com în prod)
+- [ ] Environment variables setate (.env.production)
+- [ ] `pnpm build` trece fără erori
+- [ ] RESEND_API_KEY configurat pentru producție
+
+---
+
 *Documentație actualizată: December 2025*
 *Pentru Universal Business Website Template - Payload CMS 3.x + Next.js 15*

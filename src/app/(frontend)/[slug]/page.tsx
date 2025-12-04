@@ -60,6 +60,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       },
     },
     limit: 1,
+    depth: 1,
   })
 
   if (!page.docs[0]) {
@@ -68,13 +69,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
   }
 
-  const pageData = page.docs[0]
-
-  const meta = (pageData as { meta?: { title?: string; description?: string } }).meta
-  return {
-    title: meta?.title || pageData.title,
-    description: meta?.description,
-  }
+  const { generateMeta } = await import('@/utilities/generateMeta')
+  return generateMeta({ doc: page.docs[0] })
 }
 
 export async function generateStaticParams() {

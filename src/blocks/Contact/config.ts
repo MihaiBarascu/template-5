@@ -6,7 +6,7 @@ export const ContactBlock: Block = {
     singular: 'Contact',
     plural: 'Contact',
   },
-  imageURL: '/blocks/contact.png',
+  imageURL: '/blocks/contact.svg',
   fields: [
     {
       name: 'variant',

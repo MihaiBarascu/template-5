@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 import { authenticated, authenticatedOrPublished } from '@/access'
 import { slugField } from '@/fields/slug'
 import { revalidatePageAfterChange, revalidatePageAfterDelete } from '@/hooks/revalidatePage'
+import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
@@ -78,8 +79,8 @@ export const Pages: CollectionConfig = {
           relationTo: 'media',
           label: 'Imagine',
           admin: {
-            condition: (_, siblingData) =>
-              ['withImage', 'fullscreen', 'split'].includes(siblingData?.heroType),
+            condition: (data) =>
+              ['withImage', 'fullscreen', 'split'].includes(data?.heroType),
           },
         },
         {
@@ -87,7 +88,7 @@ export const Pages: CollectionConfig = {
           type: 'text',
           label: 'URL Video (YouTube/Vimeo)',
           admin: {
-            condition: (_, siblingData) => siblingData?.heroType === 'video',
+            condition: (data) => data?.heroType === 'video',
           },
         },
         {
@@ -173,6 +174,57 @@ export const Pages: CollectionConfig = {
           label: 'Afiseaza indicator scroll',
           defaultValue: false,
         },
+        // Overlay settings for image/video hero
+        {
+          name: 'overlayEnabled',
+          type: 'checkbox',
+          label: 'Activeaza overlay peste imagine',
+          defaultValue: true,
+          admin: {
+            description: 'Adauga un strat peste imagine pentru a face textul mai lizibil',
+            condition: (data) =>
+              ['withImage', 'fullscreen', 'video', 'slider'].includes(data?.heroType),
+          },
+        },
+        {
+          type: 'row',
+          admin: {
+            condition: (data, siblingData) =>
+              siblingData?.overlayEnabled && ['withImage', 'fullscreen', 'video', 'slider'].includes(data?.heroType),
+          },
+          fields: [
+            {
+              name: 'overlayOpacity',
+              type: 'select',
+              label: 'Opacitate overlay',
+              defaultValue: '60',
+              options: [
+                { label: 'Subtil (30%)', value: '30' },
+                { label: 'Usor (40%)', value: '40' },
+                { label: 'Mediu (50%)', value: '50' },
+                { label: 'Standard (60%)', value: '60' },
+                { label: 'Puternic (70%)', value: '70' },
+                { label: 'Intens (80%)', value: '80' },
+                { label: 'Foarte intens (90%)', value: '90' },
+              ],
+              admin: { width: '50%' },
+            },
+            {
+              name: 'overlayStyle',
+              type: 'select',
+              label: 'Stil overlay',
+              defaultValue: 'gradient',
+              options: [
+                { label: 'Gradient (de jos in sus)', value: 'gradient' },
+                { label: 'Uniform inchis', value: 'dark' },
+                { label: 'Culoare primara', value: 'primary' },
+                { label: 'Culoare secundara', value: 'secondary' },
+                { label: 'Gradient radial (centru)', value: 'radial' },
+              ],
+              admin: { width: '50%' },
+            },
+          ],
+        },
       ],
     },
     {
@@ -190,6 +242,7 @@ export const Pages: CollectionConfig = {
     },
   ],
   hooks: {
+    beforeChange: [populatePublishedAt],
     afterChange: [revalidatePageAfterChange],
     afterDelete: [revalidatePageAfterDelete],
   },

@@ -6,7 +6,7 @@ export const CheckoutBlock: Block = {
     singular: 'Checkout',
     plural: 'Checkout',
   },
-  imageURL: '/blocks/checkout.png',
+  imageURL: '/blocks/checkout.svg',
   fields: [
     {
       name: 'variant',

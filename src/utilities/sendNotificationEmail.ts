@@ -1,4 +1,5 @@
 import type { Payload } from 'payload'
+import { escapeHtml, escapeHtmlWithLineBreaks } from './escapeHtml'
 
 interface NotificationEmailOptions {
   to: string
@@ -105,38 +106,38 @@ export function formatBookingEmail(booking: {
 
           <div class="detail highlight">
             <div class="label">📅 Data și ora:</div>
-            <div class="value" style="font-size: 18px;">${formattedDate} la ora ${booking.time}</div>
+            <div class="value" style="font-size: 18px;">${escapeHtml(formattedDate)} la ora ${escapeHtml(booking.time || '')}</div>
           </div>
 
           <div class="detail">
             <div class="label">👤 Client:</div>
-            <div class="value">${booking.clientName}</div>
+            <div class="value">${escapeHtml(booking.clientName)}</div>
           </div>
 
           <div class="detail">
             <div class="label">📧 Email:</div>
-            <div class="value"><a href="mailto:${booking.clientEmail}">${booking.clientEmail}</a></div>
+            <div class="value"><a href="mailto:${encodeURIComponent(booking.clientEmail)}">${escapeHtml(booking.clientEmail)}</a></div>
           </div>
 
           <div class="detail">
             <div class="label">📱 Telefon:</div>
-            <div class="value"><a href="tel:${booking.clientPhone}">${booking.clientPhone}</a></div>
+            <div class="value"><a href="tel:${encodeURIComponent(booking.clientPhone || '')}">${escapeHtml(booking.clientPhone || '')}</a></div>
           </div>
 
           <div class="detail">
             <div class="label">✂️ Serviciu:</div>
-            <div class="value">${serviceName}</div>
+            <div class="value">${escapeHtml(serviceName)}</div>
           </div>
 
           <div class="detail">
             <div class="label">👨‍💼 Persoana preferată:</div>
-            <div class="value">${staffName}</div>
+            <div class="value">${escapeHtml(staffName)}</div>
           </div>
 
           ${booking.notes ? `
           <div class="detail">
             <div class="label">📝 Observații:</div>
-            <div class="value">${booking.notes}</div>
+            <div class="value">${escapeHtmlWithLineBreaks(booking.notes)}</div>
           </div>
           ` : ''}
 
@@ -207,37 +208,37 @@ export function formatBookingConfirmationEmail(booking: {
           <p style="margin: 0; opacity: 0.9;">${booking.businessName || 'Echipa noastră'}</p>
         </div>
         <div class="content">
-          <p>Salut <strong>${booking.clientName}</strong>! 👋</p>
+          <p>Salut <strong>${escapeHtml(booking.clientName)}</strong>! 👋</p>
           <p>Îți mulțumim pentru programare! Am primit cererea ta și te așteptăm cu drag.</p>
 
           <div class="highlight-box">
             <div style="text-align: center;">
               <div style="font-size: 14px; color: #166534;">📅 DATA ȘI ORA PROGRAMĂRII</div>
               <div style="font-size: 24px; font-weight: bold; color: #166534; margin-top: 10px;">
-                ${formattedDate}
+                ${escapeHtml(formattedDate)}
               </div>
               <div style="font-size: 32px; font-weight: bold; color: #166534;">
-                ${booking.time}
+                ${escapeHtml(booking.time || '')}
               </div>
             </div>
           </div>
 
           <div class="detail">
             <div class="label">✂️ Serviciu</div>
-            <div class="value">${serviceName}</div>
+            <div class="value">${escapeHtml(serviceName)}</div>
           </div>
 
           ${staffName ? `
           <div class="detail">
             <div class="label">👨‍💼 Specialist</div>
-            <div class="value">${staffName}</div>
+            <div class="value">${escapeHtml(staffName)}</div>
           </div>
           ` : ''}
 
           ${booking.businessAddress ? `
           <div class="detail">
             <div class="label">📍 Locație</div>
-            <div class="value">${booking.businessAddress}</div>
+            <div class="value">${escapeHtml(booking.businessAddress)}</div>
           </div>
           ` : ''}
 
@@ -302,38 +303,38 @@ export function formatContactEmail(contact: {
 
           <div class="detail">
             <div class="label">👤 Nume:</div>
-            <div class="value">${contact.name}</div>
+            <div class="value">${escapeHtml(contact.name)}</div>
           </div>
 
           <div class="detail">
             <div class="label">📧 Email:</div>
-            <div class="value"><a href="mailto:${contact.email}">${contact.email}</a></div>
+            <div class="value"><a href="mailto:${encodeURIComponent(contact.email)}">${escapeHtml(contact.email)}</a></div>
           </div>
 
           ${contact.phone ? `
           <div class="detail">
             <div class="label">📱 Telefon:</div>
-            <div class="value"><a href="tel:${contact.phone}">${contact.phone}</a></div>
+            <div class="value"><a href="tel:${encodeURIComponent(contact.phone)}">${escapeHtml(contact.phone)}</a></div>
           </div>
           ` : ''}
 
           ${contact.subject ? `
           <div class="detail">
             <div class="label">📋 Subiect:</div>
-            <div class="value">${contact.subject}</div>
+            <div class="value">${escapeHtml(contact.subject)}</div>
           </div>
           ` : ''}
 
           ${serviceName ? `
           <div class="detail">
             <div class="label">✂️ Serviciu de interes:</div>
-            <div class="value">${serviceName}</div>
+            <div class="value">${escapeHtml(serviceName)}</div>
           </div>
           ` : ''}
 
           <div class="detail">
             <div class="label">💬 Mesaj:</div>
-            <div class="message-box">${(contact.message || '').replace(/\n/g, '<br>')}</div>
+            <div class="message-box">${escapeHtmlWithLineBreaks(contact.message || '')}</div>
           </div>
 
           <p style="margin-top: 20px;">
@@ -379,7 +380,7 @@ export function formatContactConfirmationEmail(contact: {
           <h1 style="margin: 0;">📩 Am primit mesajul tău!</h1>
         </div>
         <div class="content">
-          <p>Salut <strong>${contact.name}</strong>! 👋</p>
+          <p>Salut <strong>${escapeHtml(contact.name)}</strong>! 👋</p>
 
           <p>Îți mulțumim că ne-ai contactat! Am primit mesajul tău și îți vom răspunde cât de curând posibil.</p>
 
@@ -432,7 +433,7 @@ export function formatOrderEmail(order: {
     const price = item.priceAtPurchase || item.price || 0
     return `
       <tr>
-        <td style="padding: 10px; border-bottom: 1px solid #eee;">${productName}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee;">${escapeHtml(productName || 'Produs')}</td>
         <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity || 1}</td>
         <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">${price.toFixed(2)} lei</td>
       </tr>
@@ -475,25 +476,25 @@ export function formatOrderEmail(order: {
 
           <div class="detail">
             <div class="label">👤 Client:</div>
-            <div class="value">${order.customerName}</div>
+            <div class="value">${escapeHtml(order.customerName)}</div>
           </div>
 
           <div class="detail">
             <div class="label">📧 Email:</div>
-            <div class="value"><a href="mailto:${order.customerEmail}">${order.customerEmail}</a></div>
+            <div class="value"><a href="mailto:${encodeURIComponent(order.customerEmail)}">${escapeHtml(order.customerEmail)}</a></div>
           </div>
 
           ${order.customerPhone ? `
           <div class="detail">
             <div class="label">📱 Telefon:</div>
-            <div class="value"><a href="tel:${order.customerPhone}">${order.customerPhone}</a></div>
+            <div class="value"><a href="tel:${encodeURIComponent(order.customerPhone)}">${escapeHtml(order.customerPhone)}</a></div>
           </div>
           ` : ''}
 
           ${order.shippingAddress ? `
           <div class="detail">
             <div class="label">📍 Adresa livrare:</div>
-            <div class="value">${order.shippingAddress}</div>
+            <div class="value">${escapeHtmlWithLineBreaks(order.shippingAddress)}</div>
           </div>
           ` : ''}
 
@@ -520,7 +521,7 @@ export function formatOrderEmail(order: {
           ${order.notes ? `
           <div class="detail">
             <div class="label">📝 Note comandă:</div>
-            <div class="value">${order.notes}</div>
+            <div class="value">${escapeHtmlWithLineBreaks(order.notes)}</div>
           </div>
           ` : ''}
 
@@ -559,7 +560,7 @@ export function formatOrderConfirmationEmail(order: {
     const price = item.priceAtPurchase || item.price || 0
     return `
       <tr>
-        <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">${productName}</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">${escapeHtml(productName || 'Produs')}</td>
         <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: center;">${item.quantity}</td>
         <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: right;">${price.toFixed(2)} lei</td>
       </tr>
@@ -590,10 +591,10 @@ export function formatOrderConfirmationEmail(order: {
         <div class="header">
           <div style="font-size: 48px;">✅</div>
           <h1 style="margin: 10px 0;">Comanda a fost plasată!</h1>
-          ${order.orderNumber ? `<p style="margin: 0; opacity: 0.9;">Comanda #${order.orderNumber}</p>` : ''}
+          ${order.orderNumber ? `<p style="margin: 0; opacity: 0.9;">Comanda #${escapeHtml(order.orderNumber)}</p>` : ''}
         </div>
         <div class="content">
-          <p>Salut <strong>${order.customerName}</strong>! 👋</p>
+          <p>Salut <strong>${escapeHtml(order.customerName)}</strong>! 👋</p>
           <p>Îți mulțumim pentru comandă! Am primit-o și o vom procesa cât mai curând.</p>
 
           <div class="highlight-box">
@@ -626,7 +627,7 @@ export function formatOrderConfirmationEmail(order: {
           ${order.shippingAddress ? `
           <div class="detail">
             <div class="label">📍 Adresa de livrare</div>
-            <div style="margin-top: 5px;">${order.shippingAddress}</div>
+            <div style="margin-top: 5px;">${escapeHtmlWithLineBreaks(order.shippingAddress)}</div>
           </div>
           ` : ''}
 

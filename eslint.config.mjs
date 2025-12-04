@@ -13,6 +13,10 @@ const eslintConfig = [
   ...compat.extends('next/core-web-vitals', 'next/typescript'),
   {
     rules: {
+      // Disable no-page-custom-font warning - in App Router, fonts in layout.tsx
+      // are loaded for ALL pages (not just one), so this warning is a false positive.
+      // This is required because we support dynamic font theming from the CMS.
+      '@next/next/no-page-custom-font': 'off',
       '@typescript-eslint/ban-ts-comment': 'warn',
       '@typescript-eslint/no-empty-object-type': 'warn',
       '@typescript-eslint/no-explicit-any': 'warn',

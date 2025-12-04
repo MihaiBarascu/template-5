@@ -19,6 +19,16 @@ import { VideoEmbedBlock } from './VideoEmbed/config'
 import { PriceListDottedBlock } from './PriceListDotted/config'
 import { BeforeAfterBlock } from './BeforeAfter/config'
 import { NewsletterBlock } from './Newsletter/config'
+import { TrustBadgesBlock } from './TrustBadges/config'
+import { HowItWorksBlock } from './HowItWorks/config'
+import { LogoCloudBlock } from './LogoCloud/config'
+import { LatestPostsBlock } from './LatestPosts/config'
+// New blocks added from research
+import { OpeningHoursBlock } from './OpeningHours/config'
+import { LocationsBlock } from './Locations/config'
+import { BrandLogosBlock } from './BrandLogos/config'
+import { TimelineBlock } from './Timeline/config'
+import { AnnouncementBarBlock } from './AnnouncementBar/config'
 
 export const blocks = [
   HeroBlock,
@@ -42,6 +52,16 @@ export const blocks = [
   PriceListDottedBlock,
   BeforeAfterBlock,
   NewsletterBlock,
+  TrustBadgesBlock,
+  HowItWorksBlock,
+  LogoCloudBlock,
+  LatestPostsBlock,
+  // New blocks
+  OpeningHoursBlock,
+  LocationsBlock,
+  BrandLogosBlock,
+  TimelineBlock,
+  AnnouncementBarBlock,
 ]
 
 export {
@@ -66,4 +86,14 @@ export {
   PriceListDottedBlock,
   BeforeAfterBlock,
   NewsletterBlock,
+  TrustBadgesBlock,
+  HowItWorksBlock,
+  LogoCloudBlock,
+  LatestPostsBlock,
+  // New blocks
+  OpeningHoursBlock,
+  LocationsBlock,
+  BrandLogosBlock,
+  TimelineBlock,
+  AnnouncementBarBlock,
 }

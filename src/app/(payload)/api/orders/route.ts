@@ -1,6 +1,7 @@
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { NextResponse } from 'next/server'
+import { checkRateLimit, getClientIP } from '@/utilities/rateLimit'
 
 /**
  * Custom Orders API Endpoint
@@ -14,18 +15,61 @@ import { NextResponse } from 'next/server'
  * - Using overrideAccess: true for trusted server-side operations
  * - Validating input data before creating the order
  * - The afterChange hook on orders collection will handle email notifications
+ *
+ * Expected request body (matching eCommerce plugin schema):
+ * {
+ *   shippingAddress: {
+ *     firstName, lastName, addressLine1, city, state, postalCode, country, phone
+ *   },
+ *   customerEmail: string,
+ *   items: [{ product: string, quantity: number }],
+ *   amount: number,
+ *   notes?: string
+ * }
  */
 export async function POST(request: Request) {
+  // Rate limiting: 10 orders per minute per IP
+  const clientIP = getClientIP(request)
+  const rateLimit = checkRateLimit(`orders:${clientIP}`, 10, 60000)
+
+  if (!rateLimit.success) {
+    return NextResponse.json(
+      { error: 'Too many requests. Please wait a minute.' },
+      {
+        status: 429,
+        headers: {
+          'X-RateLimit-Remaining': String(rateLimit.remaining),
+          'X-RateLimit-Reset': String(rateLimit.reset),
+        },
+      }
+    )
+  }
+
   try {
     const payload = await getPayload({ config: configPromise })
     const body = await request.json()
 
-    // Validate required fields
-    const { customerName, customerEmail, customerPhone, shippingAddress, items, total } = body
+    // Extract fields from request body
+    const { shippingAddress, customerEmail, items, amount } = body
 
-    if (!customerName || !customerEmail || !items || items.length === 0) {
+    // Validate required fields
+    if (!shippingAddress?.firstName || !shippingAddress?.lastName) {
       return NextResponse.json(
-        { error: 'Missing required fields: customerName, customerEmail, items' },
+        { error: 'Missing required fields: shippingAddress.firstName, shippingAddress.lastName' },
+        { status: 400 }
+      )
+    }
+
+    if (!customerEmail) {
+      return NextResponse.json(
+        { error: 'Missing required field: customerEmail' },
+        { status: 400 }
+      )
+    }
+
+    if (!items || items.length === 0) {
+      return NextResponse.json(
+        { error: 'Missing required field: items (must have at least one item)' },
         { status: 400 }
       )
     }
@@ -39,36 +83,31 @@ export async function POST(request: Request) {
       )
     }
 
-    // Generate order number
-    const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`
-
     // Prepare order data for eCommerce plugin orders collection
+    // Using the exact field names from the plugin schema
     const orderData: Record<string, unknown> = {
-      orderNumber,
-      // Store customer info in a way compatible with the plugin
-      // The plugin may have different field names, so we store extra data
-      notes: `
-Client: ${customerName}
-Email: ${customerEmail}
-Telefon: ${customerPhone || 'N/A'}
-Adresa: ${shippingAddress}
-Metoda plata: ${body.paymentMethod || 'card'}
-Metoda livrare: ${body.shippingMethod || 'standard'}
-Note client: ${body.notes || 'N/A'}
-      `.trim(),
+      // Shipping address - pass through directly (already in correct format)
+      shippingAddress: {
+        firstName: shippingAddress.firstName,
+        lastName: shippingAddress.lastName,
+        addressLine1: shippingAddress.addressLine1 || '',
+        addressLine2: shippingAddress.addressLine2 || '',
+        city: shippingAddress.city || '',
+        state: shippingAddress.state || '',
+        postalCode: shippingAddress.postalCode || '',
+        country: shippingAddress.country || 'Romania',
+        phone: shippingAddress.phone || '',
+      },
+      // Customer email - plugin field
+      customerEmail,
+      // Amount - plugin expects this
+      amount: amount || 0,
+      currency: 'RON',
       // Store items - the plugin expects a specific format
-      items: items.map((item: { product: string; quantity: number; price: number; title: string }) => ({
+      items: items.map((item: { product: string; quantity: number }) => ({
         product: item.product,
         quantity: item.quantity || 1,
-        // Store price at time of purchase
-        priceAtPurchase: item.price,
       })),
-      // Totals
-      totals: {
-        subtotal: body.subtotal || total,
-        shipping: body.shipping || 0,
-        total: total,
-      },
       // Status options for orders: 'processing', 'completed', 'cancelled', 'refunded'
       status: 'processing',
     }
@@ -85,7 +124,6 @@ Note client: ${body.notes || 'N/A'}
 
     return NextResponse.json({
       success: true,
-      orderNumber: orderNumber,
       orderId: order.id,
       message: 'Comanda a fost plasata cu succes!',
     })
@@ -104,7 +142,21 @@ Note client: ${body.notes || 'N/A'}
 export async function GET() {
   return NextResponse.json({
     message: 'Orders API - POST to create a new order',
-    required: ['customerName', 'customerEmail', 'items'],
-    optional: ['customerPhone', 'shippingAddress', 'paymentMethod', 'shippingMethod', 'notes'],
+    required: {
+      shippingAddress: {
+        firstName: 'string',
+        lastName: 'string',
+        addressLine1: 'string (optional)',
+        city: 'string (optional)',
+        state: 'string (optional)',
+        postalCode: 'string (optional)',
+        country: 'string (default: Romania)',
+        phone: 'string (optional)',
+      },
+      customerEmail: 'string',
+      items: '[{ product: string (id), quantity: number }]',
+      amount: 'number',
+    },
+    optional: ['notes', 'paymentMethod', 'shippingMethod'],
   })
 }

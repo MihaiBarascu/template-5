@@ -6,7 +6,7 @@ export const TeamBlock: Block = {
     singular: 'Echipa',
     plural: 'Echipa',
   },
-  imageURL: '/blocks/team.png',
+  imageURL: '/blocks/team.svg',
   fields: [
     {
       name: 'variant',

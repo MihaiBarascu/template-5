@@ -22,6 +22,16 @@ import { VideoEmbedBlock } from './VideoEmbed/Component'
 import { PriceListDottedBlock } from './PriceListDotted/Component'
 import { BeforeAfterBlock } from './BeforeAfter/Component'
 import { NewsletterBlock } from './Newsletter/Component'
+import { TrustBadgesBlock } from './TrustBadges/Component'
+import { HowItWorksBlock } from './HowItWorks/Component'
+import { LogoCloudBlock } from './LogoCloud/Component'
+import { LatestPostsBlock } from './LatestPosts/Component'
+// New blocks from research
+import { OpeningHoursBlock } from './OpeningHours/Component'
+import { LocationsBlock } from './Locations/Component'
+import { BrandLogosBlock } from './BrandLogos/Component'
+import { TimelineBlock } from './Timeline/Component'
+import { AnnouncementBarBlock } from './AnnouncementBar/Component'
 
 type LayoutBlock = NonNullable<Page['layout']>[number]
 
@@ -103,6 +113,29 @@ async function getFAQs(block: BlockParams) {
   })
 
   return faqs.docs
+}
+
+// Fetch posts (blog articles)
+async function getPosts(block: BlockParams) {
+  const payload = await getPayload({ config: configPromise })
+
+  const where: Where = {
+    _status: { equals: 'published' },
+  }
+
+  if (block.filterByCategory) {
+    where.category = { equals: block.filterByCategory }
+  }
+
+  const posts = await payload.find({
+    collection: 'posts',
+    where,
+    limit: block.limit || 3,
+    sort: '-publishedAt',
+    depth: 2, // Populate relationships like featuredImage, category, author
+  })
+
+  return posts.docs
 }
 
 // Fetch business info
@@ -553,6 +586,161 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   privacyText={block.privacyText ?? undefined}
                   showPrivacyLink={block.showPrivacyLink ?? undefined}
                   benefits={block.benefits ?? undefined}
+                />
+              )
+            }
+
+            case 'trust-badges': {
+              return (
+                <TrustBadgesBlock
+                  key={block.id || index}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
+                  source={block.source ?? undefined}
+                  presets={block.presets ?? undefined}
+                  customValues={block.customValues ?? undefined}
+                  badges={block.badges ?? undefined}
+                  showDescriptions={block.showDescriptions ?? undefined}
+                  iconSize={block.iconSize ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
+                />
+              )
+            }
+
+            case 'how-it-works': {
+              return (
+                <HowItWorksBlock
+                  key={block.id || index}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
+                  subheading={block.subheading ?? undefined}
+                  steps={block.steps ?? undefined}
+                  showNumbers={block.showNumbers ?? undefined}
+                  ctaButton={block.ctaButton ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
+                />
+              )
+            }
+
+            case 'logo-cloud': {
+              return (
+                <LogoCloudBlock
+                  key={block.id || index}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
+                  subheading={block.subheading ?? undefined}
+                  logos={block.logos ?? undefined}
+                  logoSize={block.logoSize ?? undefined}
+                  columns={block.columns ?? undefined}
+                  grayscale={block.grayscale ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
+                />
+              )
+            }
+
+            case 'latestPosts': {
+              const posts = await getPosts({
+                limit: block.limit,
+                filterByCategory: typeof block.filterByCategory === 'string' ? block.filterByCategory : undefined,
+              })
+              return (
+                <LatestPostsBlock
+                  key={block.id || index}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
+                  subheading={block.subheading ?? undefined}
+                  showImage={block.showImage ?? undefined}
+                  showExcerpt={block.showExcerpt ?? undefined}
+                  showDate={block.showDate ?? undefined}
+                  showCategory={block.showCategory ?? undefined}
+                  showAuthor={block.showAuthor ?? undefined}
+                  showReadMore={block.showReadMore ?? undefined}
+                  readMoreText={block.readMoreText ?? undefined}
+                  ctaButton={block.ctaButton ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
+                  posts={posts}
+                />
+              )
+            }
+
+            case 'openingHours': {
+              // Transform schedule from businessInfo if available
+              const scheduleData = block.source === 'custom'
+                ? block.schedule
+                : businessInfo?.workingHours || []
+
+              return (
+                <OpeningHoursBlock
+                  key={block.id || index}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
+                  subheading={block.subheading ?? undefined}
+                  schedule={scheduleData}
+                  showCurrentStatus={block.showCurrentStatus ?? undefined}
+                  image={block.image}
+                  ctaButton={block.ctaButton ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
+                />
+              )
+            }
+
+            case 'locations': {
+              return (
+                <LocationsBlock
+                  key={block.id || index}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
+                  subheading={block.subheading ?? undefined}
+                  locations={block.locations}
+                  showMap={block.showMap ?? undefined}
+                  showSchedule={block.showSchedule ?? undefined}
+                  showRating={block.showRating ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
+                />
+              )
+            }
+
+            case 'brandLogos': {
+              return (
+                <BrandLogosBlock
+                  key={block.id || index}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
+                  subheading={block.subheading ?? undefined}
+                  logos={block.logos}
+                  sections={block.sections}
+                  grayscale={block.grayscale ?? undefined}
+                  logoSize={block.logoSize ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
+                />
+              )
+            }
+
+            case 'timeline': {
+              return (
+                <TimelineBlock
+                  key={block.id || index}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
+                  subheading={block.subheading ?? undefined}
+                  events={block.events}
+                  showConnector={block.showConnector ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
+                />
+              )
+            }
+
+            case 'announcementBar': {
+              return (
+                <AnnouncementBarBlock
+                  key={block.id || index}
+                  variant={block.variant ?? undefined}
+                  messages={block.messages}
+                  ctaButton={block.ctaButton ?? undefined}
+                  countdown={block.countdown ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
+                  position={block.position ?? undefined}
+                  sticky={block.sticky ?? undefined}
                 />
               )
             }

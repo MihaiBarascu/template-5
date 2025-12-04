@@ -14,9 +14,10 @@ import {
   seedPortfolio,
   uploadLocalSeedImages,
   seedPosts,
+  seedNewsletterSubscribers,
 } from '../helpers'
 import { autoServiceImages, autoServiceData } from '../seed-data'
-import { getVariant, type DesignVariant } from '../design-variants'
+import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
 
 const VARIANT_INDEX = parseInt(process.env.DESIGN_VARIANT || '0', 10)
 
@@ -118,6 +119,7 @@ export async function seedAutoService(payload: Payload) {
   const heroImageId = getImageId(autoServiceImages.hero[0]?.filename)
   const homepageLayout = buildHomepageLayout(variant)
 
+  const overlaySettings = getHeroOverlaySettings(variant)
   await seedHomePage(payload, {
     heroType: variant.hero.type,
     hero: {
@@ -125,6 +127,7 @@ export async function seedAutoService(payload: Payload) {
       subheadline: autoServiceData.hero.subheadline,
       ctaButtons: autoServiceData.hero.ctaButtons,
       imageId: heroImageId,
+      ...overlaySettings,
     },
     layout: homepageLayout,
   })
@@ -137,6 +140,14 @@ export async function seedAutoService(payload: Payload) {
   if (autoServiceData.posts) {
     await seedPosts(payload, autoServiceData.posts)
   }
+
+  // Sample newsletter subscribers for demo
+  console.log('\n📧 Creating sample newsletter subscribers...')
+  await seedNewsletterSubscribers(payload, [
+    { email: 'sofer1@mailinator.com', source: 'website' },
+    { email: 'sofer2@mailinator.com', source: 'footer' },
+    { email: 'sofer3@mailinator.com', source: 'popup' },
+  ])
 
   // Note: Design variant global has been replaced by unified SiteTheme system
   // Theme is now configured at the start of seeding via seedSiteTheme()
@@ -165,11 +176,176 @@ interface BlockConfig {
   subheadline?: string
   buttons?: Array<{ label: string; link: string; variant?: string }>
   backgroundColor?: string
+  ctaButton?: { show: boolean; label: string; link: string }
   [key: string]: unknown
 }
 
 function buildHomepageLayout(variant: DesignVariant) {
   const sectionConfigs: Record<string, BlockConfig> = {
+    // NEW: Trust Badges - auto service credibility (grid-3 variant - industrial)
+    trustBadges: {
+      blockType: 'trust-badges',
+      variant: 'grid-3',
+      source: 'preset',
+      presets: ['warranty', 'experience-years', 'quality', 'fair-price'],
+      customValues: {
+        experienceYears: 20,
+        warrantyPeriod: '2 ani garantie lucrari',
+      },
+      showDescriptions: true,
+      iconSize: 'medium',
+      backgroundColor: 'dark',
+    },
+    // NEW: How It Works - service process (numbered variant - technical)
+    howItWorks: {
+      blockType: 'how-it-works',
+      variant: 'numbered',
+      heading: 'Cum Lucram',
+      subheading: 'Proces transparent de la receptie la predare',
+      steps: [
+        {
+          title: 'Programare si Receptie',
+          description: 'Programeaza-te online sau telefonic, apoi adu masina la service',
+          icon: 'Calendar',
+        },
+        {
+          title: 'Diagnoza Computerizata',
+          description: 'Verificam masina cu echipamente de ultima generatie',
+          icon: 'Settings',
+        },
+        {
+          title: 'Oferta si Aprobare',
+          description: 'Primesti deviz detaliat si decizi ce lucrari se executa',
+          icon: 'FileText',
+        },
+        {
+          title: 'Reparatie si Predare',
+          description: 'Executa lucrarile si predare cu garantie scrisa',
+          icon: 'CheckCircle',
+        },
+      ],
+      showNumbers: true,
+      ctaButton: {
+        show: true,
+        label: 'Programeaza Service',
+        link: '/programare',
+      },
+      backgroundColor: 'light',
+    },
+    // NEW: Logo Cloud - brands we service
+    logoCloud: {
+      blockType: 'logo-cloud',
+      variant: 'simple',
+      heading: 'Marci Auto cu care Lucram',
+      subheading: 'Experienta cu toate marcile populare',
+      logos: [],
+      logoSize: 'large',
+      columns: '6',
+      grayscale: true,
+      backgroundColor: 'default',
+    },
+    // NEW: Opening Hours - program service auto
+    openingHours: {
+      blockType: 'openingHours',
+      variant: 'simple',
+      heading: 'Program Service',
+      subheading: 'Te așteptăm cu mașina ta',
+      source: 'businessInfo',
+      showCurrentStatus: true,
+      backgroundColor: 'default',
+    },
+    // NEW: Locations - locatii service
+    locations: {
+      blockType: 'locations',
+      variant: 'cards',
+      heading: 'Service-urile Noastre',
+      subheading: 'Echipamente moderne și personal calificat',
+      locations: [
+        {
+          name: 'AutoPro - Pipera',
+          address: 'Șoseaua Pipera-Tunari 50',
+          city: 'București',
+          phone: '0722 777 888',
+          email: 'service@autopro.ro',
+          schedule: [
+            { days: 'Luni - Vineri', hours: '08:00 - 18:00' },
+            { days: 'Sâmbătă', hours: '08:00 - 14:00' },
+            { days: 'Duminică', hours: 'Închis' },
+          ],
+          rating: 4.8,
+          ctaButton: {
+            label: 'Programează Service',
+            link: '/programare',
+          },
+        },
+      ],
+      showRating: true,
+      showSchedule: true,
+      backgroundColor: 'light',
+    },
+    // NEW: Brand Logos - marci auto
+    brandLogos: {
+      blockType: 'brandLogos',
+      variant: 'titled',
+      heading: 'Mărci cu care Lucrăm',
+      subheading: 'Experiență cu toate mărcile populare din România',
+      source: 'custom',
+      logos: [],
+      grayscale: true,
+      logoSize: 'large',
+      backgroundColor: 'default',
+    },
+    // NEW: Timeline - istoria service-ului
+    timeline: {
+      blockType: 'timeline',
+      variant: 'compact',
+      heading: 'De 20 de Ani în Slujba Șoferilor',
+      subheading: 'Evoluția AutoPro',
+      events: [
+        {
+          year: '2004',
+          title: 'Înființare',
+          description: 'Am deschis primul service cu 2 rampe',
+          icon: 'Wrench',
+        },
+        {
+          year: '2010',
+          title: 'Expansiune',
+          description: 'Am investit în echipamente de diagnoză computerizată',
+          icon: 'Settings',
+        },
+        {
+          year: '2018',
+          title: 'ITP Autorizat',
+          description: 'Am obținut autorizația pentru inspecții tehnice periodice',
+          icon: 'CheckCircle',
+        },
+        {
+          year: '2024',
+          title: 'Prezent',
+          description: 'Peste 50.000 de mașini reparate cu garanție',
+          icon: 'Star',
+        },
+      ],
+      showConnector: true,
+      backgroundColor: 'light',
+    },
+    // NEW: Announcement Bar - oferte service
+    announcementBar: {
+      blockType: 'announcementBar',
+      variant: 'simple',
+      messages: [
+        {
+          text: '🔧 Verificare GRATUITĂ înainte de drum lung!',
+          link: '/programare',
+          linkText: 'Programează verificarea',
+        },
+      ],
+      icon: 'Car',
+      backgroundColor: 'red',
+      position: 'top',
+      sticky: false,
+    },
     services: {
       blockType: 'services',
       variant: variant.layout.servicesVariant,
@@ -215,7 +391,6 @@ function buildHomepageLayout(variant: DesignVariant) {
       subheading: 'Echipamente si spatii moderne',
       source: 'portfolio',
       limit: 6,
-      
       backgroundColor: 'default',
     },
     faq: {
@@ -227,6 +402,24 @@ function buildHomepageLayout(variant: DesignVariant) {
       limit: 10,
       defaultOpen: 'first',
       backgroundColor: 'default',
+    },
+    latestPosts: {
+      blockType: 'latestPosts',
+      variant: 'grid-3',
+      heading: 'Din Blogul Nostru',
+      subheading: 'Sfaturi si informatii pentru masina ta',
+      source: 'collection',
+      limit: 3,
+      showImage: true,
+      showCategory: true,
+      showDate: true,
+      showExcerpt: true,
+      ctaButton: {
+        show: true,
+        label: 'Vezi toate articolele',
+        link: '/blog',
+      },
+      backgroundColor: 'light',
     },
     cta: {
       blockType: 'cta',
@@ -246,7 +439,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
     data: {
       title: 'Servicii',
       slug: 'servicii',
-      heroType: 'centered',
+      heroType: 'minimal',
       hero: { headline: 'Servicii Auto Complete', subheadline: 'De la revizie la reparatii majore' },
       layout: [
         { blockType: 'services', variant: variant.layout.servicesVariant, heading: 'Lista Servicii', source: 'collection', limit: 20, showPrices: true, showIcons: true, backgroundColor: 'default' },
@@ -262,7 +455,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
     data: {
       title: 'Echipa',
       slug: 'echipa',
-      heroType: 'centered',
+      heroType: 'minimal',
       hero: { headline: 'Echipa Noastra', subheadline: 'Mecanici profesionisti' },
       layout: [
         { blockType: 'team', variant: variant.layout.teamVariant, heading: 'Mecanicii Nostri', source: 'collection', limit: 20, showRole: true, showBio: true, backgroundColor: 'default' },
@@ -275,9 +468,25 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
   await payload.create({
     collection: 'pages',
     data: {
+      title: 'Preturi',
+      slug: 'preturi',
+      heroType: 'minimal',
+      hero: { headline: 'Lista de Preturi', subheadline: 'Tarife transparente pentru toate serviciile auto' },
+      layout: [
+        { blockType: 'priceListDotted', variant: 'two-columns', heading: 'Preturi Servicii Auto', source: 'services', limit: 20, showDuration: true, dotStyle: 'dotted', currency: 'RON', backgroundColor: 'default', ctaButton: { show: false } },
+        { blockType: 'cta', variant: 'centered', headline: 'Ai nevoie de o oferta personalizata?', subheadline: 'Contacteaza-ne pentru diagnosticare si deviz gratuit', buttons: [{ label: 'Programeaza-te', link: '/programare', variant: 'default' }], backgroundColor: 'light' },
+      ],
+      _status: 'published',
+    },
+  })
+  console.log('   Created Prices page')
+
+  await payload.create({
+    collection: 'pages',
+    data: {
       title: 'Programare',
       slug: 'programare',
-      heroType: 'centered',
+      heroType: 'minimal',
       hero: { headline: 'Programeaza-te Online', subheadline: 'Completeaza formularul' },
       layout: [
         { blockType: 'booking', variant: 'full', heading: 'Cerere Programare', showServiceSelection: true, showTeamSelection: false, showDatePicker: true, showTimePicker: true, submitButtonText: 'Trimite', successMessage: 'Te vom contacta pentru confirmare.', backgroundColor: 'light' },
@@ -292,7 +501,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
     data: {
       title: 'Contact',
       slug: 'contact',
-      heroType: 'centered',
+      heroType: 'minimal',
       hero: { headline: 'Contact', subheadline: 'Suntem aici sa te ajutam' },
       layout: [
         { blockType: 'contact', variant: 'split', heading: 'Contacteaza-ne', showForm: true, showContactInfo: true, showMap: true, mapPosition: 'bottom', backgroundColor: 'light' },

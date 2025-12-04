@@ -14,9 +14,10 @@ import {
   seedProductCategories,
   seedProducts,
   seedPosts,
+  seedNewsletterSubscribers,
 } from '../helpers'
 import { magazinImages, magazinData } from '../seed-data'
-import { getVariant, type DesignVariant } from '../design-variants'
+import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
 
 const VARIANT_INDEX = parseInt(process.env.DESIGN_VARIANT || '0', 10)
 
@@ -36,6 +37,7 @@ export async function seedMagazin(payload: Payload) {
     ...magazinImages.team,
     ...magazinImages.products,
     ...magazinImages.gallery,
+    ...magazinImages.locations,
   ]
   const imageMap = await uploadLocalSeedImages(payload, allImages)
 
@@ -133,8 +135,9 @@ export async function seedMagazin(payload: Payload) {
 
   console.log('\n🏠 Creating homepage...')
   const heroImageId = getImageId(magazinImages.hero[0]?.filename)
-  const homepageLayout = buildHomepageLayout(variant)
+  const homepageLayout = buildHomepageLayout(variant, getImageId)
 
+  const overlaySettings = getHeroOverlaySettings(variant)
   await seedHomePage(payload, {
     heroType: variant.hero.type,
     hero: {
@@ -142,6 +145,7 @@ export async function seedMagazin(payload: Payload) {
       subheadline: magazinData.hero.subheadline,
       ctaButtons: magazinData.hero.ctaButtons,
       imageId: heroImageId,
+      ...overlaySettings,
     },
     layout: homepageLayout,
   })
@@ -154,6 +158,14 @@ export async function seedMagazin(payload: Payload) {
   if (magazinData.posts) {
     await seedPosts(payload, magazinData.posts)
   }
+
+  // Sample newsletter subscribers for demo
+  console.log('\n📧 Creating sample newsletter subscribers...')
+  await seedNewsletterSubscribers(payload, [
+    { email: 'cumparator1@mailinator.com', source: 'website' },
+    { email: 'cumparator2@mailinator.com', source: 'footer' },
+    { email: 'cumparator3@mailinator.com', source: 'popup' },
+  ])
 
   // Note: Design variant global has been replaced by unified SiteTheme system
   // Theme is now configured at the start of seeding via seedSiteTheme()
@@ -183,13 +195,193 @@ interface BlockConfig {
   headline?: string
   subheadline?: string
   buttons?: Array<{ label: string; link: string; variant?: string }>
-  ctaButton?: { enabled: boolean; label: string; link: string }
+  ctaButton?: { enabled?: boolean; show?: boolean; label: string; link: string }
   backgroundColor?: string
   [key: string]: unknown
 }
 
-function buildHomepageLayout(variant: DesignVariant) {
+function buildHomepageLayout(variant: DesignVariant, getImageId: (filename: string) => string | undefined) {
   const sectionConfigs: Record<string, BlockConfig> = {
+    // NEW: Trust Badges - ecommerce credibility (bar variant - ecommerce style)
+    trustBadges: {
+      blockType: 'trust-badges',
+      variant: 'bar',
+      source: 'preset',
+      presets: ['free-shipping-threshold', 'return-30', 'secure-payment', 'eco-friendly'],
+      customValues: {
+        shippingThreshold: 200,
+      },
+      showDescriptions: true,
+      iconSize: 'medium',
+      backgroundColor: 'light',
+    },
+    // NEW: How It Works - shopping process (horizontal-cards variant - quick info)
+    howItWorks: {
+      blockType: 'how-it-works',
+      variant: 'horizontal-cards',
+      heading: 'Cum Comanzi',
+      subheading: 'Shopping simplu si rapid',
+      steps: [
+        {
+          title: 'Alege Produsele',
+          description: 'Browse prin gama noastra si adauga in cos',
+          icon: 'ShoppingCart',
+        },
+        {
+          title: 'Finalizeaza Comanda',
+          description: 'Completeaza datele de livrare si plata',
+          icon: 'CreditCard',
+        },
+        {
+          title: 'Livrare Rapida',
+          description: 'Primesti coletul in 24-48h',
+          icon: 'Truck',
+        },
+        {
+          title: 'Bucura-te!',
+          description: 'Produse naturale pentru tine si familia ta',
+          icon: 'Heart',
+        },
+      ],
+      showNumbers: true,
+      ctaButton: {
+        show: true,
+        label: 'Incepe Shopping',
+        link: '/produse',
+      },
+      backgroundColor: 'default',
+    },
+    // NEW: Newsletter for shop - using with-pattern variant for visual impact
+    newsletter: {
+      blockType: 'newsletter',
+      variant: 'with-pattern',
+      heading: '10% Reducere la Prima Comanda',
+      subheading: 'Aboneaza-te si primesti cod de reducere instant',
+      placeholder: 'Email-ul tau',
+      buttonText: 'Vreau Reducerea',
+      successMessage: 'Codul de reducere a fost trimis pe email!',
+      privacyText: 'Nu trimitem spam. Te poti dezabona oricand.',
+      benefits: [
+        { text: 'Oferte exclusive' },
+        { text: 'Produse noi' },
+        { text: 'Sfaturi eco' },
+      ],
+      backgroundColor: 'primary',
+    },
+    // NEW: Opening Hours - program magazin/showroom
+    openingHours: {
+      blockType: 'openingHours',
+      variant: 'card',
+      heading: 'Program Showroom',
+      subheading: 'Vizitează-ne și vezi produsele live',
+      source: 'businessInfo',
+      showCurrentStatus: true,
+      backgroundColor: 'default',
+    },
+    // NEW: Locations - magazin fizic + puncte de ridicare
+    locations: {
+      blockType: 'locations',
+      variant: 'grid-images',
+      heading: 'Unde Ne Găsești',
+      subheading: 'Showroom și puncte de ridicare comenzi',
+      locations: [
+        {
+          name: 'EcoShop Showroom',
+          address: 'Bulevardul Magheru 32',
+          city: 'București',
+          phone: '0722 444 555',
+          email: 'showroom@ecoshop.ro',
+          image: getImageId(magazinImages.locations[0]?.filename),
+          schedule: [
+            { days: 'Luni - Vineri', hours: '10:00 - 20:00' },
+            { days: 'Sâmbătă', hours: '10:00 - 18:00' },
+            { days: 'Duminică', hours: '12:00 - 18:00' },
+          ],
+          rating: 4.9,
+          ctaButton: {
+            label: 'Vezi pe Hartă',
+            link: 'https://maps.google.com',
+          },
+        },
+      ],
+      showRating: true,
+      showSchedule: true,
+      backgroundColor: 'light',
+    },
+    // NEW: Brand Logos - branduri eco/naturale
+    brandLogos: {
+      blockType: 'brandLogos',
+      variant: 'slider',
+      heading: 'Branduri Partenere',
+      subheading: 'Colaborăm cu producători certificați eco și bio',
+      source: 'custom',
+      logos: [],
+      grayscale: false,
+      autoplay: true,
+      logoSize: 'medium',
+      backgroundColor: 'default',
+    },
+    // NEW: Timeline - povestea magazinului
+    timeline: {
+      blockType: 'timeline',
+      variant: 'horizontal',
+      heading: 'Povestea EcoShop',
+      subheading: 'Din pasiune pentru produse naturale',
+      events: [
+        {
+          year: '2019',
+          title: 'Lansare',
+          description: 'Am lansat magazinul online cu 50 de produse eco',
+          icon: 'Leaf',
+        },
+        {
+          year: '2020',
+          title: 'Creștere',
+          description: 'Pandemia ne-a adus 10x mai mulți clienți conștienți',
+          icon: 'TrendingUp',
+        },
+        {
+          year: '2022',
+          title: 'Showroom',
+          description: 'Am deschis primul showroom fizic în București',
+          icon: 'Store',
+        },
+        {
+          year: '2024',
+          title: 'Prezent',
+          description: 'Peste 2000 de produse și 30.000 de clienți fericiți',
+          icon: 'Star',
+        },
+      ],
+      showConnector: true,
+      backgroundColor: 'light',
+    },
+    // NEW: Announcement Bar - oferte si livrare
+    announcementBar: {
+      blockType: 'announcementBar',
+      variant: 'slider',
+      messages: [
+        {
+          text: '🚚 Livrare GRATUITĂ la comenzi peste 200 RON!',
+          link: '/produse',
+          linkText: 'Cumpără acum',
+        },
+        {
+          text: '🌿 -20% la toate produsele BIO această săptămână!',
+          link: '/produse?filter=bio',
+          linkText: 'Vezi oferta',
+        },
+        {
+          text: '⭐ Returnare gratuită în 30 de zile',
+          link: '/politica-retur',
+          linkText: 'Detalii',
+        },
+      ],
+      icon: 'ShoppingBag',
+      backgroundColor: 'primary',
+      position: 'top',
+      sticky: false,
+    },
     products: {
       blockType: 'products',
       variant: 'grid-4',
@@ -231,7 +423,6 @@ function buildHomepageLayout(variant: DesignVariant) {
       subheading: 'Magazinul nostru',
       source: 'portfolio',
       limit: 6,
-      
       backgroundColor: 'default',
     },
     faq: {
@@ -243,6 +434,24 @@ function buildHomepageLayout(variant: DesignVariant) {
       limit: 10,
       defaultOpen: 'first',
       backgroundColor: 'default',
+    },
+    latestPosts: {
+      blockType: 'latestPosts',
+      variant: 'grid-3',
+      heading: 'Din Blogul Nostru',
+      subheading: 'Articole despre produse naturale si stil de viata sanatos',
+      source: 'collection',
+      limit: 3,
+      showImage: true,
+      showCategory: true,
+      showDate: true,
+      showExcerpt: true,
+      ctaButton: {
+        show: true,
+        label: 'Vezi toate articolele',
+        link: '/blog',
+      },
+      backgroundColor: 'light',
     },
     cta: {
       blockType: 'cta',
@@ -263,7 +472,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
     data: {
       title: 'Produse',
       slug: 'produse',
-      heroType: 'centered',
+      heroType: 'minimal',
       hero: { headline: 'Produsele Noastre', subheadline: 'Descopera gama completa de produse naturale' },
       layout: [
         {
@@ -289,7 +498,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
     data: {
       title: 'Categorii',
       slug: 'categorii',
-      heroType: 'centered',
+      heroType: 'minimal',
       hero: { headline: 'Categorii Produse', subheadline: 'Exploreaza pe categorii' },
       layout: [
         {
@@ -330,7 +539,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
     data: {
       title: 'Despre Noi',
       slug: 'despre',
-      heroType: 'centered',
+      heroType: 'minimal',
       hero: { headline: 'Despre EcoShop', subheadline: 'Povestea noastra' },
       layout: [
         {
@@ -401,7 +610,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
     data: {
       title: 'Cos de Cumparaturi',
       slug: 'cos',
-      heroType: 'centered',
+      heroType: 'minimal',
       hero: { headline: 'Cosul Tau', subheadline: 'Verifica produsele si finalizeaza comanda' },
       layout: [
         {
@@ -429,7 +638,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
     data: {
       title: 'Finalizare Comanda',
       slug: 'checkout',
-      heroType: 'centered',
+      heroType: 'minimal',
       hero: { headline: 'Finalizare Comanda', subheadline: 'Completeaza datele pentru livrare' },
       layout: [
         {
@@ -455,7 +664,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
     data: {
       title: 'Contact',
       slug: 'contact',
-      heroType: 'centered',
+      heroType: 'minimal',
       hero: { headline: 'Contact', subheadline: 'Suntem aici pentru tine' },
       layout: [
         {

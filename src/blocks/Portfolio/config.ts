@@ -6,7 +6,7 @@ export const PortfolioBlock: Block = {
     singular: 'Portofoliu',
     plural: 'Portofoliu',
   },
-  imageURL: '/blocks/portfolio.png',
+  imageURL: '/blocks/portfolio.svg',
   fields: [
     {
       name: 'variant',

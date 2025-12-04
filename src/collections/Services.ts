@@ -111,6 +111,7 @@ export const Services: CollectionConfig = {
       type: 'checkbox',
       label: 'Serviciu popular',
       defaultValue: false,
+      index: true, // Index for filtering featured services
       admin: {
         position: 'sidebar',
       },
@@ -120,6 +121,7 @@ export const Services: CollectionConfig = {
       type: 'number',
       label: 'Ordine afisare',
       defaultValue: 0,
+      index: true, // Index for sorting
       admin: {
         position: 'sidebar',
       },

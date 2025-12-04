@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import React from 'react'
 import { GeistMono } from 'geist/font/mono'
 import { GeistSans } from 'geist/font/sans'
-import { unstable_cache } from 'next/cache'
 
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
@@ -28,63 +27,20 @@ export const metadata: Metadata = {
   description: 'Site-ul tau de business profesional',
 }
 
-// Cached global fetchers with revalidation tags
-const getSiteTheme = unstable_cache(
-  async () => {
-    const payload = await getPayload({ config: configPromise })
-    return payload.findGlobal({ slug: 'site-theme' })
-  },
-  ['site-theme'],
-  { tags: ['site-theme'] }
-)
-
-const getHeader = unstable_cache(
-  async () => {
-    const payload = await getPayload({ config: configPromise })
-    return payload.findGlobal({ slug: 'header' })
-  },
-  ['header'],
-  { tags: ['header'] }
-)
-
-const getFooter = unstable_cache(
-  async () => {
-    const payload = await getPayload({ config: configPromise })
-    return payload.findGlobal({ slug: 'footer' })
-  },
-  ['footer'],
-  { tags: ['footer'] }
-)
-
-const getBusinessInfo = unstable_cache(
-  async () => {
-    const payload = await getPayload({ config: configPromise })
-    return payload.findGlobal({ slug: 'business-info' })
-  },
-  ['business-info'],
-  { tags: ['business-info'] }
-)
-
-const getLogo = unstable_cache(
-  async () => {
-    const payload = await getPayload({ config: configPromise })
-    return payload.findGlobal({ slug: 'logo' })
-  },
-  ['logo'],
-  { tags: ['logo'] }
-)
-
 export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const payload = await getPayload({ config: configPromise })
+
+  // Fetch globals directly - Payload handles caching via hooks
   const [siteThemeData, headerData, footerData, businessInfoData, logoData] = await Promise.all([
-    getSiteTheme(),
-    getHeader(),
-    getFooter(),
-    getBusinessInfo(),
-    getLogo(),
+    payload.findGlobal({ slug: 'site-theme' }),
+    payload.findGlobal({ slug: 'header' }),
+    payload.findGlobal({ slug: 'footer' }),
+    payload.findGlobal({ slug: 'business-info' }),
+    payload.findGlobal({ slug: 'logo' }),
   ])
 
   // Generate inline CSS for theme to prevent FOUC
@@ -118,8 +74,16 @@ export default async function RootLayout({
         {/* Google Fonts for theme typography */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/*
+          Google Fonts - All available fonts for theme customization
+          Heading fonts: Inter, Montserrat, Poppins, Roboto, Oswald, Raleway, Nunito, Work Sans,
+                        Playfair Display, Lora, Merriweather, Cormorant Garamond, Libre Baskerville,
+                        DM Serif Display, Abril Fatface
+          Body fonts: Inter, Open Sans, Roboto, Lato, Source Sans 3, Poppins, Nunito Sans,
+                     Work Sans, DM Sans, Outfit, Lora, Merriweather, Source Serif 4, Crimson Text
+        */}
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Open+Sans:wght@400;500;600;700&family=Lato:wght@400;700&family=Lora:wght@400;500;600;700&family=Source+Sans+Pro:wght@400;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Cormorant+Garamond:wght@400;500;600;700&family=Crimson+Text:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&family=Inter:wght@400;500;600;700&family=Lato:wght@400;700&family=Libre+Baskerville:wght@400;700&family=Lora:wght@400;500;600;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;500;600;700&family=Nunito:wght@400;500;600;700&family=Nunito+Sans:wght@400;500;600;700&family=Open+Sans:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Raleway:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:wght@400;500;600;700&family=Work+Sans:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         />
       </head>

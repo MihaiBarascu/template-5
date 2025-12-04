@@ -52,12 +52,32 @@ export function NewsletterBlock({
 
     setIsLoading(true)
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    try {
+      // Call the newsletter API endpoint
+      const response = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          source: 'page', // Newsletter block is typically on a page
+        }),
+      })
 
-    setIsLoading(false)
-    setIsSubmitted(true)
-    setEmail('')
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'A aparut o eroare')
+      }
+
+      setIsSubmitted(true)
+      setEmail('')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'A aparut o eroare. Te rugam incearca din nou.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const bgImageUrl =

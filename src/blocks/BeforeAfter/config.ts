@@ -6,7 +6,7 @@ export const BeforeAfterBlock: Block = {
     singular: 'Inainte/Dupa',
     plural: 'Inainte/Dupa',
   },
-  imageURL: '/blocks/before-after.png',
+  imageURL: '/blocks/before-after.svg',
   interfaceName: 'BeforeAfterBlock',
   fields: [
     {

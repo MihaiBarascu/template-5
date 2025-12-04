@@ -6,7 +6,7 @@ export const ProductsBlock: Block = {
     singular: 'Produse',
     plural: 'Produse',
   },
-  imageURL: '/blocks/products.png',
+  imageURL: '/blocks/products.svg',
   fields: [
     {
       name: 'variant',

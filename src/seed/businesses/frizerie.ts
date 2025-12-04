@@ -15,9 +15,10 @@ import {
   seedPortfolio,
   uploadLocalSeedImages,
   seedPosts,
+  seedNewsletterSubscribers,
 } from '../helpers'
 import { barbershopImages, barbershopData } from '../seed-data'
-import { getVariant, type DesignVariant } from '../design-variants'
+import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
 
 // Get variant from environment or default to 0
 const VARIANT_INDEX = parseInt(process.env.DESIGN_VARIANT || '0', 10)
@@ -152,6 +153,7 @@ export async function seedFrizerie(payload: Payload) {
   const heroImageId = getImageId(barbershopImages.hero[0]?.filename)
   const homepageLayout = buildHomepageLayout(variant, barbershopData)
 
+  const overlaySettings = getHeroOverlaySettings(variant)
   await seedHomePage(payload, {
     heroType: variant.hero.type,
     hero: {
@@ -159,6 +161,7 @@ export async function seedFrizerie(payload: Payload) {
       subheadline: barbershopData.hero.subheadline,
       ctaButtons: barbershopData.hero.ctaButtons,
       imageId: heroImageId,
+      ...overlaySettings,
     },
     layout: homepageLayout,
   })
@@ -172,6 +175,14 @@ export async function seedFrizerie(payload: Payload) {
   // 16. Create additional pages
   console.log('\n📄 Creating additional pages...')
   await createAdditionalPages(payload, variant)
+
+  // 17. Sample newsletter subscribers for demo
+  console.log('\n📧 Creating sample newsletter subscribers...')
+  await seedNewsletterSubscribers(payload, [
+    { email: 'client1@mailinator.com', source: 'website' },
+    { email: 'client2@mailinator.com', source: 'footer' },
+    { email: 'client3@mailinator.com', source: 'popup' },
+  ])
 
   // Note: Design variant global has been replaced by unified SiteTheme system
   // Theme is now configured at the start of seeding via seedSiteTheme()
@@ -241,18 +252,11 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof barbershopDat
     // New: Before/After slider for transformations
     beforeAfter: {
       blockType: 'beforeAfter',
-      variant: 'horizontal',
+      variant: 'slider',
       heading: 'Transformari Spectaculoase',
       subheading: 'Vezi diferenta dintre inainte si dupa la clientii nostri',
-      layout: 'grid-2',
-      initialPosition: 50,
-      showLabels: true,
+      sliderPosition: 50,
       backgroundColor: 'default',
-      ctaButton: {
-        show: true,
-        label: 'Vreau si eu o transformare',
-        link: '/programare',
-      },
     },
     // New: Newsletter subscription
     newsletter: {
@@ -270,6 +274,170 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof barbershopDat
         { text: 'Sfaturi de ingrijire' },
         { text: 'Noutati despre servicii' },
       ],
+    },
+    // New: Trust Badges - credibility indicators
+    trustBadges: {
+      blockType: 'trust-badges',
+      variant: 'bar',
+      source: 'preset',
+      presets: ['secure-payment', 'support-24-7', 'quality', 'experience-years'],
+      customValues: {
+        experienceYears: 6,
+      },
+      showDescriptions: true,
+      iconSize: 'medium',
+      backgroundColor: 'light',
+    },
+    // New: Opening Hours - program functionare
+    openingHours: {
+      blockType: 'openingHours',
+      variant: 'simple',
+      heading: 'Program',
+      subheading: 'Suntem aici pentru tine in urmatoarele intervale orare',
+      source: 'businessInfo',
+      showCurrentStatus: true,
+      backgroundColor: 'default',
+    },
+    // New: Locations - locatii multiple
+    locations: {
+      blockType: 'locations',
+      variant: 'cards',
+      heading: 'Locatiile Noastre',
+      subheading: 'Gaseste salonul cel mai aproape de tine',
+      locations: [
+        {
+          name: 'Sediul Central',
+          address: 'Strada Victoriei 45',
+          city: 'Bucuresti',
+          phone: '0722 123 456',
+          email: 'contact@barbershop.ro',
+          schedule: [
+            { days: 'Luni - Vineri', hours: '10:00 - 20:00' },
+            { days: 'Sambata', hours: '10:00 - 18:00' },
+            { days: 'Duminica', hours: 'Inchis' },
+          ],
+          rating: 4.9,
+          ctaButton: {
+            label: 'Programeaza-te',
+            link: '/programare',
+          },
+        },
+      ],
+      showRating: true,
+      showSchedule: true,
+      backgroundColor: 'light',
+    },
+    // New: Brand Logos - logo-uri parteneri/produse
+    brandLogos: {
+      blockType: 'brandLogos',
+      variant: 'row',
+      heading: 'Produse Premium',
+      subheading: 'Folosim doar branduri de top pentru ingrijirea ta',
+      source: 'custom',
+      logos: [],
+      grayscale: true,
+      logoSize: 'medium',
+      backgroundColor: 'default',
+    },
+    // New: Timeline - istoria companiei
+    timeline: {
+      blockType: 'timeline',
+      variant: 'vertical',
+      heading: 'Povestea Noastra',
+      subheading: 'De la inceput pana in prezent',
+      events: [
+        {
+          year: '2018',
+          title: 'Fondarea',
+          description: 'Am deschis primul nostru salon in inima Bucurestiului',
+          icon: 'Building',
+        },
+        {
+          year: '2020',
+          title: 'Extindere',
+          description: 'Am deschis a doua locatie si am crescut echipa',
+          icon: 'Users',
+        },
+        {
+          year: '2022',
+          title: 'Premii',
+          description: 'Am castigat premiul pentru cel mai bun barbershop din oras',
+          icon: 'Award',
+        },
+        {
+          year: '2024',
+          title: 'Prezent',
+          description: 'Continuam sa oferim servicii de exceptie clientilor nostri',
+          icon: 'Star',
+        },
+      ],
+      showConnector: true,
+      backgroundColor: 'light',
+    },
+    // New: Announcement Bar - bara anunturi/promotii
+    announcementBar: {
+      blockType: 'announcementBar',
+      variant: 'simple',
+      messages: [
+        {
+          text: 'Reducere 20% la prima vizita!',
+          link: '/programare',
+          linkText: 'Programeaza-te acum',
+        },
+      ],
+      icon: 'Percent',
+      backgroundColor: 'primary',
+      position: 'top',
+      sticky: false,
+    },
+    // New: How It Works - customer journey steps
+    howItWorks: {
+      blockType: 'how-it-works',
+      variant: 'connected',
+      heading: 'Cum Functioneaza',
+      subheading: 'Procesul simplu de la programare la rezultat',
+      steps: [
+        {
+          title: 'Programeaza Online',
+          description: 'Alege data si ora care ti se potriveste direct din site',
+          icon: 'Calendar',
+        },
+        {
+          title: 'Vino la Salon',
+          description: 'Te asteptam la adresa noastra in ziua aleasa',
+          icon: 'Store',
+        },
+        {
+          title: 'Consultatie',
+          description: 'Discutam despre stilul dorit si recomandarile noastre',
+          icon: 'MessageSquare',
+        },
+        {
+          title: 'Rezultat Perfect',
+          description: 'Pleci cu un look nou si incredere sporita',
+          icon: 'Star',
+        },
+      ],
+      showNumbers: true,
+      ctaButton: {
+        show: true,
+        label: 'Programeaza-te Acum',
+        link: '/programare',
+      },
+      backgroundColor: 'default',
+    },
+    // New: Logo Cloud - partner brands
+    logoCloud: {
+      blockType: 'logo-cloud',
+      variant: 'grayscale',
+      heading: 'Produse Premium',
+      subheading: 'Folosim doar branduri de top pentru ingrijirea ta',
+      // Note: logos will need actual uploaded images, for now using placeholders
+      logos: [],
+      logoSize: 'medium',
+      columns: '5',
+      grayscale: true,
+      backgroundColor: 'light',
     },
     services: {
       blockType: 'services',
@@ -329,6 +497,24 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof barbershopDat
       defaultOpen: 'first',
       backgroundColor: 'default',
     },
+    latestPosts: {
+      blockType: 'latestPosts',
+      variant: 'grid-3',
+      heading: 'Din Blogul Nostru',
+      subheading: 'Sfaturi si noutati despre ingrijirea parului si barbii',
+      source: 'collection',
+      limit: 3,
+      showImage: true,
+      showCategory: true,
+      showDate: true,
+      showExcerpt: true,
+      ctaButton: {
+        show: true,
+        label: 'Vezi toate articolele',
+        link: '/blog',
+      },
+      backgroundColor: 'light',
+    },
     cta: {
       blockType: 'cta',
       variant: 'centered',
@@ -351,7 +537,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
     data: {
       title: 'Servicii',
       slug: 'servicii',
-      heroType: 'centered',
+      heroType: 'minimal',
       hero: {
         headline: 'Serviciile Noastre',
         subheadline: 'De la tunsori clasice la tratamente premium, oferim tot ce ai nevoie',
@@ -387,7 +573,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
     data: {
       title: 'Echipa',
       slug: 'echipa',
-      heroType: 'centered',
+      heroType: 'minimal',
       hero: {
         headline: 'Echipa Noastra',
         subheadline: 'Cunoaste profesionistii care vor avea grija de tine',
@@ -424,7 +610,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
     data: {
       title: 'Galerie',
       slug: 'galerie',
-      heroType: 'centered',
+      heroType: 'minimal',
       hero: {
         headline: 'Galerie',
         subheadline: 'Vezi rezultatele muncii noastre',
@@ -460,7 +646,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
     data: {
       title: 'Preturi',
       slug: 'preturi',
-      heroType: 'centered',
+      heroType: 'minimal',
       hero: {
         headline: 'Preturi',
         subheadline: 'Tarife transparente pentru toate serviciile noastre',
@@ -499,7 +685,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
     data: {
       title: 'Programare',
       slug: 'programare',
-      heroType: 'centered',
+      heroType: 'minimal',
       hero: {
         headline: 'Programeaza-te Online',
         subheadline: 'Completeaza formularul si te vom contacta pentru confirmare',
@@ -532,7 +718,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
     data: {
       title: 'Contact',
       slug: 'contact',
-      heroType: 'centered',
+      heroType: 'minimal',
       hero: {
         headline: 'Contact',
         subheadline: 'Suntem aici sa te ajutam. Contacteaza-ne pentru programari sau intrebari.',

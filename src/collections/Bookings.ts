@@ -46,6 +46,7 @@ export const Bookings: CollectionConfig = {
             const service = await req.payload.findByID({
               collection: 'services',
               id: doc.service,
+              req, // Threading req for transaction safety (Payload best practice)
             })
             populatedDoc.service = service
           }
@@ -54,6 +55,7 @@ export const Bookings: CollectionConfig = {
             const teamMember = await req.payload.findByID({
               collection: 'team',
               id: doc.teamMember,
+              req, // Threading req for transaction safety (Payload best practice)
             })
             populatedDoc.teamMember = teamMember
           }
@@ -84,6 +86,7 @@ export const Bookings: CollectionConfig = {
             // Get business info for client email
             const businessInfo = await req.payload.findGlobal({
               slug: 'business-info',
+              req, // Threading req for transaction safety (Payload best practice)
             })
 
             const clientEmailHtml = formatBookingConfirmationEmail({

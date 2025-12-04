@@ -6,7 +6,7 @@ export const MapBlock: Block = {
     singular: 'Harta',
     plural: 'Harta',
   },
-  imageURL: '/blocks/map.png',
+  imageURL: '/blocks/map.svg',
   fields: [
     {
       name: 'variant',
