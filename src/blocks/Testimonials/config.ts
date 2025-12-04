@@ -6,7 +6,7 @@ export const TestimonialsBlock: Block = {
     singular: 'Testimoniale',
     plural: 'Testimoniale',
   },
-  imageURL: '/blocks/testimonials.png',
+  imageURL: '/blocks/testimonials.svg',
   fields: [
     {
       name: 'variant',

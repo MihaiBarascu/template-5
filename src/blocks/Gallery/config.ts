@@ -6,7 +6,7 @@ export const GalleryBlock: Block = {
     singular: 'Galerie',
     plural: 'Galerie',
   },
-  imageURL: '/blocks/gallery.png',
+  imageURL: '/blocks/gallery.svg',
   fields: [
     {
       name: 'variant',
@@ -69,6 +69,14 @@ export const GalleryBlock: Block = {
           name: 'caption',
           type: 'text',
           label: 'Descriere',
+        },
+        {
+          name: 'category',
+          type: 'text',
+          label: 'Categorie',
+          admin: {
+            description: 'Ex: Tunsori, Barba, Colorare (pentru filtrare)',
+          },
         },
       ],
     },

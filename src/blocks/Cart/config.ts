@@ -6,7 +6,7 @@ export const CartBlock: Block = {
     singular: 'Cos de cumparaturi',
     plural: 'Cos de cumparaturi',
   },
-  imageURL: '/blocks/cart.png',
+  imageURL: '/blocks/cart.svg',
   fields: [
     {
       name: 'variant',

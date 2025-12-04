@@ -10,15 +10,22 @@ export const revalidate = 60
 export default async function HomePage() {
   const payload = await getPayload({ config: configPromise })
 
-  const page = await payload.find({
-    collection: 'pages',
-    where: {
-      slug: {
-        equals: 'home',
+  const [pageResult, businessInfo] = await Promise.all([
+    payload.find({
+      collection: 'pages',
+      where: {
+        slug: {
+          equals: 'home',
+        },
       },
-    },
-    limit: 1,
-  })
+      limit: 1,
+    }),
+    payload.findGlobal({
+      slug: 'business-info',
+    }).catch(() => null),
+  ])
+
+  const page = pageResult
 
   if (!page.docs[0]) {
     // Render a default homepage if no page exists
@@ -40,11 +47,12 @@ export default async function HomePage() {
   }
 
   const pageData = page.docs[0]
+  const social = businessInfo?.social || null
 
   return (
     <>
       {pageData.heroType && pageData.heroType !== 'none' && pageData.hero && (
-        <RenderHero type={pageData.heroType as string} data={pageData.hero} />
+        <RenderHero type={pageData.heroType as string} data={pageData.hero} social={social} />
       )}
       {pageData.layout && <RenderBlocks blocks={pageData.layout} />}
     </>
@@ -62,15 +70,16 @@ export async function generateMetadata() {
       },
     },
     limit: 1,
+    depth: 1,
   })
 
   if (!page.docs[0]) {
     return {
       title: 'Acasa',
+      description: 'Bine ai venit pe site-ul nostru',
     }
   }
 
-  return {
-    title: page.docs[0].title || 'Acasa',
-  }
+  const { generateMeta } = await import('@/utilities/generateMeta')
+  return generateMeta({ doc: page.docs[0] })
 }

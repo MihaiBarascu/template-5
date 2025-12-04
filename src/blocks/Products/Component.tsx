@@ -200,7 +200,7 @@ export function ProductsBlock({
                   {showAddToCart && (
                     <button
                       onClick={() => handleAddToCart(product)}
-                      className="mt-3 w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-primary/90 transition-colors text-sm font-medium"
+                      className="mt-3 w-full bg-theme-primary text-white py-2 px-4 rounded-md hover:bg-theme-primary/90 transition-colors text-sm font-medium"
                     >
                       Adauga in cos
                     </button>
@@ -219,7 +219,7 @@ export function ProductsBlock({
               className={`inline-flex items-center gap-2 px-6 py-3 rounded-md font-medium transition-colors ${
                 backgroundColor === 'dark'
                   ? 'bg-white text-gray-900 hover:bg-gray-100'
-                  : 'bg-primary text-white hover:bg-primary/90'
+                  : 'bg-theme-primary text-white hover:bg-theme-primary/90'
               }`}
             >
               {ctaButton.label || 'Vezi toate produsele'}

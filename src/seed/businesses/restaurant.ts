@@ -1,7 +1,7 @@
 import type { Payload } from 'payload'
 import {
   createAdminUser,
-  seedTheme,
+  seedSiteTheme,
   seedBusinessInfo,
   seedLogo,
   seedHeader,
@@ -13,11 +13,11 @@ import {
   seedHomePage,
   seedPortfolio,
   uploadLocalSeedImages,
-  seedDesignVariant,
   seedPosts,
+  seedNewsletterSubscribers,
 } from '../helpers'
 import { restaurantImages, restaurantData } from '../seed-data'
-import { getVariant, type DesignVariant } from '../design-variants'
+import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
 
 // Get variant from environment or default to 0
 const VARIANT_INDEX = parseInt(process.env.DESIGN_VARIANT || '0', 10)
@@ -43,13 +43,11 @@ export async function seedRestaurant(payload: Payload) {
     return imageMap.get(filename) || undefined
   }
 
-  // 3. Configure theme based on variant
-  console.log('\n🎨 Configuring theme...')
-  await seedTheme(payload, {
-    preset: variant.theme.preset,
-    colors: variant.theme.colors,
-    fontPreset: variant.theme.fontPreset,
-    stylePreset: variant.theme.stylePreset,
+  // 3. Configure theme - use universal variant based on business style
+  // Restaurant typically uses warm-orange (friendly, warm) or modern-red (bold, appetizing)
+  console.log('\n🎨 Configuring site theme...')
+  await seedSiteTheme(payload, {
+    variant: 'warm-orange', // Best for restaurant - warm, inviting, food-friendly
     borderRadius: variant.theme.borderRadius,
     shadows: variant.theme.shadows,
     sectionSpacing: 'normal',
@@ -240,6 +238,7 @@ export async function seedRestaurant(payload: Payload) {
   const heroImageId = getImageId(restaurantImages.hero[0]?.filename)
   const homepageLayout = buildHomepageLayout(variant, restaurantData)
 
+  const overlaySettings = getHeroOverlaySettings(variant)
   await seedHomePage(payload, {
     heroType: variant.hero.type,
     hero: {
@@ -247,6 +246,7 @@ export async function seedRestaurant(payload: Payload) {
       subheadline: restaurantData.hero.subheadline,
       ctaButtons: restaurantData.hero.ctaButtons,
       imageId: heroImageId,
+      ...overlaySettings,
     },
     layout: homepageLayout,
   })
@@ -261,14 +261,16 @@ export async function seedRestaurant(payload: Payload) {
   console.log('\n📄 Creating additional pages...')
   await createAdditionalPages(payload, variant)
 
-  // 16. Set design variant global
-  console.log('\n🎨 Setting design variant global...')
-  await seedDesignVariant(payload, {
-    businessType: 'restaurant',
-    variantIndex: VARIANT_INDEX,
-    variantName: variant.name,
-    variantDescription: variant.description,
-  })
+  // Sample newsletter subscribers for demo
+  console.log('\n📧 Creating sample newsletter subscribers...')
+  await seedNewsletterSubscribers(payload, [
+    { email: 'client1@mailinator.com', source: 'website' },
+    { email: 'client2@mailinator.com', source: 'footer' },
+    { email: 'client3@mailinator.com', source: 'popup' },
+  ])
+
+  // Note: Design variant global has been replaced by unified SiteTheme system
+  // Theme is now configured at the start of seeding via seedSiteTheme()
 
   console.log('\n' + '━'.repeat(50))
   console.log('✅ Restaurant seeding complete!')
@@ -294,12 +296,178 @@ interface BlockConfig {
   subheadline?: string
   buttons?: Array<{ label: string; link: string; variant?: string }>
   backgroundColor?: string
+  ctaButton?: { show: boolean; label: string; link: string }
   [key: string]: unknown
 }
 
 // Build homepage layout based on variant configuration
 function buildHomepageLayout(variant: DesignVariant, _data: typeof restaurantData) {
   const sectionConfigs: Record<string, BlockConfig> = {
+    // NEW: Trust Badges - restaurant credibility (inline variant - different layout)
+    trustBadges: {
+      blockType: 'trust-badges',
+      variant: 'inline',
+      source: 'preset',
+      presets: ['quality', 'experience-years', 'happy-customers', 'eco-friendly'],
+      customValues: {
+        experienceYears: 15,
+        happyCustomersCount: '50000+',
+      },
+      showDescriptions: false,
+      iconSize: 'small',
+      backgroundColor: 'transparent',
+    },
+    // NEW: How It Works - dining experience (alternating variant with images)
+    howItWorks: {
+      blockType: 'how-it-works',
+      variant: 'alternating',
+      heading: 'Experienta Ta Culinara',
+      subheading: 'De la rezervare la desert',
+      steps: [
+        {
+          title: 'Rezerva Online sau Telefonic',
+          description: 'Alege data, ora si numarul de persoane pentru o experienta fara griji',
+          icon: 'Calendar',
+        },
+        {
+          title: 'Alege din Meniul Nostru',
+          description: 'Preparate traditionale romanesti si internationale, ingrediente proaspete zilnic',
+          icon: 'FileText',
+        },
+        {
+          title: 'Savureaza Atmosfera',
+          description: 'Un ambient cald si primitor, muzica placuta si servire atenta',
+          icon: 'Heart',
+        },
+        {
+          title: 'Momentele Tale Speciale',
+          description: 'Aniversari, intalniri de afaceri sau cine romantice - suntem alaturi de tine',
+          icon: 'Star',
+        },
+      ],
+      showNumbers: false,
+      ctaButton: {
+        show: true,
+        label: 'Rezerva Masa',
+        link: '/rezervare',
+      },
+      backgroundColor: 'light',
+    },
+    // NEW: Logo Cloud for restaurant partners/awards
+    logoCloud: {
+      blockType: 'logo-cloud',
+      variant: 'marquee',
+      heading: 'Recunoscut de',
+      subheading: 'Premii si certificari',
+      logos: [],
+      logoSize: 'medium',
+      columns: '5',
+      backgroundColor: 'default',
+    },
+    // NEW: Opening Hours - program restaurant
+    openingHours: {
+      blockType: 'openingHours',
+      variant: 'with-image',
+      heading: 'Program Restaurant',
+      subheading: 'Te așteptăm să savurezi preparatele noastre',
+      source: 'businessInfo',
+      showCurrentStatus: true,
+      backgroundColor: 'default',
+    },
+    // NEW: Locations - locatii restaurant
+    locations: {
+      blockType: 'locations',
+      variant: 'list-map',
+      heading: 'Unde Ne Găsești',
+      subheading: 'Vino să ne vizitezi la una din locațiile noastre',
+      locations: [
+        {
+          name: 'Restaurant La Copac - Centru',
+          address: 'Strada Lipscani 45',
+          city: 'București',
+          phone: '0722 333 444',
+          email: 'rezervari@lacopac.ro',
+          schedule: [
+            { days: 'Luni - Joi', hours: '11:00 - 23:00' },
+            { days: 'Vineri - Sâmbătă', hours: '11:00 - 01:00' },
+            { days: 'Duminică', hours: '12:00 - 22:00' },
+          ],
+          rating: 4.8,
+          googleMapsLink: 'https://maps.google.com',
+          ctaButton: {
+            label: 'Rezervă Masă',
+            link: '/rezervare',
+          },
+        },
+      ],
+      showMap: true,
+      showRating: true,
+      showSchedule: true,
+      backgroundColor: 'light',
+    },
+    // NEW: Brand Logos - furnizori si parteneri
+    brandLogos: {
+      blockType: 'brandLogos',
+      variant: 'grid',
+      heading: 'Partenerii Noștri',
+      subheading: 'Colaborăm cu cei mai buni furnizori locali',
+      source: 'custom',
+      logos: [],
+      grayscale: false,
+      logoSize: 'medium',
+      backgroundColor: 'default',
+    },
+    // NEW: Timeline - istoria restaurantului
+    timeline: {
+      blockType: 'timeline',
+      variant: 'horizontal',
+      heading: 'Povestea Noastră Culinară',
+      subheading: 'De la primele rețete la recunoaștere națională',
+      events: [
+        {
+          year: '2008',
+          title: 'Prima Bucătărie',
+          description: 'Am deschis micul nostru bistro cu doar 20 de locuri',
+          icon: 'Chef',
+        },
+        {
+          year: '2012',
+          title: 'Recunoaștere',
+          description: 'Am primit prima stea Michelin pentru bucătăria tradițională',
+          icon: 'Award',
+        },
+        {
+          year: '2018',
+          title: 'Expansiune',
+          description: 'Am deschis cea de-a doua locație în centrul vechi',
+          icon: 'Building',
+        },
+        {
+          year: '2024',
+          title: 'Prezent',
+          description: 'Continuăm tradiția cu ingrediente proaspete zilnic',
+          icon: 'Star',
+        },
+      ],
+      showConnector: true,
+      backgroundColor: 'light',
+    },
+    // NEW: Announcement Bar - oferte speciale
+    announcementBar: {
+      blockType: 'announcementBar',
+      variant: 'simple',
+      messages: [
+        {
+          text: 'Meniu de prânz 49 RON - disponibil Luni-Vineri!',
+          link: '/meniu',
+          linkText: 'Vezi meniul',
+        },
+      ],
+      icon: 'UtensilsCrossed',
+      backgroundColor: 'primary',
+      position: 'top',
+      sticky: false,
+    },
     services: {
       blockType: 'services',
       variant: variant.layout.servicesVariant,
@@ -345,7 +513,6 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof restaurantDat
       subheading: 'Imagini din restaurantul nostru',
       source: 'portfolio',
       limit: 6,
-      
       backgroundColor: 'default',
     },
     faq: {
@@ -357,6 +524,24 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof restaurantDat
       limit: 10,
       defaultOpen: 'first',
       backgroundColor: 'default',
+    },
+    latestPosts: {
+      blockType: 'latestPosts',
+      variant: 'grid-3',
+      heading: 'Din Blogul Nostru',
+      subheading: 'Retete, povesti culinare si inspiratie gastronomica',
+      source: 'collection',
+      limit: 3,
+      showImage: true,
+      showCategory: true,
+      showDate: true,
+      showExcerpt: true,
+      ctaButton: {
+        show: true,
+        label: 'Vezi toate articolele',
+        link: '/blog',
+      },
+      backgroundColor: 'light',
     },
     cta: {
       blockType: 'cta',
@@ -380,7 +565,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
     data: {
       title: 'Meniu',
       slug: 'meniu',
-      heroType: 'centered',
+      heroType: 'minimal',
       hero: {
         headline: 'Meniul Nostru',
         subheadline: 'Preparate traditionale si moderne pentru toate gusturile',
@@ -416,7 +601,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
     data: {
       title: 'Galerie',
       slug: 'galerie',
-      heroType: 'centered',
+      heroType: 'minimal',
       hero: {
         headline: 'Galerie',
         subheadline: 'Imagini din restaurantul nostru',
@@ -452,7 +637,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
     data: {
       title: 'Despre Noi',
       slug: 'despre',
-      heroType: 'centered',
+      heroType: 'minimal',
       hero: {
         headline: 'Despre Noi',
         subheadline: 'Povestea noastra si pasiunea pentru gastronomie',
@@ -497,7 +682,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
     data: {
       title: 'Rezervare',
       slug: 'rezervare',
-      heroType: 'centered',
+      heroType: 'minimal',
       hero: {
         headline: 'Rezerva o Masa',
         subheadline: 'Completeaza formularul si te vom contacta pentru confirmare',
@@ -531,7 +716,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
     data: {
       title: 'Contact',
       slug: 'contact',
-      heroType: 'centered',
+      heroType: 'minimal',
       hero: {
         headline: 'Contact',
         subheadline: 'Suntem aici pentru tine. Contacteaza-ne pentru rezervari sau intrebari.',

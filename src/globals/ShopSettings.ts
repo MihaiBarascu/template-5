@@ -1,8 +1,17 @@
 import type { GlobalConfig } from 'payload'
+import { authenticated } from '@/access'
+import { revalidateGlobal } from '@/hooks/revalidateGlobal'
 
 export const ShopSettings: GlobalConfig = {
   slug: 'shop-settings',
   label: 'Setari Magazin',
+  access: {
+    read: () => true,
+    update: authenticated,
+  },
+  hooks: {
+    afterChange: [revalidateGlobal],
+  },
   admin: {
     group: 'Shop',
     description: 'Configureaza functionalitatea de magazin/cos cumparaturi',

@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { Logo } from '@/components/Logo'
+import { CartButton } from '@/components/cart/CartButton'
 import { cn } from '@/utilities/cn'
 import type { Header as HeaderType, Logo as LogoType, BusinessInfo, Page } from '@/payload-types'
 
@@ -13,9 +14,10 @@ interface HeaderProps {
   data: HeaderType | null
   logo: LogoType | null
   businessInfo: BusinessInfo | null
+  showCart?: boolean
 }
 
-export function Header({ data, logo, businessInfo }: HeaderProps) {
+export function Header({ data, logo, businessInfo, showCart = false }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [mobileOpenSubmenu, setMobileOpenSubmenu] = useState<number | null>(null)
   const [openDropdown, setOpenDropdown] = useState<number | null>(null)
@@ -297,9 +299,15 @@ export function Header({ data, logo, businessInfo }: HeaderProps) {
               })}
             </nav>
 
-            {/* CTA Button & Mobile Menu */}
-            <div className="flex items-center gap-4">
-              {ctaButton?.enabled && (
+            {/* Cart & CTA Button & Mobile Menu */}
+            <div className="flex items-center gap-3">
+              {/* Cart Button - shows if showCart is true OR if CTA is a cart link */}
+              {(showCart || ctaButton?.link === '/cos') && (
+                <CartButton variant="default" />
+              )}
+
+              {/* CTA Button - hide if it's a cart link (replaced by CartButton above) */}
+              {ctaButton?.enabled && ctaButton.link !== '/cos' && (
                 <Link
                   href={ctaButton.link || '/contact'}
                   className={cn(
@@ -452,7 +460,22 @@ export function Header({ data, logo, businessInfo }: HeaderProps) {
             )
           })}
 
-          {ctaButton?.enabled && (
+          {/* Mobile Cart Button - shows if showCart OR CTA is cart link */}
+          {(showCart || ctaButton?.link === '/cos') && (
+            <Link
+              href="/cos"
+              className="mt-2 flex items-center justify-center gap-2 px-4 py-3 rounded-theme-button font-medium bg-theme-primary text-white hover:bg-theme-primary/90 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-theme-primary"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+              </svg>
+              Cos de cumparaturi
+            </Link>
+          )}
+
+          {/* CTA Button - hide if it's cart link */}
+          {ctaButton?.enabled && ctaButton.link !== '/cos' && (
             <Link
               href={ctaButton.link || '/contact'}
               className={cn(

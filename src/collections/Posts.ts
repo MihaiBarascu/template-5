@@ -1,6 +1,8 @@
 import type { CollectionConfig } from 'payload'
 import { authenticated, authenticatedOrPublished } from '@/access'
 import { slugField } from '@/fields/slug'
+import { revalidatePostAfterChange, revalidatePostAfterDelete } from '@/hooks/revalidatePost'
+import { populatePublishedAt } from '@/hooks/populatePublishedAt'
 
 export const Posts: CollectionConfig = {
   slug: 'posts',
@@ -89,6 +91,11 @@ export const Posts: CollectionConfig = {
       },
     },
   ],
+  hooks: {
+    beforeChange: [populatePublishedAt],
+    afterChange: [revalidatePostAfterChange],
+    afterDelete: [revalidatePostAfterDelete],
+  },
   versions: {
     drafts: {
       autosave: {

@@ -6,7 +6,7 @@ export const PricingBlock: Block = {
     singular: 'Preturi',
     plural: 'Preturi',
   },
-  imageURL: '/blocks/pricing.png',
+  imageURL: '/blocks/pricing.svg',
   fields: [
     {
       name: 'variant',

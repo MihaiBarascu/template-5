@@ -38,6 +38,7 @@
     "variants": "tsx scripts/test-all-variants.ts",
     "variants:info": "tsx scripts/test-all-variants.ts --info",
     "variants:commands": "tsx scripts/test-all-variants.ts --commands",
+    "test:quick": "pnpm exec playwright test tests/e2e/quick-check.spec.ts --reporter=list",
     "test:screenshots": "pnpm exec playwright test tests/e2e/all-businesses.spec.ts --reporter=list --project=chromium",
     "test:screenshots:show": "pnpm exec playwright show-report"
   },
@@ -49,6 +50,7 @@
     "@payloadcms/next": "3.64.0",
     "@payloadcms/plugin-ecommerce": "3.64.0",
     "@payloadcms/plugin-form-builder": "3.64.0",
+    "@payloadcms/plugin-import-export": "^3.64.0",
     "@payloadcms/plugin-nested-docs": "3.64.0",
     "@payloadcms/plugin-redirects": "3.64.0",
     "@payloadcms/plugin-search": "3.64.0",

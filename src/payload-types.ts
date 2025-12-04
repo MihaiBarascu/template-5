@@ -86,10 +86,12 @@ export interface Config {
     faq: Faq;
     'contact-submissions': ContactSubmission;
     'product-categories': ProductCategory;
+    'newsletter-subscribers': NewsletterSubscriber;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
     search: Search;
+    exports: Export;
     addresses: Address;
     variants: Variant;
     variantTypes: VariantType;
@@ -127,10 +129,12 @@ export interface Config {
     faq: FaqSelect<false> | FaqSelect<true>;
     'contact-submissions': ContactSubmissionsSelect<false> | ContactSubmissionsSelect<true>;
     'product-categories': ProductCategoriesSelect<false> | ProductCategoriesSelect<true>;
+    'newsletter-subscribers': NewsletterSubscribersSelect<false> | NewsletterSubscribersSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     search: SearchSelect<false> | SearchSelect<true>;
+    exports: ExportsSelect<false> | ExportsSelect<true>;
     addresses: AddressesSelect<false> | AddressesSelect<true>;
     variants: VariantsSelect<false> | VariantsSelect<true>;
     variantTypes: VariantTypesSelect<false> | VariantTypesSelect<true>;
@@ -151,20 +155,18 @@ export interface Config {
   globals: {
     header: Header;
     footer: Footer;
-    theme: Theme;
+    'site-theme': SiteTheme;
     logo: Logo;
     'business-info': BusinessInfo;
     'shop-settings': ShopSetting;
-    'design-variant': DesignVariant;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
-    theme: ThemeSelect<false> | ThemeSelect<true>;
+    'site-theme': SiteThemeSelect<false> | SiteThemeSelect<true>;
     logo: LogoSelect<false> | LogoSelect<true>;
     'business-info': BusinessInfoSelect<false> | BusinessInfoSelect<true>;
     'shop-settings': ShopSettingsSelect<false> | ShopSettingsSelect<true>;
-    'design-variant': DesignVariantSelect<false> | DesignVariantSelect<true>;
   };
   locale: null;
   user: User & {
@@ -172,6 +174,7 @@ export interface Config {
   };
   jobs: {
     tasks: {
+      createCollectionExport: TaskCreateCollectionExport;
       schedulePublish: TaskSchedulePublish;
       inline: {
         input: unknown;
@@ -240,6 +243,20 @@ export interface Page {
           id?: string | null;
         }[]
       | null;
+    showSocialIcons?: boolean | null;
+    socialIconsPosition?: ('left' | 'right') | null;
+    height?: ('small' | 'medium' | 'large' | 'fullscreen') | null;
+    /**
+     * Ex: Premium Quality, Since 2015
+     */
+    badge?: string | null;
+    showScrollIndicator?: boolean | null;
+    /**
+     * Adauga un strat peste imagine pentru a face textul mai lizibil
+     */
+    overlayEnabled?: boolean | null;
+    overlayOpacity?: ('30' | '40' | '50' | '60' | '70' | '80' | '90') | null;
+    overlayStyle?: ('gradient' | 'dark' | 'primary' | 'secondary' | 'radial') | null;
   };
   layout?:
     | (
@@ -273,9 +290,7 @@ export interface Page {
             blockType: 'hero';
           }
         | {
-            variant?:
-              | ('grid-3' | 'grid-4' | 'grid-2' | 'list' | 'list-alternating' | 'carousel' | 'tabs' | 'with-prices')
-              | null;
+            variant?: ('grid-3' | 'grid-4' | 'grid-2' | 'list' | 'list-alternating' | 'price-list') | null;
             heading?: string | null;
             subheading?: string | null;
             source?: ('collection' | 'manual' | 'custom') | null;
@@ -296,6 +311,10 @@ export interface Page {
               | null;
             showPrices?: boolean | null;
             showIcons?: boolean | null;
+            showDuration?: boolean | null;
+            showBookButton?: boolean | null;
+            bookButtonText?: string | null;
+            bookButtonLink?: string | null;
             ctaButton?: {
               enabled?: boolean | null;
               label?: string | null;
@@ -480,6 +499,10 @@ export interface Page {
               | {
                   image: string | Media;
                   caption?: string | null;
+                  /**
+                   * Ex: Tunsori, Barba, Colorare (pentru filtrare)
+                   */
+                  category?: string | null;
                   id?: string | null;
                 }[]
               | null;
@@ -631,6 +654,219 @@ export interface Page {
             blockName?: string | null;
             blockType: 'checkout';
           }
+        | VideoEmbedBlock
+        | PriceListDottedBlock
+        | BeforeAfterBlock
+        | {
+            variant?: ('simple' | 'with-image' | 'dark' | 'with-pattern' | 'inline') | null;
+            heading?: string | null;
+            subheading?: string | null;
+            placeholder?: string | null;
+            buttonText?: string | null;
+            successMessage?: string | null;
+            backgroundImage?: (string | null) | Media;
+            privacyText?: string | null;
+            showPrivacyLink?: boolean | null;
+            benefits?:
+              | {
+                  text?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'newsletter';
+          }
+        | {
+            variant?: ('bar' | 'grid-3' | 'grid-4' | 'inline' | 'cards' | 'minimal') | null;
+            /**
+             * Optional - lasa gol pentru a afisa doar badge-urile
+             */
+            heading?: string | null;
+            source?: ('preset' | 'custom') | null;
+            /**
+             * Alege badge-urile pe care vrei sa le afisezi
+             */
+            presets?:
+              | (
+                  | 'free-shipping'
+                  | 'fast-shipping'
+                  | 'return-30'
+                  | 'return-14'
+                  | 'secure-payment'
+                  | 'warranty'
+                  | 'support-24-7'
+                  | 'quality'
+                  | 'fair-price'
+                  | 'free-shipping-threshold'
+                  | 'experience-years'
+                  | 'happy-customers'
+                  | 'romanian-products'
+                  | 'eco-friendly'
+                  | 'free-consultation'
+                  | 'online-booking'
+                )[]
+              | null;
+            /**
+             * Completeaza valorile pentru badge-urile selectate (daca e cazul)
+             */
+            customValues?: {
+              shippingThreshold?: number | null;
+              experienceYears?: number | null;
+              happyCustomersCount?: string | null;
+              warrantyPeriod?: string | null;
+            };
+            badges?:
+              | {
+                  icon:
+                    | 'Truck'
+                    | 'Package'
+                    | 'Shield'
+                    | 'ShieldCheck'
+                    | 'CheckCircle'
+                    | 'Star'
+                    | 'Heart'
+                    | 'Phone'
+                    | 'Clock'
+                    | 'Calendar'
+                    | 'CreditCard'
+                    | 'Gift'
+                    | 'Award'
+                    | 'Users'
+                    | 'ThumbsUp'
+                    | 'Leaf'
+                    | 'Recycle'
+                    | 'RefreshCw'
+                    | 'Headphones'
+                    | 'MessageCircle'
+                    | 'Zap'
+                    | 'BadgeCheck'
+                    | 'CircleDollarSign'
+                    | 'Banknote';
+                  title: string;
+                  description?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            /**
+             * Debifati pentru a afisa doar iconitele si titlurile
+             */
+            showDescriptions?: boolean | null;
+            iconSize?: ('small' | 'medium' | 'large') | null;
+            backgroundColor?: ('default' | 'light' | 'dark' | 'primary' | 'transparent') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'trust-badges';
+          }
+        | {
+            variant?: ('numbered' | 'icons' | 'timeline' | 'horizontal-cards' | 'connected' | 'alternating') | null;
+            heading?: string | null;
+            subheading?: string | null;
+            steps?:
+              | {
+                  title: string;
+                  description?: string | null;
+                  icon?:
+                    | (
+                        | 'Search'
+                        | 'MousePointerClick'
+                        | 'Calendar'
+                        | 'CheckCircle'
+                        | 'User'
+                        | 'Store'
+                        | 'ShoppingCart'
+                        | 'CreditCard'
+                        | 'Package'
+                        | 'Truck'
+                        | 'Home'
+                        | 'Phone'
+                        | 'Mail'
+                        | 'MessageSquare'
+                        | 'Settings'
+                        | 'FileText'
+                        | 'Scissors'
+                        | 'Star'
+                        | 'Heart'
+                        | 'ClipboardCheck'
+                      )
+                    | null;
+                  image?: (string | null) | Media;
+                  id?: string | null;
+                }[]
+              | null;
+            showNumbers?: boolean | null;
+            ctaButton?: {
+              enabled?: boolean | null;
+              label?: string | null;
+              link?: string | null;
+            };
+            backgroundColor?: ('default' | 'light' | 'dark' | 'primary') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'how-it-works';
+          }
+        | {
+            variant?: ('simple' | 'carousel' | 'cards' | 'grayscale' | 'with-text' | 'marquee') | null;
+            /**
+             * Ex: "Partenerii nostri", "Au avut incredere in noi", "As Seen In"
+             */
+            heading?: string | null;
+            subheading?: string | null;
+            logos?:
+              | {
+                  logo: string | Media;
+                  /**
+                   * Pentru accesibilitate (alt text)
+                   */
+                  name: string;
+                  /**
+                   * URL catre site-ul partenerului
+                   */
+                  url?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            logoSize?: ('small' | 'medium' | 'large') | null;
+            columns?: ('3' | '4' | '5' | '6') | null;
+            /**
+             * Afiseaza logo-urile in alb-negru (colorate la hover)
+             */
+            grayscale?: boolean | null;
+            backgroundColor?: ('default' | 'light' | 'dark' | 'transparent') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'logo-cloud';
+          }
+        | {
+            variant?: ('grid-3' | 'grid-2' | 'grid-4' | 'list' | 'carousel' | 'featured' | 'minimal') | null;
+            heading?: string | null;
+            subheading?: string | null;
+            source?: ('collection' | 'manual') | null;
+            selectedPosts?: (string | Post)[] | null;
+            filterByCategory?: (string | null) | Category;
+            limit?: number | null;
+            showImage?: boolean | null;
+            showExcerpt?: boolean | null;
+            showDate?: boolean | null;
+            showCategory?: boolean | null;
+            showAuthor?: boolean | null;
+            showReadMore?: boolean | null;
+            readMoreText?: string | null;
+            ctaButton?: {
+              enabled?: boolean | null;
+              label?: string | null;
+              link?: string | null;
+            };
+            backgroundColor?: ('default' | 'light' | 'dark' | 'primary') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'latestPosts';
+          }
+        | OpeningHoursBlock
+        | LocationsBlock
+        | BrandLogosBlock
+        | TimelineBlock
+        | AnnouncementBarBlock
       )[]
     | null;
   publishedAt?: string | null;
@@ -1079,6 +1315,126 @@ export interface Variant {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "VideoEmbedBlock".
+ */
+export interface VideoEmbedBlock {
+  variant?: ('centered' | 'full-width' | 'with-text' | 'custom-thumbnail' | 'lightbox') | null;
+  heading?: string | null;
+  subheading?: string | null;
+  /**
+   * Link YouTube sau Vimeo (ex: https://www.youtube.com/watch?v=xxxxx)
+   */
+  videoUrl: string;
+  /**
+   * Daca nu este selectat, se va folosi thumbnail-ul default de pe YouTube/Vimeo
+   */
+  thumbnail?: (string | null) | Media;
+  sideContent?: {
+    title?: string | null;
+    description?: string | null;
+    ctaButton?: {
+      label?: string | null;
+      link?: string | null;
+    };
+    position?: ('left' | 'right') | null;
+  };
+  aspectRatio?: ('16-9' | '4-3' | '1-1' | '21-9') | null;
+  /**
+   * Video-ul va porni automat (fara sunet)
+   */
+  autoplay?: boolean | null;
+  loop?: boolean | null;
+  showControls?: boolean | null;
+  backgroundColor?: ('default' | 'light' | 'dark') | null;
+  maxWidth?: ('sm' | 'md' | 'lg' | 'xl') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'videoEmbed';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PriceListDottedBlock".
+ */
+export interface PriceListDottedBlock {
+  variant?: ('single-column' | 'two-columns' | 'categorized' | 'with-images') | null;
+  heading?: string | null;
+  subheading?: string | null;
+  source?: ('services' | 'custom') | null;
+  limit?: number | null;
+  /**
+   * Lasa gol pentru toate serviciile
+   */
+  filterByCategory?: string | null;
+  categories?:
+    | {
+        name: string;
+        items?:
+          | {
+              name: string;
+              price: string;
+              duration?: string | null;
+              description?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  items?:
+    | {
+        name: string;
+        price: string;
+        duration?: string | null;
+        description?: string | null;
+        image?: (string | null) | Media;
+        featured?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  currency?: string | null;
+  showDuration?: boolean | null;
+  dotStyle?: ('dotted' | 'solid' | 'dashed' | 'none') | null;
+  backgroundColor?: ('default' | 'light' | 'dark') | null;
+  ctaButton?: {
+    show?: boolean | null;
+    label?: string | null;
+    link?: string | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'priceListDotted';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BeforeAfterBlock".
+ */
+export interface BeforeAfterBlock {
+  variant?: ('slider' | 'grid' | 'carousel') | null;
+  backgroundColor?: ('default' | 'light' | 'dark') | null;
+  heading?: string | null;
+  subheading?: string | null;
+  items?:
+    | {
+        beforeImage: string | Media;
+        afterImage: string | Media;
+        /**
+         * Ex: Tunsoare Fade, Tratament Albire
+         */
+        title?: string | null;
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Procentajul de la stanga (50 = centrat)
+   */
+  sliderPosition?: number | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'beforeAfter';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "posts".
  */
 export interface Post {
@@ -1123,6 +1479,11 @@ export interface Post {
 export interface User {
   id: string;
   name?: string | null;
+  /**
+   * Doar administratorii pot modifica rolurile
+   */
+  role: 'admin' | 'customer';
+  phone?: string | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -1140,6 +1501,175 @@ export interface User {
       }[]
     | null;
   password?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "OpeningHoursBlock".
+ */
+export interface OpeningHoursBlock {
+  variant?: ('simple' | 'with-image' | 'card' | 'with-cta' | 'inline') | null;
+  heading?: string | null;
+  subheading?: string | null;
+  source?: ('businessInfo' | 'custom') | null;
+  schedule?:
+    | {
+        days: string;
+        hours: string;
+        isClosed?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  image?: (string | null) | Media;
+  showCurrentStatus?: boolean | null;
+  ctaButton?: {
+    label?: string | null;
+    link?: string | null;
+  };
+  backgroundColor?: ('default' | 'light' | 'dark' | 'primary') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'openingHours';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LocationsBlock".
+ */
+export interface LocationsBlock {
+  variant?: ('cards' | 'list-map' | 'grid-images' | 'minimal') | null;
+  heading?: string | null;
+  subheading?: string | null;
+  locations: {
+    name: string;
+    address: string;
+    city?: string | null;
+    phone?: string | null;
+    email?: string | null;
+    image?: (string | null) | Media;
+    schedule?:
+      | {
+          days?: string | null;
+          hours?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * URL iframe din Google Maps
+     */
+    googleMapsEmbed?: string | null;
+    /**
+     * Link direct pentru directii
+     */
+    googleMapsLink?: string | null;
+    rating?: number | null;
+    ctaButton?: {
+      label?: string | null;
+      link?: string | null;
+    };
+    id?: string | null;
+  }[];
+  showMap?: boolean | null;
+  generalMapEmbed?: string | null;
+  showRating?: boolean | null;
+  showSchedule?: boolean | null;
+  backgroundColor?: ('default' | 'light' | 'dark') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'locations';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BrandLogosBlock".
+ */
+export interface BrandLogosBlock {
+  variant?: ('row' | 'grid' | 'slider' | 'titled' | 'sectioned') | null;
+  heading?: string | null;
+  subheading?: string | null;
+  source?: ('custom' | 'sections') | null;
+  logos?:
+    | {
+        image: string | Media;
+        name?: string | null;
+        link?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  sections?:
+    | {
+        title: string;
+        logos?:
+          | {
+              image: string | Media;
+              name?: string | null;
+              link?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  grayscale?: boolean | null;
+  autoplay?: boolean | null;
+  logoSize?: ('small' | 'medium' | 'large') | null;
+  backgroundColor?: ('default' | 'light' | 'dark') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'brandLogos';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TimelineBlock".
+ */
+export interface TimelineBlock {
+  variant?: ('vertical' | 'vertical-alternating' | 'horizontal' | 'compact') | null;
+  heading?: string | null;
+  subheading?: string | null;
+  events: {
+    year: string;
+    title: string;
+    description?: string | null;
+    image?: (string | null) | Media;
+    /**
+     * Ex: Star, Award, Building, Users
+     */
+    icon?: string | null;
+    id?: string | null;
+  }[];
+  showConnector?: boolean | null;
+  backgroundColor?: ('default' | 'light' | 'dark') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'timeline';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "AnnouncementBarBlock".
+ */
+export interface AnnouncementBarBlock {
+  variant?: ('simple' | 'with-button' | 'countdown' | 'slider' | 'dismissable') | null;
+  messages: {
+    text: string;
+    link?: string | null;
+    linkText?: string | null;
+    id?: string | null;
+  }[];
+  ctaButton?: {
+    label?: string | null;
+    link?: string | null;
+  };
+  countdown?: {
+    endDate: string;
+    expiredText?: string | null;
+  };
+  /**
+   * Ex: Gift, Percent, Bell, Star
+   */
+  icon?: string | null;
+  backgroundColor?: ('primary' | 'red' | 'green' | 'blue' | 'black' | 'gradient') | null;
+  position?: ('top' | 'bottom') | null;
+  sticky?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'announcementBar';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1183,6 +1713,33 @@ export interface ContactSubmission {
   status?: ('new' | 'read' | 'replied' | 'resolved' | 'spam') | null;
   internalNotes?: string | null;
   source?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Gestioneaza abonatii la newsletter
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "newsletter-subscribers".
+ */
+export interface NewsletterSubscriber {
+  id: string;
+  /**
+   * Adresa de email a abonatului
+   */
+  email: string;
+  status?: ('active' | 'unsubscribed' | 'bounced') | null;
+  /**
+   * De unde s-a abonat
+   */
+  source?: ('footer' | 'popup' | 'page' | 'website' | 'import' | 'manual') | null;
+  subscribedAt?: string | null;
+  unsubscribedAt?: string | null;
+  /**
+   * Pentru conformitate GDPR
+   */
+  ipAddress?: string | null;
+  userAgent?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1428,6 +1985,43 @@ export interface Search {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "exports".
+ */
+export interface Export {
+  id: string;
+  name?: string | null;
+  format?: ('csv' | 'json') | null;
+  limit?: number | null;
+  page?: number | null;
+  sort?: string | null;
+  sortOrder?: ('asc' | 'desc') | null;
+  drafts?: ('yes' | 'no') | null;
+  selectionToUse?: ('currentSelection' | 'currentFilters' | 'all') | null;
+  fields?: string[] | null;
+  collectionSlug: string;
+  where?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "addresses".
  */
 export interface Address {
@@ -1651,7 +2245,7 @@ export interface PayloadJob {
     | {
         executedAt: string;
         completedAt: string;
-        taskSlug: 'inline' | 'schedulePublish';
+        taskSlug: 'inline' | 'createCollectionExport' | 'schedulePublish';
         taskID: string;
         input?:
           | {
@@ -1684,7 +2278,7 @@ export interface PayloadJob {
         id?: string | null;
       }[]
     | null;
-  taskSlug?: ('inline' | 'schedulePublish') | null;
+  taskSlug?: ('inline' | 'createCollectionExport' | 'schedulePublish') | null;
   queue?: string | null;
   waitUntil?: string | null;
   processing?: boolean | null;
@@ -1755,6 +2349,10 @@ export interface PayloadLockedDocument {
         value: string | ProductCategory;
       } | null)
     | ({
+        relationTo: 'newsletter-subscribers';
+        value: string | NewsletterSubscriber;
+      } | null)
+    | ({
         relationTo: 'redirects';
         value: string | Redirect;
       } | null)
@@ -1769,6 +2367,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'search';
         value: string | Search;
+      } | null)
+    | ({
+        relationTo: 'exports';
+        value: string | Export;
       } | null)
     | ({
         relationTo: 'addresses';
@@ -1867,6 +2469,14 @@ export interface PagesSelect<T extends boolean = true> {
               variant?: T;
               id?: T;
             };
+        showSocialIcons?: T;
+        socialIconsPosition?: T;
+        height?: T;
+        badge?: T;
+        showScrollIndicator?: T;
+        overlayEnabled?: T;
+        overlayOpacity?: T;
+        overlayStyle?: T;
       };
   layout?:
     | T
@@ -1925,6 +2535,10 @@ export interface PagesSelect<T extends boolean = true> {
                   };
               showPrices?: T;
               showIcons?: T;
+              showDuration?: T;
+              showBookButton?: T;
+              bookButtonText?: T;
+              bookButtonLink?: T;
               ctaButton?:
                 | T
                 | {
@@ -2107,6 +2721,7 @@ export interface PagesSelect<T extends boolean = true> {
                 | {
                     image?: T;
                     caption?: T;
+                    category?: T;
                     id?: T;
                   };
               showCaptions?: T;
@@ -2250,11 +2865,416 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        videoEmbed?: T | VideoEmbedBlockSelect<T>;
+        priceListDotted?: T | PriceListDottedBlockSelect<T>;
+        beforeAfter?: T | BeforeAfterBlockSelect<T>;
+        newsletter?:
+          | T
+          | {
+              variant?: T;
+              heading?: T;
+              subheading?: T;
+              placeholder?: T;
+              buttonText?: T;
+              successMessage?: T;
+              backgroundImage?: T;
+              privacyText?: T;
+              showPrivacyLink?: T;
+              benefits?:
+                | T
+                | {
+                    text?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        'trust-badges'?:
+          | T
+          | {
+              variant?: T;
+              heading?: T;
+              source?: T;
+              presets?: T;
+              customValues?:
+                | T
+                | {
+                    shippingThreshold?: T;
+                    experienceYears?: T;
+                    happyCustomersCount?: T;
+                    warrantyPeriod?: T;
+                  };
+              badges?:
+                | T
+                | {
+                    icon?: T;
+                    title?: T;
+                    description?: T;
+                    id?: T;
+                  };
+              showDescriptions?: T;
+              iconSize?: T;
+              backgroundColor?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'how-it-works'?:
+          | T
+          | {
+              variant?: T;
+              heading?: T;
+              subheading?: T;
+              steps?:
+                | T
+                | {
+                    title?: T;
+                    description?: T;
+                    icon?: T;
+                    image?: T;
+                    id?: T;
+                  };
+              showNumbers?: T;
+              ctaButton?:
+                | T
+                | {
+                    enabled?: T;
+                    label?: T;
+                    link?: T;
+                  };
+              backgroundColor?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'logo-cloud'?:
+          | T
+          | {
+              variant?: T;
+              heading?: T;
+              subheading?: T;
+              logos?:
+                | T
+                | {
+                    logo?: T;
+                    name?: T;
+                    url?: T;
+                    id?: T;
+                  };
+              logoSize?: T;
+              columns?: T;
+              grayscale?: T;
+              backgroundColor?: T;
+              id?: T;
+              blockName?: T;
+            };
+        latestPosts?:
+          | T
+          | {
+              variant?: T;
+              heading?: T;
+              subheading?: T;
+              source?: T;
+              selectedPosts?: T;
+              filterByCategory?: T;
+              limit?: T;
+              showImage?: T;
+              showExcerpt?: T;
+              showDate?: T;
+              showCategory?: T;
+              showAuthor?: T;
+              showReadMore?: T;
+              readMoreText?: T;
+              ctaButton?:
+                | T
+                | {
+                    enabled?: T;
+                    label?: T;
+                    link?: T;
+                  };
+              backgroundColor?: T;
+              id?: T;
+              blockName?: T;
+            };
+        openingHours?: T | OpeningHoursBlockSelect<T>;
+        locations?: T | LocationsBlockSelect<T>;
+        brandLogos?: T | BrandLogosBlockSelect<T>;
+        timeline?: T | TimelineBlockSelect<T>;
+        announcementBar?: T | AnnouncementBarBlockSelect<T>;
       };
   publishedAt?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "VideoEmbedBlock_select".
+ */
+export interface VideoEmbedBlockSelect<T extends boolean = true> {
+  variant?: T;
+  heading?: T;
+  subheading?: T;
+  videoUrl?: T;
+  thumbnail?: T;
+  sideContent?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        ctaButton?:
+          | T
+          | {
+              label?: T;
+              link?: T;
+            };
+        position?: T;
+      };
+  aspectRatio?: T;
+  autoplay?: T;
+  loop?: T;
+  showControls?: T;
+  backgroundColor?: T;
+  maxWidth?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PriceListDottedBlock_select".
+ */
+export interface PriceListDottedBlockSelect<T extends boolean = true> {
+  variant?: T;
+  heading?: T;
+  subheading?: T;
+  source?: T;
+  limit?: T;
+  filterByCategory?: T;
+  categories?:
+    | T
+    | {
+        name?: T;
+        items?:
+          | T
+          | {
+              name?: T;
+              price?: T;
+              duration?: T;
+              description?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  items?:
+    | T
+    | {
+        name?: T;
+        price?: T;
+        duration?: T;
+        description?: T;
+        image?: T;
+        featured?: T;
+        id?: T;
+      };
+  currency?: T;
+  showDuration?: T;
+  dotStyle?: T;
+  backgroundColor?: T;
+  ctaButton?:
+    | T
+    | {
+        show?: T;
+        label?: T;
+        link?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BeforeAfterBlock_select".
+ */
+export interface BeforeAfterBlockSelect<T extends boolean = true> {
+  variant?: T;
+  backgroundColor?: T;
+  heading?: T;
+  subheading?: T;
+  items?:
+    | T
+    | {
+        beforeImage?: T;
+        afterImage?: T;
+        title?: T;
+        description?: T;
+        id?: T;
+      };
+  sliderPosition?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "OpeningHoursBlock_select".
+ */
+export interface OpeningHoursBlockSelect<T extends boolean = true> {
+  variant?: T;
+  heading?: T;
+  subheading?: T;
+  source?: T;
+  schedule?:
+    | T
+    | {
+        days?: T;
+        hours?: T;
+        isClosed?: T;
+        id?: T;
+      };
+  image?: T;
+  showCurrentStatus?: T;
+  ctaButton?:
+    | T
+    | {
+        label?: T;
+        link?: T;
+      };
+  backgroundColor?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LocationsBlock_select".
+ */
+export interface LocationsBlockSelect<T extends boolean = true> {
+  variant?: T;
+  heading?: T;
+  subheading?: T;
+  locations?:
+    | T
+    | {
+        name?: T;
+        address?: T;
+        city?: T;
+        phone?: T;
+        email?: T;
+        image?: T;
+        schedule?:
+          | T
+          | {
+              days?: T;
+              hours?: T;
+              id?: T;
+            };
+        googleMapsEmbed?: T;
+        googleMapsLink?: T;
+        rating?: T;
+        ctaButton?:
+          | T
+          | {
+              label?: T;
+              link?: T;
+            };
+        id?: T;
+      };
+  showMap?: T;
+  generalMapEmbed?: T;
+  showRating?: T;
+  showSchedule?: T;
+  backgroundColor?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BrandLogosBlock_select".
+ */
+export interface BrandLogosBlockSelect<T extends boolean = true> {
+  variant?: T;
+  heading?: T;
+  subheading?: T;
+  source?: T;
+  logos?:
+    | T
+    | {
+        image?: T;
+        name?: T;
+        link?: T;
+        id?: T;
+      };
+  sections?:
+    | T
+    | {
+        title?: T;
+        logos?:
+          | T
+          | {
+              image?: T;
+              name?: T;
+              link?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  grayscale?: T;
+  autoplay?: T;
+  logoSize?: T;
+  backgroundColor?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TimelineBlock_select".
+ */
+export interface TimelineBlockSelect<T extends boolean = true> {
+  variant?: T;
+  heading?: T;
+  subheading?: T;
+  events?:
+    | T
+    | {
+        year?: T;
+        title?: T;
+        description?: T;
+        image?: T;
+        icon?: T;
+        id?: T;
+      };
+  showConnector?: T;
+  backgroundColor?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "AnnouncementBarBlock_select".
+ */
+export interface AnnouncementBarBlockSelect<T extends boolean = true> {
+  variant?: T;
+  messages?:
+    | T
+    | {
+        text?: T;
+        link?: T;
+        linkText?: T;
+        id?: T;
+      };
+  ctaButton?:
+    | T
+    | {
+        label?: T;
+        link?: T;
+      };
+  countdown?:
+    | T
+    | {
+        endDate?: T;
+        expiredText?: T;
+      };
+  icon?: T;
+  backgroundColor?: T;
+  position?: T;
+  sticky?: T;
+  id?: T;
+  blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2353,6 +3373,8 @@ export interface CategoriesSelect<T extends boolean = true> {
  */
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
+  role?: T;
+  phone?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -2584,6 +3606,21 @@ export interface ProductCategoriesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "newsletter-subscribers_select".
+ */
+export interface NewsletterSubscribersSelect<T extends boolean = true> {
+  email?: T;
+  status?: T;
+  source?: T;
+  subscribedAt?: T;
+  unsubscribedAt?: T;
+  ipAddress?: T;
+  userAgent?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects_select".
  */
 export interface RedirectsSelect<T extends boolean = true> {
@@ -2763,6 +3800,34 @@ export interface SearchSelect<T extends boolean = true> {
       };
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "exports_select".
+ */
+export interface ExportsSelect<T extends boolean = true> {
+  name?: T;
+  format?: T;
+  limit?: T;
+  page?: T;
+  sort?: T;
+  sortOrder?: T;
+  drafts?: T;
+  selectionToUse?: T;
+  fields?: T;
+  collectionSlug?: T;
+  where?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3161,12 +4226,45 @@ export interface Footer {
   createdAt?: string | null;
 }
 /**
+ * Schimba instantaneu aspectul complet al site-ului. Variantele functioneaza pentru orice tip de afacere.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "theme".
+ * via the `definition` "site-theme".
  */
-export interface Theme {
+export interface SiteTheme {
   id: string;
-  preset?: ('modern' | 'classic' | 'bold' | 'elegant' | 'minimal' | 'custom') | null;
+  /**
+   * Varianta selectata schimba culorile, fonturile si stilul intregului site
+   */
+  variant:
+    | 'dark-gold'
+    | 'modern-red'
+    | 'classic-blue'
+    | 'fresh-green'
+    | 'minimal-black'
+    | 'purple-premium'
+    | 'warm-orange'
+    | 'teal-modern'
+    | 'brown-vintage'
+    | 'pink-soft';
+  /**
+   * Lasa gol pentru default din varianta
+   */
+  borderRadius?: ('none' | 'small' | 'medium' | 'large' | 'full') | null;
+  /**
+   * Lasa gol pentru default din varianta
+   */
+  shadows?: ('none' | 'subtle' | 'moderate' | 'strong') | null;
+  /**
+   * Lasa gol pentru default din varianta
+   */
+  animations?: ('none' | 'subtle' | 'moderate' | 'dynamic') | null;
+  containerWidth?: ('1024' | '1280' | '1400' | '1600') | null;
+  sectionSpacing?: ('compact' | 'normal' | 'spacious') | null;
+  /**
+   * Bifat = culorile de mai jos suprascriu varianta. Nebifat = culorile din varianta.
+   */
+  useCustomColors?: boolean | null;
   colors?: {
     primary?: string | null;
     secondary?: string | null;
@@ -3178,17 +4276,46 @@ export interface Theme {
     textLight?: string | null;
     border?: string | null;
   };
-  fontPreset?: ('modern' | 'elegant' | 'bold' | 'minimalist' | 'classic') | null;
+  useCustomFonts?: boolean | null;
   fonts?: {
-    headingFont?: ('Inter' | 'Playfair Display' | 'Montserrat' | 'Poppins' | 'Geist' | 'Roboto') | null;
-    bodyFont?: ('Inter' | 'Source Sans Pro' | 'Open Sans' | 'Roboto' | 'Geist' | 'Poppins') | null;
+    headingFont?:
+      | (
+          | 'Inter'
+          | 'Montserrat'
+          | 'Poppins'
+          | 'Roboto'
+          | 'Oswald'
+          | 'Raleway'
+          | 'Nunito'
+          | 'Work Sans'
+          | 'Playfair Display'
+          | 'Lora'
+          | 'Merriweather'
+          | 'Cormorant Garamond'
+          | 'Libre Baskerville'
+          | 'DM Serif Display'
+          | 'Abril Fatface'
+        )
+      | null;
+    bodyFont?:
+      | (
+          | 'Inter'
+          | 'Open Sans'
+          | 'Roboto'
+          | 'Lato'
+          | 'Source Sans 3'
+          | 'Poppins'
+          | 'Nunito Sans'
+          | 'Work Sans'
+          | 'DM Sans'
+          | 'Outfit'
+          | 'Lora'
+          | 'Merriweather'
+          | 'Source Serif 4'
+          | 'Crimson Text'
+        )
+      | null;
   };
-  stylePreset?: ('modern' | 'classic' | 'bold' | 'minimal') | null;
-  borderRadius?: ('none' | 'small' | 'medium' | 'large' | 'full') | null;
-  shadows?: ('none' | 'subtle' | 'moderate' | 'strong') | null;
-  animations?: ('none' | 'subtle' | 'moderate' | 'dynamic') | null;
-  containerWidth?: ('1024' | '1280' | '1400' | '1600') | null;
-  sectionSpacing?: ('compact' | 'normal' | 'spacious') | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -3247,6 +4374,17 @@ export interface BusinessInfo {
   phoneSecondary?: string | null;
   email?: string | null;
   whatsapp?: string | null;
+  whatsappFloat?: {
+    enabled?: boolean | null;
+    position?: ('bottom-right' | 'bottom-left') | null;
+    showOnMobile?: boolean | null;
+    /**
+     * Mesajul care va fi pre-completat in WhatsApp
+     */
+    defaultMessage?: string | null;
+    tooltipText?: string | null;
+    pulseAnimation?: boolean | null;
+  };
   workingHours?:
     | {
         /**
@@ -3296,6 +4434,29 @@ export interface BusinessInfo {
     regCom?: string | null;
     bankAccount?: string | null;
     bank?: string | null;
+  };
+  /**
+   * Bara pentru promotii sau anunturi importante in header
+   */
+  announcementBar?: {
+    enabled?: boolean | null;
+    message?: string | null;
+    linkText?: string | null;
+    linkUrl?: string | null;
+    backgroundColor?: ('primary' | 'secondary' | 'accent' | 'dark' | 'gradient') | null;
+    icon?: ('megaphone' | 'gift' | 'star' | 'fire' | 'sparkles' | 'none') | null;
+    dismissible?: boolean | null;
+  };
+  /**
+   * Banner pentru consimtamant cookies conform GDPR
+   */
+  cookieConsent?: {
+    enabled?: boolean | null;
+    message?: string | null;
+    position?: ('bottom' | 'bottom-left' | 'bottom-right') | null;
+    variant?: ('bar' | 'popup' | 'minimal') | null;
+    acceptButtonText?: string | null;
+    showDeclineButton?: boolean | null;
   };
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -3356,67 +4517,6 @@ export interface ShopSetting {
   checkoutText?: string | null;
   emptyCartMessage?: string | null;
   orderSuccessMessage?: string | null;
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * Schimba rapid aspectul site-ului selectand o varianta predefinita
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "design-variant".
- */
-export interface DesignVariant {
-  id: string;
-  /**
-   * Selecteaza tipul de afacere pentru a vedea variantele disponibile
-   */
-  businessType:
-    | 'barbershop'
-    | 'dentist'
-    | 'restaurant'
-    | 'magazin'
-    | 'auto-service'
-    | 'salon'
-    | 'avocat'
-    | 'constructii';
-  /**
-   * Fiecare varianta are culori, fonturi si layout diferit
-   */
-  variantIndex: '0' | '1' | '2' | '3' | '4';
-  /**
-   * Informatii despre varianta selectata
-   */
-  variantDescription?: string | null;
-  useOverride?: boolean | null;
-  override?: {
-    heroType?: ('fullscreen' | 'centered' | 'split' | 'minimal') | null;
-    heroOverlay?: ('dark' | 'light' | 'gradient' | 'none') | null;
-    servicesVariant?: ('grid-3' | 'grid-4' | 'list' | 'cards' | 'with-prices') | null;
-    teamVariant?: ('grid' | 'grid-centered' | 'list' | 'carousel') | null;
-    testimonialsVariant?: ('carousel' | 'grid' | 'masonry' | 'single') | null;
-    galleryVariant?: ('grid-3' | 'grid-4' | 'masonry' | 'carousel') | null;
-  };
-  /**
-   * Trage pentru a reordona sectiunile pe homepage
-   */
-  homepageSections?:
-    | {
-        section:
-          | 'hero'
-          | 'services'
-          | 'products'
-          | 'stats'
-          | 'team'
-          | 'testimonials'
-          | 'gallery'
-          | 'faq'
-          | 'pricing'
-          | 'cta'
-          | 'contact';
-        enabled?: boolean | null;
-        id?: string | null;
-      }[]
-    | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -3534,10 +4634,16 @@ export interface FooterSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "theme_select".
+ * via the `definition` "site-theme_select".
  */
-export interface ThemeSelect<T extends boolean = true> {
-  preset?: T;
+export interface SiteThemeSelect<T extends boolean = true> {
+  variant?: T;
+  borderRadius?: T;
+  shadows?: T;
+  animations?: T;
+  containerWidth?: T;
+  sectionSpacing?: T;
+  useCustomColors?: T;
   colors?:
     | T
     | {
@@ -3551,19 +4657,13 @@ export interface ThemeSelect<T extends boolean = true> {
         textLight?: T;
         border?: T;
       };
-  fontPreset?: T;
+  useCustomFonts?: T;
   fonts?:
     | T
     | {
         headingFont?: T;
         bodyFont?: T;
       };
-  stylePreset?: T;
-  borderRadius?: T;
-  shadows?: T;
-  animations?: T;
-  containerWidth?: T;
-  sectionSpacing?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -3611,6 +4711,16 @@ export interface BusinessInfoSelect<T extends boolean = true> {
   phoneSecondary?: T;
   email?: T;
   whatsapp?: T;
+  whatsappFloat?:
+    | T
+    | {
+        enabled?: T;
+        position?: T;
+        showOnMobile?: T;
+        defaultMessage?: T;
+        tooltipText?: T;
+        pulseAnimation?: T;
+      };
   workingHours?:
     | T
     | {
@@ -3652,6 +4762,27 @@ export interface BusinessInfoSelect<T extends boolean = true> {
         bankAccount?: T;
         bank?: T;
       };
+  announcementBar?:
+    | T
+    | {
+        enabled?: T;
+        message?: T;
+        linkText?: T;
+        linkUrl?: T;
+        backgroundColor?: T;
+        icon?: T;
+        dismissible?: T;
+      };
+  cookieConsent?:
+    | T
+    | {
+        enabled?: T;
+        message?: T;
+        position?: T;
+        variant?: T;
+        acceptButtonText?: T;
+        showDeclineButton?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -3691,33 +4822,34 @@ export interface ShopSettingsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "design-variant_select".
+ * via the `definition` "TaskCreateCollectionExport".
  */
-export interface DesignVariantSelect<T extends boolean = true> {
-  businessType?: T;
-  variantIndex?: T;
-  variantDescription?: T;
-  useOverride?: T;
-  override?:
-    | T
-    | {
-        heroType?: T;
-        heroOverlay?: T;
-        servicesVariant?: T;
-        teamVariant?: T;
-        testimonialsVariant?: T;
-        galleryVariant?: T;
-      };
-  homepageSections?:
-    | T
-    | {
-        section?: T;
-        enabled?: T;
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
+export interface TaskCreateCollectionExport {
+  input: {
+    name?: string | null;
+    format?: ('csv' | 'json') | null;
+    limit?: number | null;
+    page?: number | null;
+    sort?: string | null;
+    sortOrder?: ('asc' | 'desc') | null;
+    drafts?: ('yes' | 'no') | null;
+    selectionToUse?: ('currentSelection' | 'currentFilters' | 'all') | null;
+    fields?: string[] | null;
+    collectionSlug: string;
+    where?:
+      | {
+          [k: string]: unknown;
+        }
+      | unknown[]
+      | string
+      | number
+      | boolean
+      | null;
+    user?: string | null;
+    userCollection?: string | null;
+    exportsCollection?: string | null;
+  };
+  output?: unknown;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

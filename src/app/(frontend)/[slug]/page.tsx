@@ -16,26 +16,32 @@ export default async function Page({ params }: PageProps) {
   const { slug } = await params
   const payload = await getPayload({ config: configPromise })
 
-  const page = await payload.find({
-    collection: 'pages',
-    where: {
-      slug: {
-        equals: slug,
+  const [pageResult, businessInfo] = await Promise.all([
+    payload.find({
+      collection: 'pages',
+      where: {
+        slug: {
+          equals: slug,
+        },
       },
-    },
-    limit: 1,
-  })
+      limit: 1,
+    }),
+    payload.findGlobal({
+      slug: 'business-info',
+    }).catch(() => null),
+  ])
 
-  if (!page.docs[0]) {
+  if (!pageResult.docs[0]) {
     notFound()
   }
 
-  const pageData = page.docs[0]
+  const pageData = pageResult.docs[0]
+  const social = businessInfo?.social || null
 
   return (
     <>
       {pageData.heroType && pageData.heroType !== 'none' && pageData.hero && (
-        <RenderHero type={pageData.heroType as string} data={pageData.hero} />
+        <RenderHero type={pageData.heroType as string} data={pageData.hero} social={social} />
       )}
       {pageData.layout && <RenderBlocks blocks={pageData.layout} />}
     </>
@@ -54,6 +60,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       },
     },
     limit: 1,
+    depth: 1,
   })
 
   if (!page.docs[0]) {
@@ -62,13 +69,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
   }
 
-  const pageData = page.docs[0]
-
-  const meta = (pageData as { meta?: { title?: string; description?: string } }).meta
-  return {
-    title: meta?.title || pageData.title,
-    description: meta?.description,
-  }
+  const { generateMeta } = await import('@/utilities/generateMeta')
+  return generateMeta({ doc: page.docs[0] })
 }
 
 export async function generateStaticParams() {

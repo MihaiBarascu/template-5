@@ -1,8 +1,26 @@
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { NextResponse } from 'next/server'
+import { checkRateLimit, getClientIP } from '@/utilities/rateLimit'
 
 export async function POST(request: Request) {
+  // Rate limiting: 5 bookings per minute per IP
+  const clientIP = getClientIP(request)
+  const rateLimit = checkRateLimit(`bookings:${clientIP}`, 5, 60000)
+
+  if (!rateLimit.success) {
+    return NextResponse.json(
+      { error: 'Prea multe cereri. Va rugam asteptati un minut.' },
+      {
+        status: 429,
+        headers: {
+          'X-RateLimit-Remaining': String(rateLimit.remaining),
+          'X-RateLimit-Reset': String(rateLimit.reset),
+        },
+      }
+    )
+  }
+
   try {
     const body = await request.json()
     const { name, phone, email, service, staff, date, time, notes } = body

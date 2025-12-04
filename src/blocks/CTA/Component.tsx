@@ -49,12 +49,14 @@ export function CTABlock({
   businessPhone,
 }: CTABlockProps) {
   const bgClass = {
-    default: 'bg-white text-gray-900',
-    light: 'bg-gray-50 text-gray-900',
-    dark: 'bg-gray-900 text-white',
+    default: 'bg-theme-surface text-theme-text',
+    light: 'bg-theme-light text-theme-text',
+    dark: 'bg-theme-dark text-white',
     primary: 'bg-theme-primary text-white',
     accent: 'bg-theme-accent text-white',
   }[backgroundColor] || 'bg-theme-primary text-white'
+
+  const isDark = backgroundColor === 'dark' || backgroundColor === 'primary' || backgroundColor === 'accent'
 
   const alignClass = {
     left: 'text-left',
@@ -71,14 +73,14 @@ export function CTABlock({
   const buttonBaseClass = 'inline-flex items-center justify-center px-6 py-3 rounded-lg font-medium transition-all'
 
   const getButtonClass = (btnVariant?: string | null) => {
-    if (backgroundColor === 'primary' || backgroundColor === 'dark' || backgroundColor === 'accent') {
+    if (isDark) {
       if (btnVariant === 'outline') {
-        return cn(buttonBaseClass, 'border-2 border-white text-white hover:bg-white hover:text-gray-900')
+        return cn(buttonBaseClass, 'border-2 border-white text-white hover:bg-white hover:text-theme-dark')
       }
       if (btnVariant === 'ghost') {
         return cn(buttonBaseClass, 'text-white hover:bg-white/10')
       }
-      return cn(buttonBaseClass, 'bg-white text-gray-900 hover:bg-gray-100')
+      return cn(buttonBaseClass, 'bg-white text-theme-dark hover:bg-theme-light')
     } else {
       if (btnVariant === 'outline') {
         return cn(buttonBaseClass, 'border-2 border-theme-primary text-theme-primary hover:bg-theme-primary hover:text-white')
@@ -86,7 +88,7 @@ export function CTABlock({
       if (btnVariant === 'ghost') {
         return cn(buttonBaseClass, 'text-theme-primary hover:bg-theme-primary/10')
       }
-      return cn(buttonBaseClass, 'bg-theme-primary text-white hover:bg-theme-primary-dark')
+      return cn(buttonBaseClass, 'bg-theme-primary text-white hover:bg-theme-secondary')
     }
   }
 
@@ -128,9 +130,9 @@ export function CTABlock({
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-8">
             <div className="flex-1">
-              <h2 className={cn('text-3xl md:text-4xl font-bold mb-4', backgroundColor === 'primary' || backgroundColor === 'dark' || backgroundColor === 'accent' ? 'text-white' : 'text-gray-900')}>{headline}</h2>
+              <h2 className={cn('text-3xl md:text-4xl font-bold mb-4', isDark ? 'text-white' : 'text-theme-text')}>{headline}</h2>
               {subheadline && (
-                <p className={cn('text-lg', backgroundColor === 'primary' || backgroundColor === 'dark' || backgroundColor === 'accent' ? 'text-white/80' : 'text-gray-600')}>
+                <p className={cn('text-lg', isDark ? 'text-white/80' : 'text-theme-text-light')}>
                   {subheadline}
                 </p>
               )}
@@ -172,12 +174,12 @@ export function CTABlock({
 
   if (variant === 'floating') {
     return (
-      <section className="py-16">
+      <section className="py-section">
         <div className="container mx-auto px-4">
-          <div className={cn('rounded-2xl p-8 md:p-12', bgClass, alignClass)}>
-            <h2 className={cn('text-3xl md:text-4xl font-bold mb-4', backgroundColor === 'primary' || backgroundColor === 'dark' || backgroundColor === 'accent' ? 'text-white' : 'text-gray-900')}>{headline}</h2>
+          <div className={cn('rounded-[var(--radius-xl)] p-8 md:p-12', bgClass, alignClass)}>
+            <h2 className={cn('text-3xl md:text-4xl font-bold mb-4', isDark ? 'text-white' : 'text-theme-text')}>{headline}</h2>
             {subheadline && (
-              <p className={cn('text-lg max-w-2xl mx-auto mb-8', backgroundColor === 'primary' || backgroundColor === 'dark' || backgroundColor === 'accent' ? 'text-white/80' : 'text-gray-600')}>
+              <p className={cn('text-lg max-w-2xl mx-auto mb-8', isDark ? 'text-white/80' : 'text-theme-text-light')}>
                 {subheadline}
               </p>
             )}
@@ -200,9 +202,9 @@ export function CTABlock({
   return (
     <section className={cn(sizeClass, bgClass)}>
       <div className={cn('container mx-auto px-4', alignClass)}>
-        <h2 className={cn('text-3xl md:text-4xl lg:text-5xl font-bold mb-4', backgroundColor === 'primary' || backgroundColor === 'dark' || backgroundColor === 'accent' ? 'text-white' : 'text-gray-900')}>{headline}</h2>
+        <h2 className={cn('text-3xl md:text-4xl lg:text-5xl font-bold mb-4', isDark ? 'text-white' : 'text-theme-text')}>{headline}</h2>
         {subheadline && (
-          <p className={cn('text-lg md:text-xl max-w-2xl mb-8', textAlignment === 'center' && 'mx-auto', backgroundColor === 'primary' || backgroundColor === 'dark' || backgroundColor === 'accent' ? 'text-white/80' : 'text-gray-600')}>
+          <p className={cn('text-lg md:text-xl max-w-2xl mb-8', textAlignment === 'center' && 'mx-auto', isDark ? 'text-white/80' : 'text-theme-text-light')}>
             {subheadline}
           </p>
         )}

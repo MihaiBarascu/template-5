@@ -113,24 +113,33 @@ export function CheckoutBlock({
 
     try {
       // Create order in Payload (orders collection from eCommerce plugin)
+      // Using the exact field names the plugin expects
       const orderData = {
-        customerName: `${formData.firstName} ${formData.lastName}`,
+        // Shipping address fields - matching plugin schema
+        shippingAddress: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          addressLine1: formData.address,
+          city: formData.city,
+          state: formData.county, // judet = state
+          postalCode: formData.postalCode,
+          country: 'Romania',
+          phone: formData.phone,
+        },
+        // Customer email - plugin field
         customerEmail: formData.email,
-        customerPhone: formData.phone,
-        shippingAddress: `${formData.address}, ${formData.city}, ${formData.county}, ${formData.postalCode}`,
+        // Items
         items: cart.map((item) => ({
           product: item.id,
-          title: item.title,
-          price: item.price,
           quantity: item.quantity,
         })),
-        subtotal,
-        shipping,
-        total,
+        // Total amount
+        amount: total,
+        // Extra info not in plugin schema - for our reference
         paymentMethod: formData.paymentMethod,
         shippingMethod: formData.shippingMethod,
+        shippingCost: shipping,
         notes: formData.notes,
-        status: 'pending',
       }
 
       const response = await fetch('/api/orders', {

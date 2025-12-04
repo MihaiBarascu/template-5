@@ -6,7 +6,7 @@ export const BookingBlock: Block = {
     singular: 'Programare',
     plural: 'Programare',
   },
-  imageURL: '/blocks/booking.png',
+  imageURL: '/blocks/booking.svg',
   fields: [
     {
       name: 'variant',

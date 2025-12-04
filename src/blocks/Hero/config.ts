@@ -6,7 +6,7 @@ export const HeroBlock: Block = {
     singular: 'Hero',
     plural: 'Hero',
   },
-  imageURL: '/blocks/hero.png',
+  imageURL: '/blocks/hero.svg',
   fields: [
     {
       name: 'variant',

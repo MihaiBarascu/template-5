@@ -45,6 +45,7 @@ export const ContactSubmissions: CollectionConfig = {
             const service = await req.payload.findByID({
               collection: 'services',
               id: doc.service,
+              req, // Threading req for transaction safety (Payload best practice)
             })
             populatedDoc.service = service
           }
@@ -73,6 +74,7 @@ export const ContactSubmissions: CollectionConfig = {
             // Get business info for client email
             const businessInfo = await req.payload.findGlobal({
               slug: 'business-info',
+              req, // Threading req for transaction safety (Payload best practice)
             })
 
             const clientEmailHtml = formatContactConfirmationEmail({

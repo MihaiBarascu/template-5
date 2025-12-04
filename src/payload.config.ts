@@ -25,15 +25,15 @@ import { Bookings } from './collections/Bookings'
 import { FAQ } from './collections/FAQ'
 import { ContactSubmissions } from './collections/ContactSubmissions'
 import { ProductCategories } from './collections/ProductCategories'
+import { NewsletterSubscribers } from './collections/NewsletterSubscribers'
 
 // Globals
-import { Theme } from './globals/Theme'
+import { SiteTheme } from './globals/SiteTheme'
 import { BusinessInfo } from './globals/BusinessInfo'
 import { Header } from './globals/Header'
 import { Footer } from './globals/Footer'
 import { Logo } from './globals/Logo'
 import { ShopSettings } from './globals/ShopSettings'
-import { DesignVariant } from './globals/DesignVariant'
 
 // Blocks
 import { blocks } from './blocks'
@@ -92,6 +92,7 @@ const orderEmailHook: CollectionAfterChangeHook = async ({ doc, operation, req }
     // Get business info for client email
     const businessInfo = await req.payload.findGlobal({
       slug: 'business-info',
+      req, // Threading req for transaction safety (Payload best practice)
     })
 
     // Populate items with product titles
@@ -104,6 +105,7 @@ const orderEmailHook: CollectionAfterChangeHook = async ({ doc, operation, req }
               const product = await req.payload.findByID({
                 collection: 'products',
                 id: item.product,
+                req, // Threading req for transaction safety (Payload best practice)
               })
               return { ...item, product }
             } catch (_e) {
@@ -115,32 +117,53 @@ const orderEmailHook: CollectionAfterChangeHook = async ({ doc, operation, req }
       )
     }
 
-    // Get customer info
+    // Get customer info from plugin schema fields
+    // For guest orders: use doc.shippingAddress and doc.customerEmail
+    // For authenticated orders: use doc.customer relationship
     let customerName = 'Client'
-    let customerEmail = ''
-    let customerPhone = ''
+    let customerEmail = doc.customerEmail || ''
+    let customerPhone = doc.shippingAddress?.phone || ''
 
+    // Build customer name from shipping address
+    if (doc.shippingAddress?.firstName || doc.shippingAddress?.lastName) {
+      customerName = [doc.shippingAddress?.firstName, doc.shippingAddress?.lastName]
+        .filter(Boolean)
+        .join(' ') || 'Client'
+    }
+
+    // If there's a customer relationship, try to get more info
     if (doc.customer && typeof doc.customer === 'string') {
       try {
         const customer = await req.payload.findByID({
           collection: 'users',
           id: doc.customer,
+          req, // Threading req for transaction safety (Payload best practice)
         }) as { name?: string | null; email?: string | null; phone?: string | null }
-        customerName = customer?.name || customer?.email || 'Client'
-        customerEmail = customer?.email || ''
-        customerPhone = customer?.phone || ''
+        customerName = customer?.name || customerName
+        customerEmail = customer?.email || customerEmail
+        customerPhone = customer?.phone || customerPhone
       } catch (e) {
         console.log('Could not fetch customer:', e)
       }
-    } else if (doc.customer) {
+    } else if (doc.customer && typeof doc.customer === 'object') {
       const customer = doc.customer as { name?: string | null; email?: string | null; phone?: string | null }
-      customerName = customer?.name || customer?.email || 'Client'
-      customerEmail = customer?.email || ''
-      customerPhone = customer?.phone || ''
+      customerName = customer?.name || customerName
+      customerEmail = customer?.email || customerEmail
+      customerPhone = customer?.phone || customerPhone
     }
 
-    // Calculate total
-    const total = doc.totals?.total || doc.total || populatedItems.reduce((sum: number, item: OrderItem) => {
+    // Build formatted shipping address from plugin schema fields
+    const shippingAddressFormatted = [
+      doc.shippingAddress?.addressLine1,
+      doc.shippingAddress?.addressLine2,
+      doc.shippingAddress?.city,
+      doc.shippingAddress?.state,
+      doc.shippingAddress?.postalCode,
+      doc.shippingAddress?.country,
+    ].filter(Boolean).join(', ')
+
+    // Get total from plugin's amount field
+    const total = doc.amount || populatedItems.reduce((sum: number, item: OrderItem) => {
       const price = item.priceAtPurchase || item.price || 0
       return sum + (price * (item.quantity || 1))
     }, 0)
@@ -153,7 +176,7 @@ const orderEmailHook: CollectionAfterChangeHook = async ({ doc, operation, req }
       customerPhone,
       items: populatedItems,
       total,
-      shippingAddress: doc.shippingAddress?.formatted || '',
+      shippingAddress: shippingAddressFormatted,
       notes: doc.notes,
     })
 
@@ -173,7 +196,7 @@ const orderEmailHook: CollectionAfterChangeHook = async ({ doc, operation, req }
         customerName,
         items: populatedItems,
         total,
-        shippingAddress: doc.shippingAddress?.formatted || '',
+        shippingAddress: shippingAddressFormatted,
         businessName: businessInfo?.name ?? undefined,
         businessPhone: businessInfo?.phone ?? undefined,
         businessEmail: businessInfo?.email ?? undefined,
@@ -319,9 +342,10 @@ export default buildConfig({
     FAQ,
     ContactSubmissions,
     ProductCategories,
+    NewsletterSubscribers,
   ],
   cors: [getServerSideURL()].filter(Boolean),
-  globals: [Header, Footer, Theme, Logo, BusinessInfo, ShopSettings, DesignVariant],
+  globals: [Header, Footer, SiteTheme, Logo, BusinessInfo, ShopSettings],
   plugins: [
     ...plugins,
     // Ecommerce plugin cu Orders email notifications
