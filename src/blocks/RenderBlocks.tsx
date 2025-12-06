@@ -1,7 +1,7 @@
 import React from 'react'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
-import type { Page, Portfolio } from '@/payload-types'
+import type { Page, Portfolio, Service, Category } from '@/payload-types'
 import type { Where } from 'payload'
 
 // Import block components
@@ -11,7 +11,7 @@ import { TeamBlock } from './Team/Component'
 import { TestimonialsBlock } from './Testimonials/Component'
 import { FAQBlock } from './FAQ/Component'
 import { CTABlock } from './CTA/Component'
-import { ContactBlock } from './Contact/Component'
+import { ContactBlockWithSuspense as ContactBlock } from './Contact/Component'
 import { GalleryBlock } from './Gallery/Component'
 import { PricingBlock } from './Pricing/Component'
 import { BookingBlock } from './Booking/Component'
@@ -32,6 +32,13 @@ import { LocationsBlock } from './Locations/Component'
 import { BrandLogosBlock } from './BrandLogos/Component'
 import { TimelineBlock } from './Timeline/Component'
 import { AnnouncementBarBlock } from './AnnouncementBar/Component'
+// Universal blocks
+import { SubscriptionCardsBlock } from './SubscriptionCards/Component'
+import { ScheduleTableBlock } from './ScheduleTable/Component'
+import { TeamMemberDetailBlock } from './TeamMemberDetail/Component'
+import { ServiceDetailBlock } from './ServiceDetail/Component'
+// Content block
+import { ContentBlock } from './Content/Component'
 
 type LayoutBlock = NonNullable<Page['layout']>[number]
 
@@ -201,6 +208,137 @@ async function getProducts(block: BlockParams) {
   return products.docs
 }
 
+// Fetch services with class-like filters (for schedule and grid display)
+async function getServicesForSchedule(block: BlockParams & { filterByDifficulty?: string | null; filterByServiceType?: string | null }) {
+  const payload = await getPayload({ config: configPromise })
+
+  const where: Where = {
+    active: { equals: true },
+  }
+  if (block.onlyFeatured) {
+    where.featured = { equals: true }
+  }
+  if (block.filterByCategory && block.filterByCategory !== 'all') {
+    where.category = { equals: block.filterByCategory }
+  }
+  if (block.filterByDifficulty && block.filterByDifficulty !== 'all') {
+    where.difficulty = { equals: block.filterByDifficulty }
+  }
+  if (block.filterByServiceType && block.filterByServiceType !== 'all') {
+    where.serviceType = { equals: block.filterByServiceType }
+  }
+
+  const services = await payload.find({
+    collection: 'services',
+    where,
+    limit: block.limit || 100,
+    sort: 'order',
+    depth: 2,
+  })
+
+  return services.docs
+}
+
+// Fetch single team member by ID (with depth for populated data)
+async function getTeamMemberById(id: string) {
+  const payload = await getPayload({ config: configPromise })
+
+  try {
+    const result = await payload.findByID({
+      collection: 'team',
+      id,
+      depth: 2,
+    })
+    return result
+  } catch {
+    return null
+  }
+}
+
+// Fetch related team members
+async function getRelatedTeamMembers(currentId: string, limit: number = 3) {
+  const payload = await getPayload({ config: configPromise })
+
+  const result = await payload.find({
+    collection: 'team',
+    where: {
+      id: { not_equals: currentId },
+    },
+    limit,
+    depth: 2,
+    sort: 'order',
+  })
+
+  return result.docs
+}
+
+// Fetch subscriptions
+async function getSubscriptions(block: BlockParams & { filterByType?: string | null }) {
+  const payload = await getPayload({ config: configPromise })
+
+  const where: Where = {
+    active: { equals: true },
+  }
+  if (block.filterByType && block.filterByType !== 'all') {
+    where.type = { equals: block.filterByType }
+  }
+
+  const subscriptions = await payload.find({
+    collection: 'subscriptions',
+    where,
+    limit: block.limit || 8,
+    sort: 'order',
+    depth: 1,
+  })
+
+  return subscriptions.docs
+}
+
+// Fetch single service by ID (with depth for populated data)
+async function getServiceById(id: string) {
+  const payload = await getPayload({ config: configPromise })
+
+  try {
+    const result = await payload.findByID({
+      collection: 'services',
+      id,
+      depth: 2,
+    })
+    return result
+  } catch {
+    return null
+  }
+}
+
+// Fetch related services
+async function getRelatedServices(currentId: string, categoryId: string | null, displayStyle: string | null, limit: number = 3) {
+  const payload = await getPayload({ config: configPromise })
+
+  const where: Where = {
+    and: [
+      { id: { not_equals: currentId } },
+      { active: { equals: true } },
+    ],
+  }
+
+  // Prefer same category, then same display style
+  if (categoryId) {
+    where.and?.push({ category: { equals: categoryId } })
+  } else if (displayStyle) {
+    where.and?.push({ displayStyle: { equals: displayStyle } })
+  }
+
+  const result = await payload.find({
+    collection: 'services',
+    where,
+    limit,
+    depth: 2,
+    sort: 'order',
+  })
+
+  return result.docs
+}
+
 export async function RenderBlocks({ blocks }: RenderBlocksProps) {
   if (!blocks || blocks.length === 0) {
     return null
@@ -221,16 +359,19 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                 limit: block.limit,
                 onlyFeatured: block.onlyFeatured,
               })
+
+              const detailBasePath = (block as { detailBasePath?: string | null }).detailBasePath ?? '/clase'
+
               return (
                 <ServicesBlock
                   key={block.id || index}
                   variant={block.variant ?? undefined}
                   heading={block.heading ?? undefined}
                   subheading={block.subheading ?? undefined}
-                  showPrices={block.showPrices ?? undefined}
                   showIcons={block.showIcons ?? undefined}
                   backgroundColor={block.backgroundColor ?? undefined}
                   services={services}
+                  detailBasePath={detailBasePath}
                 />
               )
             }
@@ -265,6 +406,10 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                 limit: block.limit,
                 onlyFeatured: block.onlyFeatured,
               })
+
+              // Get detailBasePath from block config
+              const teamDetailBasePath = (block as { detailBasePath?: string | null }).detailBasePath ?? null
+
               return (
                 <TeamBlock
                   key={block.id || index}
@@ -276,6 +421,7 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   columns={block.columns ?? undefined}
                   backgroundColor={block.backgroundColor ?? undefined}
                   members={members}
+                  detailBasePath={teamDetailBasePath}
                 />
               )
             }
@@ -344,7 +490,9 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   heading={block.heading ?? undefined}
                   subheading={block.subheading ?? undefined}
                   showForm={block.showForm ?? undefined}
+                  formType={block.formType ?? undefined}
                   formFields={block.formFields ?? undefined}
+                  customFields={block.customFields ?? undefined}
                   submitButtonText={block.submitButtonText ?? undefined}
                   successMessage={block.successMessage ?? undefined}
                   showContactInfo={block.showContactInfo ?? undefined}
@@ -352,6 +500,7 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   showMap={block.showMap ?? undefined}
                   mapPosition={block.mapPosition ?? undefined}
                   backgroundColor={block.backgroundColor ?? undefined}
+                  labels={block.labels ?? undefined}
                   businessInfo={businessInfo}
                   services={services}
                 />
@@ -394,6 +543,11 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
               // Derive columns from variant (grid-3, grid-4, etc.)
               const columns = block.variant?.includes('3') ? '3' : block.variant?.includes('4') ? '4' : '3'
 
+              // Transform labels from block
+              const galleryLabels = block.labels as {
+                allFilter?: string | null
+              } | undefined
+
               return (
                 <GalleryBlock
                   key={block.id || index}
@@ -406,6 +560,9 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   lightbox={true}
                   backgroundColor={block.backgroundColor ?? undefined}
                   images={images}
+                  labels={galleryLabels ? {
+                    allFilter: galleryLabels.allFilter ?? undefined,
+                  } : undefined}
                 />
               )
             }
@@ -741,6 +898,287 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   backgroundColor={block.backgroundColor ?? undefined}
                   position={block.position ?? undefined}
                   sticky={block.sticky ?? undefined}
+                />
+              )
+            }
+
+
+            case 'subscriptionCards': {
+              const subscriptions = await getSubscriptions({
+                limit: block.limit,
+                filterByType: block.filterByType,
+              })
+              return (
+                <SubscriptionCardsBlock
+                  key={block.id || index}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
+                  subheading={block.subheading ?? undefined}
+                  showImage={block.showImage ?? undefined}
+                  showFeatures={block.showFeatures ?? undefined}
+                  showOldPrice={block.showOldPrice ?? undefined}
+                  highlightStyle={block.highlightStyle ?? undefined}
+                  ctaButton={block.ctaButton ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
+                  subscriptions={subscriptions}
+                />
+              )
+            }
+
+            case 'scheduleTable': {
+              // Get services that have schedule defined
+              const services = await getServicesForSchedule({
+                limit: 100,
+                filterByCategory: block.filterByCategory,
+              })
+
+              // Service schedule slot type from generated types
+              type ServiceScheduleSlot = NonNullable<Service['schedule']>[number]
+
+              // Transform services into schedule entries
+              const scheduleEntries = services.flatMap((service: Service) => {
+                if (!service.schedule || service.schedule.length === 0) return []
+                const teamMember = service.assignedTeamMember as { name?: string } | null
+                return service.schedule.map((slot: ServiceScheduleSlot) => {
+                  const categoryRef = service.category as string | Category | null
+                  const categoryTitle = categoryRef && typeof categoryRef === 'object' && 'title' in categoryRef
+                    ? categoryRef.title
+                    : undefined
+
+                  return {
+                    id: `${service.id}-${slot.day}-${slot.startTime}`,
+                    day: slot.day,
+                    startTime: slot.startTime,
+                    endTime: slot.endTime ?? undefined,
+                    title: service.title,
+                    trainer: teamMember?.name ?? undefined,
+                    duration: service.durationMinutes ?? undefined,
+                    category: categoryTitle,
+                    classSlug: service.slug ?? undefined,
+                    color: undefined,
+                  }
+                })
+              })
+
+              // Transform labels from block
+              const scheduleLabels = block.labels as {
+                allFilter?: string | null
+                todayBadge?: string | null
+                noClasses?: string | null
+                detailsButton?: string | null
+                timeHeader?: string | null
+                dayLabels?: Record<string, string> | null
+              } | undefined
+
+              return (
+                <ScheduleTableBlock
+                  key={block.id || index}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
+                  subheading={block.subheading ?? undefined}
+                  showTrainer={block.showTrainer ?? undefined}
+                  showDuration={block.showDuration ?? undefined}
+                  showRoom={block.showRoom ?? undefined}
+                  showCategoryFilter={block.showCategoryFilter ?? undefined}
+                  highlightToday={block.highlightToday ?? undefined}
+                  startHour={block.startHour ?? undefined}
+                  endHour={block.endHour ?? undefined}
+                  ctaButton={block.ctaButton ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
+                  scheduleEntries={block.source === 'custom' ? (block.customSchedule || []) : scheduleEntries}
+                  labels={scheduleLabels ? {
+                    allFilter: scheduleLabels.allFilter ?? undefined,
+                    todayBadge: scheduleLabels.todayBadge ?? undefined,
+                    noClasses: scheduleLabels.noClasses ?? undefined,
+                    detailsButton: scheduleLabels.detailsButton ?? undefined,
+                    timeHeader: scheduleLabels.timeHeader ?? undefined,
+                    dayLabels: scheduleLabels.dayLabels ?? undefined,
+                  } : undefined}
+                />
+              )
+            }
+
+            case 'content': {
+              return (
+                <ContentBlock
+                  key={block.id || index}
+                  columns={block.columns ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
+                  paddingTop={block.paddingTop ?? undefined}
+                  paddingBottom={block.paddingBottom ?? undefined}
+                />
+              )
+            }
+
+
+            case 'teamMemberDetail': {
+              // Get member ID from relationship field (can be string ID or populated object)
+              const memberRef = block.member as string | { id: string } | null
+              const memberId = typeof memberRef === 'string' ? memberRef : memberRef?.id
+              const memberData = memberId ? await getTeamMemberById(memberId) : null
+              const relatedMembers = memberData && block.showRelatedMembers
+                ? await getRelatedTeamMembers(memberData.id, block.relatedMembersCount || 3)
+                : []
+
+              // Transform labels group to expected format
+              const labelsFromBlock = block.labels as {
+                breadcrumbHome?: string | null
+                breadcrumbTeam?: string | null
+                experienceTitle?: string | null
+                specializationsTitle?: string | null
+                scheduleTitle?: string | null
+                contactTitle?: string | null
+                ctaTitle?: string | null
+                ctaDescription?: string | null
+                ctaButtonText?: string | null
+                ctaSecondaryButtonText?: string | null
+                viewAllTeamText?: string | null
+                notFoundMessage?: string | null
+              } | undefined
+
+              const linksFromBlock = block.links as {
+                teamBasePath?: string | null
+                contactPath?: string | null
+                classesPath?: string | null
+                bookingPath?: string | null
+              } | undefined
+
+              return (
+                <TeamMemberDetailBlock
+                  key={block.id || index}
+                  variant={block.variant ?? undefined}
+                  showBreadcrumb={block.showBreadcrumb ?? undefined}
+                  showExperience={block.showExperience ?? undefined}
+                  showSpecializations={block.showSpecializations ?? undefined}
+                  showContact={block.showContact ?? undefined}
+                  showSocialMedia={block.showSocialMedia ?? undefined}
+                  showSchedule={block.showSchedule ?? undefined}
+                  showCTA={block.showCTA ?? undefined}
+                  showRelatedMembers={block.showRelatedMembers ?? undefined}
+                  relatedMembersCount={block.relatedMembersCount ?? undefined}
+                  relatedMembersTitle={block.relatedMembersTitle ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
+                  memberData={memberData}
+                  relatedMembers={relatedMembers}
+                  labels={labelsFromBlock ? {
+                    breadcrumbHome: labelsFromBlock.breadcrumbHome ?? undefined,
+                    breadcrumbTeam: labelsFromBlock.breadcrumbTeam ?? undefined,
+                    experienceTitle: labelsFromBlock.experienceTitle ?? undefined,
+                    specializationsTitle: labelsFromBlock.specializationsTitle ?? undefined,
+                    scheduleTitle: labelsFromBlock.scheduleTitle ?? undefined,
+                    contactTitle: labelsFromBlock.contactTitle ?? undefined,
+                    ctaTitle: labelsFromBlock.ctaTitle ?? undefined,
+                    ctaDescription: labelsFromBlock.ctaDescription ?? undefined,
+                    ctaButtonText: labelsFromBlock.ctaButtonText ?? undefined,
+                    ctaSecondaryButtonText: labelsFromBlock.ctaSecondaryButtonText ?? undefined,
+                    viewAllTeamText: labelsFromBlock.viewAllTeamText ?? undefined,
+                    notFoundMessage: labelsFromBlock.notFoundMessage ?? undefined,
+                  } : undefined}
+                  links={linksFromBlock ? {
+                    teamBasePath: linksFromBlock.teamBasePath ?? undefined,
+                    contactPath: linksFromBlock.contactPath ?? undefined,
+                    classesPath: linksFromBlock.classesPath ?? undefined,
+                    bookingPath: linksFromBlock.bookingPath ?? undefined,
+                  } : undefined}
+                />
+              )
+            }
+
+            case 'serviceDetail': {
+              // Get service ID from relationship field (can be string ID or populated object)
+              const serviceRef = block.service as string | { id: string } | null
+              const serviceId = typeof serviceRef === 'string' ? serviceRef : serviceRef?.id
+              const serviceData = serviceId ? await getServiceById(serviceId) : null
+
+              // Get category ID from populated service data
+              const categoryRef = serviceData?.category as string | { id: string } | null
+              const categoryId = typeof categoryRef === 'string' ? categoryRef : categoryRef?.id
+
+              const relatedServices = serviceData && block.showRelatedServices
+                ? await getRelatedServices(
+                    serviceData.id,
+                    categoryId || null,
+                    serviceData.displayStyle || null,
+                    block.relatedServicesCount || 3
+                  )
+                : []
+
+              // Transform labels group to expected format
+              const labelsFromBlock = block.labels as {
+                breadcrumbHome?: string | null
+                breadcrumbServices?: string | null
+                benefitsTitle?: string | null
+                featuresTitle?: string | null
+                scheduleTitle?: string | null
+                pricingTitle?: string | null
+                teamMemberTitle?: string | null
+                requirementsTitle?: string | null
+                viewAllServicesText?: string | null
+                minutesLabel?: string | null
+                spotsLabel?: string | null
+                priceFromLabel?: string | null
+                dropInLabel?: string | null
+                monthlyLabel?: string | null
+                packageLabel?: string | null
+                currencySymbol?: string | null
+                dayLabels?: Record<string, string> | null
+                difficultyLabels?: Record<string, string> | null
+                serviceTypeLabels?: Record<string, string> | null
+                notFoundMessage?: string | null
+              } | undefined
+
+              const linksFromBlock = block.links as {
+                servicesBasePath?: string | null
+                teamBasePath?: string | null
+                bookingPath?: string | null
+              } | undefined
+
+              return (
+                <ServiceDetailBlock
+                  key={block.id || index}
+                  variant={block.variant ?? undefined}
+                  showBreadcrumb={block.showBreadcrumb ?? undefined}
+                  showSchedule={block.showSchedule ?? undefined}
+                  showPricing={block.showPricing ?? undefined}
+                  showTeamMember={block.showTeamMember ?? undefined}
+                  showBenefits={block.showBenefits ?? undefined}
+                  showFeatures={block.showFeatures ?? undefined}
+                  showRequirements={block.showRequirements ?? undefined}
+                  showRelatedServices={block.showRelatedServices ?? undefined}
+                  relatedServicesCount={block.relatedServicesCount ?? undefined}
+                  relatedServicesTitle={block.relatedServicesTitle ?? undefined}
+                  ctaButtonText={block.ctaButtonText ?? undefined}
+                  ctaButtonLink={block.ctaButtonLink ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
+                  serviceData={serviceData}
+                  relatedServices={relatedServices}
+                  labels={labelsFromBlock ? {
+                    breadcrumbHome: labelsFromBlock.breadcrumbHome ?? undefined,
+                    breadcrumbServices: labelsFromBlock.breadcrumbServices ?? undefined,
+                    benefitsTitle: labelsFromBlock.benefitsTitle ?? undefined,
+                    featuresTitle: labelsFromBlock.featuresTitle ?? undefined,
+                    scheduleTitle: labelsFromBlock.scheduleTitle ?? undefined,
+                    pricingTitle: labelsFromBlock.pricingTitle ?? undefined,
+                    teamMemberTitle: labelsFromBlock.teamMemberTitle ?? undefined,
+                    requirementsTitle: labelsFromBlock.requirementsTitle ?? undefined,
+                    viewAllServicesText: labelsFromBlock.viewAllServicesText ?? undefined,
+                    minutesLabel: labelsFromBlock.minutesLabel ?? undefined,
+                    spotsLabel: labelsFromBlock.spotsLabel ?? undefined,
+                    priceFromLabel: labelsFromBlock.priceFromLabel ?? undefined,
+                    dropInLabel: labelsFromBlock.dropInLabel ?? undefined,
+                    monthlyLabel: labelsFromBlock.monthlyLabel ?? undefined,
+                    packageLabel: labelsFromBlock.packageLabel ?? undefined,
+                    currencySymbol: labelsFromBlock.currencySymbol ?? undefined,
+                    dayLabels: labelsFromBlock.dayLabels ?? undefined,
+                    difficultyLabels: labelsFromBlock.difficultyLabels ?? undefined,
+                    serviceTypeLabels: labelsFromBlock.serviceTypeLabels ?? undefined,
+                    notFoundMessage: labelsFromBlock.notFoundMessage ?? undefined,
+                  } : undefined}
+                  links={linksFromBlock ? {
+                    servicesBasePath: linksFromBlock.servicesBasePath ?? undefined,
+                    teamBasePath: linksFromBlock.teamBasePath ?? undefined,
+                    bookingPath: linksFromBlock.bookingPath ?? undefined,
+                  } : undefined}
                 />
               )
             }

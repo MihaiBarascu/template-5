@@ -12,3 +12,5 @@ export { PricePackages } from './PricePackages'
 export { Bookings } from './Bookings'
 export { FAQ } from './FAQ'
 export { ContactSubmissions } from './ContactSubmissions'
+// Classes collection removed - use Services with serviceType: 'class' instead
+export { Subscriptions } from './Subscriptions'

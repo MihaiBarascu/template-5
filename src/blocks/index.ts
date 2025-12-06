@@ -29,6 +29,11 @@ import { LocationsBlock } from './Locations/config'
 import { BrandLogosBlock } from './BrandLogos/config'
 import { TimelineBlock } from './Timeline/config'
 import { AnnouncementBarBlock } from './AnnouncementBar/config'
+// Fitness/Universal blocks
+import { SubscriptionCardsBlock } from './SubscriptionCards/config'
+import { ScheduleTableBlock } from './ScheduleTable/config'
+import { TeamMemberDetailBlock } from './TeamMemberDetail/config'
+import { ServiceDetailBlock } from './ServiceDetail/config'
 
 export const blocks = [
   HeroBlock,
@@ -62,6 +67,11 @@ export const blocks = [
   BrandLogosBlock,
   TimelineBlock,
   AnnouncementBarBlock,
+  // Universal blocks
+  SubscriptionCardsBlock,
+  ScheduleTableBlock,
+  TeamMemberDetailBlock,
+  ServiceDetailBlock,
 ]
 
 export {
@@ -96,4 +106,9 @@ export {
   BrandLogosBlock,
   TimelineBlock,
   AnnouncementBarBlock,
+  // Universal blocks
+  SubscriptionCardsBlock,
+  ScheduleTableBlock,
+  TeamMemberDetailBlock,
+  ServiceDetailBlock,
 }

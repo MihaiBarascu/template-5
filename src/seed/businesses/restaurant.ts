@@ -35,7 +35,12 @@ export async function seedRestaurant(payload: Payload) {
 
   // 2. Upload all images first
   console.log('\n📸 Uploading images from local files...')
-  const allImages = [...restaurantImages.hero, ...restaurantImages.team, ...restaurantImages.gallery]
+  const allImages = [
+    ...restaurantImages.hero,
+    ...restaurantImages.team,
+    ...restaurantImages.gallery,
+    ...restaurantImages.footer,
+  ]
   const imageMap = await uploadLocalSeedImages(payload, allImages)
 
   // Helper to get image ID by filename
@@ -68,7 +73,7 @@ export async function seedRestaurant(payload: Payload) {
     social: restaurantData.business.social,
     stats: restaurantData.business.stats,
     googleMapsEmbed:
-      'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2848.8444388671917!2d26.0976553!3d44.4379832!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDTCsDI2JzE2LjciTiAyNsKwMDUnNTEuNiJF!5e0!3m2!1sen!2sro!4v1234567890',
+      'https://www.google.com/maps?q=Strada+Lipscani+45,+Sector+3,+Bucuresti,+Romania&output=embed',
   })
 
   // 5. Logo
@@ -93,6 +98,7 @@ export async function seedRestaurant(payload: Payload) {
 
   // 7. Footer
   console.log('\n📋 Setting up footer...')
+  const decorativeId = getImageId('textures/restaurant-decorative.png')
   await seedFooter(payload, {
     variant: 'columns-4',
     columns: [
@@ -119,6 +125,11 @@ export async function seedRestaurant(payload: Payload) {
         type: 'contact',
       },
     ],
+    // Element decorativ (ca la Elyssium Gym)
+    decorativeImageId: decorativeId,
+    decorativePosition: 'left',
+    decorativeOpacity: 40,
+    decorativeSize: 'large',
   })
 
   // 8. Services (Menu categories)
@@ -145,15 +156,6 @@ export async function seedRestaurant(payload: Payload) {
       order: 2,
       imageIndex: 1,
       specializations: ['Patiserie', 'Paste proaspete', 'Sosuri'],
-    },
-    {
-      name: 'Andrei Pop',
-      role: 'Manager Restaurant',
-      experience: '8 ani experienta',
-      featured: true,
-      order: 3,
-      imageIndex: 2,
-      specializations: ['Ospitalitate', 'Vinuri', 'Evenimente'],
     },
   ]
   const teamWithImages = teamData.map((member) => ({
@@ -479,6 +481,7 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof restaurantDat
       showPrices: true,
       showIcons: true,
       backgroundColor: 'light',
+      detailBasePath: '/meniu',
     },
     stats: {
       blockType: 'stats',
@@ -580,6 +583,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
           showPrices: true,
           showIcons: true,
           backgroundColor: 'default',
+          detailBasePath: '/meniu',
         },
         {
           blockType: 'cta',

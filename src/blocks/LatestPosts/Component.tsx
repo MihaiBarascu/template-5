@@ -165,8 +165,8 @@ export function LatestPostsBlock({
     return (
       <article
         className={cn(
-          'group flex flex-col overflow-hidden rounded-lg transition-all duration-300',
-          'bg-white dark:bg-gray-800 shadow-sm hover:shadow-lg',
+          'group flex flex-col overflow-hidden rounded-[var(--radius-card)] transition-all duration-300',
+          'bg-theme-surface shadow-sm hover:shadow-lg border border-theme-border',
           featured && 'md:flex-row md:col-span-2',
         )}
       >
@@ -186,7 +186,7 @@ export function LatestPostsBlock({
               className="object-cover transition-transform duration-500 group-hover:scale-105"
             />
             {showCategory && category && (
-              <span className="absolute top-4 left-4 px-3 py-1 bg-primary text-white text-xs font-medium rounded-full">
+              <span className="absolute top-4 left-4 px-3 py-1 bg-theme-primary text-white text-xs font-medium rounded-full">
                 {category.title}
               </span>
             )}
@@ -197,14 +197,14 @@ export function LatestPostsBlock({
         <div className={cn('flex flex-col flex-grow p-5', featured && 'md:w-1/2 md:p-8')}>
           {/* Category (if no image) */}
           {showCategory && category && !showImage && (
-            <span className="inline-flex items-center gap-1 text-xs text-primary font-medium mb-2">
+            <span className="inline-flex items-center gap-1 text-xs text-theme-primary font-medium mb-2">
               <Tag className="w-3 h-3" />
               {category.title}
             </span>
           )}
 
           {/* Meta info */}
-          <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
+          <div className="flex items-center gap-4 text-sm text-theme-text-muted mb-3">
             {showDate && post.publishedAt && (
               <span className="flex items-center gap-1">
                 <Calendar className="w-4 h-4" />
@@ -222,7 +222,7 @@ export function LatestPostsBlock({
           {/* Title */}
           <h3
             className={cn(
-              'font-semibold text-foreground mb-2 group-hover:text-primary transition-colors',
+              'font-semibold text-theme-text mb-2 group-hover:text-theme-primary transition-colors',
               featured ? 'text-xl md:text-2xl' : 'text-lg',
             )}
           >
@@ -233,7 +233,7 @@ export function LatestPostsBlock({
           {showExcerpt && post.excerpt && (
             <p
               className={cn(
-                'text-muted-foreground flex-grow',
+                'text-theme-text-light flex-grow',
                 featured ? 'text-base line-clamp-4' : 'text-sm line-clamp-3',
               )}
             >
@@ -245,7 +245,7 @@ export function LatestPostsBlock({
           {showReadMore && (
             <Link
               href={`/blog/${post.slug}`}
-              className="inline-flex items-center gap-2 text-primary font-medium mt-4 group/link"
+              className="inline-flex items-center gap-2 text-theme-primary font-medium mt-4 group/link"
             >
               {readMoreText}
               <ArrowRight className="w-4 h-4 transition-transform group-hover/link:translate-x-1" />
@@ -260,18 +260,18 @@ export function LatestPostsBlock({
   const MinimalPostItem = ({ post }: { post: Post }) => {
     const category = getCategoryData(post.category)
     return (
-      <article className="group py-4 border-b border-border last:border-0">
+      <article className="group py-4 border-b border-theme-border last:border-0">
         <div className="flex items-center justify-between gap-4">
           <div className="flex-grow">
             {showCategory && category && (
-              <span className="text-xs text-primary font-medium">{category.title}</span>
+              <span className="text-xs text-theme-primary font-medium">{category.title}</span>
             )}
-            <h3 className="font-medium text-foreground group-hover:text-primary transition-colors">
+            <h3 className="font-medium text-theme-text group-hover:text-theme-primary transition-colors">
               <Link href={`/blog/${post.slug}`}>{post.title}</Link>
             </h3>
           </div>
           {showDate && post.publishedAt && (
-            <span className="text-sm text-muted-foreground whitespace-nowrap">
+            <span className="text-sm text-theme-text-muted whitespace-nowrap">
               {formatDate(post.publishedAt)}
             </span>
           )}
@@ -302,14 +302,14 @@ export function LatestPostsBlock({
               <>
                 <button
                   onClick={prevSlide}
-                  className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-10 h-10 rounded-full bg-white shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors"
+                  className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-10 h-10 rounded-full bg-theme-surface shadow-lg flex items-center justify-center hover:bg-theme-light transition-colors text-theme-text"
                   aria-label="Articolul anterior"
                 >
                   <ChevronLeft className="w-6 h-6" />
                 </button>
                 <button
                   onClick={nextSlide}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-10 h-10 rounded-full bg-white shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-10 h-10 rounded-full bg-theme-surface shadow-lg flex items-center justify-center hover:bg-theme-light transition-colors text-theme-text"
                   aria-label="Articolul urmator"
                 >
                   <ChevronRight className="w-6 h-6" />
@@ -322,7 +322,7 @@ export function LatestPostsBlock({
                       onClick={() => setCurrentSlide(index)}
                       className={cn(
                         'w-2 h-2 rounded-full transition-all',
-                        index === currentSlide ? 'bg-primary w-6' : 'bg-gray-300 hover:bg-gray-400',
+                        index === currentSlide ? 'bg-theme-primary w-6' : 'bg-theme-border hover:bg-theme-text-muted',
                       )}
                       aria-label={`Mergi la articolul ${index + 1}`}
                     />
@@ -393,7 +393,7 @@ export function LatestPostsBlock({
               <h2
                 className={cn(
                   'text-3xl md:text-4xl font-bold mb-4',
-                  isDark ? 'text-white' : 'text-foreground',
+                  isDark ? 'text-white' : 'text-theme-text',
                 )}
               >
                 {heading}
@@ -403,7 +403,7 @@ export function LatestPostsBlock({
               <p
                 className={cn(
                   'text-lg max-w-2xl mx-auto',
-                  isDark ? 'text-white/80' : 'text-muted-foreground',
+                  isDark ? 'text-white/80' : 'text-theme-text-light',
                 )}
               >
                 {subheading}
@@ -421,10 +421,10 @@ export function LatestPostsBlock({
             <Link
               href={ctaButton.link}
               className={cn(
-                'inline-flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors',
+                'inline-flex items-center gap-2 px-6 py-3 rounded-[var(--radius-button)] font-medium transition-colors',
                 isDark
-                  ? 'bg-white text-gray-900 hover:bg-gray-100'
-                  : 'bg-primary text-white hover:bg-primary/90',
+                  ? 'bg-white text-theme-dark hover:bg-white/90'
+                  : 'bg-theme-primary text-white hover:bg-theme-secondary',
               )}
             >
               {ctaButton.label || 'Vezi toate articolele'}

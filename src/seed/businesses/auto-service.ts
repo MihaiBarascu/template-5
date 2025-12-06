@@ -60,7 +60,8 @@ export async function seedAutoService(payload: Payload) {
     workingHours: autoServiceData.business.workingHours,
     social: autoServiceData.business.social,
     stats: autoServiceData.business.stats,
-    googleMapsEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2848.8!2d26.09!3d44.43!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1',
+    googleMapsEmbed:
+      'https://www.google.com/maps?q=Soseaua+Colentina+250,+Sector+2,+Bucuresti,+Romania&output=embed',
   })
 
   console.log('\n🏷️ Setting up logo...')
@@ -87,6 +88,7 @@ export async function seedAutoService(payload: Payload) {
       { title: 'Program', type: 'schedule' },
       { title: 'Contact', type: 'contact' },
     ],
+    // Footer fara textura - se poate adauga din admin
   })
 
   console.log('\n🔧 Creating services...')
@@ -262,8 +264,8 @@ function buildHomepageLayout(variant: DesignVariant) {
       subheading: 'Echipamente moderne și personal calificat',
       locations: [
         {
-          name: 'AutoPro - Pipera',
-          address: 'Șoseaua Pipera-Tunari 50',
+          name: 'AutoPro - Colentina',
+          address: 'Șoseaua Colentina 250',
           city: 'București',
           phone: '0722 777 888',
           email: 'service@autopro.ro',
@@ -357,6 +359,7 @@ function buildHomepageLayout(variant: DesignVariant) {
       showPrices: true,
       showIcons: true,
       backgroundColor: 'light',
+      detailBasePath: '/servicii',
     },
     stats: {
       blockType: 'stats',
@@ -442,7 +445,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
       heroType: 'minimal',
       hero: { headline: 'Servicii Auto Complete', subheadline: 'De la revizie la reparatii majore' },
       layout: [
-        { blockType: 'services', variant: variant.layout.servicesVariant, heading: 'Lista Servicii', source: 'collection', limit: 20, showPrices: true, showIcons: true, backgroundColor: 'default' },
+        { blockType: 'services', variant: variant.layout.servicesVariant, heading: 'Lista Servicii', source: 'collection', limit: 20, showPrices: true, showIcons: true, backgroundColor: 'default', detailBasePath: '/servicii' },
         { blockType: 'cta', variant: 'centered', headline: 'Ai nevoie de ajutor?', subheadline: 'Programeaza-te acum', buttons: [{ label: 'Programeaza-te', link: '/programare', variant: 'default' }], backgroundColor: 'light' },
       ],
       _status: 'published',

@@ -19,6 +19,7 @@ import { seedAutoService } from './businesses/auto-service'
 import { seedConstructii } from './businesses/constructii'
 import { seedSalon } from './businesses/salon'
 import { seedMagazin } from './businesses/magazin'
+import { seedFitness } from './businesses/fitness'
 import { clearImageCache } from './helpers'
 
 const seeders: Record<string, (payload: Payload) => Promise<void>> = {
@@ -30,6 +31,7 @@ const seeders: Record<string, (payload: Payload) => Promise<void>> = {
   constructii: seedConstructii,
   salon: seedSalon,
   magazin: seedMagazin,
+  fitness: seedFitness,
 }
 
 async function seed() {
@@ -89,6 +91,7 @@ async function clearData(payload: Payload) {
     'carts',
     'orders',
     'media',
+    'subscriptions',
   ]
 
   for (const collection of collections) {

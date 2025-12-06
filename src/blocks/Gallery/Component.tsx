@@ -13,6 +13,10 @@ interface GalleryImage {
   category?: string
 }
 
+interface GalleryLabels {
+  allFilter?: string
+}
+
 interface GalleryBlockProps {
   variant?: string
   heading?: string
@@ -25,6 +29,7 @@ interface GalleryBlockProps {
   showCaptions?: boolean
   images?: GalleryImage[]
   categories?: string[]
+  labels?: GalleryLabels
 }
 
 // Icon components
@@ -63,7 +68,11 @@ export function GalleryBlock({
   backgroundColor = 'default',
   showCaptions = false,
   images = [],
+  labels = {},
 }: GalleryBlockProps) {
+  // Configurable labels with defaults
+  const allFilterLabel = labels.allFilter || 'Toate'
+
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
   const [activeFilter, setActiveFilter] = useState<string>('all')
   const [isLoaded, setIsLoaded] = useState(false)
@@ -306,7 +315,7 @@ export function GalleryBlock({
                       )
                 )}
               >
-                {category === 'all' ? 'Toate' : category}
+                {category === 'all' ? allFilterLabel : category}
               </button>
             ))}
           </div>

@@ -190,6 +190,14 @@ export const ServicesBlock: Block = {
       ],
     },
     {
+      name: 'detailBasePath',
+      type: 'text',
+      label: 'Cale pentru pagini detaliu',
+      admin: {
+        description: 'Ex: /servicii - cardurile vor fi clickable si vor duce la /servicii/slug-serviciu. Lasati gol pentru a dezactiva link-urile.',
+      },
+    },
+    {
       name: 'backgroundColor',
       type: 'select',
       label: 'Culoare fundal',
@@ -199,6 +207,29 @@ export const ServicesBlock: Block = {
         { label: 'Light', value: 'light' },
         { label: 'Dark', value: 'dark' },
         { label: 'Primary', value: 'primary' },
+      ],
+    },
+    // Configurable labels for i18n
+    {
+      name: 'labels',
+      type: 'group',
+      label: 'Text Labels (i18n)',
+      admin: {
+        description: 'Customize text labels for different languages',
+      },
+      fields: [
+        {
+          name: 'currencySymbol',
+          type: 'text',
+          label: 'Currency Symbol',
+          defaultValue: 'RON',
+        },
+        {
+          name: 'fromLabel',
+          type: 'text',
+          label: 'From Label (for starting price)',
+          defaultValue: 'de la',
+        },
       ],
     },
   ],

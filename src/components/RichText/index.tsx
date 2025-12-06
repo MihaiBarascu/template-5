@@ -6,6 +6,9 @@ import {
   RichText as PayloadRichText,
 } from '@payloadcms/richtext-lexical/react'
 import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical'
+import type { BannerBlock as BannerBlockProps, MediaBlock as MediaBlockProps } from '@/payload-types'
+import { BannerBlock } from '@/blocks/Banner/Component'
+import { MediaBlock } from '@/blocks/MediaBlock/Component'
 
 type Props = {
   className?: string
@@ -14,7 +17,7 @@ type Props = {
   enableProse?: boolean
 }
 
-// Custom converters for internal links
+// Custom converters for internal links and blocks
 const jsxConverters: JSXConvertersFunction = ({ defaultConverters }) => ({
   ...defaultConverters,
   link: ({ node, nodesToJSX }) => {
@@ -33,7 +36,7 @@ const jsxConverters: JSXConvertersFunction = ({ defaultConverters }) => ({
         }
 
         return (
-          <a href={href} className="text-primary hover:underline">
+          <a href={href} className="text-theme-primary hover:underline">
             {children}
           </a>
         )
@@ -45,11 +48,26 @@ const jsxConverters: JSXConvertersFunction = ({ defaultConverters }) => ({
         href={fields.url || '#'}
         target={fields.newTab ? '_blank' : undefined}
         rel={fields.newTab ? 'noopener noreferrer' : undefined}
-        className="text-primary hover:underline"
+        className="text-theme-primary hover:underline"
       >
         {children}
       </a>
     )
+  },
+  blocks: {
+    banner: ({ node }: { node: { fields: BannerBlockProps } }) => (
+      <BannerBlock className="col-start-2 mb-4" {...node.fields} />
+    ),
+    mediaBlock: ({ node }: { node: { fields: MediaBlockProps } }) => (
+      <MediaBlock
+        className="col-start-1 col-span-3"
+        imgClassName="m-0"
+        {...node.fields}
+        captionClassName="mx-auto max-w-[48rem]"
+        enableGutter={false}
+        disableInnerContainer={true}
+      />
+    ),
   },
 })
 
@@ -66,7 +84,7 @@ export default function RichText({
       className={cn(
         {
           'container': enableGutter,
-          'max-w-none prose dark:prose-invert prose-headings:font-bold prose-p:text-muted-foreground prose-a:text-primary prose-strong:text-foreground prose-li:text-muted-foreground': enableProse,
+          'max-w-none prose dark:prose-invert prose-headings:font-bold prose-headings:text-theme-text prose-p:text-theme-text-light prose-a:text-theme-primary prose-strong:text-theme-text prose-li:text-theme-text-light': enableProse,
         },
         className,
       )}

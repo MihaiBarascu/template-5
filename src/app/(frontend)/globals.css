@@ -59,6 +59,18 @@
   --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.12);
   --shadow-button: none;
 
+  /* Advanced Typography - Defaults */
+  --letter-spacing: 0;
+  --heading-line-height: 1.2;
+  --body-line-height: 1.6;
+
+  /* Button Styles - Defaults */
+  --btn-padding-y: 12px;
+  --btn-padding-x: 24px;
+  --btn-text-transform: none;
+  --btn-font-weight: 600;
+  --btn-letter-spacing: 0;
+
   /* ShadCN CSS Variables */
   --background: 0 0% 100%;
   --foreground: 0 0% 10%;
@@ -93,10 +105,13 @@
   body {
     @apply bg-theme-surface text-theme-text;
     font-family: var(--font-body);
+    line-height: var(--body-line-height);
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
+    line-height: var(--heading-line-height);
+    letter-spacing: var(--letter-spacing);
     @apply font-bold text-theme-text;
   }
 
@@ -363,15 +378,27 @@
 
   /* Button styles */
   .btn-primary {
-    @apply inline-flex items-center justify-center px-6 py-3 font-semibold text-white bg-theme-primary rounded-[var(--radius-button)] transition-all duration-200 hover:bg-theme-secondary hover:shadow-md active:scale-95;
+    @apply inline-flex items-center justify-center text-white bg-theme-primary rounded-[var(--radius-button)] transition-all duration-200 hover:bg-theme-secondary hover:shadow-md active:scale-95;
+    padding: var(--btn-padding-y) var(--btn-padding-x);
+    font-weight: var(--btn-font-weight);
+    text-transform: var(--btn-text-transform);
+    letter-spacing: var(--btn-letter-spacing);
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center px-6 py-3 font-semibold text-theme-primary bg-transparent border-2 border-theme-primary rounded-[var(--radius-button)] transition-all duration-200 hover:bg-theme-primary hover:text-white active:scale-95;
+    @apply inline-flex items-center justify-center text-theme-primary bg-transparent border-2 border-theme-primary rounded-[var(--radius-button)] transition-all duration-200 hover:bg-theme-primary hover:text-white active:scale-95;
+    padding: var(--btn-padding-y) var(--btn-padding-x);
+    font-weight: var(--btn-font-weight);
+    text-transform: var(--btn-text-transform);
+    letter-spacing: var(--btn-letter-spacing);
   }
 
   .btn-accent {
-    @apply inline-flex items-center justify-center px-6 py-3 font-semibold text-white bg-theme-accent rounded-[var(--radius-button)] transition-all duration-200 hover:opacity-90 hover:shadow-md active:scale-95;
+    @apply inline-flex items-center justify-center text-white bg-theme-accent rounded-[var(--radius-button)] transition-all duration-200 hover:opacity-90 hover:shadow-md active:scale-95;
+    padding: var(--btn-padding-y) var(--btn-padding-x);
+    font-weight: var(--btn-font-weight);
+    text-transform: var(--btn-text-transform);
+    letter-spacing: var(--btn-letter-spacing);
   }
 
   /* Section patterns */

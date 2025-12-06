@@ -60,7 +60,8 @@ export async function seedAvocat(payload: Payload) {
     workingHours: avocatData.business.workingHours,
     social: avocatData.business.social,
     stats: avocatData.business.stats,
-    googleMapsEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2848.8!2d26.09!3d44.43!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1',
+    googleMapsEmbed:
+      'https://www.google.com/maps?q=Bulevardul+Decebal+78,+Sector+3,+Bucuresti,+Romania&output=embed',
   })
 
   console.log('\n🏷️ Setting up logo...')
@@ -256,7 +257,7 @@ function buildHomepageLayout(variant: DesignVariant) {
       locations: [
         {
           name: 'Cabinet Avocat Ionescu',
-          address: 'Bulevardul Republicii 80',
+          address: 'Bulevardul Decebal 78',
           city: 'București',
           phone: '0722 999 000',
           email: 'cabinet@avocat-ionescu.ro',
@@ -355,6 +356,7 @@ function buildHomepageLayout(variant: DesignVariant) {
       showPrices: true,
       showIcons: true,
       backgroundColor: 'light',
+      detailBasePath: '/servicii',
     },
     stats: {
       blockType: 'stats',
@@ -440,7 +442,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
       heroType: 'minimal',
       hero: { headline: 'Domenii de Practica', subheadline: 'Servicii juridice complete' },
       layout: [
-        { blockType: 'services', variant: variant.layout.servicesVariant, heading: 'Toate Serviciile', source: 'collection', limit: 20, showPrices: true, showIcons: true, backgroundColor: 'default' },
+        { blockType: 'services', variant: variant.layout.servicesVariant, heading: 'Toate Serviciile', source: 'collection', limit: 20, showPrices: true, showIcons: true, backgroundColor: 'default', detailBasePath: '/servicii' },
         { blockType: 'cta', variant: 'centered', headline: 'Ai nevoie de ajutor juridic?', buttons: [{ label: 'Contacteaza-ne', link: '/contact', variant: 'default' }], backgroundColor: 'light' },
       ],
       _status: 'published',

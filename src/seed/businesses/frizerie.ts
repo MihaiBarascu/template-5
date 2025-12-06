@@ -74,7 +74,7 @@ export async function seedFrizerie(payload: Payload) {
     social: barbershopData.business.social,
     stats: barbershopData.business.stats,
     googleMapsEmbed:
-      'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2848.8444388671917!2d26.0976553!3d44.4379832!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDTCsDI2JzE2LjciTiAyNsKwMDUnNTEuNiJF!5e0!3m2!1sen!2sro!4v1234567890',
+      'https://www.google.com/maps?q=Calea+Victoriei+45,+Sector+1,+Bucuresti,+Romania&output=embed',
     // WhatsApp Float settings
     whatsappFloat: {
       enabled: true,
@@ -111,6 +111,7 @@ export async function seedFrizerie(payload: Payload) {
   await seedFooter(payload, {
     variant: 'columns-4',
     columns: barbershopData.footer.columns,
+    // Footer fara textura - se poate adauga din admin
   })
 
   // 8. Services
@@ -307,7 +308,7 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof barbershopDat
       locations: [
         {
           name: 'Sediul Central',
-          address: 'Strada Victoriei 45',
+          address: 'Calea Victoriei 45',
           city: 'Bucuresti',
           phone: '0722 123 456',
           email: 'contact@barbershop.ro',
@@ -450,6 +451,7 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof barbershopDat
       showPrices: true,
       showIcons: true,
       backgroundColor: 'light',
+      detailBasePath: '/servicii',
     },
     stats: {
       blockType: 'stats',
@@ -552,6 +554,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
           showPrices: true,
           showIcons: true,
           backgroundColor: 'default',
+          detailBasePath: '/servicii',
         },
         {
           blockType: 'cta',
@@ -672,6 +675,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
           limit: 20,
           showPrices: true,
           backgroundColor: 'light',
+          detailBasePath: '/servicii',
         },
       ],
       _status: 'published',

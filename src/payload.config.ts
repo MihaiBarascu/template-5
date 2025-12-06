@@ -2,6 +2,7 @@ import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { resendAdapter } from '@payloadcms/email-resend'
 import { ecommercePlugin } from '@payloadcms/plugin-ecommerce'
+import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
 
 import sharp from 'sharp'
 import path from 'path'
@@ -26,6 +27,8 @@ import { FAQ } from './collections/FAQ'
 import { ContactSubmissions } from './collections/ContactSubmissions'
 import { ProductCategories } from './collections/ProductCategories'
 import { NewsletterSubscribers } from './collections/NewsletterSubscribers'
+// Classes collection removed - use Services with serviceType: 'class' instead
+import { Subscriptions } from './collections/Subscriptions'
 
 // Globals
 import { SiteTheme } from './globals/SiteTheme'
@@ -343,6 +346,7 @@ export default buildConfig({
     ContactSubmissions,
     ProductCategories,
     NewsletterSubscribers,
+    Subscriptions,
   ],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer, SiteTheme, Logo, BusinessInfo, ShopSettings],
@@ -350,6 +354,12 @@ export default buildConfig({
     ...plugins,
     // Ecommerce plugin cu Orders email notifications
     ecommercePlugin(ecommerceConfig),
+    // Nested docs plugin for hierarchical pages (e.g., /clase/yoga, /servicii/consultatie)
+    nestedDocsPlugin({
+      collections: ['pages'],
+      generateLabel: (_, doc) => doc.title as string,
+      generateURL: (docs) => docs.reduce((url, doc) => `${url}/${doc.slug}`, ''),
+    }),
   ],
   secret: process.env.PAYLOAD_SECRET || '',
   // Email configuration (Resend) - pentru notificari booking, contact, comenzi

@@ -32,6 +32,11 @@ type HeroData = NonNullable<Page['hero']> & {
     headline?: string
     subheadline?: string
   }> | null
+  statsBadge?: {
+    enabled?: boolean | null
+    value?: string | null
+    label?: string | null
+  } | null
 }
 type CTAButton = NonNullable<NonNullable<Page['hero']>['ctaButtons']>[number]
 
@@ -514,10 +519,12 @@ export function RenderHero({ type, data, social }: RenderHeroProps) {
                   </div>
 
                   {/* Stats badge */}
-                  <div className="absolute -bottom-6 -right-6 bg-theme-secondary text-white px-6 py-4 rounded-2xl shadow-2xl">
-                    <div className="text-3xl font-bold">10+</div>
-                    <div className="text-sm opacity-90">ani experienta</div>
-                  </div>
+                  {(data?.statsBadge?.enabled !== false) && (
+                    <div className="absolute -bottom-6 -right-6 bg-theme-secondary text-white px-6 py-4 rounded-2xl shadow-2xl">
+                      <div className="text-3xl font-bold">{data?.statsBadge?.value || '10+'}</div>
+                      <div className="text-sm opacity-90">{data?.statsBadge?.label || 'ani experienta'}</div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

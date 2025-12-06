@@ -87,6 +87,7 @@ export interface Config {
     'contact-submissions': ContactSubmission;
     'product-categories': ProductCategory;
     'newsletter-subscribers': NewsletterSubscriber;
+    subscriptions: Subscription;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -130,6 +131,7 @@ export interface Config {
     'contact-submissions': ContactSubmissionsSelect<false> | ContactSubmissionsSelect<true>;
     'product-categories': ProductCategoriesSelect<false> | ProductCategoriesSelect<true>;
     'newsletter-subscribers': NewsletterSubscribersSelect<false> | NewsletterSubscribersSelect<true>;
+    subscriptions: SubscriptionsSelect<false> | SubscriptionsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -252,6 +254,14 @@ export interface Page {
     badge?: string | null;
     showScrollIndicator?: boolean | null;
     /**
+     * Badge-ul cu statistici afisat pe imaginea hero
+     */
+    statsBadge?: {
+      enabled?: boolean | null;
+      value?: string | null;
+      label?: string | null;
+    };
+    /**
      * Adauga un strat peste imagine pentru a face textul mai lizibil
      */
     overlayEnabled?: boolean | null;
@@ -320,7 +330,18 @@ export interface Page {
               label?: string | null;
               link?: string | null;
             };
+            /**
+             * Ex: /servicii - cardurile vor fi clickable si vor duce la /servicii/slug-serviciu. Lasati gol pentru a dezactiva link-urile.
+             */
+            detailBasePath?: string | null;
             backgroundColor?: ('default' | 'light' | 'dark' | 'primary') | null;
+            /**
+             * Customize text labels for different languages
+             */
+            labels?: {
+              currencySymbol?: string | null;
+              fromLabel?: string | null;
+            };
             id?: string | null;
             blockName?: string | null;
             blockType: 'services';
@@ -337,6 +358,10 @@ export interface Page {
             showBio?: boolean | null;
             showSocial?: boolean | null;
             showContact?: boolean | null;
+            /**
+             * Ex: /echipa - cardurile vor deveni clickable si vor duce la /echipa/slug-membru
+             */
+            detailBasePath?: string | null;
             columns?: ('2' | '3' | '4') | null;
             backgroundColor?: ('default' | 'light' | 'dark') | null;
             id?: string | null;
@@ -443,6 +468,10 @@ export interface Page {
             heading?: string | null;
             subheading?: string | null;
             showForm?: boolean | null;
+            /**
+             * Standard = campuri predefinite, Custom = campuri personalizate
+             */
+            formType?: ('standard' | 'custom') | null;
             formFields?: {
               showName?: boolean | null;
               showEmail?: boolean | null;
@@ -451,6 +480,35 @@ export interface Page {
               showService?: boolean | null;
               showMessage?: boolean | null;
             };
+            /**
+             * Defineste campurile formularului in ordinea dorita
+             */
+            customFields?:
+              | {
+                  fieldType: 'text' | 'email' | 'tel' | 'number' | 'textarea' | 'select' | 'checkbox' | 'date' | 'time';
+                  /**
+                   * Ex: preferredClass, experienceLevel (fara spatii sau caractere speciale)
+                   */
+                  name: string;
+                  /**
+                   * Ex: Clasa preferata, Nivel experienta
+                   */
+                  label: string;
+                  placeholder?: string | null;
+                  required?: boolean | null;
+                  halfWidth?: boolean | null;
+                  options?:
+                    | {
+                        label: string;
+                        value: string;
+                        id?: string | null;
+                      }[]
+                    | null;
+                  min?: number | null;
+                  max?: number | null;
+                  id?: string | null;
+                }[]
+              | null;
             submitButtonText?: string | null;
             successMessage?: string | null;
             showContactInfo?: boolean | null;
@@ -464,6 +522,26 @@ export interface Page {
             showMap?: boolean | null;
             mapPosition?: ('top' | 'bottom' | 'side') | null;
             backgroundColor?: ('default' | 'light' | 'dark') | null;
+            /**
+             * Personalizare text pentru diferite limbi
+             */
+            labels?: {
+              formTitle?: string | null;
+              contactInfoTitle?: string | null;
+              nameLabel?: string | null;
+              emailLabel?: string | null;
+              phoneLabel?: string | null;
+              subjectLabel?: string | null;
+              serviceLabel?: string | null;
+              messageLabel?: string | null;
+              selectPlaceholder?: string | null;
+              requiredText?: string | null;
+              submittingText?: string | null;
+              errorMessage?: string | null;
+              addressLabel?: string | null;
+              scheduleLabel?: string | null;
+              socialLabel?: string | null;
+            };
             id?: string | null;
             blockName?: string | null;
             blockType: 'contact';
@@ -510,6 +588,12 @@ export interface Page {
             aspectRatio?: ('auto' | 'square' | '4-3' | '16-9' | '3-2') | null;
             gap?: ('none' | 'small' | 'medium' | 'large') | null;
             backgroundColor?: ('default' | 'light' | 'dark') | null;
+            /**
+             * Customize text labels for different languages
+             */
+            labels?: {
+              allFilter?: string | null;
+            };
             id?: string | null;
             blockName?: string | null;
             blockType: 'gallery';
@@ -867,9 +951,246 @@ export interface Page {
         | BrandLogosBlock
         | TimelineBlock
         | AnnouncementBarBlock
+        | {
+            variant?: ('cards-3' | 'cards-4' | 'cards-overlay' | 'list-compact' | 'table-compare') | null;
+            heading?: string | null;
+            subheading?: string | null;
+            source?: ('collection' | 'manual') | null;
+            selectedSubscriptions?: (string | Subscription)[] | null;
+            filterByType?:
+              | ('all' | 'gym' | 'spa' | 'solar' | 'fitness-spa' | 'classes' | 'personal' | 'premium')
+              | null;
+            limit?: number | null;
+            showImage?: boolean | null;
+            showFeatures?: boolean | null;
+            showOldPrice?: boolean | null;
+            highlightStyle?: ('border' | 'background' | 'elevated' | 'badge') | null;
+            ctaButton?: {
+              enabled?: boolean | null;
+              label?: string | null;
+              link?: string | null;
+            };
+            backgroundColor?: ('default' | 'light' | 'dark' | 'primary') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'subscriptionCards';
+          }
+        | {
+            variant?: ('table-week' | 'list-days' | 'cards-days') | null;
+            heading?: string | null;
+            subheading?: string | null;
+            source?: ('collection' | 'custom') | null;
+            filterByCategory?:
+              | ('all' | 'cardio' | 'strength' | 'flexibility' | 'mind-body' | 'combat' | 'dance' | 'hiit')
+              | null;
+            customSchedule?:
+              | {
+                  day: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+                  startTime: string;
+                  endTime?: string | null;
+                  title: string;
+                  trainer?: string | null;
+                  room?: string | null;
+                  color?: ('primary' | 'orange' | 'blue' | 'green' | 'purple') | null;
+                  id?: string | null;
+                }[]
+              | null;
+            showTrainer?: boolean | null;
+            showDuration?: boolean | null;
+            showRoom?: boolean | null;
+            showCategoryFilter?: boolean | null;
+            highlightToday?: boolean | null;
+            startHour?: number | null;
+            endHour?: number | null;
+            ctaButton?: {
+              enabled?: boolean | null;
+              label?: string | null;
+              link?: string | null;
+            };
+            backgroundColor?: ('default' | 'light' | 'dark') | null;
+            /**
+             * Customize text labels for different languages
+             */
+            labels?: {
+              allFilter?: string | null;
+              todayBadge?: string | null;
+              noClasses?: string | null;
+              detailsButton?: string | null;
+              timeHeader?: string | null;
+              /**
+               * JSON object with day translations: { "monday": "Luni", ... }
+               */
+              dayLabels?:
+                | {
+                    [k: string]: unknown;
+                  }
+                | unknown[]
+                | string
+                | number
+                | boolean
+                | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'scheduleTable';
+          }
+        | {
+            /**
+             * Selecteaza membrul echipei de afisat
+             */
+            member: string | Team;
+            variant?: ('full' | 'compact' | 'hero') | null;
+            showBreadcrumb?: boolean | null;
+            showExperience?: boolean | null;
+            showSpecializations?: boolean | null;
+            showContact?: boolean | null;
+            showSocialMedia?: boolean | null;
+            showSchedule?: boolean | null;
+            showCTA?: boolean | null;
+            showRelatedMembers?: boolean | null;
+            relatedMembersCount?: number | null;
+            relatedMembersTitle?: string | null;
+            backgroundColor?: ('default' | 'light' | 'dark') | null;
+            /**
+             * Customize all text labels for different languages
+             */
+            labels?: {
+              breadcrumbHome?: string | null;
+              breadcrumbTeam?: string | null;
+              experienceTitle?: string | null;
+              specializationsTitle?: string | null;
+              scheduleTitle?: string | null;
+              contactTitle?: string | null;
+              ctaTitle?: string | null;
+              ctaDescription?: string | null;
+              ctaButtonText?: string | null;
+              ctaSecondaryButtonText?: string | null;
+              viewAllTeamText?: string | null;
+              notFoundMessage?: string | null;
+            };
+            /**
+             * Configure URL paths
+             */
+            links?: {
+              teamBasePath?: string | null;
+              contactPath?: string | null;
+              classesPath?: string | null;
+              bookingPath?: string | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'teamMemberDetail';
+          }
+        | {
+            /**
+             * Selecteaza serviciul de afisat
+             */
+            service: string | Service;
+            variant?: ('full' | 'compact' | 'hero') | null;
+            showBreadcrumb?: boolean | null;
+            /**
+             * Only shown if service has schedule data
+             */
+            showSchedule?: boolean | null;
+            showPricing?: boolean | null;
+            /**
+             * Shows assigned team member/instructor
+             */
+            showTeamMember?: boolean | null;
+            showBenefits?: boolean | null;
+            showFeatures?: boolean | null;
+            showRequirements?: boolean | null;
+            showRelatedServices?: boolean | null;
+            relatedServicesCount?: number | null;
+            relatedServicesTitle?: string | null;
+            ctaButtonText?: string | null;
+            /**
+             * Leave empty to use default booking link
+             */
+            ctaButtonLink?: string | null;
+            backgroundColor?: ('default' | 'light' | 'dark') | null;
+            /**
+             * Customize all text labels for different languages
+             */
+            labels?: {
+              breadcrumbHome?: string | null;
+              breadcrumbServices?: string | null;
+              benefitsTitle?: string | null;
+              featuresTitle?: string | null;
+              scheduleTitle?: string | null;
+              pricingTitle?: string | null;
+              teamMemberTitle?: string | null;
+              requirementsTitle?: string | null;
+              viewAllServicesText?: string | null;
+              minutesLabel?: string | null;
+              spotsLabel?: string | null;
+              priceFromLabel?: string | null;
+              dropInLabel?: string | null;
+              monthlyLabel?: string | null;
+              packageLabel?: string | null;
+              currencySymbol?: string | null;
+              /**
+               * JSON object with day translations: { "monday": "Luni", ... }
+               */
+              dayLabels?:
+                | {
+                    [k: string]: unknown;
+                  }
+                | unknown[]
+                | string
+                | number
+                | boolean
+                | null;
+              /**
+               * JSON object with difficulty translations
+               */
+              difficultyLabels?:
+                | {
+                    [k: string]: unknown;
+                  }
+                | unknown[]
+                | string
+                | number
+                | boolean
+                | null;
+              /**
+               * JSON object with service type translations
+               */
+              serviceTypeLabels?:
+                | {
+                    [k: string]: unknown;
+                  }
+                | unknown[]
+                | string
+                | number
+                | boolean
+                | null;
+              notFoundMessage?: string | null;
+            };
+            /**
+             * Configure URL paths
+             */
+            links?: {
+              servicesBasePath?: string | null;
+              teamBasePath?: string | null;
+              bookingPath?: string | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'serviceDetail';
+          }
       )[]
     | null;
   publishedAt?: string | null;
+  parent?: (string | null) | Page;
+  breadcrumbs?:
+    | {
+        doc?: (string | null) | Page;
+        url?: string | null;
+        label?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -921,6 +1242,8 @@ export interface Media {
   };
 }
 /**
+ * Servicii flexibile cu atribute dinamice și opțiuni avansate
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "services".
  */
@@ -932,7 +1255,7 @@ export interface Service {
    */
   slug: string;
   /**
-   * Maxim 2-3 propozitii pentru carduri
+   * Maxim 2-3 propoziții pentru carduri
    */
   shortDescription?: string | null;
   description?: {
@@ -952,23 +1275,67 @@ export interface Service {
   } | null;
   image?: (string | null) | Media;
   /**
-   * Ex: Scissors, Heart, Car, Wrench, etc.
+   * Ex: Scissors, Heart, Car, Dumbbell, Scale
    */
   icon?: string | null;
-  price?: number | null;
-  priceFrom?: boolean | null;
   /**
-   * Ex: 30 min, 1 ora, 2-3 ore
+   * Prețul serviciului (text flexibil)
+   */
+  price?: string | null;
+  /**
+   * Completează doar dacă are sens pentru serviciu
    */
   duration?: string | null;
+  /**
+   * Atribute suplimentare (Capacitate, Nivel, Calorii, etc.)
+   */
+  attributes?:
+    | {
+        label: string;
+        value: string;
+        icon?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   features?:
     | {
         feature?: string | null;
         id?: string | null;
       }[]
     | null;
+  difficulty?: ('beginner' | 'intermediate' | 'advanced' | 'all-levels') | null;
+  capacity?: number | null;
+  durationMinutes?: number | null;
+  /**
+   * Program pentru clase, consultații programate
+   */
+  schedule?:
+    | {
+        day: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+        startTime: string;
+        endTime?: string | null;
+        room?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Cum se afișează pe site
+   */
+  displayStyle: 'card' | 'card-image' | 'list' | 'pricing' | 'detailed' | 'menu-item';
   category?: (string | null) | Category;
+  /**
+   * Instructor, medic, avocat responsabil
+   */
+  assignedTeamMember?: (string | null) | Team;
+  /**
+   * Ex: "Rezervă", "Programează-te"
+   */
+  ctaLabel?: string | null;
+  ctaLink?: string | null;
+  backLabel?: string | null;
+  backLink?: string | null;
   featured?: boolean | null;
+  active?: boolean | null;
   order?: number | null;
   updatedAt: string;
   createdAt: string;
@@ -1673,6 +2040,61 @@ export interface AnnouncementBarBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subscriptions".
+ */
+export interface Subscription {
+  id: string;
+  title: string;
+  /**
+   * URL-ul paginii (generat automat din titlu)
+   */
+  slug: string;
+  subtitle?: string | null;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  image?: (string | null) | Media;
+  type: 'gym' | 'spa' | 'solar' | 'fitness-spa' | 'classes' | 'personal' | 'pool' | 'premium';
+  pricing: {
+    amount: number;
+    currency?: string | null;
+    period?: string | null;
+    oldPrice?: number | null;
+  };
+  features?:
+    | {
+        text: string;
+        included?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  cta?: {
+    label?: string | null;
+    linkType?: ('page' | 'custom') | null;
+    page?: (string | null) | Page;
+    url?: string | null;
+  };
+  highlighted?: boolean | null;
+  highlightLabel?: string | null;
+  order?: number | null;
+  active?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "bookings".
  */
 export interface Booking {
@@ -2353,6 +2775,10 @@ export interface PayloadLockedDocument {
         value: string | NewsletterSubscriber;
       } | null)
     | ({
+        relationTo: 'subscriptions';
+        value: string | Subscription;
+      } | null)
+    | ({
         relationTo: 'redirects';
         value: string | Redirect;
       } | null)
@@ -2474,6 +2900,13 @@ export interface PagesSelect<T extends boolean = true> {
         height?: T;
         badge?: T;
         showScrollIndicator?: T;
+        statsBadge?:
+          | T
+          | {
+              enabled?: T;
+              value?: T;
+              label?: T;
+            };
         overlayEnabled?: T;
         overlayOpacity?: T;
         overlayStyle?: T;
@@ -2546,7 +2979,14 @@ export interface PagesSelect<T extends boolean = true> {
                     label?: T;
                     link?: T;
                   };
+              detailBasePath?: T;
               backgroundColor?: T;
+              labels?:
+                | T
+                | {
+                    currencySymbol?: T;
+                    fromLabel?: T;
+                  };
               id?: T;
               blockName?: T;
             };
@@ -2564,6 +3004,7 @@ export interface PagesSelect<T extends boolean = true> {
               showBio?: T;
               showSocial?: T;
               showContact?: T;
+              detailBasePath?: T;
               columns?: T;
               backgroundColor?: T;
               id?: T;
@@ -2658,6 +3099,7 @@ export interface PagesSelect<T extends boolean = true> {
               heading?: T;
               subheading?: T;
               showForm?: T;
+              formType?: T;
               formFields?:
                 | T
                 | {
@@ -2667,6 +3109,26 @@ export interface PagesSelect<T extends boolean = true> {
                     showSubject?: T;
                     showService?: T;
                     showMessage?: T;
+                  };
+              customFields?:
+                | T
+                | {
+                    fieldType?: T;
+                    name?: T;
+                    label?: T;
+                    placeholder?: T;
+                    required?: T;
+                    halfWidth?: T;
+                    options?:
+                      | T
+                      | {
+                          label?: T;
+                          value?: T;
+                          id?: T;
+                        };
+                    min?: T;
+                    max?: T;
+                    id?: T;
                   };
               submitButtonText?: T;
               successMessage?: T;
@@ -2683,6 +3145,25 @@ export interface PagesSelect<T extends boolean = true> {
               showMap?: T;
               mapPosition?: T;
               backgroundColor?: T;
+              labels?:
+                | T
+                | {
+                    formTitle?: T;
+                    contactInfoTitle?: T;
+                    nameLabel?: T;
+                    emailLabel?: T;
+                    phoneLabel?: T;
+                    subjectLabel?: T;
+                    serviceLabel?: T;
+                    messageLabel?: T;
+                    selectPlaceholder?: T;
+                    requiredText?: T;
+                    submittingText?: T;
+                    errorMessage?: T;
+                    addressLabel?: T;
+                    scheduleLabel?: T;
+                    socialLabel?: T;
+                  };
               id?: T;
               blockName?: T;
             };
@@ -2728,6 +3209,11 @@ export interface PagesSelect<T extends boolean = true> {
               aspectRatio?: T;
               gap?: T;
               backgroundColor?: T;
+              labels?:
+                | T
+                | {
+                    allFilter?: T;
+                  };
               id?: T;
               blockName?: T;
             };
@@ -2999,8 +3485,185 @@ export interface PagesSelect<T extends boolean = true> {
         brandLogos?: T | BrandLogosBlockSelect<T>;
         timeline?: T | TimelineBlockSelect<T>;
         announcementBar?: T | AnnouncementBarBlockSelect<T>;
+        subscriptionCards?:
+          | T
+          | {
+              variant?: T;
+              heading?: T;
+              subheading?: T;
+              source?: T;
+              selectedSubscriptions?: T;
+              filterByType?: T;
+              limit?: T;
+              showImage?: T;
+              showFeatures?: T;
+              showOldPrice?: T;
+              highlightStyle?: T;
+              ctaButton?:
+                | T
+                | {
+                    enabled?: T;
+                    label?: T;
+                    link?: T;
+                  };
+              backgroundColor?: T;
+              id?: T;
+              blockName?: T;
+            };
+        scheduleTable?:
+          | T
+          | {
+              variant?: T;
+              heading?: T;
+              subheading?: T;
+              source?: T;
+              filterByCategory?: T;
+              customSchedule?:
+                | T
+                | {
+                    day?: T;
+                    startTime?: T;
+                    endTime?: T;
+                    title?: T;
+                    trainer?: T;
+                    room?: T;
+                    color?: T;
+                    id?: T;
+                  };
+              showTrainer?: T;
+              showDuration?: T;
+              showRoom?: T;
+              showCategoryFilter?: T;
+              highlightToday?: T;
+              startHour?: T;
+              endHour?: T;
+              ctaButton?:
+                | T
+                | {
+                    enabled?: T;
+                    label?: T;
+                    link?: T;
+                  };
+              backgroundColor?: T;
+              labels?:
+                | T
+                | {
+                    allFilter?: T;
+                    todayBadge?: T;
+                    noClasses?: T;
+                    detailsButton?: T;
+                    timeHeader?: T;
+                    dayLabels?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        teamMemberDetail?:
+          | T
+          | {
+              member?: T;
+              variant?: T;
+              showBreadcrumb?: T;
+              showExperience?: T;
+              showSpecializations?: T;
+              showContact?: T;
+              showSocialMedia?: T;
+              showSchedule?: T;
+              showCTA?: T;
+              showRelatedMembers?: T;
+              relatedMembersCount?: T;
+              relatedMembersTitle?: T;
+              backgroundColor?: T;
+              labels?:
+                | T
+                | {
+                    breadcrumbHome?: T;
+                    breadcrumbTeam?: T;
+                    experienceTitle?: T;
+                    specializationsTitle?: T;
+                    scheduleTitle?: T;
+                    contactTitle?: T;
+                    ctaTitle?: T;
+                    ctaDescription?: T;
+                    ctaButtonText?: T;
+                    ctaSecondaryButtonText?: T;
+                    viewAllTeamText?: T;
+                    notFoundMessage?: T;
+                  };
+              links?:
+                | T
+                | {
+                    teamBasePath?: T;
+                    contactPath?: T;
+                    classesPath?: T;
+                    bookingPath?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        serviceDetail?:
+          | T
+          | {
+              service?: T;
+              variant?: T;
+              showBreadcrumb?: T;
+              showSchedule?: T;
+              showPricing?: T;
+              showTeamMember?: T;
+              showBenefits?: T;
+              showFeatures?: T;
+              showRequirements?: T;
+              showRelatedServices?: T;
+              relatedServicesCount?: T;
+              relatedServicesTitle?: T;
+              ctaButtonText?: T;
+              ctaButtonLink?: T;
+              backgroundColor?: T;
+              labels?:
+                | T
+                | {
+                    breadcrumbHome?: T;
+                    breadcrumbServices?: T;
+                    benefitsTitle?: T;
+                    featuresTitle?: T;
+                    scheduleTitle?: T;
+                    pricingTitle?: T;
+                    teamMemberTitle?: T;
+                    requirementsTitle?: T;
+                    viewAllServicesText?: T;
+                    minutesLabel?: T;
+                    spotsLabel?: T;
+                    priceFromLabel?: T;
+                    dropInLabel?: T;
+                    monthlyLabel?: T;
+                    packageLabel?: T;
+                    currencySymbol?: T;
+                    dayLabels?: T;
+                    difficultyLabels?: T;
+                    serviceTypeLabels?: T;
+                    notFoundMessage?: T;
+                  };
+              links?:
+                | T
+                | {
+                    servicesBasePath?: T;
+                    teamBasePath?: T;
+                    bookingPath?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
       };
   publishedAt?: T;
+  parent?: T;
+  breadcrumbs?:
+    | T
+    | {
+        doc?: T;
+        url?: T;
+        label?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -3404,16 +4067,42 @@ export interface ServicesSelect<T extends boolean = true> {
   image?: T;
   icon?: T;
   price?: T;
-  priceFrom?: T;
   duration?: T;
+  attributes?:
+    | T
+    | {
+        label?: T;
+        value?: T;
+        icon?: T;
+        id?: T;
+      };
   features?:
     | T
     | {
         feature?: T;
         id?: T;
       };
+  difficulty?: T;
+  capacity?: T;
+  durationMinutes?: T;
+  schedule?:
+    | T
+    | {
+        day?: T;
+        startTime?: T;
+        endTime?: T;
+        room?: T;
+        id?: T;
+      };
+  displayStyle?: T;
   category?: T;
+  assignedTeamMember?: T;
+  ctaLabel?: T;
+  ctaLink?: T;
+  backLabel?: T;
+  backLink?: T;
   featured?: T;
+  active?: T;
   order?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -3616,6 +4305,47 @@ export interface NewsletterSubscribersSelect<T extends boolean = true> {
   unsubscribedAt?: T;
   ipAddress?: T;
   userAgent?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subscriptions_select".
+ */
+export interface SubscriptionsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  subtitle?: T;
+  description?: T;
+  image?: T;
+  type?: T;
+  pricing?:
+    | T
+    | {
+        amount?: T;
+        currency?: T;
+        period?: T;
+        oldPrice?: T;
+      };
+  features?:
+    | T
+    | {
+        text?: T;
+        included?: T;
+        id?: T;
+      };
+  cta?:
+    | T
+    | {
+        label?: T;
+        linkType?: T;
+        page?: T;
+        url?: T;
+      };
+  highlighted?: T;
+  highlightLabel?: T;
+  order?: T;
+  active?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -4222,6 +4952,24 @@ export interface Footer {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Imagine mare pentru fundalul footer-ului (grunge, textura, abstract). Se intinde pe tot footer-ul, nu se repeta.
+   */
+  backgroundImage?: (string | null) | Media;
+  /**
+   * Opacitatea imaginii de fundal (0-100%). Implicit: 20%
+   */
+  backgroundOpacity?: number | null;
+  /**
+   * Imagine decorativa pozitionata intr-o parte a footer-ului (ex: grunge, siluete, pattern artistic). PNG transparent recomandat.
+   */
+  decorativeImage?: (string | null) | Media;
+  decorativePosition?: ('left' | 'right' | 'bottom-left' | 'bottom-right') | null;
+  /**
+   * Opacitatea elementului decorativ (0-100%). Implicit: 30%
+   */
+  decorativeOpacity?: number | null;
+  decorativeSize?: ('small' | 'medium' | 'large' | 'xl') | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -4246,7 +4994,9 @@ export interface SiteTheme {
     | 'warm-orange'
     | 'teal-modern'
     | 'brown-vintage'
-    | 'pink-soft';
+    | 'pink-soft'
+    | 'fitness-orange'
+    | 'fitness-dark';
   /**
    * Lasa gol pentru default din varianta
    */
@@ -4316,6 +5066,21 @@ export interface SiteTheme {
         )
       | null;
   };
+  /**
+   * Permite controlul fin asupra letter-spacing si line-height
+   */
+  useAdvancedTypography?: boolean | null;
+  letterSpacing?: ('tight' | 'normal' | 'wide' | 'wider') | null;
+  headingLineHeight?: ('1.1' | '1.2' | '1.3') | null;
+  bodyLineHeight?: ('1.5' | '1.6' | '1.8') | null;
+  /**
+   * Permite controlul fin asupra aspectului butoanelor
+   */
+  useCustomButtons?: boolean | null;
+  buttonPadding?: ('compact' | 'normal' | 'large' | 'xl') | null;
+  buttonTextTransform?: ('none' | 'uppercase' | 'capitalize') | null;
+  buttonFontWeight?: ('400' | '500' | '600' | '700') | null;
+  buttonLetterSpacing?: ('normal' | 'wide' | 'wider' | 'extra-wide') | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -4628,6 +5393,12 @@ export interface FooterSelect<T extends boolean = true> {
         alt?: T;
         id?: T;
       };
+  backgroundImage?: T;
+  backgroundOpacity?: T;
+  decorativeImage?: T;
+  decorativePosition?: T;
+  decorativeOpacity?: T;
+  decorativeSize?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -4664,6 +5435,15 @@ export interface SiteThemeSelect<T extends boolean = true> {
         headingFont?: T;
         bodyFont?: T;
       };
+  useAdvancedTypography?: T;
+  letterSpacing?: T;
+  headingLineHeight?: T;
+  bodyLineHeight?: T;
+  useCustomButtons?: T;
+  buttonPadding?: T;
+  buttonTextTransform?: T;
+  buttonFontWeight?: T;
+  buttonLetterSpacing?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -4872,6 +5652,41 @@ export interface TaskSchedulePublish {
     user?: (string | null) | User;
   };
   output?: unknown;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BannerBlock".
+ */
+export interface BannerBlock {
+  style: 'info' | 'warning' | 'error' | 'success';
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'banner';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MediaBlock".
+ */
+export interface MediaBlock {
+  media: string | Media;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mediaBlock';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

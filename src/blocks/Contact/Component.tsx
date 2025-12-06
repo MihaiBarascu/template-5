@@ -1,13 +1,46 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useMemo, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { cn } from '@/utilities/cn'
+
+interface CustomField {
+  id?: string | null
+  fieldType: 'text' | 'email' | 'tel' | 'number' | 'textarea' | 'select' | 'checkbox' | 'date' | 'time'
+  name: string
+  label: string
+  placeholder?: string | null
+  required?: boolean | null
+  halfWidth?: boolean | null
+  options?: Array<{ label: string; value: string; id?: string | null }> | null
+  min?: number | null
+  max?: number | null
+}
+
+interface ContactLabels {
+  formTitle?: string | null
+  contactInfoTitle?: string | null
+  nameLabel?: string | null
+  emailLabel?: string | null
+  phoneLabel?: string | null
+  subjectLabel?: string | null
+  serviceLabel?: string | null
+  messageLabel?: string | null
+  selectPlaceholder?: string | null
+  requiredText?: string | null
+  submittingText?: string | null
+  errorMessage?: string | null
+  addressLabel?: string | null
+  scheduleLabel?: string | null
+  socialLabel?: string | null
+}
 
 interface ContactBlockProps {
   variant?: string
   heading?: string
   subheading?: string
   showForm?: boolean
+  formType?: 'standard' | 'custom'
   formFields?: {
     showName?: boolean | null
     showEmail?: boolean | null
@@ -16,6 +49,7 @@ interface ContactBlockProps {
     showService?: boolean | null
     showMessage?: boolean | null
   } | null
+  customFields?: CustomField[] | null
   submitButtonText?: string
   successMessage?: string
   showContactInfo?: boolean
@@ -29,6 +63,7 @@ interface ContactBlockProps {
   showMap?: boolean
   mapPosition?: string
   backgroundColor?: string
+  labels?: ContactLabels | null
   businessInfo?: {
     phone?: string | null
     email?: string | null
@@ -55,7 +90,9 @@ export function ContactBlock({
   heading = 'Contacteaza-ne',
   subheading,
   showForm = true,
+  formType = 'standard',
   formFields: formFieldsProp,
+  customFields,
   submitButtonText = 'Trimite mesajul',
   successMessage = 'Multumim! Mesajul tau a fost trimis cu succes.',
   showContactInfo = true,
@@ -63,6 +100,7 @@ export function ContactBlock({
   showMap = false,
   mapPosition = 'bottom',
   backgroundColor = 'light',
+  labels: labelsProp,
   businessInfo,
   services,
 }: ContactBlockProps) {
@@ -82,15 +120,96 @@ export function ContactBlock({
     showWorkingHours: true,
     showSocial: false,
   }
+  const labels = labelsProp ?? {}
   const servicesList = services ?? []
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    subject: '',
-    service: '',
-    message: '',
-  })
+
+  // URL Prefill: citește parametrii din URL
+  const searchParams = useSearchParams()
+
+  /**
+   * Construiește valorile implicite pentru câmpurile formularului
+   * Citește și query params din URL pentru pre-completare automată
+   */
+  const initialFormData = useMemo(() => {
+    // Bazele formularului
+    const baseData: Record<string, string | boolean> = {}
+
+    if (formType === 'custom' && customFields && customFields.length > 0) {
+      customFields.forEach(field => {
+        baseData[field.name] = field.fieldType === 'checkbox' ? false : ''
+      })
+    } else {
+      baseData.name = ''
+      baseData.email = ''
+      baseData.phone = ''
+      baseData.subject = ''
+      baseData.service = ''
+      baseData.message = ''
+    }
+
+    // Override cu valorile din URL (URL Prefill)
+    if (searchParams && formType === 'custom' && customFields) {
+      // Check for 'clasa' parameter (used for class registration)
+      const clasaParam = searchParams.get('clasa')
+      if (clasaParam) {
+        const classField = customFields.find(f =>
+          f.name === 'preferredClass' ||
+          f.name === 'class' ||
+          f.name === 'clasa'
+        )
+        if (classField) {
+          const matchingOption = classField.options?.find(opt =>
+            opt.label.toLowerCase() === clasaParam.toLowerCase() ||
+            opt.value.toLowerCase() === clasaParam.toLowerCase()
+          )
+          if (matchingOption) {
+            baseData[classField.name] = matchingOption.value
+          }
+        }
+      }
+
+      // Check for 'abonament' parameter (used for subscription orders)
+      const abonamentParam = searchParams.get('abonament')
+      if (abonamentParam) {
+        const subField = customFields.find(f =>
+          f.name === 'subscription' ||
+          f.name === 'abonament'
+        )
+        if (subField) {
+          const matchingOption = subField.options?.find(opt =>
+            opt.label.toLowerCase().includes(abonamentParam.toLowerCase()) ||
+            opt.value.toLowerCase() === abonamentParam.toLowerCase()
+          )
+          if (matchingOption) {
+            baseData[subField.name] = matchingOption.value
+          }
+        }
+      }
+
+      // Apply all query params that match field names
+      customFields.forEach(field => {
+        const paramValue = searchParams.get(field.name)
+        if (paramValue) {
+          if (field.fieldType === 'checkbox') {
+            baseData[field.name] = paramValue === 'true' || paramValue === '1'
+          } else if (field.fieldType === 'select' && field.options) {
+            const matchingOption = field.options.find(opt =>
+              opt.value === paramValue || opt.label === paramValue
+            )
+            if (matchingOption) {
+              baseData[field.name] = matchingOption.value
+            }
+          } else {
+            baseData[field.name] = paramValue
+          }
+        }
+      })
+    }
+
+    return baseData
+  }, [formType, customFields, searchParams])
+
+  const [formData, setFormData] = useState<Record<string, string | boolean>>(initialFormData)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [error, setError] = useState('')
@@ -125,26 +244,150 @@ export function ContactBlock({
       }
 
       setIsSubmitted(true)
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        subject: '',
-        service: '',
-        message: '',
-      })
+      setFormData(initialFormData)
     } catch (_err) {
-      setError('A aparut o eroare. Te rugam sa incerci din nou.')
+      setError(labels.errorMessage || 'A aparut o eroare. Te rugam sa incerci din nou.')
     } finally {
       setIsSubmitting(false)
     }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const target = e.target
+    const value = target.type === 'checkbox' ? (target as HTMLInputElement).checked : target.value
     setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [target.name]: value,
     }))
+  }
+
+  // Render a single custom field
+  const renderCustomField = (field: CustomField, index: number) => {
+    const fieldId = `custom-${field.name}`
+    const isRequired = field.required
+    const requiredMark = isRequired ? ` ${labels.requiredText || '*'}` : ''
+
+    switch (field.fieldType) {
+      case 'textarea':
+        return (
+          <div key={field.id || index} className={field.halfWidth ? '' : 'col-span-2'}>
+            <label htmlFor={fieldId} className="block text-sm font-medium mb-1">
+              {field.label}{requiredMark}
+            </label>
+            <textarea
+              id={fieldId}
+              name={field.name}
+              value={formData[field.name] as string || ''}
+              onChange={handleChange}
+              required={isRequired || false}
+              rows={4}
+              className={inputClass}
+              placeholder={field.placeholder || ''}
+            />
+          </div>
+        )
+
+      case 'select':
+        return (
+          <div key={field.id || index} className={field.halfWidth ? '' : 'col-span-2'}>
+            <label htmlFor={fieldId} className="block text-sm font-medium mb-1">
+              {field.label}{requiredMark}
+            </label>
+            <select
+              id={fieldId}
+              name={field.name}
+              value={formData[field.name] as string || ''}
+              onChange={handleChange}
+              required={isRequired || false}
+              className={inputClass}
+            >
+              <option value="">{field.placeholder || labels.selectPlaceholder || 'Selecteaza o optiune'}</option>
+              {field.options?.map((option, optIdx) => (
+                <option key={option.id || optIdx} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        )
+
+      case 'checkbox':
+        return (
+          <div key={field.id || index} className={cn('flex items-center gap-2', field.halfWidth ? '' : 'col-span-2')}>
+            <input
+              type="checkbox"
+              id={fieldId}
+              name={field.name}
+              checked={formData[field.name] as boolean || false}
+              onChange={handleChange}
+              required={isRequired || false}
+              className="w-4 h-4 rounded border-gray-300 text-theme-primary focus:ring-theme-primary"
+            />
+            <label htmlFor={fieldId} className="text-sm font-medium">
+              {field.label}{requiredMark}
+            </label>
+          </div>
+        )
+
+      case 'number':
+        return (
+          <div key={field.id || index} className={field.halfWidth ? '' : 'col-span-2'}>
+            <label htmlFor={fieldId} className="block text-sm font-medium mb-1">
+              {field.label}{requiredMark}
+            </label>
+            <input
+              type="number"
+              id={fieldId}
+              name={field.name}
+              value={formData[field.name] as string || ''}
+              onChange={handleChange}
+              required={isRequired || false}
+              min={field.min ?? undefined}
+              max={field.max ?? undefined}
+              className={inputClass}
+              placeholder={field.placeholder || ''}
+            />
+          </div>
+        )
+
+      case 'date':
+      case 'time':
+        return (
+          <div key={field.id || index} className={field.halfWidth ? '' : 'col-span-2'}>
+            <label htmlFor={fieldId} className="block text-sm font-medium mb-1">
+              {field.label}{requiredMark}
+            </label>
+            <input
+              type={field.fieldType}
+              id={fieldId}
+              name={field.name}
+              value={formData[field.name] as string || ''}
+              onChange={handleChange}
+              required={isRequired || false}
+              className={inputClass}
+            />
+          </div>
+        )
+
+      default: // text, email, tel
+        return (
+          <div key={field.id || index} className={field.halfWidth ? '' : 'col-span-2'}>
+            <label htmlFor={fieldId} className="block text-sm font-medium mb-1">
+              {field.label}{requiredMark}
+            </label>
+            <input
+              type={field.fieldType}
+              id={fieldId}
+              name={field.name}
+              value={formData[field.name] as string || ''}
+              onChange={handleChange}
+              required={isRequired || false}
+              className={inputClass}
+              placeholder={field.placeholder || ''}
+            />
+          </div>
+        )
+    }
   }
 
   const ContactForm = () => (
@@ -156,18 +399,54 @@ export function ContactBlock({
           </svg>
           <p className="font-medium">{successMessage}</p>
         </div>
+      ) : formType === 'custom' && customFields && customFields.length > 0 ? (
+        <>
+          {/* Custom fields form */}
+          <div className="grid md:grid-cols-2 gap-4">
+            {customFields.map((field, idx) => renderCustomField(field, idx))}
+          </div>
+
+          {error && (
+            <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm">
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className={cn(
+              'w-full py-3 px-6 rounded-lg font-medium transition-all',
+              'bg-theme-primary text-white hover:bg-theme-primary-dark',
+              'disabled:opacity-50 disabled:cursor-not-allowed'
+            )}
+          >
+            {isSubmitting ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                {labels.submittingText || 'Se trimite...'}
+              </span>
+            ) : (
+              submitButtonText
+            )}
+          </button>
+        </>
       ) : (
         <>
+          {/* Standard fields form */}
           {formFields.showName && (
             <div>
               <label htmlFor="name" className="block text-sm font-medium mb-1">
-                Nume complet *
+                {labels.nameLabel || 'Nume complet'} {labels.requiredText || '*'}
               </label>
               <input
                 type="text"
                 id="name"
                 name="name"
-                value={formData.name}
+                value={formData.name as string || ''}
                 onChange={handleChange}
                 required
                 className={inputClass}
@@ -180,13 +459,13 @@ export function ContactBlock({
             {formFields.showEmail && (
               <div>
                 <label htmlFor="email" className="block text-sm font-medium mb-1">
-                  Email *
+                  {labels.emailLabel || 'Email'} {labels.requiredText || '*'}
                 </label>
                 <input
                   type="email"
                   id="email"
                   name="email"
-                  value={formData.email}
+                  value={formData.email as string || ''}
                   onChange={handleChange}
                   required
                   className={inputClass}
@@ -198,13 +477,13 @@ export function ContactBlock({
             {formFields.showPhone && (
               <div>
                 <label htmlFor="phone" className="block text-sm font-medium mb-1">
-                  Telefon
+                  {labels.phoneLabel || 'Telefon'}
                 </label>
                 <input
                   type="tel"
                   id="phone"
                   name="phone"
-                  value={formData.phone}
+                  value={formData.phone as string || ''}
                   onChange={handleChange}
                   className={inputClass}
                   placeholder="0722 123 456"
@@ -216,13 +495,13 @@ export function ContactBlock({
           {formFields.showSubject && (
             <div>
               <label htmlFor="subject" className="block text-sm font-medium mb-1">
-                Subiect
+                {labels.subjectLabel || 'Subiect'}
               </label>
               <input
                 type="text"
                 id="subject"
                 name="subject"
-                value={formData.subject}
+                value={formData.subject as string || ''}
                 onChange={handleChange}
                 className={inputClass}
                 placeholder="Subiectul mesajului"
@@ -233,16 +512,16 @@ export function ContactBlock({
           {formFields.showService && servicesList.length > 0 && (
             <div>
               <label htmlFor="service" className="block text-sm font-medium mb-1">
-                Serviciu de interes
+                {labels.serviceLabel || 'Serviciu de interes'}
               </label>
               <select
                 id="service"
                 name="service"
-                value={formData.service}
+                value={formData.service as string || ''}
                 onChange={handleChange}
                 className={inputClass}
               >
-                <option value="">Selecteaza un serviciu</option>
+                <option value="">{labels.selectPlaceholder || 'Selecteaza un serviciu'}</option>
                 {servicesList.map((service) => (
                   <option key={service.id} value={service.title}>
                     {service.title}
@@ -255,12 +534,12 @@ export function ContactBlock({
           {formFields.showMessage && (
             <div>
               <label htmlFor="message" className="block text-sm font-medium mb-1">
-                Mesaj *
+                {labels.messageLabel || 'Mesaj'} {labels.requiredText || '*'}
               </label>
               <textarea
                 id="message"
                 name="message"
-                value={formData.message}
+                value={formData.message as string || ''}
                 onChange={handleChange}
                 required
                 rows={5}
@@ -291,7 +570,7 @@ export function ContactBlock({
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
-                Se trimite...
+                {labels.submittingText || 'Se trimite...'}
               </span>
             ) : (
               submitButtonText
@@ -313,7 +592,7 @@ export function ContactBlock({
             </svg>
           </div>
           <div>
-            <h4 className="font-semibold mb-1">Adresa</h4>
+            <h4 className="font-semibold mb-1">{labels.addressLabel || 'Adresa'}</h4>
             <p className={cn('text-sm', backgroundColor === 'dark' ? 'text-gray-400' : 'text-gray-600')}>
               {businessInfo.address.street}<br />
               {businessInfo.address.city}, {businessInfo.address.county}
@@ -331,7 +610,7 @@ export function ContactBlock({
             </svg>
           </div>
           <div>
-            <h4 className="font-semibold mb-1">Telefon</h4>
+            <h4 className="font-semibold mb-1">{labels.phoneLabel || 'Telefon'}</h4>
             <a href={`tel:${businessInfo.phone}`} className={cn('text-sm hover:underline', backgroundColor === 'dark' ? 'text-gray-400' : 'text-gray-600')}>
               {businessInfo.phone}
             </a>
@@ -347,7 +626,7 @@ export function ContactBlock({
             </svg>
           </div>
           <div>
-            <h4 className="font-semibold mb-1">Email</h4>
+            <h4 className="font-semibold mb-1">{labels.emailLabel || 'Email'}</h4>
             <a href={`mailto:${businessInfo.email}`} className={cn('text-sm hover:underline', backgroundColor === 'dark' ? 'text-gray-400' : 'text-gray-600')}>
               {businessInfo.email}
             </a>
@@ -363,7 +642,7 @@ export function ContactBlock({
             </svg>
           </div>
           <div>
-            <h4 className="font-semibold mb-1">Program</h4>
+            <h4 className="font-semibold mb-1">{labels.scheduleLabel || 'Program'}</h4>
             <div className={cn('text-sm space-y-1', backgroundColor === 'dark' ? 'text-gray-400' : 'text-gray-600')}>
               {businessInfo.workingHours
                 .filter((schedule) => schedule.days && schedule.hours)
@@ -386,7 +665,7 @@ export function ContactBlock({
             </svg>
           </div>
           <div>
-            <h4 className="font-semibold mb-2">Social Media</h4>
+            <h4 className="font-semibold mb-2">{labels.socialLabel || 'Social Media'}</h4>
             <div className="flex gap-3">
               {businessInfo.social.facebook && (
                 <a href={businessInfo.social.facebook} target="_blank" rel="noopener noreferrer" className={cn('hover:text-theme-primary', backgroundColor === 'dark' ? 'text-gray-400' : 'text-gray-600')}>
@@ -445,13 +724,13 @@ export function ContactBlock({
           <div className="grid lg:grid-cols-2 gap-12">
             {showContactInfo && (
               <div>
-                <h3 className="text-xl font-semibold mb-6">Informatii de contact</h3>
+                <h3 className="text-xl font-semibold mb-6">{labels.contactInfoTitle || 'Informatii de contact'}</h3>
                 <ContactInfo />
               </div>
             )}
             {showForm && (
               <div className={cn('p-6 rounded-lg', backgroundColor === 'dark' ? 'bg-gray-800' : 'bg-white shadow-lg')}>
-                <h3 className="text-xl font-semibold mb-6">Trimite-ne un mesaj</h3>
+                <h3 className="text-xl font-semibold mb-6">{labels.formTitle || 'Trimite-ne un mesaj'}</h3>
                 <ContactForm />
               </div>
             )}
@@ -496,7 +775,7 @@ export function ContactBlock({
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                     </svg>
                   </div>
-                  <h4 className="font-semibold mb-1">Telefon</h4>
+                  <h4 className="font-semibold mb-1">{labels.phoneLabel || 'Telefon'}</h4>
                   <p className={backgroundColor === 'dark' ? 'text-gray-400' : 'text-gray-600'}>{businessInfo.phone}</p>
                 </a>
               )}
@@ -507,7 +786,7 @@ export function ContactBlock({
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                   </div>
-                  <h4 className="font-semibold mb-1">Email</h4>
+                  <h4 className="font-semibold mb-1">{labels.emailLabel || 'Email'}</h4>
                   <p className={backgroundColor === 'dark' ? 'text-gray-400' : 'text-gray-600'}>{businessInfo.email}</p>
                 </a>
               )}
@@ -519,7 +798,7 @@ export function ContactBlock({
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                   </div>
-                  <h4 className="font-semibold mb-1">Adresa</h4>
+                  <h4 className="font-semibold mb-1">{labels.addressLabel || 'Adresa'}</h4>
                   <p className={backgroundColor === 'dark' ? 'text-gray-400' : 'text-gray-600'}>
                     {businessInfo.address.street}, {businessInfo.address.city}
                   </p>
@@ -554,4 +833,38 @@ export function ContactBlock({
   )
 }
 
-export default ContactBlock
+// Fallback component for Suspense (required for useSearchParams in Next.js 15)
+const ContactBlockFallback: React.FC = () => (
+  <section className="py-16 bg-gray-50">
+    <div className="container mx-auto px-4">
+      <div className="animate-pulse">
+        <div className="h-8 bg-gray-200 rounded w-1/3 mx-auto mb-4" />
+        <div className="h-4 bg-gray-200 rounded w-2/3 mx-auto mb-12" />
+        <div className="grid lg:grid-cols-2 gap-12">
+          <div className="space-y-6">
+            <div className="h-24 bg-gray-200 rounded" />
+            <div className="h-24 bg-gray-200 rounded" />
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <div className="h-10 bg-gray-200 rounded mb-4" />
+            <div className="h-10 bg-gray-200 rounded mb-4" />
+            <div className="h-10 bg-gray-200 rounded mb-4" />
+            <div className="h-32 bg-gray-200 rounded mb-4" />
+            <div className="h-12 bg-gray-200 rounded w-32" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+)
+
+// Main export wrapped in Suspense (required for useSearchParams in Next.js 15)
+export const ContactBlockWithSuspense: React.FC<ContactBlockProps> = (props) => {
+  return (
+    <Suspense fallback={<ContactBlockFallback />}>
+      <ContactBlock {...props} />
+    </Suspense>
+  )
+}
+
+export default ContactBlockWithSuspense

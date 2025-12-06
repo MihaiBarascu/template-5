@@ -225,7 +225,12 @@ export function Header({ data, logo, businessInfo, showCart = false }: HeaderPro
                       {/* Dropdown Trigger - accessible button */}
                       <button
                         type="button"
-                        className="flex items-center gap-1 px-3 py-2 rounded-lg text-theme-text hover:text-theme-primary hover:bg-gray-50 transition-colors font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary focus-visible:ring-offset-2"
+                        className={cn(
+                          "flex items-center gap-1 px-3 py-2 rounded-lg transition-colors font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary focus-visible:ring-offset-2",
+                          variant === 'transparent'
+                            ? "text-white hover:text-white/80 hover:bg-white/10"
+                            : "text-theme-text hover:text-theme-primary hover:bg-gray-50"
+                        )}
                         aria-expanded={isOpen}
                         aria-haspopup="true"
                         onKeyDown={(e) => handleDropdownKeyDown(e, index, submenuItems.length)}
@@ -290,7 +295,12 @@ export function Header({ data, logo, businessInfo, showCart = false }: HeaderPro
                   <Link
                     key={index}
                     href={getItemHref(item)}
-                    className="px-3 py-2 rounded-lg text-theme-text hover:text-theme-primary hover:bg-gray-50 transition-colors font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary focus-visible:ring-offset-2"
+                    className={cn(
+                      "px-3 py-2 rounded-lg transition-colors font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary focus-visible:ring-offset-2",
+                      variant === 'transparent'
+                        ? "text-white hover:text-white/80 hover:bg-white/10"
+                        : "text-theme-text hover:text-theme-primary hover:bg-gray-50"
+                    )}
                     target={item.newTab ? '_blank' : undefined}
                   >
                     {item.label}
@@ -325,7 +335,12 @@ export function Header({ data, logo, businessInfo, showCart = false }: HeaderPro
 
               {/* Mobile Menu Button */}
               <button
-                className="md:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary focus-visible:ring-offset-2"
+                className={cn(
+                  "md:hidden p-2 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary focus-visible:ring-offset-2",
+                  variant === 'transparent'
+                    ? "text-white hover:bg-white/10"
+                    : "hover:bg-gray-100"
+                )}
                 aria-label="Meniu"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 aria-expanded={mobileMenuOpen}
