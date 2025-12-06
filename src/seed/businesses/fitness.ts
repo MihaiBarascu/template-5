@@ -14,6 +14,9 @@ import {
   seedNewsletterSubscribers,
   seedServices,
   seedSubscriptions,
+  seedForms,
+  formTemplates,
+  createContactPageLayout,
 } from '../helpers'
 import { fitnessImages, fitnessData } from '../fitness-data'
 import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
@@ -161,6 +164,22 @@ export async function seedFitness(payload: Payload) {
   console.log('\n💳 Creating subscriptions...')
   await seedSubscriptions(payload, fitnessData.subscriptions)
 
+  // 10b. Create forms using Form Builder
+  console.log('\n📝 Creating forms...')
+  const serviceOptions = Array.from(createdServices.entries()).map(([title]) => ({
+    label: title,
+    value: title.toLowerCase().replace(/\s+/g, '-'),
+  }))
+  const subscriptionOptions = fitnessData.subscriptions.map((sub) => ({
+    label: `${sub.title} - ${sub.price} RON`,
+    value: sub.title.toLowerCase().replace(/\s+/g, '-'),
+  }))
+  const formsMap = await seedForms(payload, [
+    formTemplates.contact(),
+    formTemplates.booking(serviceOptions),
+    formTemplates.subscriptionOrder(subscriptionOptions),
+  ])
+
   // 11. Testimonials
   console.log('\n⭐ Creating testimonials...')
   await seedTestimonials(payload, fitnessData.testimonials)
@@ -207,6 +226,7 @@ export async function seedFitness(payload: Payload) {
     fitnessData.team,
     createdTeam,
     createdServices,
+    formsMap,
   )
 
   // 16. Sample newsletter subscribers for demo
@@ -591,7 +611,12 @@ async function createAdditionalPages(
   teamData: TeamData[],
   teamIdMap: Map<string, string>,
   serviceIdMap: Map<string, string>,
+  formsMap: Map<string, string>,
 ) {
+  // Get form IDs for use in pages
+  const contactFormId = formsMap.get('Formular de contact')
+  const bookingFormId = formsMap.get('Cerere programare')
+  const subscriptionFormId = formsMap.get('Comanda abonament')
   // ============================================
   // CLASSES PARENT PAGE
   // ============================================
@@ -918,7 +943,7 @@ async function createAdditionalPages(
   })
   console.log('   Created Gallery page')
 
-  // Contact page - standard contact form
+  // Contact page - 2-column layout
   await payload.create({
     collection: 'pages',
     data: {
@@ -929,51 +954,19 @@ async function createAdditionalPages(
         headline: 'Contact',
         subheadline: 'Suntem aici sa te ajutam. Contacteaza-ne pentru orice intrebare.',
       },
-      layout: [
-        {
-          blockType: 'contact',
-          variant: 'split',
-          heading: 'Contacteaza-ne',
-          subheading: 'Trimite-ne un mesaj sau vino direct la sala',
-          showForm: true,
-          formType: 'standard',
-          formFields: {
-            showName: true,
-            showEmail: true,
-            showPhone: true,
-            showSubject: true,
-            showService: false,
-            showMessage: true,
-          },
-          submitButtonText: 'Trimite Mesajul',
-          successMessage:
-            'Multumim! Mesajul tau a fost trimis. Te vom contacta in cel mai scurt timp.',
-          showContactInfo: true,
-          contactInfoItems: {
-            showAddress: true,
-            showPhone: true,
-            showEmail: true,
-            showWorkingHours: true,
-            showSocial: true,
-          },
-          showMap: true,
-          mapPosition: 'bottom',
-          backgroundColor: 'light',
-        },
-      ],
+      layout: createContactPageLayout(contactFormId),
       _status: 'published',
     },
   })
   console.log('   Created Contact page')
 
-  // Class Registration page - nested under /clase/inscriere
+  // Class Registration page - nested under /clase/inscriere - using FormBlock
   await payload.create({
     collection: 'pages',
     data: {
       title: 'Inscriere Clase',
       slug: 'inscriere',
-      parent: clasesPage.id, // Nested under Clase
-      // Manually set breadcrumbs since nested-docs plugin hooks may not trigger via Local API
+      parent: clasesPage.id,
       breadcrumbs: [
         { label: 'Clase', url: '/clase', doc: clasesPage.id },
         { label: 'Inscriere Clase', url: '/clase/inscriere' },
@@ -984,140 +977,56 @@ async function createAdditionalPages(
         subheadline: 'Alege clasa preferata si programeaza-te pentru o sedinta.',
       },
       layout: [
+        // Form block using Form Builder (booking form)
+        ...(bookingFormId ? [{
+          blockType: 'formBlock' as const,
+          form: bookingFormId,
+          enableIntro: true,
+          introContent: {
+            root: {
+              type: 'root' as const,
+              children: [
+                {
+                  type: 'heading' as const,
+                  tag: 'h3' as const,
+                  children: [{ type: 'text' as const, text: 'Formular de Inscriere', format: 0, detail: 0, mode: 'normal' as const, style: '', version: 1 }],
+                  direction: 'ltr' as const,
+                  format: '' as const,
+                  indent: 0,
+                  version: 1,
+                },
+                {
+                  type: 'paragraph' as const,
+                  children: [{ type: 'text' as const, text: 'Completeaza formularul pentru a te inscrie la clasele noastre de fitness. Te vom contacta pentru confirmare.', format: 0, detail: 0, mode: 'normal' as const, style: '', version: 1 }],
+                  direction: 'ltr' as const,
+                  format: '' as const,
+                  indent: 0,
+                  textFormat: 0,
+                  version: 1,
+                },
+              ],
+              direction: 'ltr' as const,
+              format: '' as const,
+              indent: 0,
+              version: 1,
+            },
+          },
+        }] : []),
+        // Contact info block
         {
-          blockType: 'contact',
-          variant: 'split',
-          heading: 'Formular de Inscriere',
-          subheading: 'Completeaza formularul pentru a te inscrie la clasele noastre de fitness',
-          showForm: true,
-          formType: 'custom',
-          customFields: [
-            {
-              fieldType: 'text',
-              name: 'name',
-              label: 'Nume complet',
-              placeholder: 'Ion Popescu',
-              required: true,
-              halfWidth: false,
-            },
-            {
-              fieldType: 'email',
-              name: 'email',
-              label: 'Email',
-              placeholder: 'email@exemplu.ro',
-              required: true,
-              halfWidth: true,
-            },
-            {
-              fieldType: 'tel',
-              name: 'phone',
-              label: 'Telefon',
-              placeholder: '0722 123 456',
-              required: true,
-              halfWidth: true,
-            },
-            {
-              fieldType: 'select',
-              name: 'preferredClass',
-              label: 'Clasa preferata',
-              placeholder: 'Selecteaza o clasa',
-              required: true,
-              halfWidth: true,
-              options: [
-                { label: 'HIIT Extreme', value: 'hiit-extreme' },
-                { label: 'Yoga Flow', value: 'yoga-flow' },
-                { label: 'Spinning Power', value: 'spinning-power' },
-                { label: 'CrossFit WOD', value: 'crossfit-wod' },
-                { label: 'Pilates Mat', value: 'pilates-mat' },
-                { label: 'Box Fitness', value: 'box-fitness' },
-              ],
-            },
-            {
-              fieldType: 'select',
-              name: 'experienceLevel',
-              label: 'Nivel experienta',
-              placeholder: 'Selecteaza nivelul',
-              required: true,
-              halfWidth: true,
-              options: [
-                { label: 'Incepator - nu am mai facut fitness', value: 'beginner' },
-                { label: 'Intermediar - am ceva experienta', value: 'intermediate' },
-                { label: 'Avansat - fac fitness regulat', value: 'advanced' },
-              ],
-            },
-            {
-              fieldType: 'select',
-              name: 'preferredSchedule',
-              label: 'Program preferat',
-              placeholder: 'Cand preferi sa te antrenezi?',
-              required: false,
-              halfWidth: true,
-              options: [
-                { label: 'Dimineata (06:00 - 10:00)', value: 'morning' },
-                { label: 'Pranz (10:00 - 14:00)', value: 'noon' },
-                { label: 'Dupa-amiaza (14:00 - 18:00)', value: 'afternoon' },
-                { label: 'Seara (18:00 - 22:00)', value: 'evening' },
-                { label: 'Flexibil', value: 'flexible' },
-              ],
-            },
-            {
-              fieldType: 'select',
-              name: 'subscription',
-              label: 'Tip abonament dorit',
-              placeholder: 'Selecteaza abonamentul',
-              required: false,
-              halfWidth: true,
-              options: [
-                { label: 'Basic (149 RON/luna)', value: 'basic' },
-                { label: 'Standard (199 RON/luna)', value: 'standard' },
-                { label: 'Premium (299 RON/luna)', value: 'premium' },
-                { label: 'Anual Premium (1990 RON/an)', value: 'annual' },
-                { label: 'Nu stiu inca', value: 'undecided' },
-              ],
-            },
-            {
-              fieldType: 'checkbox',
-              name: 'trialSession',
-              label: 'Doresc o sedinta de proba gratuita',
-              required: false,
-              halfWidth: false,
-            },
-            {
-              fieldType: 'textarea',
-              name: 'message',
-              label: 'Mesaj sau obiective fitness',
-              placeholder: 'Spune-ne despre obiectivele tale sau orice intrebari ai avea...',
-              required: false,
-              halfWidth: false,
-            },
-          ],
-          submitButtonText: 'Inscrie-te Acum',
-          successMessage:
-            'Multumim pentru inscriere! Te vom contacta in cel mai scurt timp pentru a confirma programarea.',
+          blockType: 'contact' as const,
+          variant: 'minimal' as const,
+          heading: 'Vino la Sala',
           showContactInfo: true,
           contactInfoItems: {
             showAddress: true,
             showPhone: true,
             showEmail: true,
             showWorkingHours: true,
-            showSocial: true,
+            showSocial: false,
           },
-          showMap: true,
-          mapPosition: 'bottom',
-          backgroundColor: 'light',
-          labels: {
-            formTitle: 'Formular de Inscriere',
-            contactInfoTitle: 'Vino la Sala',
-            addressLabel: 'Locatie',
-            phoneLabel: 'Suna-ne',
-            emailLabel: 'Scrie-ne',
-            scheduleLabel: 'Program Sala',
-            socialLabel: 'Urmareste-ne',
-            selectPlaceholder: 'Selecteaza o optiune',
-            requiredText: '*',
-            submittingText: 'Se trimite inscrierea...',
-            errorMessage: 'A aparut o eroare. Te rugam sa incerci din nou sau sa ne contactezi telefonic.',
-          },
+          showMap: false,
+          backgroundColor: 'light' as const,
         },
       ],
       _status: 'published',
@@ -1125,8 +1034,7 @@ async function createAdditionalPages(
   })
   console.log('   Created Class Registration page (/clase/inscriere)')
 
-  // Subscription Order page - nested under /abonamente/comanda
-  // First we need the subscriptions page ID
+  // Subscription Order page - nested under /abonamente/comanda - using FormBlock
   const abonamentePage = await payload.find({
     collection: 'pages',
     where: { slug: { equals: 'abonamente' } },
@@ -1140,8 +1048,7 @@ async function createAdditionalPages(
       data: {
         title: 'Comanda Abonament',
         slug: 'comanda',
-        parent: abonamentePageId, // Nested under Abonamente -> /abonamente/comanda
-        // Manually set breadcrumbs since nested-docs plugin hooks may not trigger via Local API
+        parent: abonamentePageId,
         breadcrumbs: [
           { label: 'Abonamente', url: '/abonamente', doc: abonamentePageId },
           { label: 'Comanda Abonament', url: '/abonamente/comanda' },
@@ -1152,97 +1059,46 @@ async function createAdditionalPages(
           subheadline: 'Completeaza datele pentru a comanda abonamentul dorit.',
         },
         layout: [
+          // Form block using Form Builder (subscription order form)
+          ...(subscriptionFormId ? [{
+            blockType: 'formBlock' as const,
+            form: subscriptionFormId,
+            enableIntro: true,
+            introContent: {
+              root: {
+                type: 'root' as const,
+                children: [
+                  {
+                    type: 'heading' as const,
+                    tag: 'h3' as const,
+                    children: [{ type: 'text' as const, text: 'Formular Comanda Abonament', format: 0, detail: 0, mode: 'normal' as const, style: '', version: 1 }],
+                    direction: 'ltr' as const,
+                    format: '' as const,
+                    indent: 0,
+                    version: 1,
+                  },
+                  {
+                    type: 'paragraph' as const,
+                    children: [{ type: 'text' as const, text: 'Completeaza datele si te vom contacta pentru finalizarea comenzii.', format: 0, detail: 0, mode: 'normal' as const, style: '', version: 1 }],
+                    direction: 'ltr' as const,
+                    format: '' as const,
+                    indent: 0,
+                    textFormat: 0,
+                    version: 1,
+                  },
+                ],
+                direction: 'ltr' as const,
+                format: '' as const,
+                indent: 0,
+                version: 1,
+              },
+            },
+          }] : []),
+          // Contact info block
           {
-            blockType: 'contact',
-            variant: 'centered',
-            heading: 'Formular Comanda Abonament',
-            subheading: 'Completeaza datele si te vom contacta pentru finalizarea comenzii',
-            showForm: true,
-            formType: 'custom',
-            customFields: [
-              {
-                fieldType: 'text',
-                name: 'name',
-                label: 'Nume complet',
-                placeholder: 'Ion Popescu',
-                required: true,
-                halfWidth: false,
-              },
-              {
-                fieldType: 'email',
-                name: 'email',
-                label: 'Email',
-                placeholder: 'email@exemplu.ro',
-                required: true,
-                halfWidth: true,
-              },
-              {
-                fieldType: 'tel',
-                name: 'phone',
-                label: 'Telefon',
-                placeholder: '0722 123 456',
-                required: true,
-                halfWidth: true,
-              },
-              {
-                fieldType: 'select',
-                name: 'subscription',
-                label: 'Abonament dorit',
-                placeholder: 'Selecteaza abonamentul',
-                required: true,
-                halfWidth: false,
-                options: [
-                  { label: 'Basic - 149 RON/luna', value: 'basic' },
-                  { label: 'Standard - 199 RON/luna (Popular)', value: 'standard' },
-                  { label: 'Premium - 299 RON/luna', value: 'premium' },
-                  { label: 'Anual Premium - 1990 RON/an (Economisesti 400 RON)', value: 'annual' },
-                ],
-              },
-              {
-                fieldType: 'select',
-                name: 'paymentMethod',
-                label: 'Metoda de plata preferata',
-                placeholder: 'Selecteaza metoda',
-                required: true,
-                halfWidth: true,
-                options: [
-                  { label: 'Card bancar', value: 'card' },
-                  { label: 'Transfer bancar', value: 'transfer' },
-                  { label: 'Numerar la sala', value: 'cash' },
-                ],
-              },
-              {
-                fieldType: 'select',
-                name: 'startDate',
-                label: 'Cand doresti sa incepi',
-                placeholder: 'Selecteaza perioada',
-                required: false,
-                halfWidth: true,
-                options: [
-                  { label: 'Cat mai curand', value: 'asap' },
-                  { label: 'Inceputul lunii viitoare', value: 'next-month' },
-                  { label: 'Alta data (specifica in mesaj)', value: 'other' },
-                ],
-              },
-              {
-                fieldType: 'checkbox',
-                name: 'wantsTour',
-                label: 'Doresc un tur al salii inainte de achizitie',
-                required: false,
-                halfWidth: false,
-              },
-              {
-                fieldType: 'textarea',
-                name: 'message',
-                label: 'Mesaj sau intrebari',
-                placeholder: 'Ai intrebari despre abonament sau alte cerinte speciale?',
-                required: false,
-                halfWidth: false,
-              },
-            ],
-            submitButtonText: 'Trimite Comanda',
-            successMessage:
-              'Multumim pentru comanda! Te vom contacta in cel mai scurt timp pentru confirmare si detalii de plata.',
+            blockType: 'contact' as const,
+            variant: 'minimal' as const,
+            heading: 'Ai intrebari?',
             showContactInfo: true,
             contactInfoItems: {
               showAddress: false,
@@ -1252,18 +1108,7 @@ async function createAdditionalPages(
               showSocial: false,
             },
             showMap: false,
-            backgroundColor: 'light',
-            labels: {
-              formTitle: 'Comanda Abonament',
-              contactInfoTitle: 'Ai intrebari?',
-              phoneLabel: 'Suna-ne',
-              emailLabel: 'Scrie-ne',
-              scheduleLabel: 'Program',
-              selectPlaceholder: 'Selecteaza o optiune',
-              requiredText: '*',
-              submittingText: 'Se trimite comanda...',
-              errorMessage: 'A aparut o eroare. Te rugam sa incerci din nou sau sa ne contactezi telefonic.',
-            },
+            backgroundColor: 'light' as const,
           },
         ],
         _status: 'published',

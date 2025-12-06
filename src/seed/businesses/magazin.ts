@@ -15,6 +15,9 @@ import {
   seedProducts,
   seedPosts,
   seedNewsletterSubscribers,
+  seedForms,
+  formTemplates,
+  createContactPageLayout,
 } from '../helpers'
 import { magazinImages, magazinData } from '../seed-data'
 import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
@@ -150,8 +153,14 @@ export async function seedMagazin(payload: Payload) {
     layout: homepageLayout,
   })
 
+  // Create forms
+  console.log('\n📝 Creating forms...')
+  const formsMap = await seedForms(payload, [
+    formTemplates.contact(),
+  ])
+
   console.log('\n📄 Creating additional pages...')
-  await createAdditionalPages(payload, variant)
+  await createAdditionalPages(payload, variant, formsMap)
 
   // Create blog posts
   console.log('\n📝 Creating blog posts...')
@@ -465,7 +474,8 @@ function buildHomepageLayout(variant: DesignVariant, getImageId: (filename: stri
   return variant.layout.sections.map((s) => sectionConfigs[s]).filter(Boolean)
 }
 
-async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
+async function createAdditionalPages(payload: Payload, variant: DesignVariant, formsMap: Map<string, string>) {
+  const contactFormId = formsMap.get('Formular de contact')
   // Products page
   await payload.create({
     collection: 'pages',
@@ -690,7 +700,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
   })
   console.log('   Created Checkout page')
 
-  // Contact page
+  // Contact page - 2-column layout
   await payload.create({
     collection: 'pages',
     data: {
@@ -699,16 +709,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
       heroType: 'minimal',
       hero: { headline: 'Contact', subheadline: 'Suntem aici pentru tine' },
       layout: [
-        {
-          blockType: 'contact',
-          variant: 'split',
-          heading: 'Contacteaza-ne',
-          showForm: true,
-          showContactInfo: true,
-          showMap: true,
-          mapPosition: 'bottom',
-          backgroundColor: 'light',
-        },
+        ...createContactPageLayout(contactFormId),
         {
           blockType: 'faq',
           variant: 'accordion',

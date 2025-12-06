@@ -62,7 +62,6 @@ export async function POST(request: Request) {
     }
 
     // Save to bookings collection
-    // @ts-expect-error - Payload type inference issue
     await payload.create({
       collection: 'bookings',
       data: {

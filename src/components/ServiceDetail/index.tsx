@@ -5,7 +5,7 @@ import Link from 'next/link'
 import * as LucideIcons from 'lucide-react'
 import { ArrowLeft, Clock, Users, Calendar, MapPin, Check, Sparkles } from 'lucide-react'
 import RichText from '@/components/RichText'
-import type { Service, Media, Team, Category } from '@/payload-types'
+import type { Service, Media, Team } from '@/payload-types'
 import { cn } from '@/utilities/cn'
 
 // Day translation map
@@ -73,7 +73,6 @@ export function ServiceDetail({
   const image = typeof service.image === 'object' ? (service.image as Media) : null
   const instructor = typeof service.assignedTeamMember === 'object' ? (service.assignedTeamMember as Team) : null
   const instructorImage = instructor && typeof instructor.image === 'object' ? (instructor.image as Media) : null
-  const category = typeof service.category === 'object' ? (service.category as Category) : null
 
   // Check if schedule exists (for advanced services like classes)
   const hasSchedule = service.schedule && service.schedule.length > 0
@@ -109,22 +108,17 @@ export function ServiceDetail({
               {backLabel}
             </Link>
 
-            {/* Category & Difficulty Badges */}
-            <div className="flex flex-wrap gap-3 mb-4">
-              {category && (
-                <span className="px-3 py-1 bg-theme-primary text-white text-sm font-medium rounded-full">
-                  {category.title}
-                </span>
-              )}
-              {service.difficulty && (
+            {/* Difficulty Badge */}
+            {service.difficulty && (
+              <div className="flex flex-wrap gap-3 mb-4">
                 <span className={cn(
                   'px-3 py-1 text-sm font-medium rounded-full',
                   difficultyColors[service.difficulty] || 'bg-theme-light text-theme-text'
                 )}>
                   {difficultyTranslations[service.difficulty] || service.difficulty}
                 </span>
-              )}
-            </div>
+              </div>
+            )}
 
             {/* Title */}
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">

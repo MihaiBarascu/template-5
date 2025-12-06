@@ -15,6 +15,9 @@ import {
   uploadLocalSeedImages,
   seedPosts,
   seedNewsletterSubscribers,
+  seedForms,
+  formTemplates,
+  createContactPageLayout,
 } from '../helpers'
 import { restaurantImages, restaurantData } from '../seed-data'
 import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
@@ -134,7 +137,18 @@ export async function seedRestaurant(payload: Payload) {
 
   // 8. Services (Menu categories)
   console.log('\n🍽️ Creating menu categories...')
-  await seedServices(payload, restaurantData.services)
+  const createdServices = await seedServices(payload, restaurantData.services)
+
+  // 8b. Create forms using Form Builder
+  console.log('\n📝 Creating forms...')
+  const serviceOptions = Array.from(createdServices.entries()).map(([title]) => ({
+    label: title,
+    value: title.toLowerCase().replace(/\s+/g, '-'),
+  }))
+  const formsMap = await seedForms(payload, [
+    formTemplates.contact(),
+    formTemplates.booking(serviceOptions),
+  ])
 
   // 9. Team with images (if available)
   console.log('\n👥 Creating team members...')
@@ -261,7 +275,7 @@ export async function seedRestaurant(payload: Payload) {
 
   // 15. Create additional pages
   console.log('\n📄 Creating additional pages...')
-  await createAdditionalPages(payload, variant)
+  await createAdditionalPages(payload, variant, formsMap)
 
   // Sample newsletter subscribers for demo
   console.log('\n📧 Creating sample newsletter subscribers...')
@@ -561,7 +575,10 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof restaurantDat
 }
 
 // Create additional pages
-async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
+async function createAdditionalPages(payload: Payload, variant: DesignVariant, formsMap: Map<string, string>) {
+  const contactFormId = formsMap.get('Formular de contact')
+  const bookingFormId = formsMap.get('Cerere programare')
+
   // Menu page
   await payload.create({
     collection: 'pages',
@@ -680,7 +697,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
   })
   console.log('   Created About page')
 
-  // Reservation page
+  // Reservation page - using FormBlock
   await payload.create({
     collection: 'pages',
     data: {
@@ -692,29 +709,32 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
         subheadline: 'Completeaza formularul si te vom contacta pentru confirmare',
       },
       layout: [
-        {
-          blockType: 'booking',
-          variant: 'full',
-          heading: 'Formular Rezervare',
-          subheading: 'Alege data si numarul de persoane',
-          showServiceSelection: false,
-          showTeamSelection: false,
-          showDatePicker: true,
-          showTimePicker: true,
-          submitButtonText: 'Trimite Rezervarea',
-          successMessage:
-            'Rezervarea ta a fost trimisa! Te vom contacta pentru confirmare.',
-          showWhatsappOption: true,
-          showPhoneOption: true,
-          backgroundColor: 'light',
-        },
+        ...(bookingFormId ? [{
+          blockType: 'formBlock' as const,
+          form: bookingFormId,
+          enableIntro: true,
+          introContent: {
+            root: {
+              type: 'root' as const,
+              children: [
+                { type: 'heading' as const, tag: 'h3' as const, children: [{ type: 'text' as const, text: 'Formular Rezervare', format: 0, detail: 0, mode: 'normal' as const, style: '', version: 1 }], direction: 'ltr' as const, format: '' as const, indent: 0, version: 1 },
+                { type: 'paragraph' as const, children: [{ type: 'text' as const, text: 'Alege data si numarul de persoane.', format: 0, detail: 0, mode: 'normal' as const, style: '', version: 1 }], direction: 'ltr' as const, format: '' as const, indent: 0, textFormat: 0, version: 1 },
+              ],
+              direction: 'ltr' as const,
+              format: '' as const,
+              indent: 0,
+              version: 1,
+            },
+          },
+        }] : []),
+        { blockType: 'contact' as const, variant: 'minimal' as const, heading: 'Informatii Restaurant', showContactInfo: true, contactInfoItems: { showAddress: true, showPhone: true, showEmail: true, showWorkingHours: true, showSocial: false }, showMap: false, backgroundColor: 'light' as const },
       ],
       _status: 'published',
     },
   })
   console.log('   Created Reservation page')
 
-  // Contact page
+  // Contact page - 2-column layout
   await payload.create({
     collection: 'pages',
     data: {
@@ -725,37 +745,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
         headline: 'Contact',
         subheadline: 'Suntem aici pentru tine. Contacteaza-ne pentru rezervari sau intrebari.',
       },
-      layout: [
-        {
-          blockType: 'contact',
-          variant: 'split',
-          heading: 'Contacteaza-ne',
-          subheading: 'Trimite-ne un mesaj sau vino direct la restaurant',
-          showForm: true,
-          formFields: {
-            showName: true,
-            showEmail: true,
-            showPhone: true,
-            showSubject: false,
-            showService: false,
-            showMessage: true,
-          },
-          submitButtonText: 'Trimite Mesajul',
-          successMessage:
-            'Multumim! Mesajul tau a fost trimis. Te vom contacta in cel mai scurt timp.',
-          showContactInfo: true,
-          contactInfoItems: {
-            showAddress: true,
-            showPhone: true,
-            showEmail: true,
-            showWorkingHours: true,
-            showSocial: true,
-          },
-          showMap: true,
-          mapPosition: 'bottom',
-          backgroundColor: 'light',
-        },
-      ],
+      layout: createContactPageLayout(contactFormId),
       _status: 'published',
     },
   })

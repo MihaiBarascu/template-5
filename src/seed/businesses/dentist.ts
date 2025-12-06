@@ -15,6 +15,9 @@ import {
   uploadLocalSeedImages,
   seedPosts,
   seedNewsletterSubscribers,
+  seedForms,
+  formTemplates,
+  createContactPageLayout,
 } from '../helpers'
 import { dentistImages, dentistData } from '../seed-data'
 import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
@@ -128,7 +131,18 @@ export async function seedDentist(payload: Payload) {
 
   // 8. Services
   console.log('\n🦷 Creating services...')
-  await seedServices(payload, dentistData.services)
+  const createdServices = await seedServices(payload, dentistData.services)
+
+  // 8b. Create forms using Form Builder
+  console.log('\n📝 Creating forms...')
+  const serviceOptions = Array.from(createdServices.entries()).map(([title]) => ({
+    label: title,
+    value: title.toLowerCase().replace(/\s+/g, '-'),
+  }))
+  const formsMap = await seedForms(payload, [
+    formTemplates.contact(),
+    formTemplates.booking(serviceOptions),
+  ])
 
   // 9. Team with images
   console.log('\n👥 Creating team members with photos...')
@@ -183,7 +197,7 @@ export async function seedDentist(payload: Payload) {
 
   // 15. Create additional pages
   console.log('\n📄 Creating additional pages...')
-  await createAdditionalPages(payload, variant)
+  await createAdditionalPages(payload, variant, formsMap)
 
   // Sample newsletter subscribers for demo
   console.log('\n📧 Creating sample newsletter subscribers...')
@@ -496,7 +510,10 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof dentistData) 
 }
 
 // Create additional pages
-async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
+async function createAdditionalPages(payload: Payload, variant: DesignVariant, formsMap: Map<string, string>) {
+  // Get form IDs
+  const contactFormId = formsMap.get('Formular de contact')
+  const bookingFormId = formsMap.get('Cerere programare')
   // Services page
   await payload.create({
     collection: 'pages',
@@ -608,7 +625,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
   })
   console.log('   Created Gallery page')
 
-  // Booking page
+  // Booking page - using FormBlock
   await payload.create({
     collection: 'pages',
     data: {
@@ -620,21 +637,56 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
         subheadline: 'Completeaza formularul si te vom contacta pentru confirmare',
       },
       layout: [
+        // Form block using Form Builder (booking form)
+        ...(bookingFormId ? [{
+          blockType: 'formBlock' as const,
+          form: bookingFormId,
+          enableIntro: true,
+          introContent: {
+            root: {
+              type: 'root' as const,
+              children: [
+                {
+                  type: 'heading' as const,
+                  tag: 'h3' as const,
+                  children: [{ type: 'text' as const, text: 'Cerere de Programare', format: 0, detail: 0, mode: 'normal' as const, style: '', version: 1 }],
+                  direction: 'ltr' as const,
+                  format: '' as const,
+                  indent: 0,
+                  version: 1,
+                },
+                {
+                  type: 'paragraph' as const,
+                  children: [{ type: 'text' as const, text: 'Alege serviciul dorit, iar noi te vom contacta pentru confirmare.', format: 0, detail: 0, mode: 'normal' as const, style: '', version: 1 }],
+                  direction: 'ltr' as const,
+                  format: '' as const,
+                  indent: 0,
+                  textFormat: 0,
+                  version: 1,
+                },
+              ],
+              direction: 'ltr' as const,
+              format: '' as const,
+              indent: 0,
+              version: 1,
+            },
+          },
+        }] : []),
+        // Contact info block
         {
-          blockType: 'booking',
-          variant: 'full',
-          heading: 'Cerere de Programare',
-          subheading: 'Alege serviciul dorit, iar noi te vom contacta pentru confirmare',
-          showServiceSelection: true,
-          showTeamSelection: true,
-          showDatePicker: true,
-          showTimePicker: true,
-          submitButtonText: 'Trimite Cererea',
-          successMessage:
-            'Cererea ta a fost trimisa! Te vom contacta in cel mai scurt timp pentru confirmare.',
-          showWhatsappOption: true,
-          showPhoneOption: true,
-          backgroundColor: 'light',
+          blockType: 'contact' as const,
+          variant: 'minimal' as const,
+          heading: 'Informatii Clinica',
+          showContactInfo: true,
+          contactInfoItems: {
+            showAddress: true,
+            showPhone: true,
+            showEmail: true,
+            showWorkingHours: true,
+            showSocial: false,
+          },
+          showMap: false,
+          backgroundColor: 'light' as const,
         },
       ],
       _status: 'published',
@@ -642,7 +694,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
   })
   console.log('   Created Booking page')
 
-  // Contact page
+  // Contact page - 2-column layout
   await payload.create({
     collection: 'pages',
     data: {
@@ -653,37 +705,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
         headline: 'Contact',
         subheadline: 'Suntem aici pentru zambetul tau. Contacteaza-ne pentru programari.',
       },
-      layout: [
-        {
-          blockType: 'contact',
-          variant: 'split',
-          heading: 'Contacteaza-ne',
-          subheading: 'Trimite-ne un mesaj sau vino direct la clinica',
-          showForm: true,
-          formFields: {
-            showName: true,
-            showEmail: true,
-            showPhone: true,
-            showSubject: false,
-            showService: true,
-            showMessage: true,
-          },
-          submitButtonText: 'Trimite Mesajul',
-          successMessage:
-            'Multumim! Mesajul tau a fost trimis. Te vom contacta in cel mai scurt timp.',
-          showContactInfo: true,
-          contactInfoItems: {
-            showAddress: true,
-            showPhone: true,
-            showEmail: true,
-            showWorkingHours: true,
-            showSocial: true,
-          },
-          showMap: true,
-          mapPosition: 'bottom',
-          backgroundColor: 'light',
-        },
-      ],
+      layout: createContactPageLayout(contactFormId),
       _status: 'published',
     },
   })

@@ -14,7 +14,7 @@ import {
   Users,
 } from 'lucide-react'
 import * as LucideIcons from 'lucide-react'
-import type { Service, Team as TeamMember, Media, Category } from '@/payload-types'
+import type { Service, Team as TeamMember, Media } from '@/payload-types'
 import RichText from '@/components/RichText'
 
 // Default labels (used as fallbacks when not configured)
@@ -197,7 +197,6 @@ export function ServiceDetailBlock({
   const image = serviceData.image as Media | null
   const assignedTeamMember = serviceData.assignedTeamMember as TeamMember | null
   const teamMemberImage = assignedTeamMember?.image as Media | null
-  const category = serviceData.category as Category | null
 
   // Get attributes for display
   const attributes = serviceData.attributes || []
@@ -265,11 +264,6 @@ export function ServiceDetailBlock({
                       className={`px-3 py-1 rounded-full text-sm font-medium ${getDifficultyColor(serviceData.difficulty)}`}
                     >
                       {difficultyLabels[serviceData.difficulty]}
-                    </span>
-                  )}
-                  {category && (
-                    <span className="px-3 py-1 bg-theme-primary/10 text-theme-primary rounded-full text-sm font-medium">
-                      {category.title}
                     </span>
                   )}
                 </div>
@@ -375,11 +369,6 @@ export function ServiceDetailBlock({
                       className={`px-4 py-2 rounded-full text-sm font-medium ${getDifficultyColor(serviceData.difficulty)}`}
                     >
                       {difficultyLabels[serviceData.difficulty]}
-                    </span>
-                  )}
-                  {category && (
-                    <span className="px-4 py-2 bg-theme-primary/10 text-theme-primary rounded-full text-sm font-medium">
-                      {category.title}
                     </span>
                   )}
                   {serviceData.featured && (

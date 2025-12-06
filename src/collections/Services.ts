@@ -285,15 +285,6 @@ export const Services: CollectionConfig = {
       ],
     },
     {
-      name: 'category',
-      type: 'relationship',
-      relationTo: 'categories',
-      label: 'Categorie',
-      admin: {
-        position: 'sidebar',
-      },
-    },
-    {
       name: 'assignedTeamMember',
       type: 'relationship',
       relationTo: 'team',

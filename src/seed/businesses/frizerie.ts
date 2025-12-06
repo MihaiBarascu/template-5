@@ -16,6 +16,9 @@ import {
   uploadLocalSeedImages,
   seedPosts,
   seedNewsletterSubscribers,
+  seedForms,
+  formTemplates,
+  createContactPageLayout,
 } from '../helpers'
 import { barbershopImages, barbershopData } from '../seed-data'
 import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
@@ -116,7 +119,18 @@ export async function seedFrizerie(payload: Payload) {
 
   // 8. Services
   console.log('\n✂️ Creating services...')
-  await seedServices(payload, barbershopData.services)
+  const createdServices = await seedServices(payload, barbershopData.services)
+
+  // 8.5 Create forms using Form Builder
+  console.log('\n📝 Creating forms...')
+  const serviceOptions = Array.from(createdServices.entries()).map(([title]) => ({
+    label: title,
+    value: title.toLowerCase().replace(/\s+/g, '-'),
+  }))
+  const formsMap = await seedForms(payload, [
+    formTemplates.contact(),
+    formTemplates.booking(serviceOptions),
+  ])
 
   // 9. Team with images
   console.log('\n👥 Creating team members with photos...')
@@ -175,7 +189,7 @@ export async function seedFrizerie(payload: Payload) {
 
   // 16. Create additional pages
   console.log('\n📄 Creating additional pages...')
-  await createAdditionalPages(payload, variant)
+  await createAdditionalPages(payload, variant, formsMap)
 
   // 17. Sample newsletter subscribers for demo
   console.log('\n📧 Creating sample newsletter subscribers...')
@@ -532,7 +546,7 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof barbershopDat
 }
 
 // Create additional pages
-async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
+async function createAdditionalPages(payload: Payload, variant: DesignVariant, formsMap: Map<string, string>) {
   // Services page
   await payload.create({
     collection: 'pages',
@@ -656,8 +670,8 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
       },
       layout: [
         {
-          blockType: 'pricing',
-          variant: variant.layout.pricingVariant,
+          blockType: 'subscriptionCards',
+          variant: 'cards-3',
           heading: 'Pachete si Abonamente',
           subheading: 'Alege pachetul potrivit pentru tine',
           source: 'collection',
@@ -683,7 +697,8 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
   })
   console.log('   Created Pricing page')
 
-  // Booking page
+  // Booking page - uses Form Builder
+  const bookingFormId = formsMap.get('Cerere programare')
   await payload.create({
     collection: 'pages',
     data: {
@@ -694,29 +709,26 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
         headline: 'Programeaza-te Online',
         subheadline: 'Completeaza formularul si te vom contacta pentru confirmare',
       },
-      layout: [
-        {
-          blockType: 'booking',
-          variant: 'full',
-          heading: 'Cerere de Programare',
-          subheading: 'Alege serviciul si persoana dorita, iar noi te vom contacta pentru confirmare',
-          showServiceSelection: true,
-          showTeamSelection: true,
-          showDatePicker: true,
-          showTimePicker: true,
-          submitButtonText: 'Trimite Cererea',
-          successMessage: 'Cererea ta a fost trimisa! Te vom contacta in cel mai scurt timp pentru confirmare.',
-          showWhatsappOption: true,
-          showPhoneOption: true,
-          backgroundColor: 'light',
-        },
-      ],
+      layout: bookingFormId
+        ? [
+            {
+              blockType: 'formBlock',
+              form: bookingFormId,
+              variant: 'card',
+              enableIntro: true,
+              heading: 'Cerere de Programare',
+              subheading: 'Alege serviciul dorit, iar noi te vom contacta pentru confirmare',
+              backgroundColor: 'light',
+            },
+          ]
+        : [],
       _status: 'published',
     },
   })
   console.log('   Created Booking page')
 
-  // Contact page
+  // Contact page - uses Form Builder with 2-column layout
+  const contactFormId = formsMap.get('Formular de contact')
   await payload.create({
     collection: 'pages',
     data: {
@@ -727,36 +739,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
         headline: 'Contact',
         subheadline: 'Suntem aici sa te ajutam. Contacteaza-ne pentru programari sau intrebari.',
       },
-      layout: [
-        {
-          blockType: 'contact',
-          variant: 'split',
-          heading: 'Contacteaza-ne',
-          subheading: 'Trimite-ne un mesaj sau vino direct la salon',
-          showForm: true,
-          formFields: {
-            showName: true,
-            showEmail: true,
-            showPhone: true,
-            showSubject: false,
-            showService: true,
-            showMessage: true,
-          },
-          submitButtonText: 'Trimite Mesajul',
-          successMessage: 'Multumim! Mesajul tau a fost trimis. Te vom contacta in cel mai scurt timp.',
-          showContactInfo: true,
-          contactInfoItems: {
-            showAddress: true,
-            showPhone: true,
-            showEmail: true,
-            showWorkingHours: true,
-            showSocial: true,
-          },
-          showMap: true,
-          mapPosition: 'bottom',
-          backgroundColor: 'light',
-        },
-      ],
+      layout: createContactPageLayout(contactFormId),
       _status: 'published',
     },
   })

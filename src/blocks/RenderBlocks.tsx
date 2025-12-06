@@ -1,7 +1,7 @@
 import React from 'react'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
-import type { Page, Portfolio, Service, Category } from '@/payload-types'
+import type { Page, Portfolio, Service } from '@/payload-types'
 import type { Where } from 'payload'
 
 // Import block components
@@ -11,9 +11,9 @@ import { TeamBlock } from './Team/Component'
 import { TestimonialsBlock } from './Testimonials/Component'
 import { FAQBlock } from './FAQ/Component'
 import { CTABlock } from './CTA/Component'
-import { ContactBlockWithSuspense as ContactBlock } from './Contact/Component'
+import { ContactBlock } from './Contact/Component'
 import { GalleryBlock } from './Gallery/Component'
-import { PricingBlock } from './Pricing/Component'
+// PricingBlock removed - use SubscriptionCardsBlock instead
 import { BookingBlock } from './Booking/Component'
 import { ProductsBlock } from './Products/Component'
 import { CartBlock } from './Cart/Component'
@@ -39,6 +39,8 @@ import { TeamMemberDetailBlock } from './TeamMemberDetail/Component'
 import { ServiceDetailBlock } from './ServiceDetail/Component'
 // Content block
 import { ContentBlock } from './Content/Component'
+// Form Builder block
+import { FormBlockComponent } from './Form/Component'
 
 type LayoutBlock = NonNullable<Page['layout']>[number]
 
@@ -156,18 +158,7 @@ async function getBusinessInfo() {
   return businessInfo
 }
 
-// Fetch price packages
-async function getPricePackages(block: BlockParams) {
-  const payload = await getPayload({ config: configPromise })
-
-  const packages = await payload.find({
-    collection: 'price-packages',
-    limit: block.limit || 10,
-    sort: 'order',
-  })
-
-  return packages.docs
-}
+// getPricePackages removed - use getSubscriptions instead
 
 // Fetch portfolio items
 async function getPortfolioItems(block: BlockParams) {
@@ -482,19 +473,14 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
             }
 
             case 'contact': {
-              const services = await getServices({ limit: 50 })
+              // Contact block now only shows contact info (no form)
+              // Use FormBlock for forms
               return (
                 <ContactBlock
                   key={block.id || index}
                   variant={block.variant ?? undefined}
                   heading={block.heading ?? undefined}
                   subheading={block.subheading ?? undefined}
-                  showForm={block.showForm ?? undefined}
-                  formType={block.formType ?? undefined}
-                  formFields={block.formFields ?? undefined}
-                  customFields={block.customFields ?? undefined}
-                  submitButtonText={block.submitButtonText ?? undefined}
-                  successMessage={block.successMessage ?? undefined}
                   showContactInfo={block.showContactInfo ?? undefined}
                   contactInfoItems={block.contactInfoItems ?? undefined}
                   showMap={block.showMap ?? undefined}
@@ -502,7 +488,6 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   backgroundColor={block.backgroundColor ?? undefined}
                   labels={block.labels ?? undefined}
                   businessInfo={businessInfo}
-                  services={services}
                 />
               )
             }
@@ -567,26 +552,7 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
               )
             }
 
-            case 'pricing': {
-              const packages = await getPricePackages({
-                limit: block.limit,
-              })
-              // Derive columns from variant (cards-3, cards-4, etc.)
-              const pricingColumns = block.variant?.includes('3') ? '3' : block.variant?.includes('4') ? '4' : '3'
-
-              return (
-                <PricingBlock
-                  key={block.id || index}
-                  variant={block.variant ?? undefined}
-                  heading={block.heading ?? undefined}
-                  subheading={block.subheading ?? undefined}
-                  columns={pricingColumns}
-                  showBadge={block.showFeatures !== false}
-                  backgroundColor={block.backgroundColor ?? undefined}
-                  packages={packages}
-                />
-              )
-            }
+            // 'pricing' case removed - use 'subscriptionCards' instead
 
             case 'booking': {
               const services = await getServices({ limit: 50 })
@@ -940,11 +906,6 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                 if (!service.schedule || service.schedule.length === 0) return []
                 const teamMember = service.assignedTeamMember as { name?: string } | null
                 return service.schedule.map((slot: ServiceScheduleSlot) => {
-                  const categoryRef = service.category as string | Category | null
-                  const categoryTitle = categoryRef && typeof categoryRef === 'object' && 'title' in categoryRef
-                    ? categoryRef.title
-                    : undefined
-
                   return {
                     id: `${service.id}-${slot.day}-${slot.startTime}`,
                     day: slot.day,
@@ -953,7 +914,7 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                     title: service.title,
                     trainer: teamMember?.name ?? undefined,
                     duration: service.durationMinutes ?? undefined,
-                    category: categoryTitle,
+                    category: undefined,
                     classSlug: service.slug ?? undefined,
                     color: undefined,
                   }
@@ -1090,14 +1051,10 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
               const serviceId = typeof serviceRef === 'string' ? serviceRef : serviceRef?.id
               const serviceData = serviceId ? await getServiceById(serviceId) : null
 
-              // Get category ID from populated service data
-              const categoryRef = serviceData?.category as string | { id: string } | null
-              const categoryId = typeof categoryRef === 'string' ? categoryRef : categoryRef?.id
-
               const relatedServices = serviceData && block.showRelatedServices
                 ? await getRelatedServices(
                     serviceData.id,
-                    categoryId || null,
+                    null,
                     serviceData.displayStyle || null,
                     block.relatedServicesCount || 3
                   )
@@ -1179,6 +1136,27 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                     teamBasePath: linksFromBlock.teamBasePath ?? undefined,
                     bookingPath: linksFromBlock.bookingPath ?? undefined,
                   } : undefined}
+                />
+              )
+            }
+
+            case 'formBlock': {
+              // Get form data - the form relationship should be populated
+              const formData = block.form
+              if (!formData || typeof formData === 'string') {
+                return null // Form not populated, skip rendering
+              }
+
+              return (
+                <FormBlockComponent
+                  key={block.id || index}
+                  form={formData}
+                  variant={block.variant ?? undefined}
+                  enableIntro={block.enableIntro ?? undefined}
+                  heading={block.heading ?? undefined}
+                  subheading={block.subheading ?? undefined}
+                  introContent={block.introContent ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
                 />
               )
             }

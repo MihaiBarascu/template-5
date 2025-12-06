@@ -1,4 +1,5 @@
 import { revalidateRedirects } from '@/hooks/revalidateRedirects'
+import { processFormSubmission } from '@/hooks/processFormSubmission'
 import { beforeSyncWithSearch } from '@/search/beforeSync'
 import { searchFields } from '@/search/fieldOverrides'
 import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
@@ -83,26 +84,87 @@ export const plugins: Plugin[] = [
   formBuilderPlugin({
     fields: {
       payment: false,
+      // Add custom date field
+      date: {
+        fields: [
+          {
+            name: 'name',
+            type: 'text',
+            label: 'Nume camp (slug)',
+            required: true,
+            admin: {
+              description: 'Ex: date, dataPreferata',
+            },
+          },
+          {
+            name: 'label',
+            type: 'text',
+            label: 'Label',
+          },
+          {
+            name: 'width',
+            type: 'number',
+            label: 'Latime (%)',
+            defaultValue: 100,
+            min: 25,
+            max: 100,
+          },
+          {
+            name: 'required',
+            type: 'checkbox',
+            label: 'Obligatoriu',
+          },
+        ],
+      },
     },
     formOverrides: {
       fields: ({ defaultFields }) => {
-        return defaultFields.map((field) => {
-          if ('name' in field && field.name === 'confirmationMessage') {
-            return {
-              ...field,
-              editor: lexicalEditor({
-                features: ({ rootFeatures }) => {
-                  return [
-                    ...rootFeatures,
-                    FixedToolbarFeature(),
-                    HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4'] }),
-                  ]
-                },
-              }),
+        // Add formType field at the beginning
+        const formTypeField = {
+          name: 'formType',
+          type: 'select' as const,
+          label: 'Tip Formular',
+          required: true,
+          defaultValue: 'contact',
+          options: [
+            { label: 'Contact', value: 'contact' },
+            { label: 'Newsletter', value: 'newsletter' },
+            { label: 'Rezervare', value: 'booking' },
+            { label: 'Comanda', value: 'order' },
+            { label: 'Feedback', value: 'feedback' },
+            { label: 'Altele', value: 'other' },
+          ],
+          admin: {
+            description:
+              'Tipul formularului determina cum sunt procesate trimiterile (email-uri, salvare newsletter, etc.)',
+          },
+        }
+
+        return [
+          formTypeField,
+          ...defaultFields.map((field) => {
+            if ('name' in field && field.name === 'confirmationMessage') {
+              return {
+                ...field,
+                editor: lexicalEditor({
+                  features: ({ rootFeatures }) => {
+                    return [
+                      ...rootFeatures,
+                      FixedToolbarFeature(),
+                      HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4'] }),
+                    ]
+                  },
+                }),
+              }
             }
-          }
-          return field
-        })
+            return field
+          }),
+        ]
+      },
+    },
+    formSubmissionOverrides: {
+      hooks: {
+        afterChange: [processFormSubmission],
       },
     },
   }),
@@ -119,6 +181,7 @@ export const plugins: Plugin[] = [
   // Admin-ul poate exporta colectii in JSON si le poate reimporta
   importExportPlugin({
     collections: [
+      // Content collections
       'pages',
       'posts',
       'services',
@@ -126,8 +189,12 @@ export const plugins: Plugin[] = [
       'portfolio',
       'testimonials',
       'faq',
-      'price-packages',
+      'subscriptions',
       'categories',
+      // Operational collections
+      'bookings',
+      'subscription-orders',
+      'newsletter-subscribers',
     ],
   }),
   // S3/R2 storage for production (optional - only if env vars are set)

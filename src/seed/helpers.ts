@@ -1,4 +1,4 @@
-import type { Page, SiteTheme, Service, Product, Post } from '@/payload-types';
+import type { Page, SiteTheme, Service, Product, Post, Form } from '@/payload-types';
 import fs from 'fs';
 import path from 'path';
 import type { Payload } from 'payload';
@@ -497,7 +497,6 @@ export async function seedServices(
     }>;
     // Relationships
     assignedTeamMemberId?: string;
-    categoryId?: string;
     // CTA and navigation
     ctaLabel?: string;
     ctaLink?: string;
@@ -542,7 +541,6 @@ export async function seedServices(
           room: s.room,
         })),
         // Relationships
-        category: service.categoryId || undefined,
         assignedTeamMember: service.assignedTeamMemberId || undefined,
         // CTA
         ctaLabel: service.ctaLabel,
@@ -669,7 +667,8 @@ export async function seedFAQ(
   console.log(`   Created ${faqs.length} FAQs`);
 }
 
-// Helper to create price packages
+// DEPRECATED: seedPricePackages - use seedSubscriptions instead
+// This is a wrapper that converts old format to new Subscriptions format
 export async function seedPricePackages(
   payload: Payload,
   packages: Array<{
@@ -686,25 +685,21 @@ export async function seedPricePackages(
     order?: number;
   }>,
 ) {
-  for (const pkg of packages) {
-    await payload.create({
-      collection: 'price-packages',
-      data: {
-        title: pkg.title,
-        subtitle: pkg.subtitle,
-        description: pkg.description,
-        price: pkg.price,
-        oldPrice: pkg.oldPrice,
-        period: pkg.period || 'unic',
-        features: pkg.features,
-        cta: pkg.cta || { label: 'Alege pachetul', link: '/programare' },
-        highlighted: pkg.highlighted || false,
-        highlightLabel: pkg.highlightLabel || 'Cel mai popular',
-        order: pkg.order || 0,
-      },
-    });
-  }
-  console.log(`   Created ${packages.length} price packages`);
+  // Convert to seedSubscriptions format
+  const subscriptions = packages.map(pkg => ({
+    title: pkg.title,
+    subtitle: pkg.subtitle,
+    price: pkg.price,
+    oldPrice: pkg.oldPrice,
+    period: pkg.period === 'unic' ? undefined : `/${pkg.period || 'luna'}`,
+    features: pkg.features?.map(f => ({ text: f.feature, included: f.included })),
+    cta: pkg.cta ? { label: pkg.cta.label, url: pkg.cta.link } : undefined,
+    highlighted: pkg.highlighted,
+    highlightLabel: pkg.highlightLabel,
+    order: pkg.order,
+  }));
+
+  await seedSubscriptions(payload, subscriptions);
 }
 
 // Helper to create homepage with optional hero image
@@ -1235,4 +1230,499 @@ export async function seedNewsletterSubscribers(
     }
   }
   console.log(`   Created ${subscribers.length} newsletter subscribers`);
+}
+
+// ================================
+// FORMS SEEDING (using Form Builder plugin)
+// ================================
+
+/**
+ * Form field type definition for seeding
+ */
+interface FormFieldInput {
+  blockType: 'text' | 'email' | 'textarea' | 'select' | 'checkbox' | 'number' | 'message' | 'date'
+  name: string
+  label?: string
+  width?: number
+  required?: boolean
+  defaultValue?: string | boolean | number
+  // For select fields
+  options?: Array<{ label: string; value: string }>
+  // For message fields (lexical rich text)
+  message?: {
+    root: {
+      type: string
+      children: Array<{ type: string; text?: string; children?: Array<{ type: string; text: string }> }>
+      direction: 'ltr' | 'rtl' | null
+      format: '' | 'left' | 'right' | 'start' | 'center' | 'end' | 'justify'
+      indent: number
+      version: number
+    }
+  }
+}
+
+/**
+ * Lexical rich text format for confirmation messages
+ */
+interface LexicalRichText {
+  root: {
+    type: string
+    children: Array<{ type: string; children: Array<{ type: string; text: string }> }>
+    direction: 'ltr' | 'rtl' | null
+    format: '' | 'left' | 'right' | 'start' | 'center' | 'end' | 'justify'
+    indent: number
+    version: number
+  }
+}
+
+/**
+ * Form type determines how submissions are processed
+ */
+type FormType = 'contact' | 'newsletter' | 'booking' | 'order' | 'feedback' | 'other'
+
+/**
+ * Form input definition for seeding
+ */
+interface FormInput {
+  title: string
+  formType: FormType
+  fields: FormFieldInput[]
+  submitButtonLabel?: string
+  confirmationType?: 'message' | 'redirect'
+  confirmationMessage?: LexicalRichText
+  redirect?: { url: string }
+  // emails removed - all notifications go to business-info email
+}
+
+/**
+ * Seed forms using Form Builder plugin
+ * Forms are stored in the 'forms' collection created by the plugin
+ */
+export async function seedForms(
+  payload: Payload,
+  forms: FormInput[],
+): Promise<Map<string, string>> {
+  console.log('📝 Creating forms...');
+  const formMap = new Map<string, string>();
+
+  for (const form of forms) {
+    try {
+      // Use type assertion because Payload's form builder types are complex
+      // and our simplified interface is compatible at runtime
+      const formData = {
+        title: form.title,
+        formType: form.formType,
+        fields: form.fields.map((field) => ({
+          blockType: field.blockType,
+          name: field.name,
+          label: field.label,
+          width: field.width,
+          required: field.required,
+          defaultValue: field.defaultValue?.toString(),
+          options: field.options,
+          message: field.message,
+        })),
+        submitButtonLabel: form.submitButtonLabel || 'Trimite',
+        confirmationType: form.confirmationType || 'message',
+        confirmationMessage: form.confirmationMessage,
+        redirect: form.redirect,
+        // emails removed - notifications go to business-info email
+      }
+
+      const created = await payload.create({
+        collection: 'forms',
+        // Cast to Omit<Form, 'id' | ...> - types are complex due to Lexical rich text
+        data: formData as Omit<Form, 'id' | 'createdAt' | 'updatedAt'>,
+      });
+
+      formMap.set(form.title, created.id);
+      console.log(`   Created form: ${form.title}`);
+    } catch (error) {
+      console.error(`   Error creating form ${form.title}:`, error);
+    }
+  }
+
+  console.log(`   Created ${formMap.size} forms`);
+  return formMap;
+}
+
+/**
+ * Predefined form templates for common use cases
+ */
+export const formTemplates = {
+  /**
+   * Newsletter subscription form
+   */
+  newsletter: (): FormInput => ({
+    title: 'Newsletter',
+    formType: 'newsletter',
+    submitButtonLabel: 'Aboneaza-te',
+    confirmationType: 'message',
+    confirmationMessage: {
+      root: {
+        type: 'root',
+        children: [
+          {
+            type: 'paragraph',
+            children: [{ type: 'text', text: 'Te-ai abonat cu succes la newsletter!' }],
+          },
+        ],
+        direction: 'ltr',
+        format: '',
+        indent: 0,
+        version: 1,
+      },
+    },
+    fields: [
+      {
+        blockType: 'email',
+        name: 'email',
+        label: 'Adresa de email',
+        width: 100,
+        required: true,
+      },
+      {
+        blockType: 'checkbox',
+        name: 'gdpr',
+        label: 'Sunt de acord cu politica de confidentialitate',
+        required: true,
+      },
+    ],
+  }),
+
+  /**
+   * Contact form
+   */
+  contact: (): FormInput => ({
+    title: 'Formular de contact',
+    formType: 'contact',
+    submitButtonLabel: 'Trimite mesajul',
+    confirmationType: 'message',
+    confirmationMessage: {
+      root: {
+        type: 'root',
+        children: [
+          {
+            type: 'paragraph',
+            children: [{ type: 'text', text: 'Multumim! Mesajul tau a fost trimis cu succes. Te vom contacta in cel mai scurt timp.' }],
+          },
+        ],
+        direction: 'ltr',
+        format: '',
+        indent: 0,
+        version: 1,
+      },
+    },
+    fields: [
+      {
+        blockType: 'text',
+        name: 'lastName',
+        label: 'Nume',
+        width: 50,
+        required: true,
+      },
+      {
+        blockType: 'text',
+        name: 'firstName',
+        label: 'Prenume',
+        width: 50,
+        required: true,
+      },
+      {
+        blockType: 'text',
+        name: 'phone',
+        label: 'Telefon',
+        width: 50,
+      },
+      {
+        blockType: 'email',
+        name: 'email',
+        label: 'Email',
+        width: 50,
+        required: true,
+      },
+      {
+        blockType: 'text',
+        name: 'subject',
+        label: 'Subiect',
+        width: 100,
+      },
+      {
+        blockType: 'textarea',
+        name: 'message',
+        label: 'Mesaj',
+        width: 100,
+        required: true,
+      },
+    ],
+  }),
+
+  /**
+   * Booking request form - professional version with date/time
+   */
+  booking: (
+    services: Array<{ label: string; value: string }>,
+    teamMembers?: Array<{ label: string; value: string }>,
+  ): FormInput => {
+    // Generate time slots from 9:00 to 20:00
+    const timeSlots = []
+    for (let hour = 9; hour <= 20; hour++) {
+      timeSlots.push({ label: `${hour}:00`, value: `${hour}:00` })
+      if (hour < 20) {
+        timeSlots.push({ label: `${hour}:30`, value: `${hour}:30` })
+      }
+    }
+
+    return {
+      title: 'Cerere programare',
+      formType: 'booking',
+      submitButtonLabel: 'Trimite Cererea',
+      confirmationType: 'message',
+      confirmationMessage: {
+        root: {
+          type: 'root',
+          children: [
+            {
+              type: 'paragraph',
+              children: [{ type: 'text', text: 'Cererea ta de programare a fost inregistrata cu succes! Te vom contacta in cel mai scurt timp pentru confirmare.' }],
+            },
+          ],
+          direction: 'ltr',
+          format: '',
+          indent: 0,
+          version: 1,
+        },
+      },
+      fields: [
+        {
+          blockType: 'text',
+          name: 'lastName',
+          label: 'Nume',
+          width: 50,
+          required: true,
+        },
+        {
+          blockType: 'text',
+          name: 'firstName',
+          label: 'Prenume',
+          width: 50,
+          required: true,
+        },
+        {
+          blockType: 'text',
+          name: 'phone',
+          label: 'Telefon',
+          width: 50,
+          required: true,
+        },
+        {
+          blockType: 'email',
+          name: 'email',
+          label: 'Email',
+          width: 50,
+          required: true,
+        },
+        {
+          blockType: 'select',
+          name: 'service',
+          label: 'Serviciu dorit',
+          width: 100,
+          required: true,
+          options: services,
+        },
+        // Optional team member selector
+        ...(teamMembers && teamMembers.length > 0
+          ? [
+              {
+                blockType: 'select' as const,
+                name: 'teamMember',
+                label: 'Specialist preferat',
+                width: 100,
+                required: false,
+                options: [{ label: 'Fara preferinta', value: 'none' }, ...teamMembers],
+              },
+            ]
+          : []),
+        {
+          blockType: 'date',
+          name: 'date',
+          label: 'Data preferata',
+          width: 50,
+          required: true,
+        },
+        {
+          blockType: 'select',
+          name: 'time',
+          label: 'Ora preferata',
+          width: 50,
+          required: true,
+          options: timeSlots,
+        },
+        {
+          blockType: 'textarea',
+          name: 'notes',
+          label: 'Mentiuni suplimentare',
+          width: 100,
+        },
+      ],
+    }
+  },
+
+  /**
+   * Subscription order form
+   */
+  subscriptionOrder: (subscriptions: Array<{ label: string; value: string }>): FormInput => ({
+    title: 'Comanda abonament',
+    formType: 'order',
+    submitButtonLabel: 'Comanda abonamentul',
+    confirmationType: 'message',
+    confirmationMessage: {
+      root: {
+        type: 'root',
+        children: [
+          {
+            type: 'paragraph',
+            children: [{ type: 'text', text: 'Comanda ta a fost inregistrata. Te vom contacta cu detaliile de plata.' }],
+          },
+        ],
+        direction: 'ltr',
+        format: '',
+        indent: 0,
+        version: 1,
+      },
+    },
+    fields: [
+      {
+        blockType: 'text',
+        name: 'lastName',
+        label: 'Nume',
+        width: 50,
+        required: true,
+      },
+      {
+        blockType: 'text',
+        name: 'firstName',
+        label: 'Prenume',
+        width: 50,
+        required: true,
+      },
+      {
+        blockType: 'text',
+        name: 'phone',
+        label: 'Telefon',
+        width: 50,
+        required: true,
+      },
+      {
+        blockType: 'email',
+        name: 'email',
+        label: 'Email',
+        width: 50,
+        required: true,
+      },
+      {
+        blockType: 'select',
+        name: 'subscription',
+        label: 'Abonament ales',
+        width: 100,
+        required: true,
+        options: subscriptions,
+      },
+      {
+        blockType: 'textarea',
+        name: 'notes',
+        label: 'Observatii',
+        width: 100,
+      },
+    ],
+  }),
+}
+
+/**
+ * Helper to create contact page layout with 2-column design
+ * Left column: Contact info (phone, email, address, hours)
+ * Right column: Contact form
+ * Bottom: Map (optional)
+ */
+export function createContactPageLayout(contactFormId: string | undefined, options?: {
+  heading?: string
+  subheading?: string
+  showMap?: boolean
+}) {
+  const {
+    heading = 'Informatii de Contact',
+    subheading = 'Gaseste-ne sau contacteaza-ne direct',
+    showMap = true,
+  } = options || {}
+
+  return [
+    // 2-column layout: Contact Info + Form
+    {
+      blockType: 'content' as const,
+      backgroundColor: 'light' as const,
+      paddingTop: 'large' as const,
+      paddingBottom: 'large' as const,
+      columns: [
+        // Left column - Contact info
+        {
+          width: 'half' as const,
+          alignment: 'top' as const,
+          contentType: 'blocks' as const,
+          blocks: [
+            {
+              blockType: 'contact' as const,
+              variant: 'minimal' as const,
+              heading,
+              subheading,
+              showContactInfo: true,
+              contactInfoItems: {
+                showAddress: true,
+                showPhone: true,
+                showEmail: true,
+                showWorkingHours: true,
+                showSocial: true,
+              },
+              showMap: false,
+              backgroundColor: 'default' as const,
+            },
+          ],
+        },
+        // Right column - Contact form
+        ...(contactFormId
+          ? [
+              {
+                width: 'half' as const,
+                alignment: 'top' as const,
+                contentType: 'blocks' as const,
+                blocks: [
+                  {
+                    blockType: 'formBlock' as const,
+                    form: contactFormId,
+                    variant: 'card' as const,
+                    enableIntro: true,
+                    heading: 'Trimite-ne un Mesaj',
+                    subheading: 'Completeaza formularul si te vom contacta in cel mai scurt timp',
+                    backgroundColor: 'default' as const,
+                  },
+                ],
+              },
+            ]
+          : []),
+      ],
+    },
+    // Map section below (optional)
+    ...(showMap
+      ? [
+          {
+            blockType: 'contact' as const,
+            variant: 'with-map' as const,
+            heading: 'Unde ne gasesti',
+            showContactInfo: false,
+            showMap: true,
+            mapPosition: 'bottom' as const,
+            backgroundColor: 'default' as const,
+          },
+        ]
+      : []),
+  ]
 }

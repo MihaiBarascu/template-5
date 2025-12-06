@@ -21,14 +21,15 @@ import { Services } from './collections/Services'
 import { Team } from './collections/Team'
 import { Portfolio } from './collections/Portfolio'
 import { Testimonials } from './collections/Testimonials'
-import { PricePackages } from './collections/PricePackages'
+// PricePackages removed - use Subscriptions instead
 import { Bookings } from './collections/Bookings'
 import { FAQ } from './collections/FAQ'
-import { ContactSubmissions } from './collections/ContactSubmissions'
+// ContactSubmissions removed - use Form Builder plugin's form-submissions instead
 import { ProductCategories } from './collections/ProductCategories'
 import { NewsletterSubscribers } from './collections/NewsletterSubscribers'
 // Classes collection removed - use Services with serviceType: 'class' instead
 import { Subscriptions } from './collections/Subscriptions'
+import { SubscriptionOrders } from './collections/SubscriptionOrders'
 
 // Globals
 import { SiteTheme } from './globals/SiteTheme'
@@ -340,13 +341,13 @@ export default buildConfig({
     Team,
     Portfolio,
     Testimonials,
-    PricePackages,
     Bookings,
     FAQ,
-    ContactSubmissions,
+    // ContactSubmissions removed - use Form Builder plugin's form-submissions
     ProductCategories,
     NewsletterSubscribers,
     Subscriptions,
+    SubscriptionOrders,
   ],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer, SiteTheme, Logo, BusinessInfo, ShopSettings],

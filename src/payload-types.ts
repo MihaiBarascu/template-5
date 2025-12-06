@@ -81,13 +81,12 @@ export interface Config {
     team: Team;
     portfolio: Portfolio;
     testimonials: Testimonial;
-    'price-packages': PricePackage;
     bookings: Booking;
     faq: Faq;
-    'contact-submissions': ContactSubmission;
     'product-categories': ProductCategory;
     'newsletter-subscribers': NewsletterSubscriber;
     subscriptions: Subscription;
+    'subscription-orders': SubscriptionOrder;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -125,13 +124,12 @@ export interface Config {
     team: TeamSelect<false> | TeamSelect<true>;
     portfolio: PortfolioSelect<false> | PortfolioSelect<true>;
     testimonials: TestimonialsSelect<false> | TestimonialsSelect<true>;
-    'price-packages': PricePackagesSelect<false> | PricePackagesSelect<true>;
     bookings: BookingsSelect<false> | BookingsSelect<true>;
     faq: FaqSelect<false> | FaqSelect<true>;
-    'contact-submissions': ContactSubmissionsSelect<false> | ContactSubmissionsSelect<true>;
     'product-categories': ProductCategoriesSelect<false> | ProductCategoriesSelect<true>;
     'newsletter-subscribers': NewsletterSubscribersSelect<false> | NewsletterSubscribersSelect<true>;
     subscriptions: SubscriptionsSelect<false> | SubscriptionsSelect<true>;
+    'subscription-orders': SubscriptionOrdersSelect<false> | SubscriptionOrdersSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -386,25 +384,6 @@ export interface Page {
             blockType: 'testimonials';
           }
         | {
-            variant?: ('cards-3' | 'cards-4' | 'table' | 'list' | 'toggle' | 'featured-center') | null;
-            heading?: string | null;
-            subheading?: string | null;
-            source?: ('collection' | 'manual') | null;
-            selectedPackages?: (string | PricePackage)[] | null;
-            limit?: number | null;
-            showFeatures?: boolean | null;
-            showOldPrice?: boolean | null;
-            ctaText?: string | null;
-            /**
-             * Ex: Preturile nu includ TVA
-             */
-            disclaimer?: string | null;
-            backgroundColor?: ('default' | 'light' | 'dark') | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'pricing';
-          }
-        | {
             variant?:
               | ('grid-masonry' | 'grid-uniform' | 'carousel' | 'filterable' | 'lightbox' | 'case-studies')
               | null;
@@ -467,50 +446,6 @@ export interface Page {
             variant?: ('split' | 'centered' | 'with-map' | 'full-width' | 'minimal' | 'cards') | null;
             heading?: string | null;
             subheading?: string | null;
-            showForm?: boolean | null;
-            /**
-             * Standard = campuri predefinite, Custom = campuri personalizate
-             */
-            formType?: ('standard' | 'custom') | null;
-            formFields?: {
-              showName?: boolean | null;
-              showEmail?: boolean | null;
-              showPhone?: boolean | null;
-              showSubject?: boolean | null;
-              showService?: boolean | null;
-              showMessage?: boolean | null;
-            };
-            /**
-             * Defineste campurile formularului in ordinea dorita
-             */
-            customFields?:
-              | {
-                  fieldType: 'text' | 'email' | 'tel' | 'number' | 'textarea' | 'select' | 'checkbox' | 'date' | 'time';
-                  /**
-                   * Ex: preferredClass, experienceLevel (fara spatii sau caractere speciale)
-                   */
-                  name: string;
-                  /**
-                   * Ex: Clasa preferata, Nivel experienta
-                   */
-                  label: string;
-                  placeholder?: string | null;
-                  required?: boolean | null;
-                  halfWidth?: boolean | null;
-                  options?:
-                    | {
-                        label: string;
-                        value: string;
-                        id?: string | null;
-                      }[]
-                    | null;
-                  min?: number | null;
-                  max?: number | null;
-                  id?: string | null;
-                }[]
-              | null;
-            submitButtonText?: string | null;
-            successMessage?: string | null;
             showContactInfo?: boolean | null;
             contactInfoItems?: {
               showAddress?: boolean | null;
@@ -526,19 +461,10 @@ export interface Page {
              * Personalizare text pentru diferite limbi
              */
             labels?: {
-              formTitle?: string | null;
               contactInfoTitle?: string | null;
-              nameLabel?: string | null;
-              emailLabel?: string | null;
-              phoneLabel?: string | null;
-              subjectLabel?: string | null;
-              serviceLabel?: string | null;
-              messageLabel?: string | null;
-              selectPlaceholder?: string | null;
-              requiredText?: string | null;
-              submittingText?: string | null;
-              errorMessage?: string | null;
               addressLabel?: string | null;
+              phoneLabel?: string | null;
+              emailLabel?: string | null;
               scheduleLabel?: string | null;
               socialLabel?: string | null;
             };
@@ -625,7 +551,7 @@ export interface Page {
               | {
                   width?: ('full' | 'three-quarters' | 'two-thirds' | 'half' | 'one-third' | 'one-quarter') | null;
                   alignment?: ('top' | 'center' | 'bottom') | null;
-                  contentType?: ('richText' | 'image' | 'video') | null;
+                  contentType?: ('richText' | 'image' | 'video' | 'blocks') | null;
                   richText?: {
                     root: {
                       type: string;
@@ -643,6 +569,86 @@ export interface Page {
                   } | null;
                   image?: (string | null) | Media;
                   videoUrl?: string | null;
+                  /**
+                   * Adauga blocuri in aceasta coloana (formulare, contact, harta, CTA)
+                   */
+                  blocks?:
+                    | (
+                        | FormBlock
+                        | {
+                            variant?: ('split' | 'centered' | 'with-map' | 'full-width' | 'minimal' | 'cards') | null;
+                            heading?: string | null;
+                            subheading?: string | null;
+                            showContactInfo?: boolean | null;
+                            contactInfoItems?: {
+                              showAddress?: boolean | null;
+                              showPhone?: boolean | null;
+                              showEmail?: boolean | null;
+                              showWorkingHours?: boolean | null;
+                              showSocial?: boolean | null;
+                            };
+                            showMap?: boolean | null;
+                            mapPosition?: ('top' | 'bottom' | 'side') | null;
+                            backgroundColor?: ('default' | 'light' | 'dark') | null;
+                            /**
+                             * Personalizare text pentru diferite limbi
+                             */
+                            labels?: {
+                              contactInfoTitle?: string | null;
+                              addressLabel?: string | null;
+                              phoneLabel?: string | null;
+                              emailLabel?: string | null;
+                              scheduleLabel?: string | null;
+                              socialLabel?: string | null;
+                            };
+                            id?: string | null;
+                            blockName?: string | null;
+                            blockType: 'contact';
+                          }
+                        | {
+                            variant?: ('full-width' | 'contained' | 'with-info') | null;
+                            heading?: string | null;
+                            source?: ('businessInfo' | 'custom') | null;
+                            customEmbed?: string | null;
+                            height?: ('small' | 'medium' | 'large') | null;
+                            showDirectionsButton?: boolean | null;
+                            id?: string | null;
+                            blockName?: string | null;
+                            blockType: 'map';
+                          }
+                        | {
+                            variant?:
+                              | (
+                                  | 'centered'
+                                  | 'split'
+                                  | 'with-image'
+                                  | 'gradient'
+                                  | 'minimal'
+                                  | 'floating'
+                                  | 'with-form'
+                                )
+                              | null;
+                            headline: string;
+                            subheadline?: string | null;
+                            image?: (string | null) | Media;
+                            buttons?:
+                              | {
+                                  label: string;
+                                  link: string;
+                                  variant?: ('default' | 'outline' | 'ghost') | null;
+                                  id?: string | null;
+                                }[]
+                              | null;
+                            showPhoneNumber?: boolean | null;
+                            backgroundColor?: ('default' | 'light' | 'dark' | 'primary' | 'accent') | null;
+                            textAlignment?: ('left' | 'center' | 'right') | null;
+                            size?: ('small' | 'medium' | 'large') | null;
+                            id?: string | null;
+                            blockName?: string | null;
+                            blockType: 'cta';
+                          }
+                      )[]
+                    | null;
                   id?: string | null;
                 }[]
               | null;
@@ -1179,6 +1185,7 @@ export interface Page {
             blockName?: string | null;
             blockType: 'serviceDetail';
           }
+        | FormBlock
       )[]
     | null;
   publishedAt?: string | null;
@@ -1322,7 +1329,6 @@ export interface Service {
    * Cum se afișează pe site
    */
   displayStyle: 'card' | 'card-image' | 'list' | 'pricing' | 'detailed' | 'menu-item';
-  category?: (string | null) | Category;
   /**
    * Instructor, medic, avocat responsabil
    */
@@ -1337,30 +1343,6 @@ export interface Service {
   featured?: boolean | null;
   active?: boolean | null;
   order?: number | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories".
- */
-export interface Category {
-  id: string;
-  title: string;
-  /**
-   * URL-ul paginii (generat automat din titlu)
-   */
-  slug: string;
-  description?: string | null;
-  parent?: (string | null) | Category;
-  breadcrumbs?:
-    | {
-        doc?: (string | null) | Category;
-        url?: string | null;
-        label?: string | null;
-        id?: string | null;
-      }[]
-    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1430,6 +1412,30 @@ export interface Team {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: string;
+  title: string;
+  /**
+   * URL-ul paginii (generat automat din titlu)
+   */
+  slug: string;
+  description?: string | null;
+  parent?: (string | null) | Category;
+  breadcrumbs?:
+    | {
+        doc?: (string | null) | Category;
+        url?: string | null;
+        label?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "testimonials".
  */
 export interface Testimonial {
@@ -1442,44 +1448,6 @@ export interface Testimonial {
   service?: (string | null) | Service;
   source?: ('google' | 'facebook' | 'website' | 'other') | null;
   featured?: boolean | null;
-  order?: number | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "price-packages".
- */
-export interface PricePackage {
-  id: string;
-  title: string;
-  /**
-   * Ex: Cel mai popular, Recomandat pentru incepatori
-   */
-  subtitle?: string | null;
-  description?: string | null;
-  price: number;
-  /**
-   * Pentru reduceri
-   */
-  oldPrice?: number | null;
-  period?: ('luna' | 'an' | 'unic' | 'sedinta' | 'ora' | 'zi') | null;
-  features?:
-    | {
-        feature: string;
-        included?: boolean | null;
-        id?: string | null;
-      }[]
-    | null;
-  cta?: {
-    label?: string | null;
-    link?: string | null;
-  };
-  /**
-   * Va fi evidentiat vizual
-   */
-  highlighted?: boolean | null;
-  highlightLabel?: string | null;
   order?: number | null;
   updatedAt: string;
   createdAt: string;
@@ -1557,6 +1525,229 @@ export interface Faq {
   };
   category?: (string | null) | Category;
   order?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FormBlock".
+ */
+export interface FormBlock {
+  /**
+   * Selecteaza formularul definit in admin
+   */
+  form: string | Form;
+  variant?: ('standard' | 'card' | 'centered' | 'minimal') | null;
+  enableIntro?: boolean | null;
+  heading?: string | null;
+  subheading?: string | null;
+  introContent?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  backgroundColor?: ('default' | 'light' | 'dark') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'formBlock';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "forms".
+ */
+export interface Form {
+  id: string;
+  /**
+   * Tipul formularului determina cum sunt procesate trimiterile (email-uri, salvare newsletter, etc.)
+   */
+  formType: 'contact' | 'newsletter' | 'booking' | 'order' | 'feedback' | 'other';
+  title: string;
+  fields?:
+    | (
+        | {
+            name: string;
+            label?: string | null;
+            width?: number | null;
+            required?: boolean | null;
+            defaultValue?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'checkbox';
+          }
+        | {
+            name: string;
+            label?: string | null;
+            width?: number | null;
+            required?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'country';
+          }
+        | {
+            name: string;
+            label?: string | null;
+            width?: number | null;
+            required?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'email';
+          }
+        | {
+            message?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'message';
+          }
+        | {
+            name: string;
+            label?: string | null;
+            width?: number | null;
+            defaultValue?: number | null;
+            required?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'number';
+          }
+        | {
+            name: string;
+            label?: string | null;
+            width?: number | null;
+            defaultValue?: string | null;
+            placeholder?: string | null;
+            options?:
+              | {
+                  label: string;
+                  value: string;
+                  id?: string | null;
+                }[]
+              | null;
+            required?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'select';
+          }
+        | {
+            name: string;
+            label?: string | null;
+            width?: number | null;
+            required?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'state';
+          }
+        | {
+            name: string;
+            label?: string | null;
+            width?: number | null;
+            defaultValue?: string | null;
+            required?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'text';
+          }
+        | {
+            name: string;
+            label?: string | null;
+            width?: number | null;
+            defaultValue?: string | null;
+            required?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'textarea';
+          }
+        | {
+            /**
+             * Ex: date, dataPreferata
+             */
+            name: string;
+            label?: string | null;
+            width?: number | null;
+            required?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'date';
+          }
+      )[]
+    | null;
+  submitButtonLabel?: string | null;
+  /**
+   * Choose whether to display an on-page message or redirect to a different page after they submit the form.
+   */
+  confirmationType?: ('message' | 'redirect') | null;
+  confirmationMessage?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  redirect?: {
+    url: string;
+  };
+  /**
+   * Send custom emails when the form submits. Use comma separated lists to send the same email to multiple recipients. To reference a value from this form, wrap that field's name with double curly brackets, i.e. {{firstName}}. You can use a wildcard {{*}} to output all data and {{*:table}} to format it as an HTML table in the email.
+   */
+  emails?:
+    | {
+        emailTo?: string | null;
+        cc?: string | null;
+        bcc?: string | null;
+        replyTo?: string | null;
+        emailFrom?: string | null;
+        subject: string;
+        /**
+         * Enter the message that should be sent in this email.
+         */
+        message?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -2101,8 +2292,15 @@ export interface Booking {
   id: string;
   clientName: string;
   clientEmail: string;
-  clientPhone: string;
-  service: string | Service;
+  clientPhone?: string | null;
+  /**
+   * Legatura la serviciul din catalog (optional)
+   */
+  service?: (string | null) | Service;
+  /**
+   * Numele serviciului ales din formular
+   */
+  serviceName?: string | null;
   teamMember?: (string | null) | Team;
   date: string;
   /**
@@ -2117,24 +2315,6 @@ export interface Booking {
   internalNotes?: string | null;
   status?: ('pending' | 'confirmed' | 'in-progress' | 'completed' | 'cancelled' | 'no-show') | null;
   source?: ('website' | 'phone' | 'whatsapp' | 'facebook' | 'walkin') | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "contact-submissions".
- */
-export interface ContactSubmission {
-  id: string;
-  name: string;
-  email: string;
-  phone?: string | null;
-  subject?: string | null;
-  message: string;
-  service?: (string | null) | Service;
-  status?: ('new' | 'read' | 'replied' | 'resolved' | 'spam') | null;
-  internalNotes?: string | null;
-  source?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -2166,6 +2346,42 @@ export interface NewsletterSubscriber {
   createdAt: string;
 }
 /**
+ * Comenzi de abonamente primite prin formulare
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subscription-orders".
+ */
+export interface SubscriptionOrder {
+  id: string;
+  clientName: string;
+  clientEmail: string;
+  clientPhone?: string | null;
+  /**
+   * Legatura la abonamentul din catalog (optional)
+   */
+  subscription?: (string | null) | Subscription;
+  /**
+   * Numele abonamentului ales (din formular)
+   */
+  subscriptionName?: string | null;
+  /**
+   * Pretul la momentul comenzii
+   */
+  subscriptionPrice?: number | null;
+  notes?: string | null;
+  /**
+   * Vizibile doar pentru personal
+   */
+  internalNotes?: string | null;
+  status: 'pending' | 'succeeded' | 'failed' | 'cancelled' | 'expired' | 'refunded';
+  paymentMethod?: ('cash' | 'card' | 'transfer' | 'online') | null;
+  source?: ('website' | 'phone' | 'whatsapp' | 'walkin') | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
@@ -2188,180 +2404,6 @@ export interface Redirect {
         } | null);
     url?: string | null;
   };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "forms".
- */
-export interface Form {
-  id: string;
-  title: string;
-  fields?:
-    | (
-        | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            required?: boolean | null;
-            defaultValue?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'checkbox';
-          }
-        | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'country';
-          }
-        | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'email';
-          }
-        | {
-            message?: {
-              root: {
-                type: string;
-                children: {
-                  type: any;
-                  version: number;
-                  [k: string]: unknown;
-                }[];
-                direction: ('ltr' | 'rtl') | null;
-                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-                indent: number;
-                version: number;
-              };
-              [k: string]: unknown;
-            } | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'message';
-          }
-        | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            defaultValue?: number | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'number';
-          }
-        | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            defaultValue?: string | null;
-            placeholder?: string | null;
-            options?:
-              | {
-                  label: string;
-                  value: string;
-                  id?: string | null;
-                }[]
-              | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'select';
-          }
-        | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'state';
-          }
-        | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            defaultValue?: string | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'text';
-          }
-        | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            defaultValue?: string | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'textarea';
-          }
-      )[]
-    | null;
-  submitButtonLabel?: string | null;
-  /**
-   * Choose whether to display an on-page message or redirect to a different page after they submit the form.
-   */
-  confirmationType?: ('message' | 'redirect') | null;
-  confirmationMessage?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  redirect?: {
-    url: string;
-  };
-  /**
-   * Send custom emails when the form submits. Use comma separated lists to send the same email to multiple recipients. To reference a value from this form, wrap that field's name with double curly brackets, i.e. {{firstName}}. You can use a wildcard {{*}} to output all data and {{*:table}} to format it as an HTML table in the email.
-   */
-  emails?:
-    | {
-        emailTo?: string | null;
-        cc?: string | null;
-        bcc?: string | null;
-        replyTo?: string | null;
-        emailFrom?: string | null;
-        subject: string;
-        /**
-         * Enter the message that should be sent in this email.
-         */
-        message?: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        } | null;
-        id?: string | null;
-      }[]
-    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -2751,20 +2793,12 @@ export interface PayloadLockedDocument {
         value: string | Testimonial;
       } | null)
     | ({
-        relationTo: 'price-packages';
-        value: string | PricePackage;
-      } | null)
-    | ({
         relationTo: 'bookings';
         value: string | Booking;
       } | null)
     | ({
         relationTo: 'faq';
         value: string | Faq;
-      } | null)
-    | ({
-        relationTo: 'contact-submissions';
-        value: string | ContactSubmission;
       } | null)
     | ({
         relationTo: 'product-categories';
@@ -2777,6 +2811,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'subscriptions';
         value: string | Subscription;
+      } | null)
+    | ({
+        relationTo: 'subscription-orders';
+        value: string | SubscriptionOrder;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -3028,23 +3066,6 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
-        pricing?:
-          | T
-          | {
-              variant?: T;
-              heading?: T;
-              subheading?: T;
-              source?: T;
-              selectedPackages?: T;
-              limit?: T;
-              showFeatures?: T;
-              showOldPrice?: T;
-              ctaText?: T;
-              disclaimer?: T;
-              backgroundColor?: T;
-              id?: T;
-              blockName?: T;
-            };
         portfolio?:
           | T
           | {
@@ -3098,40 +3119,6 @@ export interface PagesSelect<T extends boolean = true> {
               variant?: T;
               heading?: T;
               subheading?: T;
-              showForm?: T;
-              formType?: T;
-              formFields?:
-                | T
-                | {
-                    showName?: T;
-                    showEmail?: T;
-                    showPhone?: T;
-                    showSubject?: T;
-                    showService?: T;
-                    showMessage?: T;
-                  };
-              customFields?:
-                | T
-                | {
-                    fieldType?: T;
-                    name?: T;
-                    label?: T;
-                    placeholder?: T;
-                    required?: T;
-                    halfWidth?: T;
-                    options?:
-                      | T
-                      | {
-                          label?: T;
-                          value?: T;
-                          id?: T;
-                        };
-                    min?: T;
-                    max?: T;
-                    id?: T;
-                  };
-              submitButtonText?: T;
-              successMessage?: T;
               showContactInfo?: T;
               contactInfoItems?:
                 | T
@@ -3148,19 +3135,10 @@ export interface PagesSelect<T extends boolean = true> {
               labels?:
                 | T
                 | {
-                    formTitle?: T;
                     contactInfoTitle?: T;
-                    nameLabel?: T;
-                    emailLabel?: T;
-                    phoneLabel?: T;
-                    subjectLabel?: T;
-                    serviceLabel?: T;
-                    messageLabel?: T;
-                    selectPlaceholder?: T;
-                    requiredText?: T;
-                    submittingText?: T;
-                    errorMessage?: T;
                     addressLabel?: T;
+                    phoneLabel?: T;
+                    emailLabel?: T;
                     scheduleLabel?: T;
                     socialLabel?: T;
                   };
@@ -3249,6 +3227,77 @@ export interface PagesSelect<T extends boolean = true> {
                     richText?: T;
                     image?: T;
                     videoUrl?: T;
+                    blocks?:
+                      | T
+                      | {
+                          formBlock?: T | FormBlockSelect<T>;
+                          contact?:
+                            | T
+                            | {
+                                variant?: T;
+                                heading?: T;
+                                subheading?: T;
+                                showContactInfo?: T;
+                                contactInfoItems?:
+                                  | T
+                                  | {
+                                      showAddress?: T;
+                                      showPhone?: T;
+                                      showEmail?: T;
+                                      showWorkingHours?: T;
+                                      showSocial?: T;
+                                    };
+                                showMap?: T;
+                                mapPosition?: T;
+                                backgroundColor?: T;
+                                labels?:
+                                  | T
+                                  | {
+                                      contactInfoTitle?: T;
+                                      addressLabel?: T;
+                                      phoneLabel?: T;
+                                      emailLabel?: T;
+                                      scheduleLabel?: T;
+                                      socialLabel?: T;
+                                    };
+                                id?: T;
+                                blockName?: T;
+                              };
+                          map?:
+                            | T
+                            | {
+                                variant?: T;
+                                heading?: T;
+                                source?: T;
+                                customEmbed?: T;
+                                height?: T;
+                                showDirectionsButton?: T;
+                                id?: T;
+                                blockName?: T;
+                              };
+                          cta?:
+                            | T
+                            | {
+                                variant?: T;
+                                headline?: T;
+                                subheadline?: T;
+                                image?: T;
+                                buttons?:
+                                  | T
+                                  | {
+                                      label?: T;
+                                      link?: T;
+                                      variant?: T;
+                                      id?: T;
+                                    };
+                                showPhoneNumber?: T;
+                                backgroundColor?: T;
+                                textAlignment?: T;
+                                size?: T;
+                                id?: T;
+                                blockName?: T;
+                              };
+                        };
                     id?: T;
                   };
               backgroundColor?: T;
@@ -3653,6 +3702,7 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        formBlock?: T | FormBlockSelect<T>;
       };
   publishedAt?: T;
   parent?: T;
@@ -3667,6 +3717,21 @@ export interface PagesSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FormBlock_select".
+ */
+export interface FormBlockSelect<T extends boolean = true> {
+  form?: T;
+  variant?: T;
+  enableIntro?: T;
+  heading?: T;
+  subheading?: T;
+  introContent?: T;
+  backgroundColor?: T;
+  id?: T;
+  blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -4095,7 +4160,6 @@ export interface ServicesSelect<T extends boolean = true> {
         id?: T;
       };
   displayStyle?: T;
-  category?: T;
   assignedTeamMember?: T;
   ctaLabel?: T;
   ctaLink?: T;
@@ -4203,36 +4267,6 @@ export interface TestimonialsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "price-packages_select".
- */
-export interface PricePackagesSelect<T extends boolean = true> {
-  title?: T;
-  subtitle?: T;
-  description?: T;
-  price?: T;
-  oldPrice?: T;
-  period?: T;
-  features?:
-    | T
-    | {
-        feature?: T;
-        included?: T;
-        id?: T;
-      };
-  cta?:
-    | T
-    | {
-        label?: T;
-        link?: T;
-      };
-  highlighted?: T;
-  highlightLabel?: T;
-  order?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "bookings_select".
  */
 export interface BookingsSelect<T extends boolean = true> {
@@ -4240,6 +4274,7 @@ export interface BookingsSelect<T extends boolean = true> {
   clientEmail?: T;
   clientPhone?: T;
   service?: T;
+  serviceName?: T;
   teamMember?: T;
   date?: T;
   time?: T;
@@ -4260,23 +4295,6 @@ export interface FaqSelect<T extends boolean = true> {
   answer?: T;
   category?: T;
   order?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "contact-submissions_select".
- */
-export interface ContactSubmissionsSelect<T extends boolean = true> {
-  name?: T;
-  email?: T;
-  phone?: T;
-  subject?: T;
-  message?: T;
-  service?: T;
-  status?: T;
-  internalNotes?: T;
-  source?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -4351,6 +4369,27 @@ export interface SubscriptionsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subscription-orders_select".
+ */
+export interface SubscriptionOrdersSelect<T extends boolean = true> {
+  clientName?: T;
+  clientEmail?: T;
+  clientPhone?: T;
+  subscription?: T;
+  subscriptionName?: T;
+  subscriptionPrice?: T;
+  notes?: T;
+  internalNotes?: T;
+  status?: T;
+  paymentMethod?: T;
+  source?: T;
+  startDate?: T;
+  endDate?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects_select".
  */
 export interface RedirectsSelect<T extends boolean = true> {
@@ -4370,6 +4409,7 @@ export interface RedirectsSelect<T extends boolean = true> {
  * via the `definition` "forms_select".
  */
 export interface FormsSelect<T extends boolean = true> {
+  formType?: T;
   title?: T;
   fields?:
     | T
@@ -4470,6 +4510,16 @@ export interface FormsSelect<T extends boolean = true> {
               label?: T;
               width?: T;
               defaultValue?: T;
+              required?: T;
+              id?: T;
+              blockName?: T;
+            };
+        date?:
+          | T
+          | {
+              name?: T;
+              label?: T;
+              width?: T;
               required?: T;
               id?: T;
               blockName?: T;
