@@ -1895,8 +1895,8 @@ După seed, compară cu Template-2 folosind Playwright:
 
 ```bash
 # Pornește ambele servere
-# Template-2: http://localhost:3000
-# Template-5: http://localhost:3001
+# Template-2: http://localhost:3100
+# Template-5: http://localhost:3101
 
 # Folosește browser_screenshot pentru comparație
 ```

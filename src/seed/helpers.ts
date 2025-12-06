@@ -205,6 +205,21 @@ export async function createAdminUser(payload: Payload) {
       },
     });
     console.log('   Created admin user');
+  } else {
+    // Ensure existing admin@example.com user has admin role
+    const user = existingUser.docs[0];
+    if (user.role !== 'admin') {
+      await payload.update({
+        collection: 'users',
+        id: user.id,
+        data: {
+          role: 'admin',
+        },
+      });
+      console.log(`   Updated user ${user.email} role to admin (was: ${user.role || 'undefined'})`);
+    } else {
+      console.log(`   Admin user already exists with correct role`);
+    }
   }
 }
 

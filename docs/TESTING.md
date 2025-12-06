@@ -43,6 +43,7 @@ template-5/
 ## Tipuri de Teste
 
 ### 1. Smoke Tests (`smoke.spec.ts`)
+
 **Scop:** Verificare rapidă că site-ul funcționează
 **Durată:** ~2 minute
 **Când să rulezi:** După fiecare modificare majoră
@@ -52,6 +53,7 @@ pnpm test:e2e tests/e2e/smoke.spec.ts
 ```
 
 ### 2. All Businesses Tests (`all-businesses.spec.ts`)
+
 **Scop:** Testare completă pentru toate cele 8 tipuri de business
 **Durată:** ~15-20 minute
 **Când să rulezi:** Înainte de release
@@ -61,6 +63,7 @@ pnpm test:e2e tests/e2e/all-businesses.spec.ts
 ```
 
 ### 3. Production Ready Tests (`production-ready.spec.ts`)
+
 **Scop:** Verificare completă că site-ul e gata pentru producție
 **Durată:** ~30-45 minute per business
 **Când să rulezi:** Final QA înainte de deploy
@@ -70,6 +73,7 @@ pnpm test:e2e tests/e2e/production-ready.spec.ts
 ```
 
 ### 4. Visual Regression Tests (`visual-regression.spec.ts`)
+
 **Scop:** Detectare modificări vizuale neintenționate
 **Durată:** ~10 minute
 **Când să rulezi:** După modificări CSS/layout
@@ -130,16 +134,16 @@ pnpm test:screenshots
 
 ### Business Types Disponibile
 
-| Tip | Seed Command | Caracteristici |
-|-----|--------------|----------------|
-| `frizerie` | `pnpm seed:frizerie` | Servicii, Echipă, Programări |
-| `dentist` | `pnpm seed:dentist` | Servicii medicale, Doctori |
-| `avocat` | `pnpm seed:avocat` | Servicii juridice, Consultanță |
-| `restaurant` | `pnpm seed:restaurant` | Meniu, Galerie, Rezervări |
-| `auto-service` | `pnpm seed:auto-service` | Servicii auto, Prețuri |
-| `constructii` | `pnpm seed:constructii` | Portofoliu, Proiecte |
-| `salon` | `pnpm seed:salon` | Tratamente, Stiliste |
-| `magazin` | `pnpm seed:magazin` | Produse, Coș, Checkout |
+| Tip            | Seed Command             | Caracteristici                 |
+| -------------- | ------------------------ | ------------------------------ |
+| `frizerie`     | `pnpm seed:frizerie`     | Servicii, Echipă, Programări   |
+| `dentist`      | `pnpm seed:dentist`      | Servicii medicale, Doctori     |
+| `avocat`       | `pnpm seed:avocat`       | Servicii juridice, Consultanță |
+| `restaurant`   | `pnpm seed:restaurant`   | Meniu, Galerie, Rezervări      |
+| `auto-service` | `pnpm seed:auto-service` | Servicii auto, Prețuri         |
+| `constructii`  | `pnpm seed:constructii`  | Portofoliu, Proiecte           |
+| `salon`        | `pnpm seed:salon`        | Tratamente, Stiliste           |
+| `magazin`      | `pnpm seed:magazin`      | Produse, Coș, Checkout         |
 
 ### Testare manuală rapidă
 
@@ -168,7 +172,7 @@ SEED_TYPE=frizerie pnpm test:e2e tests/e2e/production-ready.spec.ts
 ### `playwright.config.ts`
 
 ```typescript
-import { defineConfig, devices } from '@playwright/test'
+import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests/e2e',
@@ -221,7 +225,7 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
   },
-})
+});
 ```
 
 ### Environment Variables
@@ -244,11 +248,13 @@ CI=false
 ### Când un test eșuează
 
 1. **Verifică raportul HTML:**
+
    ```bash
    pnpm test:screenshots:show
    ```
 
 2. **Rulează în mod debug:**
+
    ```bash
    pnpm exec playwright test --debug -g "numele testului"
    ```
@@ -260,12 +266,12 @@ CI=false
 
 ### Probleme comune
 
-| Problemă | Soluție |
-|----------|---------|
-| Timeout la încărcare | Mărește `timeout` în config sau test |
-| Element nu e găsit | Verifică selectorul, folosește `data-testid` |
-| Screenshot diferit | Regenerează baseline cu `--update-snapshots` |
-| Server nu pornește | Verifică că portul 3000 e liber |
+| Problemă             | Soluție                                      |
+| -------------------- | -------------------------------------------- |
+| Timeout la încărcare | Mărește `timeout` în config sau test         |
+| Element nu e găsit   | Verifică selectorul, folosește `data-testid` |
+| Screenshot diferit   | Regenerează baseline cu `--update-snapshots` |
+| Server nu pornește   | Verifică că portul 3000 e liber              |
 
 ---
 
@@ -353,51 +359,51 @@ Adaugă în workflow:
 ### 1. Structură Test
 
 ```typescript
-import { test, expect } from '@playwright/test'
+import { test, expect } from '@playwright/test';
 
 test.describe('Feature Name', () => {
   test.beforeEach(async ({ page }) => {
     // Setup comun
-    await page.goto('/')
-  })
+    await page.goto('/');
+  });
 
   test('should do something', async ({ page }) => {
     // Arrange
-    const button = page.getByRole('button', { name: 'Submit' })
+    const button = page.getByRole('button', { name: 'Submit' });
 
     // Act
-    await button.click()
+    await button.click();
 
     // Assert
-    await expect(page.getByText('Success')).toBeVisible()
-  })
-})
+    await expect(page.getByText('Success')).toBeVisible();
+  });
+});
 ```
 
 ### 2. Selectori robuști
 
 ```typescript
 // ❌ Evită
-page.locator('.btn-primary')
-page.locator('div > span:nth-child(2)')
+page.locator('.btn-primary');
+page.locator('div > span:nth-child(2)');
 
 // ✅ Preferă
-page.getByRole('button', { name: 'Programează-te' })
-page.getByTestId('contact-form')
-page.getByLabel('Email')
-page.getByText('Servicii')
+page.getByRole('button', { name: 'Programează-te' });
+page.getByTestId('contact-form');
+page.getByLabel('Email');
+page.getByText('Servicii');
 ```
 
 ### 3. Așteptări explicite
 
 ```typescript
 // ❌ Evită timeouts fixe
-await page.waitForTimeout(5000)
+await page.waitForTimeout(5000);
 
 // ✅ Preferă așteptări pentru elemente
-await page.waitForSelector('[data-loaded="true"]')
-await expect(page.getByText('Loaded')).toBeVisible()
-await page.waitForLoadState('networkidle')
+await page.waitForSelector('[data-loaded="true"]');
+await expect(page.getByText('Loaded')).toBeVisible();
+await page.waitForLoadState('networkidle');
 ```
 
 ### 4. Test data management
@@ -408,15 +414,15 @@ export const testUser = {
   name: 'Test Playwright',
   email: 'test@playwright.dev',
   phone: '0722000000',
-}
+};
 
 // În test
-import { testUser } from './fixtures/test-data'
+import { testUser } from './fixtures/test-data';
 
 test('should submit form', async ({ page }) => {
-  await page.getByLabel('Nume').fill(testUser.name)
-  await page.getByLabel('Email').fill(testUser.email)
-})
+  await page.getByLabel('Nume').fill(testUser.name);
+  await page.getByLabel('Email').fill(testUser.email);
+});
 ```
 
 ---
@@ -487,7 +493,7 @@ lsof -i :3000
 kill -9 <PID>
 
 # Sau folosește alt port
-PORT=3001 pnpm dev
+PORT=3100 pnpm dev
 ```
 
 ### Teste lente
@@ -506,4 +512,4 @@ PORT=3001 pnpm dev
 
 ---
 
-*Ultima actualizare: Decembrie 2025*
+_Ultima actualizare: Decembrie 2025_
