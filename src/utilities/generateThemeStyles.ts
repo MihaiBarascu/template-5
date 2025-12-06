@@ -184,6 +184,23 @@ const THEME_VARIANTS: Record<string, ThemeVariant> = {
     borderRadius: 'full',
     shadows: 'subtle',
   },
+  // Fitness / Gym variant - based on Template-2
+  'fitness-orange': {
+    colors: {
+      primary: '#f13a11',      // Vibrant orange (exact Template-2)
+      secondary: '#171819',    // Dark black
+      accent: '#f97316',       // Secondary orange
+      dark: '#171819',
+      light: '#ffffff',
+      surface: '#f9f9f9',
+      text: '#171819',
+      textLight: '#666262',    // Gray (exact Template-2)
+      border: '#e5e5e5',
+    },
+    fonts: { heading: 'Work Sans', body: 'Work Sans' },
+    borderRadius: 'small',
+    shadows: 'subtle',
+  },
 }
 
 // Border radius presets
@@ -226,6 +243,29 @@ const spacingPresets = {
   compact: { section: '48px', sectionMobile: '32px' },
   normal: { section: '80px', sectionMobile: '48px' },
   spacious: { section: '120px', sectionMobile: '64px' },
+}
+
+// Typography presets (for advanced typography)
+const letterSpacingPresets: Record<string, string> = {
+  tight: '-0.5px',
+  normal: '0',
+  wide: '0.5px',
+  wider: '1px',
+}
+
+// Button presets
+const buttonPaddingPresets: Record<string, { y: string; x: string }> = {
+  compact: { y: '8px', x: '16px' },
+  normal: { y: '12px', x: '24px' },
+  large: { y: '16px', x: '32px' },
+  xl: { y: '24px', x: '40px' },
+}
+
+const buttonLetterSpacingPresets: Record<string, string> = {
+  normal: '0',
+  wide: '0.5px',
+  wider: '1px',
+  'extra-wide': '2px',
 }
 
 /**
@@ -275,6 +315,31 @@ export function generateThemeStyles(siteTheme: SiteTheme | null): string {
   // Container width
   const containerWidth = siteTheme?.containerWidth ? `${siteTheme.containerWidth}px` : '1280px'
 
+  // Extract advanced typography settings
+  const letterSpacing = siteTheme?.useAdvancedTypography
+    ? letterSpacingPresets[siteTheme?.letterSpacing || 'normal'] || '0'
+    : '0'
+  const headingLineHeight = siteTheme?.useAdvancedTypography
+    ? siteTheme?.headingLineHeight || '1.2'
+    : '1.2'
+  const bodyLineHeight = siteTheme?.useAdvancedTypography
+    ? siteTheme?.bodyLineHeight || '1.6'
+    : '1.6'
+
+  // Extract button style settings
+  const buttonPadding = siteTheme?.useCustomButtons
+    ? buttonPaddingPresets[siteTheme?.buttonPadding || 'normal'] || buttonPaddingPresets.normal
+    : buttonPaddingPresets.normal
+  const buttonTextTransform = siteTheme?.useCustomButtons
+    ? siteTheme?.buttonTextTransform || 'none'
+    : 'none'
+  const buttonFontWeight = siteTheme?.useCustomButtons
+    ? siteTheme?.buttonFontWeight || '600'
+    : '600'
+  const buttonLetterSpacing = siteTheme?.useCustomButtons
+    ? buttonLetterSpacingPresets[siteTheme?.buttonLetterSpacing || 'normal'] || '0'
+    : '0'
+
   return `
     :root {
       --theme-primary: ${colors.primary};
@@ -303,6 +368,14 @@ export function generateThemeStyles(siteTheme: SiteTheme | null): string {
       --container-max: ${containerWidth};
       --font-heading: '${headingFont}', sans-serif;
       --font-body: '${bodyFont}', sans-serif;
+      --letter-spacing: ${letterSpacing};
+      --heading-line-height: ${headingLineHeight};
+      --body-line-height: ${bodyLineHeight};
+      --btn-padding-y: ${buttonPadding.y};
+      --btn-padding-x: ${buttonPadding.x};
+      --btn-text-transform: ${buttonTextTransform};
+      --btn-font-weight: ${buttonFontWeight};
+      --btn-letter-spacing: ${buttonLetterSpacing};
     }
   `.trim()
 }

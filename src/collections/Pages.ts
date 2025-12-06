@@ -174,6 +174,42 @@ export const Pages: CollectionConfig = {
           label: 'Afiseaza indicator scroll',
           defaultValue: false,
         },
+        // Stats badge for split hero
+        {
+          name: 'statsBadge',
+          type: 'group',
+          label: 'Stats Badge',
+          admin: {
+            description: 'Badge-ul cu statistici afisat pe imaginea hero',
+            condition: (data) => data?.heroType === 'split',
+          },
+          fields: [
+            {
+              name: 'enabled',
+              type: 'checkbox',
+              label: 'Afiseaza stats badge',
+              defaultValue: true,
+            },
+            {
+              name: 'value',
+              type: 'text',
+              label: 'Valoare',
+              defaultValue: '10+',
+              admin: {
+                condition: (_, siblingData) => siblingData?.enabled,
+              },
+            },
+            {
+              name: 'label',
+              type: 'text',
+              label: 'Text',
+              defaultValue: 'ani experienta',
+              admin: {
+                condition: (_, siblingData) => siblingData?.enabled,
+              },
+            },
+          ],
+        },
         // Overlay settings for image/video hero
         {
           name: 'overlayEnabled',

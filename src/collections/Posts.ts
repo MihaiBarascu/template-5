@@ -1,8 +1,18 @@
 import type { CollectionConfig } from 'payload'
+import {
+  BlocksFeature,
+  FixedToolbarFeature,
+  HeadingFeature,
+  HorizontalRuleFeature,
+  InlineToolbarFeature,
+  lexicalEditor,
+} from '@payloadcms/richtext-lexical'
 import { authenticated, authenticatedOrPublished } from '@/access'
 import { slugField } from '@/fields/slug'
 import { revalidatePostAfterChange, revalidatePostAfterDelete } from '@/hooks/revalidatePost'
 import { populatePublishedAt } from '@/hooks/populatePublishedAt'
+import { Banner } from '@/blocks/Banner/config'
+import { MediaBlock } from '@/blocks/MediaBlock/config'
 
 export const Posts: CollectionConfig = {
   slug: 'posts',
@@ -47,6 +57,18 @@ export const Posts: CollectionConfig = {
       name: 'content',
       type: 'richText',
       label: 'Continut',
+      editor: lexicalEditor({
+        features: ({ rootFeatures }) => {
+          return [
+            ...rootFeatures,
+            HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4'] }),
+            BlocksFeature({ blocks: [Banner, MediaBlock] }),
+            FixedToolbarFeature(),
+            InlineToolbarFeature(),
+            HorizontalRuleFeature(),
+          ]
+        },
+      }),
     },
     {
       name: 'category',

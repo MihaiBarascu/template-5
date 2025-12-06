@@ -67,7 +67,7 @@ export async function seedMagazin(payload: Payload) {
     social: magazinData.business.social,
     stats: magazinData.business.stats,
     googleMapsEmbed:
-      'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2848.8!2d26.09!3d44.43!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1',
+      'https://www.google.com/maps?q=Bulevardul+Magheru+50,+Sector+1,+Bucuresti,+Romania&output=embed',
   })
 
   console.log('\n🏷️ Setting up logo...')
@@ -287,7 +287,7 @@ function buildHomepageLayout(variant: DesignVariant, getImageId: (filename: stri
       locations: [
         {
           name: 'EcoShop Showroom',
-          address: 'Bulevardul Magheru 32',
+          address: 'Bulevardul Magheru 50',
           city: 'București',
           phone: '0722 444 555',
           email: 'showroom@ecoshop.ro',
@@ -513,7 +513,21 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
                   children: [
                     {
                       type: 'paragraph',
-                      children: [{ text: 'Alege o categorie pentru a vedea produsele disponibile.', version: 1 }],
+                      children: [
+                        {
+                          type: 'text',
+                          text: 'Alege o categorie pentru a vedea produsele disponibile.',
+                          format: 0,
+                          detail: 0,
+                          mode: 'normal',
+                          style: '',
+                          version: 1,
+                        },
+                      ],
+                      direction: 'ltr',
+                      format: '',
+                      indent: 0,
+                      textFormat: 0,
                       version: 1,
                     },
                   ],
@@ -556,20 +570,38 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
                       type: 'paragraph',
                       children: [
                         {
+                          type: 'text',
                           text: 'EcoShop a fost fondat in 2019 cu o misiune simpla: sa oferim produse naturale, organice si eco-friendly la preturi accesibile. Credem ca fiecare dintre noi poate face alegeri mai bune pentru sanatatea noastra si a planetei.',
+                          format: 0,
+                          detail: 0,
+                          mode: 'normal',
+                          style: '',
                           version: 1,
                         },
                       ],
+                      direction: 'ltr',
+                      format: '',
+                      indent: 0,
+                      textFormat: 0,
                       version: 1,
                     },
                     {
                       type: 'paragraph',
                       children: [
                         {
+                          type: 'text',
                           text: 'Toate produsele noastre sunt selectate cu grija, de la producatori certificati care respecta standardele cele mai inalte de calitate si sustenabilitate.',
+                          format: 0,
+                          detail: 0,
+                          mode: 'normal',
+                          style: '',
                           version: 1,
                         },
                       ],
+                      direction: 'ltr',
+                      format: '',
+                      indent: 0,
+                      textFormat: 0,
                       version: 1,
                     },
                   ],

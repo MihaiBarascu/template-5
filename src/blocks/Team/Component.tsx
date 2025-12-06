@@ -26,6 +26,7 @@ interface SocialLinks {
 interface TeamMember {
   id: string
   name: string
+  slug?: string | null
   role?: string | null
   bio?: RichText | string | null
   experience?: string | null
@@ -55,6 +56,7 @@ interface TeamBlockProps {
   columns?: string
   backgroundColor?: string
   members?: TeamMember[]
+  detailBasePath?: string | null
 }
 
 // Social Media Icons
@@ -123,8 +125,16 @@ export function TeamBlock({
   columns = '4',
   backgroundColor = 'default',
   members = [],
+  detailBasePath,
 }: TeamBlockProps) {
   const [isLoaded, setIsLoaded] = useState(false)
+
+  // Helper to get member detail URL
+  const getMemberHref = (member: TeamMember): string | null => {
+    if (!detailBasePath || !member.slug) return null
+    const basePath = detailBasePath.startsWith('/') ? detailBasePath : `/${detailBasePath}`
+    return `${basePath}/${member.slug}`
+  }
 
   useEffect(() => {
     setIsLoaded(true)
@@ -445,7 +455,13 @@ export function TeamBlock({
                   'text-xl font-bold mb-1 transition-colors',
                   isDark ? 'text-white group-hover:text-theme-accent' : 'text-theme-text group-hover:text-theme-primary'
                 )}>
-                  {member.name}
+                  {getMemberHref(member) ? (
+                    <Link href={getMemberHref(member)!} className="hover:underline">
+                      {member.name}
+                    </Link>
+                  ) : (
+                    member.name
+                  )}
                 </h3>
 
                 {showRole && member.role && (

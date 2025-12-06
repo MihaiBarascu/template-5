@@ -60,7 +60,8 @@ export async function seedSalon(payload: Payload) {
     workingHours: salonData.business.workingHours,
     social: salonData.business.social,
     stats: salonData.business.stats,
-    googleMapsEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2848.8!2d26.09!3d44.43!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1',
+    googleMapsEmbed:
+      'https://www.google.com/maps?q=Bulevardul+Unirii+120,+Sector+3,+Bucuresti,+Romania&output=embed',
   })
 
   console.log('\n🏷️ Setting up logo...')
@@ -87,6 +88,7 @@ export async function seedSalon(payload: Payload) {
       { title: 'Program', type: 'schedule' },
       { title: 'Contact', type: 'contact' },
     ],
+    // Footer fara textura - se poate adauga din admin
   })
 
   console.log('\n💅 Creating services...')
@@ -259,7 +261,7 @@ function buildHomepageLayout(variant: DesignVariant) {
       locations: [
         {
           name: 'Beauty Elena - Universitate',
-          address: 'Strada Academiei 15',
+          address: 'Bulevardul Unirii 120',
           city: 'București',
           phone: '0722 555 666',
           email: 'contact@beautyelena.ro',
@@ -354,6 +356,7 @@ function buildHomepageLayout(variant: DesignVariant) {
       showPrices: true,
       showIcons: true,
       backgroundColor: 'light',
+      detailBasePath: '/servicii',
     },
     stats: {
       blockType: 'stats',
@@ -439,7 +442,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
       heroType: 'minimal',
       hero: { headline: 'Serviciile Noastre', subheadline: 'Servicii complete de infrumusetare' },
       layout: [
-        { blockType: 'services', variant: variant.layout.servicesVariant, heading: 'Toate Serviciile', source: 'collection', limit: 20, showPrices: true, showIcons: true, backgroundColor: 'default' },
+        { blockType: 'services', variant: variant.layout.servicesVariant, heading: 'Toate Serviciile', source: 'collection', limit: 20, showPrices: true, showIcons: true, backgroundColor: 'default', detailBasePath: '/servicii' },
         { blockType: 'cta', variant: 'centered', headline: 'Programeaza-te', buttons: [{ label: 'Programeaza-te', link: '/programare', variant: 'default' }], backgroundColor: 'light' },
       ],
       _status: 'published',

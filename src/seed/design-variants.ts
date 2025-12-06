@@ -1621,6 +1621,202 @@ export const magazinVariants: DesignVariant[] = [
 ]
 
 // =============================================================================
+// FITNESS / SALA - 5 VARIANTE
+// =============================================================================
+
+export const fitnessVariants: DesignVariant[] = [
+  // VARIANTA 1 - Orange Energy (Default - based on Template-2)
+  {
+    id: 'fitness-v1',
+    name: 'Orange Energy',
+    description: 'Design energic cu portocaliu - puternic si motivant',
+    theme: {
+      preset: 'bold',
+      colors: {
+        primary: '#f13a11',
+        secondary: '#171819',
+        accent: '#f97316',
+        dark: '#171819',
+        light: '#ffffff',
+        surface: '#f9f9f9',
+        text: '#171819',
+        textLight: '#666262',
+        border: '#e5e5e5',
+      },
+      fontPreset: 'bold',
+      stylePreset: 'bold',
+      borderRadius: 'small',
+      shadows: 'subtle',
+    },
+    hero: {
+      type: 'fullscreen',
+      overlay: 'dark',
+      alignment: 'center',
+    },
+    layout: {
+      sections: ['stats', 'classesGrid', 'scheduleTable', 'subscriptionCards', 'team', 'gallery', 'testimonials', 'faq', 'cta'],
+      servicesVariant: 'grid-3',
+      teamVariant: 'grid',
+      testimonialsVariant: 'carousel',
+      galleryVariant: 'masonry',
+      pricingVariant: 'cards-3',
+    },
+  },
+
+  // VARIANTA 2 - Dark Premium
+  {
+    id: 'fitness-v2',
+    name: 'Dark Premium',
+    description: 'Design premium cu negru si auriu - luxos si exclusivist',
+    theme: {
+      preset: 'elegant',
+      colors: {
+        primary: '#d4af37',
+        secondary: '#1a1a1a',
+        accent: '#fbbf24',
+        dark: '#0d0d0d',
+        light: '#fafafa',
+        surface: '#ffffff',
+        text: '#1a1a1a',
+        textLight: '#525252',
+        border: '#e5e5e5',
+      },
+      fontPreset: 'elegant',
+      stylePreset: 'bold',
+      borderRadius: 'none',
+      shadows: 'moderate',
+    },
+    hero: {
+      type: 'fullscreen',
+      overlay: 'dark',
+      alignment: 'center',
+    },
+    layout: {
+      sections: ['classesGrid', 'stats', 'scheduleTable', 'subscriptionCards', 'gallery', 'team', 'testimonials', 'cta'],
+      servicesVariant: 'grid-4',
+      teamVariant: 'grid-centered',
+      testimonialsVariant: 'single-featured',
+      galleryVariant: 'carousel',
+      pricingVariant: 'cards-3',
+    },
+  },
+
+  // VARIANTA 3 - Green Wellness
+  {
+    id: 'fitness-v3',
+    name: 'Green Wellness',
+    description: 'Design wellness cu verde - sanatos si echilibrat',
+    theme: {
+      preset: 'modern',
+      colors: {
+        primary: '#22c55e',
+        secondary: '#166534',
+        accent: '#4ade80',
+        dark: '#14532d',
+        light: '#f0fdf4',
+        surface: '#ffffff',
+        text: '#14532d',
+        textLight: '#166534',
+        border: '#dcfce7',
+      },
+      fontPreset: 'modern',
+      stylePreset: 'modern',
+      borderRadius: 'large',
+      shadows: 'subtle',
+    },
+    hero: {
+      type: 'split',
+      overlay: 'none',
+      alignment: 'left',
+    },
+    layout: {
+      sections: ['classesGrid', 'scheduleTable', 'subscriptionCards', 'team', 'stats', 'testimonials', 'faq', 'cta'],
+      servicesVariant: 'grid-3',
+      teamVariant: 'grid',
+      testimonialsVariant: 'grid',
+      galleryVariant: 'grid-4',
+      pricingVariant: 'cards-4',
+    },
+  },
+
+  // VARIANTA 4 - Blue Athletic
+  {
+    id: 'fitness-v4',
+    name: 'Blue Athletic',
+    description: 'Design atletic cu albastru - profesional si performant',
+    theme: {
+      preset: 'modern',
+      colors: {
+        primary: '#2563eb',
+        secondary: '#1e40af',
+        accent: '#3b82f6',
+        dark: '#1e3a8a',
+        light: '#eff6ff',
+        surface: '#ffffff',
+        text: '#1e3a8a',
+        textLight: '#3b82f6',
+        border: '#bfdbfe',
+      },
+      fontPreset: 'modern',
+      stylePreset: 'modern',
+      borderRadius: 'medium',
+      shadows: 'moderate',
+    },
+    hero: {
+      type: 'centered',
+      overlay: 'gradient',
+      alignment: 'center',
+    },
+    layout: {
+      sections: ['stats', 'classesGrid', 'team', 'scheduleTable', 'subscriptionCards', 'gallery', 'testimonials', 'faq', 'cta'],
+      servicesVariant: 'price-list',
+      teamVariant: 'list',
+      testimonialsVariant: 'masonry',
+      galleryVariant: 'masonry',
+      pricingVariant: 'featured-center',
+    },
+  },
+
+  // VARIANTA 5 - Red Power
+  {
+    id: 'fitness-v5',
+    name: 'Red Power',
+    description: 'Design puternic cu rosu - intens si motivant',
+    theme: {
+      preset: 'bold',
+      colors: {
+        primary: '#dc2626',
+        secondary: '#1f2937',
+        accent: '#ef4444',
+        dark: '#111827',
+        light: '#fef2f2',
+        surface: '#ffffff',
+        text: '#111827',
+        textLight: '#6b7280',
+        border: '#fecaca',
+      },
+      fontPreset: 'bold',
+      stylePreset: 'bold',
+      borderRadius: 'small',
+      shadows: 'strong',
+    },
+    hero: {
+      type: 'fullscreen',
+      overlay: 'dark',
+      alignment: 'center',
+    },
+    layout: {
+      sections: ['classesGrid', 'stats', 'subscriptionCards', 'scheduleTable', 'team', 'gallery', 'testimonials', 'cta'],
+      servicesVariant: 'grid-4',
+      teamVariant: 'carousel',
+      testimonialsVariant: 'carousel',
+      galleryVariant: 'grid-3',
+      pricingVariant: 'cards-3',
+    },
+  },
+]
+
+// =============================================================================
 // HELPER FUNCTIONS
 // =============================================================================
 
@@ -1633,6 +1829,7 @@ export type BusinessType =
   | 'avocat'
   | 'constructii'
   | 'magazin'
+  | 'fitness'
 
 export function getVariant(businessType: BusinessType, variantIndex: number = 0): DesignVariant {
   const variants = {
@@ -1644,6 +1841,7 @@ export function getVariant(businessType: BusinessType, variantIndex: number = 0)
     avocat: avocatVariants,
     constructii: constructiiVariants,
     magazin: magazinVariants,
+    fitness: fitnessVariants,
   }
 
   const businessVariants = variants[businessType]
@@ -1661,6 +1859,7 @@ export function getAllVariants(businessType: BusinessType): DesignVariant[] {
     avocat: avocatVariants,
     constructii: constructiiVariants,
     magazin: magazinVariants,
+    fitness: fitnessVariants,
   }
   return variants[businessType]
 }
@@ -1675,6 +1874,7 @@ export function getVariantById(variantId: string): DesignVariant | undefined {
     ...avocatVariants,
     ...constructiiVariants,
     ...magazinVariants,
+    ...fitnessVariants,
   ]
   return allVariants.find((v) => v.id === variantId)
 }

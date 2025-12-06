@@ -19,6 +19,54 @@ export function Footer({ data, businessInfo, logo }: FooterProps) {
   const currentYear = new Date().getFullYear()
   const _variant = data?.variant || 'columns-4'
 
+  // Background texture settings (imagine mare pe tot footer-ul, nu se repeta)
+  const bgImage = data?.backgroundImage as Media | null
+  const bgImageUrl = bgImage?.url
+  const bgOpacity = (data?.backgroundOpacity ?? 20) / 100
+
+  // Decorative element settings (like Elyssium Gym)
+  const decorativeImage = data?.decorativeImage as Media | null
+  const decorativeImageUrl = decorativeImage?.url
+  const decorativePosition = data?.decorativePosition || 'left'
+  const decorativeOpacity = (data?.decorativeOpacity ?? 30) / 100
+  const decorativeSize = data?.decorativeSize || 'medium'
+
+  // Get decorative size in pixels
+  const getDecorativeWidth = () => {
+    switch (decorativeSize) {
+      case 'small': return 300
+      case 'medium': return 400
+      case 'large': return 500
+      case 'xl': return 600
+      default: return 400
+    }
+  }
+
+  // Get decorative position classes
+  const getDecorativePositionStyle = (): React.CSSProperties => {
+    const baseStyle: React.CSSProperties = {
+      position: 'absolute',
+      zIndex: 2,
+      pointerEvents: 'none',
+      width: getDecorativeWidth(),
+      height: 'auto',
+      opacity: decorativeOpacity,
+    }
+
+    switch (decorativePosition) {
+      case 'left':
+        return { ...baseStyle, left: 0, top: '50%', transform: 'translateY(-50%)' }
+      case 'right':
+        return { ...baseStyle, right: 0, top: '50%', transform: 'translateY(-50%)' }
+      case 'bottom-left':
+        return { ...baseStyle, left: 0, bottom: 0 }
+      case 'bottom-right':
+        return { ...baseStyle, right: 0, bottom: 0 }
+      default:
+        return { ...baseStyle, left: 0, top: '50%', transform: 'translateY(-50%)' }
+    }
+  }
+
   const getCopyrightText = () => {
     let text = data?.copyright || '© {year} {businessName}. Toate drepturile rezervate.'
     text = text.replace('{year}', currentYear.toString())
@@ -27,8 +75,40 @@ export function Footer({ data, businessInfo, logo }: FooterProps) {
   }
 
   return (
-    <footer className="bg-theme-dark text-white">
-      <div className="container mx-auto py-12 md:py-16">
+    <footer className="bg-theme-dark text-white relative overflow-hidden">
+      {/* Background texture image (imagine mare pe tot, nu se repeta) */}
+      {bgImageUrl && (
+        <div
+          className="absolute inset-0 z-0 pointer-events-none"
+          style={{
+            backgroundImage: `url(${bgImageUrl})`,
+            backgroundPosition: 'center',
+            backgroundSize: 'cover',
+            backgroundRepeat: 'no-repeat',
+            opacity: bgOpacity,
+          }}
+        />
+      )}
+
+      {/* Theme color overlay - se aplica peste textura pentru a se integra cu tema */}
+      {bgImageUrl && (
+        <div
+          className="absolute inset-0 z-[1] pointer-events-none bg-theme-dark/50"
+        />
+      )}
+
+      {/* Decorative element (pozitionat intr-o parte, ca la Elyssium) */}
+      {decorativeImageUrl && (
+        <Image
+          src={decorativeImageUrl}
+          alt="Decorative element"
+          width={getDecorativeWidth()}
+          height={400}
+          style={getDecorativePositionStyle()}
+          className="hidden md:block"
+        />
+      )}
+      <div className="container mx-auto py-12 md:py-16 relative z-10">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           {/* Logo & Description */}
@@ -37,7 +117,7 @@ export function Footer({ data, businessInfo, logo }: FooterProps) {
               <Logo data={logo} businessName={businessInfo?.name} variant="light" />
             </Link>
             {businessInfo?.description && (
-              <p className="text-gray-400 text-sm leading-relaxed">
+              <p className="text-white/80 text-sm leading-relaxed">
                 {businessInfo.description}
               </p>
             )}
@@ -62,7 +142,7 @@ export function Footer({ data, businessInfo, logo }: FooterProps) {
                       <li key={link.id || linkIndex}>
                         <Link
                           href={href}
-                          className="text-gray-400 hover:text-white transition-colors text-sm"
+                          className="text-white/80 hover:text-white transition-colors text-sm"
                           target={link.newTab ? '_blank' : undefined}
                         >
                           {link.label}
@@ -74,7 +154,7 @@ export function Footer({ data, businessInfo, logo }: FooterProps) {
               )}
 
               {column.type === 'contact' && businessInfo && (
-                <ul className="space-y-2 text-sm text-gray-400">
+                <ul className="space-y-2 text-sm text-white/80">
                   {businessInfo.address?.street && (
                     <li>{businessInfo.address.street}</li>
                   )}
@@ -99,7 +179,7 @@ export function Footer({ data, businessInfo, logo }: FooterProps) {
               )}
 
               {column.type === 'schedule' && businessInfo?.workingHours && (
-                <ul className="space-y-2 text-sm text-gray-400">
+                <ul className="space-y-2 text-sm text-white/80">
                   {(businessInfo.workingHours as WorkingHoursItem[]).map((item, i: number) => (
                     <li key={i} className="flex justify-between">
                       <span>{item.days}</span>
@@ -190,7 +270,7 @@ export function Footer({ data, businessInfo, logo }: FooterProps) {
                 {data.paymentMethods.map((method) => (
                   <div
                     key={method}
-                    className="w-12 h-8 bg-white/10 rounded flex items-center justify-center text-xs font-medium text-gray-400"
+                    className="w-12 h-8 bg-white/10 rounded flex items-center justify-center text-xs font-medium text-white/80"
                     title={method}
                   >
                     {method === 'visa' && (
@@ -216,7 +296,7 @@ export function Footer({ data, businessInfo, logo }: FooterProps) {
 
         {/* Bottom Bar */}
         <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-gray-400 text-sm">
+          <p className="text-white/80 text-sm">
             {getCopyrightText()}
           </p>
 
@@ -232,7 +312,7 @@ export function Footer({ data, businessInfo, logo }: FooterProps) {
                   <Link
                     key={index}
                     href={href}
-                    className="text-gray-400 hover:text-white transition-colors"
+                    className="text-white/80 hover:text-white transition-colors"
                   >
                     {link.label}
                   </Link>

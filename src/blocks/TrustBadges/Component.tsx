@@ -193,12 +193,12 @@ export function TrustBadgesBlock({
     large: 'w-8 h-8',
   }
 
-  // Background colors
+  // Background colors - using theme variables
   const bgColors = {
-    default: 'bg-background',
-    light: 'bg-muted/50',
-    dark: 'bg-gray-900 text-white',
-    primary: 'bg-primary text-primary-foreground',
+    default: 'bg-theme-surface',
+    light: 'bg-theme-light',
+    dark: 'bg-theme-dark text-white',
+    primary: 'bg-theme-primary text-white',
     transparent: 'bg-transparent',
   }
 
@@ -209,8 +209,8 @@ export function TrustBadgesBlock({
     if (variant === 'minimal') {
       return (
         <div key={index} className="flex items-center gap-2" title={badge.title}>
-          <IconComponent className={cn(iconSizes[iconSize], 'text-primary')} />
-          <span className="text-sm font-medium">{badge.title}</span>
+          <IconComponent className={cn(iconSizes[iconSize], 'text-theme-primary')} />
+          <span className="text-sm font-medium text-theme-text">{badge.title}</span>
         </div>
       )
     }
@@ -218,13 +218,13 @@ export function TrustBadgesBlock({
     if (variant === 'inline') {
       return (
         <div key={index} className="flex items-center gap-2">
-          <div className="p-1.5 rounded-full bg-primary/10">
-            <IconComponent className={cn(iconSizes[iconSize], 'text-primary')} />
+          <div className="p-1.5 rounded-full bg-theme-primary/10">
+            <IconComponent className={cn(iconSizes[iconSize], 'text-theme-primary')} />
           </div>
           <div>
-            <p className="text-sm font-medium">{badge.title}</p>
+            <p className="text-sm font-medium text-theme-text">{badge.title}</p>
             {showDescriptions && badge.description && (
-              <p className="text-xs text-muted-foreground">{badge.description}</p>
+              <p className="text-xs text-theme-text-muted">{badge.description}</p>
             )}
           </div>
         </div>
@@ -235,48 +235,51 @@ export function TrustBadgesBlock({
       return (
         <div
           key={index}
-          className="flex flex-col items-center text-center p-4 rounded-lg bg-background shadow-sm border"
+          className="flex flex-col items-center text-center p-4 rounded-[var(--radius-card)] bg-theme-surface shadow-sm border border-theme-border"
         >
-          <div className="p-3 rounded-full bg-primary/10 mb-3">
-            <IconComponent className={cn(iconSizes[iconSize], 'text-primary')} />
+          <div className="p-3 rounded-full bg-theme-primary/10 mb-3">
+            <IconComponent className={cn(iconSizes[iconSize], 'text-theme-primary')} />
           </div>
-          <h4 className="font-semibold text-sm mb-1">{badge.title}</h4>
+          <h4 className="font-semibold text-sm mb-1 text-theme-text">{badge.title}</h4>
           {showDescriptions && badge.description && (
-            <p className="text-xs text-muted-foreground">{badge.description}</p>
+            <p className="text-xs text-theme-text-muted">{badge.description}</p>
           )}
         </div>
       )
     }
 
     // Default for bar, grid-3, grid-4
+    const isDark = backgroundColor === 'dark' || backgroundColor === 'primary'
+
     return (
       <div key={index} className="flex items-center gap-3">
         <div
           className={cn(
             'p-2 rounded-full shrink-0',
-            backgroundColor === 'dark' || backgroundColor === 'primary'
-              ? 'bg-white/20'
-              : 'bg-primary/10',
+            isDark ? 'bg-white/20' : 'bg-theme-primary/10',
           )}
         >
           <IconComponent
             className={cn(
               iconSizes[iconSize],
-              backgroundColor === 'dark' || backgroundColor === 'primary'
-                ? 'text-white'
-                : 'text-primary',
+              isDark ? 'text-theme-accent' : 'text-theme-primary',
             )}
           />
         </div>
         <div>
-          <p className="font-medium text-sm">{badge.title}</p>
+          <p
+            className={cn(
+              'font-medium text-sm',
+              isDark ? 'text-white' : 'text-theme-text',
+            )}
+          >
+            {badge.title}
+          </p>
           {showDescriptions && badge.description && (
             <p
               className={cn(
                 'text-xs',
-                backgroundColor === 'dark' || backgroundColor === 'primary'
-                  ? 'text-white/70'
-                  : 'text-muted-foreground',
+                isDark ? 'text-white/70' : 'text-theme-text-muted',
               )}
             >
               {badge.description}
@@ -297,11 +300,20 @@ export function TrustBadgesBlock({
     minimal: 'flex flex-wrap justify-center gap-4 md:gap-6',
   }
 
+  const isDarkSection = backgroundColor === 'dark' || backgroundColor === 'primary'
+
   return (
     <section className={cn('py-8 md:py-12', bgColors[backgroundColor])}>
       <div className="container mx-auto px-4">
         {heading && (
-          <h2 className="text-xl md:text-2xl font-bold text-center mb-6 md:mb-8">{heading}</h2>
+          <h2
+            className={cn(
+              'text-xl md:text-2xl font-bold text-center mb-6 md:mb-8',
+              isDarkSection ? 'text-white' : 'text-theme-text',
+            )}
+          >
+            {heading}
+          </h2>
         )}
         <div className={containerClasses[variant]}>{badges.map(renderBadge)}</div>
       </div>

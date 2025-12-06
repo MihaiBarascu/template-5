@@ -97,6 +97,14 @@ export const SiteTheme: GlobalConfig = {
                   label: '10. Pink Soft - Feminin, delicat, romantic',
                   value: 'pink-soft',
                 },
+                {
+                  label: '11. Fitness Orange - Energic, sport, dinamic',
+                  value: 'fitness-orange',
+                },
+                {
+                  label: '12. Fitness Dark - Dark cu accent rosu, stil gym modern',
+                  value: 'fitness-dark',
+                },
               ],
             },
             {
@@ -387,6 +395,150 @@ export const SiteTheme: GlobalConfig = {
                       admin: { width: '50%' },
                     },
                   ],
+                },
+              ],
+            },
+          ],
+        },
+
+        // =========================================================================
+        // TAB 5: TIPOGRAFIE AVANSATA (OPTIONAL)
+        // =========================================================================
+        {
+          label: 'Tipografie Avansata',
+          description: 'Configurari detaliate pentru tipografie (optional)',
+          fields: [
+            {
+              name: 'useAdvancedTypography',
+              type: 'checkbox',
+              label: 'Activeaza setari avansate',
+              defaultValue: false,
+              admin: {
+                description: 'Permite controlul fin asupra letter-spacing si line-height',
+              },
+            },
+            {
+              type: 'row',
+              admin: { condition: (_, siblingData) => siblingData?.useAdvancedTypography },
+              fields: [
+                {
+                  name: 'letterSpacing',
+                  type: 'select',
+                  label: 'Letter Spacing',
+                  admin: { width: '33%' },
+                  options: [
+                    { label: 'Tight (-0.5px)', value: 'tight' },
+                    { label: 'Normal (0)', value: 'normal' },
+                    { label: 'Wide (0.5px)', value: 'wide' },
+                    { label: 'Wider (1px)', value: 'wider' },
+                  ],
+                  defaultValue: 'normal',
+                },
+                {
+                  name: 'headingLineHeight',
+                  type: 'select',
+                  label: 'Line Height Titluri',
+                  admin: { width: '33%' },
+                  options: [
+                    { label: '1.1 (Compact)', value: '1.1' },
+                    { label: '1.2 (Normal)', value: '1.2' },
+                    { label: '1.3 (Spatios)', value: '1.3' },
+                  ],
+                  defaultValue: '1.2',
+                },
+                {
+                  name: 'bodyLineHeight',
+                  type: 'select',
+                  label: 'Line Height Text',
+                  admin: { width: '33%' },
+                  options: [
+                    { label: '1.5 (Compact)', value: '1.5' },
+                    { label: '1.6 (Normal)', value: '1.6' },
+                    { label: '1.8 (Spatios)', value: '1.8' },
+                  ],
+                  defaultValue: '1.6',
+                },
+              ],
+            },
+          ],
+        },
+
+        // =========================================================================
+        // TAB 6: STIL BUTOANE (OPTIONAL)
+        // =========================================================================
+        {
+          label: 'Stil Butoane',
+          description: 'Personalizare aspect butoane (optional)',
+          fields: [
+            {
+              name: 'useCustomButtons',
+              type: 'checkbox',
+              label: 'Activeaza setari butoane',
+              defaultValue: false,
+              admin: {
+                description: 'Permite controlul fin asupra aspectului butoanelor',
+              },
+            },
+            {
+              type: 'row',
+              admin: { condition: (_, siblingData) => siblingData?.useCustomButtons },
+              fields: [
+                {
+                  name: 'buttonPadding',
+                  type: 'select',
+                  label: 'Padding Buton',
+                  admin: { width: '33%' },
+                  options: [
+                    { label: 'Compact (8px 16px)', value: 'compact' },
+                    { label: 'Normal (12px 24px)', value: 'normal' },
+                    { label: 'Large (16px 32px)', value: 'large' },
+                    { label: 'XL (24px 40px)', value: 'xl' },
+                  ],
+                  defaultValue: 'normal',
+                },
+                {
+                  name: 'buttonTextTransform',
+                  type: 'select',
+                  label: 'Text Transform',
+                  admin: { width: '33%' },
+                  options: [
+                    { label: 'None', value: 'none' },
+                    { label: 'Uppercase', value: 'uppercase' },
+                    { label: 'Capitalize', value: 'capitalize' },
+                  ],
+                  defaultValue: 'none',
+                },
+                {
+                  name: 'buttonFontWeight',
+                  type: 'select',
+                  label: 'Font Weight',
+                  admin: { width: '33%' },
+                  options: [
+                    { label: 'Normal (400)', value: '400' },
+                    { label: 'Medium (500)', value: '500' },
+                    { label: 'Semibold (600)', value: '600' },
+                    { label: 'Bold (700)', value: '700' },
+                  ],
+                  defaultValue: '600',
+                },
+              ],
+            },
+            {
+              type: 'row',
+              admin: { condition: (_, siblingData) => siblingData?.useCustomButtons },
+              fields: [
+                {
+                  name: 'buttonLetterSpacing',
+                  type: 'select',
+                  label: 'Letter Spacing Butoane',
+                  admin: { width: '50%' },
+                  options: [
+                    { label: 'Normal (0)', value: 'normal' },
+                    { label: 'Wide (0.5px)', value: 'wide' },
+                    { label: 'Wider (1px)', value: 'wider' },
+                    { label: 'Extra Wide (2px)', value: 'extra-wide' },
+                  ],
+                  defaultValue: 'normal',
                 },
               ],
             },

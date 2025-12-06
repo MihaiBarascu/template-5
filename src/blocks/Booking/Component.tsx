@@ -6,7 +6,7 @@ import { cn } from '@/utilities/cn'
 interface Service {
   id: string
   title: string
-  price?: number | null
+  price?: string | null
   duration?: string | null
 }
 
@@ -282,7 +282,7 @@ export function BookingBlock({
                     {services.map((service) => (
                       <option key={service.id} value={service.title}>
                         {service.title}
-                        {service.price && ` - ${service.price} RON`}
+                        {service.price && ` - ${service.price}`}
                         {service.duration && ` (${service.duration})`}
                       </option>
                     ))}

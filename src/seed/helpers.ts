@@ -1,4 +1,4 @@
-import type { Page, SiteTheme } from '@/payload-types';
+import type { Page, SiteTheme, Service, Product, Post } from '@/payload-types';
 import fs from 'fs';
 import path from 'path';
 import type { Payload } from 'payload';
@@ -330,6 +330,24 @@ export async function seedLogo(
   console.log('   Logo configured');
 }
 
+// Type for submenu items
+export type NavSubmenuItem = {
+  label: string;
+  type: 'reference' | 'custom';
+  url?: string;
+  description?: string;
+  icon?: string;
+};
+
+// Type for nav items with optional submenu
+export type NavItem = {
+  label: string;
+  type: 'reference' | 'custom';
+  url?: string;
+  hasSubmenu?: boolean;
+  submenu?: NavSubmenuItem[];
+};
+
 // Helper to seed header
 export async function seedHeader(
   payload: Payload,
@@ -340,11 +358,7 @@ export async function seedHeader(
       | 'standard'
       | 'with-topbar'
       | 'transparent';
-    navItems: Array<{
-      label: string;
-      type: 'reference' | 'custom';
-      url?: string;
-    }>;
+    navItems: NavItem[];
     ctaButton?: {
       enabled: boolean;
       label: string;
@@ -387,6 +401,14 @@ export async function seedFooter(
       links?: Array<{ label: string; type: 'custom'; url: string }>;
     }>;
     legalLinks?: Array<{ label: string; type: 'custom'; url: string }>;
+    // Background image (imagine mare pe tot footer-ul)
+    backgroundImageId?: string;
+    backgroundOpacity?: number;
+    // Decorative element (PNG pozitionat intr-o parte)
+    decorativeImageId?: string;
+    decorativePosition?: 'left' | 'right' | 'bottom-left' | 'bottom-right';
+    decorativeOpacity?: number;
+    decorativeSize?: 'small' | 'medium' | 'large' | 'xl';
   },
 ) {
   await payload.updateGlobal({
@@ -409,47 +431,115 @@ export async function seedFooter(
           url: '/termeni-conditii',
         },
       ],
+      // Background texture (imagine mare pe tot footer-ul)
+      backgroundImage: data.backgroundImageId || null,
+      backgroundOpacity: data.backgroundOpacity ?? 20,
+      // Decorative element (PNG pozitionat intr-o parte, ca la Elyssium)
+      decorativeImage: data.decorativeImageId || null,
+      decorativePosition: data.decorativePosition || 'left',
+      decorativeOpacity: data.decorativeOpacity ?? 30,
+      decorativeSize: data.decorativeSize || 'medium',
     },
   });
   console.log('   Footer configured');
 }
 
-// Helper to create services
+// Helper to create services (universal - works for any business type)
+// Supports both dynamic attributes AND advanced fields (schedule, difficulty, etc.)
 export async function seedServices(
   payload: Payload,
   services: Array<{
+    // Basic fields
     title: string;
     shortDescription?: string;
-    price?: number;
-    priceFrom?: boolean;
-    duration?: string;
+    description?: Service['description'];
     icon?: string;
+    imageId?: string;
     featured?: boolean;
+    active?: boolean;
     order?: number;
     features?: string[];
+    // Price and duration (dedicated fields)
+    price?: string | number;
+    duration?: string;
+    // Display style
+    displayStyle?: 'card' | 'card-image' | 'list' | 'pricing' | 'detailed' | 'menu-item';
+    // Dynamic attributes (for additional info)
+    attributes?: Array<{
+      label: string;
+      value: string;
+      icon?: string;
+    }>;
+    // Advanced fields (for classes, treatments, etc.)
+    difficulty?: 'beginner' | 'intermediate' | 'advanced' | 'all-levels';
+    capacity?: number;
+    durationMinutes?: number;
+    schedule?: Array<{
+      day: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+      startTime: string;
+      endTime?: string;
+      room?: string;
+    }>;
+    // Relationships
+    assignedTeamMemberId?: string;
+    categoryId?: string;
+    // CTA and navigation
+    ctaLabel?: string;
+    ctaLink?: string;
+    backLabel?: string;
+    backLink?: string;
   }>,
-) {
+): Promise<Map<string, string>> {
+  const createdServices: Map<string, string> = new Map();
+
   for (const service of services) {
-    await payload.create({
+    const slug = service.title
+      .toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^\w-]/g, '');
+
+    const created = await payload.create({
       collection: 'services',
       data: {
         title: service.title,
-        slug: service.title
-          .toLowerCase()
-          .replace(/\s+/g, '-')
-          .replace(/[^\w-]/g, ''),
+        slug,
         shortDescription: service.shortDescription,
-        price: service.price,
-        priceFrom: service.priceFrom || false,
-        duration: service.duration,
+        description: service.description,
         icon: service.icon,
+        image: service.imageId || undefined,
         featured: service.featured || false,
+        active: service.active !== false,
         order: service.order || 0,
+        // Price and duration
+        price: service.price != null ? `${service.price}${typeof service.price === 'number' ? ' RON' : ''}` : undefined,
+        duration: service.duration,
+        displayStyle: service.displayStyle || 'card',
+        attributes: service.attributes || [],
         features: service.features?.map(f => ({ feature: f })),
+        // Advanced fields
+        difficulty: service.difficulty,
+        capacity: service.capacity,
+        durationMinutes: service.durationMinutes,
+        schedule: service.schedule?.map(s => ({
+          day: s.day,
+          startTime: s.startTime,
+          endTime: s.endTime,
+          room: s.room,
+        })),
+        // Relationships
+        category: service.categoryId || undefined,
+        assignedTeamMember: service.assignedTeamMemberId || undefined,
+        // CTA
+        ctaLabel: service.ctaLabel,
+        ctaLink: service.ctaLink || '/contact',
+        backLabel: service.backLabel,
+        backLink: service.backLink,
       },
     });
+    createdServices.set(service.title, created.id);
   }
   console.log(`   Created ${services.length} services`);
+  return createdServices;
 }
 
 // Helper to create team members with optional images
@@ -535,7 +625,19 @@ export async function seedFAQ(
             children: [
               {
                 type: 'paragraph',
-                children: [{ text: faq.answer, version: 1 }],
+                children: [{
+                  type: 'text',
+                  text: faq.answer,
+                  format: 0,
+                  detail: 0,
+                  mode: 'normal',
+                  style: '',
+                  version: 1,
+                }],
+                direction: 'ltr',
+                format: '',
+                indent: 0,
+                textFormat: 0,
                 version: 1,
               },
             ],
@@ -719,19 +821,10 @@ export async function seedProductCategories(
   return categoryMap;
 }
 
-// Product data interface for seeding
-interface ProductSeedData {
-  title: string;
-  slug: string;
-  price: number;
-  badge?: string;
-  featured: boolean;
-  _status: 'published' | 'draft';
-  salePrice?: number;
-  category?: string;
-  images?: Array<{ image: string }>;
-  description?: unknown;
-}
+// Product data type for seeding - uses Payload generated types with Omit for auto-generated fields
+type ProductSeedData = Partial<Omit<Product, 'id' | 'createdAt' | 'updatedAt'>> &
+  Pick<Product, 'title' | 'slug' | 'price'> &
+  { _status: 'published' | 'draft' }
 
 // Helper to create products (eCommerce plugin)
 export async function seedProducts(
@@ -781,7 +874,20 @@ export async function seedProducts(
           children: [
             {
               type: 'paragraph',
-              children: [{ text: product.description }],
+              children: [{
+                type: 'text',
+                text: product.description,
+                format: 0,
+                detail: 0,
+                mode: 'normal',
+                style: '',
+                version: 1,
+              }],
+              direction: 'ltr',
+              format: '',
+              indent: 0,
+              textFormat: 0,
+              version: 1,
             },
           ],
           direction: 'ltr',
@@ -794,14 +900,90 @@ export async function seedProducts(
 
     await payload.create({
       collection: 'products',
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      data: productData as any,
+      data: productData,
     });
   }
   console.log(`   Created ${products.length} products`);
 }
 
-// Helper to create blog posts
+// Helper to create rich text node
+function createTextNode(text: string, format: number = 0) {
+  return {
+    type: 'text',
+    text,
+    format,
+    detail: 0,
+    mode: 'normal',
+    style: '',
+    version: 1,
+  };
+}
+
+// Helper to create paragraph node
+function createParagraph(text: string) {
+  return {
+    type: 'paragraph',
+    children: [createTextNode(text)],
+    direction: 'ltr',
+    format: '',
+    indent: 0,
+    textFormat: 0,
+    version: 1,
+  };
+}
+
+// Helper to create heading node
+function createHeading(text: string, tag: 'h1' | 'h2' | 'h3' | 'h4' = 'h2') {
+  return {
+    type: 'heading',
+    children: [createTextNode(text)],
+    direction: 'ltr',
+    format: '',
+    indent: 0,
+    tag,
+    version: 1,
+  };
+}
+
+// Helper to create banner block
+function createBanner(text: string, style: 'info' | 'warning' | 'success' | 'error' = 'info') {
+  return {
+    type: 'block',
+    fields: {
+      blockName: '',
+      blockType: 'banner',
+      content: {
+        root: {
+          type: 'root',
+          children: [createParagraph(text)],
+          direction: 'ltr',
+          format: '',
+          indent: 0,
+          version: 1,
+        },
+      },
+      style,
+    },
+    format: '',
+    version: 2,
+  };
+}
+
+// Helper to create media block
+function createMediaBlock(mediaId: string) {
+  return {
+    type: 'block',
+    fields: {
+      blockName: '',
+      blockType: 'mediaBlock',
+      media: mediaId,
+    },
+    format: '',
+    version: 2,
+  };
+}
+
+// Helper to create blog posts with rich content
 export async function seedPosts(
   payload: Payload,
   posts: Array<{
@@ -839,6 +1021,42 @@ export async function seedPosts(
   }
 
   for (const post of posts) {
+    // Split content into paragraphs
+    const paragraphs = post.content.split('\n\n').filter(p => p.trim());
+
+    // Build rich content structure using Post content type
+    type RichTextChild = NonNullable<Post['content']>['root']['children'][number]
+    const contentChildren: RichTextChild[] = [];
+
+    // Add intro heading with first paragraph
+    if (paragraphs.length > 0) {
+      contentChildren.push(createHeading(paragraphs[0], 'h2'));
+    }
+
+    // Add info banner
+    contentChildren.push(createBanner(
+      'Acest articol este doar pentru scop demonstrativ. Continutul poate fi editat din panoul de administrare.',
+      'info'
+    ));
+
+    // Add remaining paragraphs
+    for (let i = 1; i < paragraphs.length; i++) {
+      const paragraph = paragraphs[i];
+
+      // Add media block in the middle of the content
+      if (i === Math.floor(paragraphs.length / 2) && post.imageId) {
+        contentChildren.push(createMediaBlock(post.imageId));
+      }
+
+      contentChildren.push(createParagraph(paragraph));
+    }
+
+    // Add closing info banner
+    contentChildren.push(createBanner(
+      'Multumim pentru lectura! Pentru intrebari, nu ezitati sa ne contactati.',
+      'success'
+    ));
+
     await payload.create({
       collection: 'posts',
       data: {
@@ -851,11 +1069,7 @@ export async function seedPosts(
         content: {
           root: {
             type: 'root',
-            children: post.content.split('\n\n').map(paragraph => ({
-              type: 'paragraph',
-              children: [{ text: paragraph }],
-              version: 1,
-            })),
+            children: contentChildren,
             direction: 'ltr',
             format: '',
             indent: 0,
@@ -915,6 +1129,63 @@ export async function seedDesignVariant(
   console.log(`   Use seedSiteTheme with variant option instead.`);
 }
 
+// DEPRECATED: seedClasses - use seedServices with serviceType: 'class' instead
+// This function is kept for reference but should not be used
+async function _seedClasses_deprecated() {
+  console.log('[DEPRECATED] seedClasses is deprecated. Use seedServices with serviceType: "class" instead.');
+}
+
+// Helper to create subscriptions
+export async function seedSubscriptions(
+  payload: Payload,
+  subscriptions: Array<{
+    title: string;
+    subtitle?: string;
+    type?: 'gym' | 'spa' | 'solar' | 'fitness-spa' | 'classes' | 'personal' | 'premium' | 'pool';
+    price: number;
+    oldPrice?: number;
+    period?: string;
+    currency?: string;
+    features?: Array<{ text: string; included?: boolean }>;
+    cta?: { label?: string; url?: string };
+    highlighted?: boolean;
+    highlightLabel?: string;
+    order?: number;
+  }>,
+) {
+  for (const subscription of subscriptions) {
+    await payload.create({
+      collection: 'subscriptions',
+      data: {
+        title: subscription.title,
+        slug: subscription.title
+          .toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^\w-]/g, ''),
+        subtitle: subscription.subtitle,
+        type: subscription.type || 'gym',
+        pricing: {
+          amount: subscription.price,
+          oldPrice: subscription.oldPrice,
+          period: subscription.period || '/luna',
+          currency: subscription.currency || 'RON',
+        },
+        features: subscription.features,
+        cta: {
+          label: subscription.cta?.label || 'Alege abonamentul',
+          linkType: 'custom',
+          url: subscription.cta?.url || '/contact',
+        },
+        highlighted: subscription.highlighted || false,
+        highlightLabel: subscription.highlightLabel || 'Cel mai popular',
+        order: subscription.order || 0,
+        active: true,
+      },
+    });
+  }
+  console.log(`   Created ${subscriptions.length} subscriptions`);
+}
+
 // Helper to seed sample newsletter subscribers for demo purposes
 export async function seedNewsletterSubscribers(
   payload: Payload,
@@ -937,8 +1208,13 @@ export async function seedNewsletterSubscribers(
       });
     } catch (error) {
       // Skip duplicates silently (unique constraint on email)
+      // Payload returns "The following field is invalid: email" for unique constraint violations
       const err = error as Error;
-      if (!err.message?.includes('duplicate')) {
+      const isDuplicateError =
+        err.message?.includes('duplicate') ||
+        err.message?.includes('field is invalid: email') ||
+        err.message?.includes('unique');
+      if (!isDuplicateError) {
         console.error(`   Error creating subscriber ${subscriber.email}:`, err.message);
       }
     }

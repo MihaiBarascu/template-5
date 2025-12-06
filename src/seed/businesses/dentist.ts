@@ -73,7 +73,7 @@ export async function seedDentist(payload: Payload) {
     social: dentistData.business.social,
     stats: dentistData.business.stats,
     googleMapsEmbed:
-      'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2848.8444388671917!2d26.0976553!3d44.4379832!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDTCsDI2JzE2LjciTiAyNsKwMDUnNTEuNiJF!5e0!3m2!1sen!2sro!4v1234567890',
+      'https://www.google.com/maps?q=Strada+Floreasca+55,+Sector+1,+Bucuresti,+Romania&output=embed',
   })
 
   // 5. Logo
@@ -317,7 +317,7 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof dentistData) 
       locations: [
         {
           name: 'Clinica Centrală',
-          address: 'Bulevardul Unirii 25',
+          address: 'Strada Floreasca 55',
           city: 'București',
           phone: '0722 111 222',
           email: 'contact@dentalmed.ro',
@@ -416,6 +416,7 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof dentistData) 
       showPrices: true,
       showIcons: true,
       backgroundColor: 'light',
+      detailBasePath: '/servicii',
     },
     stats: {
       blockType: 'stats',
@@ -517,6 +518,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
           showPrices: true,
           showIcons: true,
           backgroundColor: 'default',
+          detailBasePath: '/servicii',
         },
         {
           blockType: 'cta',
@@ -554,6 +556,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
           showRole: true,
           showBio: true,
           backgroundColor: 'default',
+          detailBasePath: '/echipa',
         },
         {
           blockType: 'cta',

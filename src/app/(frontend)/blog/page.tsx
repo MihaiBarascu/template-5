@@ -73,8 +73,8 @@ export default async function BlogPage() {
       {/* Hero */}
       <div className="bg-theme-light py-16">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">Blog</h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <h1 className="text-4xl md:text-5xl font-bold text-theme-text mb-4">Blog</h1>
+          <p className="text-lg text-theme-text-light max-w-2xl mx-auto">
             Articole, noutati si informatii utile
           </p>
         </div>
@@ -86,7 +86,7 @@ export default async function BlogPage() {
           <div className="flex flex-wrap gap-2 mb-12 justify-center">
             <Link
               href="/blog"
-              className="px-4 py-2 rounded-full text-sm font-medium bg-primary text-white"
+              className="px-4 py-2 rounded-full text-sm font-medium bg-theme-primary text-white"
             >
               Toate
             </Link>
@@ -94,7 +94,7 @@ export default async function BlogPage() {
               <Link
                 key={category.id}
                 href={`/blog?categorie=${category.slug}`}
-                className="px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+                className="px-4 py-2 rounded-full text-sm font-medium bg-theme-light text-theme-text hover:bg-theme-border transition-colors"
               >
                 {category.title}
               </Link>
@@ -113,7 +113,7 @@ export default async function BlogPage() {
               return (
                 <article
                   key={post.id}
-                  className="group flex flex-col overflow-hidden rounded-xl bg-white shadow-sm hover:shadow-lg transition-all border border-gray-100"
+                  className="group flex flex-col overflow-hidden rounded-xl bg-theme-surface shadow-sm hover:shadow-lg transition-all border border-theme-border"
                 >
                   {/* Image */}
                   {featuredImage?.url && (
@@ -125,7 +125,7 @@ export default async function BlogPage() {
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                       {category && (
-                        <span className="absolute top-4 left-4 px-3 py-1 bg-primary text-white text-xs font-medium rounded-full">
+                        <span className="absolute top-4 left-4 px-3 py-1 bg-theme-primary text-white text-xs font-medium rounded-full">
                           {category.title}
                         </span>
                       )}
@@ -135,7 +135,7 @@ export default async function BlogPage() {
                   {/* Content */}
                   <div className="flex flex-col flex-grow p-6">
                     {/* Meta */}
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
+                    <div className="flex items-center gap-4 text-sm text-theme-text-muted mb-3">
                       {post.publishedAt && (
                         <span className="flex items-center gap-1">
                           <Calendar className="w-4 h-4" />
@@ -151,13 +151,13 @@ export default async function BlogPage() {
                     </div>
 
                     {/* Title */}
-                    <h2 className="text-xl font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
+                    <h2 className="text-xl font-semibold text-theme-text mb-2 group-hover:text-theme-primary transition-colors">
                       <Link href={`/blog/${post.slug}`}>{post.title}</Link>
                     </h2>
 
                     {/* Excerpt */}
                     {post.excerpt && (
-                      <p className="text-muted-foreground text-sm flex-grow line-clamp-3 mb-4">
+                      <p className="text-theme-text-light text-sm flex-grow line-clamp-3 mb-4">
                         {post.excerpt}
                       </p>
                     )}
@@ -165,7 +165,7 @@ export default async function BlogPage() {
                     {/* Read more */}
                     <Link
                       href={`/blog/${post.slug}`}
-                      className="inline-flex items-center gap-2 text-primary font-medium group/link"
+                      className="inline-flex items-center gap-2 text-theme-primary font-medium group/link"
                     >
                       Citeste mai mult
                       <ArrowRight className="w-4 h-4 transition-transform group-hover/link:translate-x-1" />
@@ -177,11 +177,11 @@ export default async function BlogPage() {
           </div>
         ) : (
           <div className="text-center py-16">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Tag className="w-8 h-8 text-gray-400" />
+            <div className="w-16 h-16 bg-theme-light rounded-full flex items-center justify-center mx-auto mb-4">
+              <Tag className="w-8 h-8 text-theme-text-muted" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Nu exista articole momentan</h3>
-            <p className="text-gray-500">Revino mai tarziu pentru articole noi.</p>
+            <h3 className="text-xl font-semibold text-theme-text mb-2">Nu exista articole momentan</h3>
+            <p className="text-theme-text-light">Revino mai tarziu pentru articole noi.</p>
           </div>
         )}
       </div>

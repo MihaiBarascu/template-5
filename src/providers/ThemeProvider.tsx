@@ -193,6 +193,40 @@ const THEME_VARIANTS: Record<string, ThemeVariant> = {
     borderRadius: 'full',
     shadows: 'subtle',
   },
+  // Fitness / Gym variant - based on Template-2
+  'fitness-orange': {
+    colors: {
+      primary: '#f13a11',
+      secondary: '#171819',
+      accent: '#f97316',
+      dark: '#171819',
+      light: '#ffffff',
+      surface: '#f9f9f9',
+      text: '#171819',
+      textLight: '#666262',
+      border: '#e5e5e5',
+    },
+    fonts: { heading: 'Work Sans', body: 'Work Sans' },
+    borderRadius: 'small',
+    shadows: 'subtle',
+  },
+  // Fitness Dark - dark theme with red accent for gyms
+  'fitness-dark': {
+    colors: {
+      primary: '#E31937',
+      secondary: '#ffffff',
+      accent: '#ff3b3b',
+      dark: '#0d0d0d',
+      light: '#1a1a1a',
+      surface: '#242424',
+      text: '#ffffff',
+      textLight: '#b3b3b3',
+      border: '#333333',
+    },
+    fonts: { heading: 'Montserrat', body: 'Open Sans' },
+    borderRadius: 'small',
+    shadows: 'moderate',
+  },
 }
 
 // Border radius presets
@@ -235,6 +269,29 @@ const spacingPresets = {
   compact: { section: '48px', sectionMobile: '32px' },
   normal: { section: '80px', sectionMobile: '48px' },
   spacious: { section: '120px', sectionMobile: '64px' },
+}
+
+// Typography presets (for advanced typography)
+const letterSpacingPresets: Record<string, string> = {
+  tight: '-0.5px',
+  normal: '0',
+  wide: '0.5px',
+  wider: '1px',
+}
+
+// Button presets
+const buttonPaddingPresets: Record<string, { y: string; x: string }> = {
+  compact: { y: '8px', x: '16px' },
+  normal: { y: '12px', x: '24px' },
+  large: { y: '16px', x: '32px' },
+  xl: { y: '24px', x: '40px' },
+}
+
+const buttonLetterSpacingPresets: Record<string, string> = {
+  normal: '0',
+  wide: '0.5px',
+  wider: '1px',
+  'extra-wide': '2px',
 }
 
 export function ThemeProvider({
@@ -319,6 +376,41 @@ export function ThemeProvider({
 
     root.style.setProperty('--font-heading', headingFont)
     root.style.setProperty('--font-body', bodyFont)
+
+    // Apply advanced typography settings
+    const letterSpacing = siteTheme?.useAdvancedTypography
+      ? letterSpacingPresets[siteTheme?.letterSpacing || 'normal'] || '0'
+      : '0'
+    const headingLineHeight = siteTheme?.useAdvancedTypography
+      ? siteTheme?.headingLineHeight || '1.2'
+      : '1.2'
+    const bodyLineHeight = siteTheme?.useAdvancedTypography
+      ? siteTheme?.bodyLineHeight || '1.6'
+      : '1.6'
+
+    root.style.setProperty('--letter-spacing', letterSpacing)
+    root.style.setProperty('--heading-line-height', headingLineHeight)
+    root.style.setProperty('--body-line-height', bodyLineHeight)
+
+    // Apply button style settings
+    const buttonPadding = siteTheme?.useCustomButtons
+      ? buttonPaddingPresets[siteTheme?.buttonPadding || 'normal'] || buttonPaddingPresets.normal
+      : buttonPaddingPresets.normal
+    const buttonTextTransform = siteTheme?.useCustomButtons
+      ? siteTheme?.buttonTextTransform || 'none'
+      : 'none'
+    const buttonFontWeight = siteTheme?.useCustomButtons
+      ? siteTheme?.buttonFontWeight || '600'
+      : '600'
+    const buttonLetterSpacing = siteTheme?.useCustomButtons
+      ? buttonLetterSpacingPresets[siteTheme?.buttonLetterSpacing || 'normal'] || '0'
+      : '0'
+
+    root.style.setProperty('--btn-padding-y', buttonPadding.y)
+    root.style.setProperty('--btn-padding-x', buttonPadding.x)
+    root.style.setProperty('--btn-text-transform', buttonTextTransform)
+    root.style.setProperty('--btn-font-weight', buttonFontWeight)
+    root.style.setProperty('--btn-letter-spacing', buttonLetterSpacing)
 
   }, [siteTheme])
 

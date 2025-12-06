@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <!-- Gear 1 -->
+  <g fill="white">
+    <circle cx="45" cy="45" r="25"/>
+    <circle cx="45" cy="45" r="8" fill="#1f1f1f"/>
+    <rect x="41" y="12" width="8" height="14"/>
+    <rect x="41" y="64" width="8" height="14"/>
+    <rect x="12" y="41" width="14" height="8"/>
+    <rect x="64" y="41" width="14" height="8"/>
+    <rect x="18" y="18" width="10" height="8" transform="rotate(45 23 22)"/>
+    <rect x="62" y="18" width="10" height="8" transform="rotate(-45 67 22)"/>
+    <rect x="18" y="64" width="10" height="8" transform="rotate(-45 23 68)"/>
+    <rect x="62" y="64" width="10" height="8" transform="rotate(45 67 68)"/>
+  </g>
+  <!-- Wrench -->
+  <g fill="white" transform="rotate(-20 140 50)">
+    <rect x="100" y="45" width="80" height="12" rx="2"/>
+    <path d="M100 45 L85 38 L85 62 L100 55 Z"/>
+    <circle cx="185" cy="51" r="10" stroke="white" stroke-width="4" fill="none"/>
+  </g>
+  <!-- Tire/Wheel -->
+  <g fill="white">
+    <circle cx="140" cy="140" r="35" stroke="white" stroke-width="8" fill="none"/>
+    <circle cx="140" cy="140" r="15"/>
+    <circle cx="140" cy="140" r="6" fill="#1f1f1f"/>
+  </g>
+  <!-- Oil drop -->
+  <g fill="white">
+    <path d="M45 130 Q45 110 55 130 Q65 150 45 160 Q25 150 35 130 Z"/>
+  </g>
+  <!-- Piston -->
+  <g fill="white">
+    <rect x="15" y="160" width="25" height="30" rx="3"/>
+    <rect x="19" y="150" width="17" height="12" rx="2"/>
+    <circle cx="27" cy="145" r="7"/>
+  </g>
+</svg>

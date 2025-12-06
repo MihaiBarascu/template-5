@@ -186,6 +186,39 @@ const THEME_VARIANTS: Record<string, ThemeVariant> = {
     borderRadius: 'full',
     shadows: 'subtle',
   },
+  // Fitness-specific themes (matching template-2 Transilvania Gym)
+  'fitness-orange': {
+    colors: {
+      primary: '#E31937', // Red accent from template-2
+      secondary: '#1a1a1a', // Dark background
+      accent: '#E31937',
+      dark: '#0d0d0d', // Very dark (almost black)
+      light: '#f5f5f5',
+      surface: '#ffffff',
+      text: '#1a1a1a',
+      textLight: '#666666',
+      border: '#e5e5e5',
+    },
+    fonts: { heading: 'Montserrat', body: 'Open Sans' },
+    borderRadius: 'small',
+    shadows: 'subtle',
+  },
+  'fitness-dark': {
+    colors: {
+      primary: '#E31937', // Red accent
+      secondary: '#ffffff', // White for contrast on dark
+      accent: '#ff3b3b', // Lighter red for hover
+      dark: '#0d0d0d', // Main dark background
+      light: '#1a1a1a', // Slightly lighter dark
+      surface: '#242424', // Card backgrounds on dark
+      text: '#ffffff', // White text on dark
+      textLight: '#b3b3b3', // Gray text on dark
+      border: '#333333', // Dark border
+    },
+    fonts: { heading: 'Montserrat', body: 'Open Sans' },
+    borderRadius: 'small',
+    shadows: 'moderate',
+  },
 }
 
 /**
@@ -268,6 +301,8 @@ export function getThemeVariantInfo(variantKey: string): { name: string; descrip
     'teal-modern': { name: 'Teal Modern', description: 'Fresh, cool, inovator' },
     'brown-vintage': { name: 'Brown Vintage', description: 'Clasic, tradițional, autentic' },
     'pink-soft': { name: 'Pink Soft', description: 'Feminin, delicat, romantic' },
+    'fitness-orange': { name: 'Fitness Orange', description: 'Energic, sport, dinamic' },
+    'fitness-dark': { name: 'Fitness Dark', description: 'Dark cu accent roșu, stil gym modern' },
   }
 
   return variantNames[variantKey] || { name: 'Unknown', description: '' }

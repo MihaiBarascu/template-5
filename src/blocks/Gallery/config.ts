@@ -122,5 +122,22 @@ export const GalleryBlock: Block = {
         { label: 'Dark', value: 'dark' },
       ],
     },
+    // Configurable labels for i18n
+    {
+      name: 'labels',
+      type: 'group',
+      label: 'Text Labels (i18n)',
+      admin: {
+        description: 'Customize text labels for different languages',
+      },
+      fields: [
+        {
+          name: 'allFilter',
+          type: 'text',
+          label: 'All Filter Button',
+          defaultValue: 'Toate',
+        },
+      ],
+    },
   ],
 }

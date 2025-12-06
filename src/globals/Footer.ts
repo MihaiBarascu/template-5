@@ -197,5 +197,71 @@ export const Footer: GlobalConfig = {
         },
       ],
     },
+    // === BACKGROUND DESIGN (imagine mare pe tot footer-ul) ===
+    {
+      name: 'backgroundImage',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Fundal textura (imagine mare)',
+      admin: {
+        description: 'Imagine mare pentru fundalul footer-ului (grunge, textura, abstract). Se intinde pe tot footer-ul, nu se repeta.',
+      },
+    },
+    {
+      name: 'backgroundOpacity',
+      type: 'number',
+      label: 'Opacitate fundal',
+      min: 0,
+      max: 100,
+      defaultValue: 20,
+      admin: {
+        description: 'Opacitatea imaginii de fundal (0-100%). Implicit: 20%',
+      },
+    },
+    // === ELEMENT DECORATIV (ca la Elyssium) ===
+    {
+      name: 'decorativeImage',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Element decorativ (PNG)',
+      admin: {
+        description: 'Imagine decorativa pozitionata intr-o parte a footer-ului (ex: grunge, siluete, pattern artistic). PNG transparent recomandat.',
+      },
+    },
+    {
+      name: 'decorativePosition',
+      type: 'select',
+      label: 'Pozitie element decorativ',
+      defaultValue: 'left',
+      options: [
+        { label: 'Stanga', value: 'left' },
+        { label: 'Dreapta', value: 'right' },
+        { label: 'Stanga jos', value: 'bottom-left' },
+        { label: 'Dreapta jos', value: 'bottom-right' },
+      ],
+    },
+    {
+      name: 'decorativeOpacity',
+      type: 'number',
+      label: 'Opacitate element decorativ',
+      min: 0,
+      max: 100,
+      defaultValue: 30,
+      admin: {
+        description: 'Opacitatea elementului decorativ (0-100%). Implicit: 30%',
+      },
+    },
+    {
+      name: 'decorativeSize',
+      type: 'select',
+      label: 'Dimensiune element decorativ',
+      defaultValue: 'medium',
+      options: [
+        { label: 'Mic (300px)', value: 'small' },
+        { label: 'Mediu (400px)', value: 'medium' },
+        { label: 'Mare (500px)', value: 'large' },
+        { label: 'Foarte mare (600px)', value: 'xl' },
+      ],
+    },
   ],
 }

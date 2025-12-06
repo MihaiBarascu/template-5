@@ -96,6 +96,14 @@ export const TeamBlock: Block = {
       defaultValue: false,
     },
     {
+      name: 'detailBasePath',
+      type: 'text',
+      label: 'Cale de baza pentru detalii',
+      admin: {
+        description: 'Ex: /echipa - cardurile vor deveni clickable si vor duce la /echipa/slug-membru',
+      },
+    },
+    {
       name: 'columns',
       type: 'select',
       label: 'Coloane',
