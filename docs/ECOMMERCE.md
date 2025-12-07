@@ -366,6 +366,31 @@ curl -X POST http://localhost:3000/api/orders \
 
 ## Troubleshooting
 
+### Eroare: 404 "Cart not found" pe checkout (IMPORTANT!)
+
+**Simptome:**
+- curl funcționează, dar browser-ul primește 404
+- Eroarea apare la `/api/payments/manual/initiate`
+
+**Cauză:** Plugin-ul folosește `overrideAccess: false` când citește coșul. Dacă access control-ul `carts` nu include `read`, checkout-ul nu funcționează.
+
+**Soluție în `payload.config.ts`:**
+```typescript
+carts: {
+  cartsCollectionOverride: ({ defaultCollection }) => ({
+    ...defaultCollection,
+    access: {
+      ...defaultCollection.access,
+      create: () => true,
+      update: () => true,
+      read: () => true,  // ⚠️ OBLIGATORIU pentru checkout!
+    },
+  }),
+},
+```
+
+**Detalii complete:** Vezi `docs/LESSONS-LEARNED.md` secțiunea 30.
+
 ### Eroare: "ValidationError: Status field invalid"
 - Foloseste `status: 'processing'` nu `status: 'pending'`
 - Valori valide: processing, completed, cancelled, refunded

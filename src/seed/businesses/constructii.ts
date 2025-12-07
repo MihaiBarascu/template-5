@@ -79,9 +79,10 @@ export async function seedConstructii(payload: Payload) {
 
   console.log('\n📋 Setting up footer...')
   await seedFooter(payload, {
+    colorScheme: 'dark',
     variant: 'columns-4',
     columns: [
-      { title: 'Firma', type: 'text' },
+      { title: 'Firma', type: 'text', text: 'Cu peste 15 ani de experiență în domeniul construcțiilor, oferim servicii complete de la proiectare până la finisaje.\n\nCalitate, seriozitate și termene respectate.' },
       { title: 'Servicii', type: 'links', links: [
         { label: 'Constructii', type: 'custom', url: '/servicii#constructii' },
         { label: 'Renovari', type: 'custom', url: '/servicii#renovari' },

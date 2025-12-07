@@ -79,6 +79,7 @@ export async function seedAutoService(payload: Payload) {
 
   console.log('\n📋 Setting up footer...')
   await seedFooter(payload, {
+    colorScheme: 'dark',
     variant: 'columns-4',
     columns: [
       { title: 'Service Auto', type: 'text' },

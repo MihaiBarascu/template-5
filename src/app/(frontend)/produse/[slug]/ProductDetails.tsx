@@ -1,9 +1,17 @@
 'use client'
 
+/**
+ * ProductDetails Component
+ * Updated to use the official Payload ecommerce plugin AddToCart component
+ * Uses useCart() from plugin (database cart, not localStorage)
+ */
+
 import React, { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { AddToCartButton } from '@/components/cart/AddToCartButton'
+import { AddToCart } from '@/components/cart'
+import { Breadcrumbs } from '@/components/ecommerce/Breadcrumbs'
+import type { Product } from '@/payload-types'
 
 interface LexicalNode {
   type: string
@@ -92,26 +100,24 @@ function RichTextContent({ nodes }: { nodes: LexicalNode[] }) {
   )
 }
 
+// Price formatter
+function formatPrice(amount: number, currency = 'RON') {
+  return new Intl.NumberFormat('ro-RO', {
+    style: 'currency',
+    currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(amount)
+}
+
 interface ProductDetailsProps {
-  product: {
-    id: string
-    title: string
-    price: number
-    salePrice: number
-    hasDiscount: boolean
-    inventory: number
-    badge?: string
-    description?: unknown
-    images: string[]
-  }
+  product: Product
   category: { title: string; slug: string } | null
   relatedProducts: Array<{
     id: string
     slug: string
     title: string
-    price: number
-    salePrice: number
-    hasDiscount: boolean
+    priceInRON: number
     imageUrl: string | null
   }>
 }
@@ -120,11 +126,19 @@ export function ProductDetails({ product, category, relatedProducts }: ProductDe
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
 
-  const discountPercent = product.hasDiscount
-    ? Math.round((1 - product.salePrice / product.price) * 100)
-    : 0
+  // Extract image URLs from Product
+  const images = (product.images || [])
+    .map((img) => {
+      const imgData = img.image && typeof img.image !== 'string' ? img.image : null
+      return imgData?.url || null
+    })
+    .filter((url): url is string => url !== null)
 
-  const mainImageUrl = product.images[selectedImageIndex] || null
+  // Get price from plugin's priceInRON field
+  const price = product.priceInRON ?? 0
+
+  const mainImageUrl = images[selectedImageIndex] || null
+  const inventory = product.inventory ?? 0
 
   const openLightbox = () => {
     setLightboxOpen(true)
@@ -138,37 +152,29 @@ export function ProductDetails({ product, category, relatedProducts }: ProductDe
 
   const nextImage = (e: React.MouseEvent) => {
     e.stopPropagation()
-    if (product.images.length > 1) {
-      setSelectedImageIndex((prev) => (prev + 1) % product.images.length)
+    if (images.length > 1) {
+      setSelectedImageIndex((prev) => (prev + 1) % images.length)
     }
   }
 
   const prevImage = (e: React.MouseEvent) => {
     e.stopPropagation()
-    if (product.images.length > 1) {
-      setSelectedImageIndex((prev) => (prev - 1 + product.images.length) % product.images.length)
+    if (images.length > 1) {
+      setSelectedImageIndex((prev) => (prev - 1 + images.length) % images.length)
     }
   }
 
   return (
-    <main className="py-8">
+    <main className="py-8 bg-theme-surface">
       {/* Breadcrumb */}
       <div className="container mx-auto px-4 mb-8">
-        <nav className="flex items-center gap-2 text-sm text-gray-600">
-          <Link href="/" className="hover:text-theme-primary">Acasa</Link>
-          <span>/</span>
-          <Link href="/produse" className="hover:text-theme-primary">Produse</Link>
-          {category && (
-            <>
-              <span>/</span>
-              <Link href={`/categorii/${category.slug}`} className="hover:text-theme-primary">
-                {category.title}
-              </Link>
-            </>
-          )}
-          <span>/</span>
-          <span className="text-gray-900">{product.title}</span>
-        </nav>
+        <Breadcrumbs
+          items={[
+            { label: 'Produse', href: '/produse' },
+            ...(category ? [{ label: category.title, href: `/produse?categorie=${category.slug}` }] : []),
+            { label: product.title },
+          ]}
+        />
       </div>
 
       {/* Product Details */}
@@ -177,7 +183,7 @@ export function ProductDetails({ product, category, relatedProducts }: ProductDe
           {/* Images */}
           <div className="space-y-4">
             <div
-              className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 cursor-zoom-in"
+              className="relative aspect-square rounded-[var(--radius-card)] overflow-hidden bg-theme-surface-secondary cursor-zoom-in border border-theme-border"
               onClick={openLightbox}
             >
               {mainImageUrl ? (
@@ -190,15 +196,13 @@ export function ProductDetails({ product, category, relatedProducts }: ProductDe
                   priority
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-gray-400">
-                  Fara imagine
+                <div className="w-full h-full flex items-center justify-center text-theme-text-muted">
+                  <svg className="w-16 h-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
                 </div>
               )}
-              {product.hasDiscount && (
-                <div className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                  -{discountPercent}%
-                </div>
-              )}
+              {/* Badge for discounts can be managed via product.badge field */}
               {/* Zoom icon overlay */}
               {mainImageUrl && (
                 <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors flex items-center justify-center">
@@ -210,15 +214,15 @@ export function ProductDetails({ product, category, relatedProducts }: ProductDe
             </div>
 
             {/* Thumbnail Gallery */}
-            {product.images.length > 1 && (
+            {images.length > 1 && (
               <div className="grid grid-cols-4 gap-2">
-                {product.images.map((imgUrl, index) => (
+                {images.map((imgUrl, index) => (
                   <div
                     key={index}
-                    className={`relative aspect-square rounded-lg overflow-hidden bg-gray-100 cursor-pointer transition-all ${
+                    className={`relative aspect-square rounded-lg overflow-hidden bg-theme-surface-secondary cursor-pointer transition-all border ${
                       selectedImageIndex === index
-                        ? 'ring-2 ring-theme-primary'
-                        : 'hover:ring-2 ring-gray-300'
+                        ? 'ring-2 ring-theme-primary border-theme-primary'
+                        : 'border-theme-border hover:border-theme-primary'
                     }`}
                     onClick={() => setSelectedImageIndex(index)}
                   >
@@ -239,66 +243,50 @@ export function ProductDetails({ product, category, relatedProducts }: ProductDe
           <div className="space-y-6">
             {category && (
               <Link
-                href={`/categorii/${category.slug}`}
+                href={`/produse?categorie=${category.slug}`}
                 className="inline-block text-sm text-theme-primary hover:underline"
               >
                 {category.title}
               </Link>
             )}
 
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
+            <h1 className="text-3xl md:text-4xl font-bold text-theme-text">
               {product.title}
             </h1>
 
             {/* Price */}
             <div className="flex items-baseline gap-3">
-              {product.hasDiscount ? (
-                <>
-                  <span className="text-3xl font-bold text-red-600">
-                    {product.salePrice} RON
-                  </span>
-                  <span className="text-xl text-gray-400 line-through">
-                    {product.price} RON
-                  </span>
-                </>
-              ) : (
-                <span className="text-3xl font-bold text-gray-900">
-                  {product.price} RON
-                </span>
-              )}
+              <span className="text-3xl font-bold text-theme-text">
+                {formatPrice(price)}
+              </span>
             </div>
 
             {/* Stock Status */}
             <div className="flex items-center gap-2">
-              {product.inventory > 0 ? (
+              {inventory > 0 ? (
                 <>
                   <span className="w-3 h-3 bg-green-500 rounded-full"></span>
-                  <span className="text-green-600 font-medium">In stoc</span>
+                  <span className="text-green-600 font-medium">În stoc ({inventory} buc.)</span>
                 </>
               ) : (
                 <>
-                  <span className="w-3 h-3 bg-green-500 rounded-full"></span>
-                  <span className="text-green-600 font-medium">Disponibil</span>
+                  <span className="w-3 h-3 bg-red-500 rounded-full"></span>
+                  <span className="text-red-600 font-medium">Stoc epuizat</span>
                 </>
               )}
             </div>
 
-            {/* Add to Cart */}
+            {/* Add to Cart - Using new plugin-based component */}
             <div className="flex flex-col sm:flex-row gap-4">
-              <AddToCartButton
-                product={{
-                  id: product.id,
-                  title: product.title,
-                  price: product.hasDiscount ? product.salePrice : product.price,
-                  image: mainImageUrl ?? undefined,
-                }}
+              <AddToCart
+                product={product}
                 className="flex-1 py-4 text-lg"
               />
             </div>
 
             {/* Badge */}
             {product.badge && (
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-theme-text-muted">
                 <span className="font-medium">{product.badge}</span>
               </p>
             )}
@@ -307,9 +295,9 @@ export function ProductDetails({ product, category, relatedProducts }: ProductDe
 
         {/* Description */}
         {product.description ? (
-          <div className="mt-12 border-t pt-8">
-            <h2 className="text-2xl font-bold mb-6">Descriere</h2>
-            <div className="prose max-w-none">
+          <div className="mt-12 border-t border-theme-border pt-8">
+            <h2 className="text-2xl font-bold mb-6 text-theme-text">Descriere</h2>
+            <div className="prose max-w-none text-theme-text">
               {typeof product.description === 'object' &&
                product.description !== null &&
                'root' in product.description &&
@@ -324,8 +312,8 @@ export function ProductDetails({ product, category, relatedProducts }: ProductDe
 
         {/* Related Products */}
         {relatedProducts.length > 0 && (
-          <div className="mt-16 border-t pt-12">
-            <h2 className="text-2xl font-bold mb-8">Produse similare</h2>
+          <div className="mt-16 border-t border-theme-border pt-12">
+            <h2 className="text-2xl font-bold mb-8 text-theme-text">Produse similare</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {relatedProducts.map((related) => (
                 <Link
@@ -333,7 +321,7 @@ export function ProductDetails({ product, category, relatedProducts }: ProductDe
                   href={`/produse/${related.slug}`}
                   className="group"
                 >
-                  <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 mb-3">
+                  <div className="relative aspect-square rounded-[var(--radius-card)] overflow-hidden bg-theme-surface-secondary mb-3 border border-theme-border">
                     {related.imageUrl ? (
                       <Image
                         src={related.imageUrl}
@@ -343,23 +331,18 @@ export function ProductDetails({ product, category, relatedProducts }: ProductDe
                         sizes="(max-width: 768px) 50vw, 25vw"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400">
-                        Fara imagine
+                      <div className="w-full h-full flex items-center justify-center text-theme-text-muted">
+                        <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
                       </div>
                     )}
                   </div>
-                  <h3 className="font-medium text-gray-900 group-hover:text-theme-primary transition-colors line-clamp-2">
+                  <h3 className="font-medium text-theme-text group-hover:text-theme-primary transition-colors line-clamp-2">
                     {related.title}
                   </h3>
                   <div className="mt-1">
-                    {related.hasDiscount ? (
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-red-600">{related.salePrice} RON</span>
-                        <span className="text-sm text-gray-400 line-through">{related.price} RON</span>
-                      </div>
-                    ) : (
-                      <span className="font-bold">{related.price} RON</span>
-                    )}
+                    <span className="font-bold text-theme-text">{formatPrice(related.priceInRON)}</span>
                   </div>
                 </Link>
               ))}
@@ -388,7 +371,7 @@ export function ProductDetails({ product, category, relatedProducts }: ProductDe
           </button>
 
           {/* Previous button */}
-          {product.images.length > 1 && (
+          {images.length > 1 && (
             <button
               onClick={prevImage}
               className="absolute left-4 text-white hover:text-gray-300 z-10 p-2"
@@ -400,7 +383,7 @@ export function ProductDetails({ product, category, relatedProducts }: ProductDe
           )}
 
           {/* Next button */}
-          {product.images.length > 1 && (
+          {images.length > 1 && (
             <button
               onClick={nextImage}
               className="absolute right-4 text-white hover:text-gray-300 z-10 p-2"
@@ -417,7 +400,7 @@ export function ProductDetails({ product, category, relatedProducts }: ProductDe
             onClick={(e) => e.stopPropagation()}
           >
             <Image
-              src={product.images[selectedImageIndex]}
+              src={images[selectedImageIndex]}
               alt={`${product.title} - ${selectedImageIndex + 1}`}
               fill
               className="object-contain"
@@ -426,9 +409,9 @@ export function ProductDetails({ product, category, relatedProducts }: ProductDe
           </div>
 
           {/* Image counter */}
-          {product.images.length > 1 && (
+          {images.length > 1 && (
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-sm bg-black/50 px-3 py-1 rounded-full">
-              {selectedImageIndex + 1} / {product.images.length}
+              {selectedImageIndex + 1} / {images.length}
             </div>
           )}
         </div>

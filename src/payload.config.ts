@@ -2,7 +2,15 @@ import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { resendAdapter } from '@payloadcms/email-resend'
 import { ecommercePlugin } from '@payloadcms/plugin-ecommerce'
+import { manualAdapter } from '@/payments'
 import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
+import {
+  isAdmin,
+  isDocumentOwner,
+  adminOnlyFieldAccess,
+  adminOrPublishedStatus,
+  customerOnlyFieldAccess,
+} from '@/access'
 
 import sharp from 'sharp'
 import path from 'path'
@@ -18,6 +26,7 @@ import { Pages } from './collections/Pages'
 import { Posts } from './collections/Posts'
 import { Services } from './collections/Services'
 // Products is created by ecommerce plugin with productsCollectionOverride
+import { ProductTags } from './collections/ProductTags'
 import { Team } from './collections/Team'
 import { Portfolio } from './collections/Portfolio'
 import { Testimonials } from './collections/Testimonials'
@@ -38,6 +47,7 @@ import { Header } from './globals/Header'
 import { Footer } from './globals/Footer'
 import { Logo } from './globals/Logo'
 import { ShopSettings } from './globals/ShopSettings'
+import { SystemPages } from './globals/SystemPages'
 
 // Blocks
 import { blocks } from './blocks'
@@ -221,38 +231,33 @@ const orderEmailHook: CollectionAfterChangeHook = async ({ doc, operation, req }
   return doc
 }
 
-// User type for access control
-interface EcommerceUser {
-  id?: string
-  role?: string
-}
-
 // Build ecommerce plugin config
 const ecommerceConfig: Parameters<typeof ecommercePlugin>[0] = {
   access: {
-    adminOnly: ({ req }: { req: { user?: EcommerceUser | null } }) => {
-      const user = req.user
-      if (user && 'role' in user) return user.role === 'admin'
-      return false
-    },
-    adminOnlyFieldAccess: ({ req }: { req: { user?: EcommerceUser | null } }) => {
-      const user = req.user
-      if (user && 'role' in user) return user.role === 'admin'
-      return false
-    },
-    adminOrCustomerOwner: ({ req }: { req: { user?: EcommerceUser | null } }) => {
-      const user = req.user
-      if (user && 'role' in user && user.role === 'admin') return true
-      return { customer: { equals: req.user?.id } }
-    },
-    adminOrPublishedStatus: ({ req }: { req: { user?: EcommerceUser | null } }) => {
-      const user = req.user
-      if (user && 'role' in user && user.role === 'admin') return true
-      return { _status: { equals: 'published' } }
-    },
-    customerOnlyFieldAccess: ({ req }: { req: { user?: EcommerceUser | null } }) => Boolean(req.user),
+    adminOnlyFieldAccess,
+    adminOrPublishedStatus,
+    customerOnlyFieldAccess,
+    isAdmin,
+    isDocumentOwner,
   },
   customers: { slug: 'users' },
+  // Enable addresses collection for saved shipping/billing addresses
+  addresses: true,
+  // Allow guest carts for unauthenticated users
+  carts: {
+    cartsCollectionOverride: ({ defaultCollection }: { defaultCollection: CollectionConfig }) => ({
+      ...defaultCollection,
+      access: {
+        ...defaultCollection.access,
+        // Allow anyone to create and update carts (for guest checkout)
+        create: () => true,
+        update: () => true,
+        // Allow reading carts - needed for checkout payment flow
+        // The plugin's initiatePayment uses overrideAccess: false
+        read: () => true,
+      },
+    }),
+  },
   currencies: {
     defaultCurrency: 'RON',
     supportedCurrencies: [
@@ -260,31 +265,85 @@ const ecommerceConfig: Parameters<typeof ecommercePlugin>[0] = {
     ],
   },
   products: {
+    // Following Payload ecommerce plugin best practices:
+    // https://payloadcms.com/docs/ecommerce/overview
+    // Pattern: spread defaultCollection.fields first, then add custom fields
     productsCollectionOverride: ({ defaultCollection }: { defaultCollection: CollectionConfig }) => ({
       ...defaultCollection,
       admin: {
         ...defaultCollection.admin,
         group: 'Shop',
         useAsTitle: 'title',
+        defaultColumns: ['title', 'prices', 'inventory', 'category', 'featured'],
       },
       fields: [
+        // Custom fields FIRST (before plugin defaults)
         { name: 'title', type: 'text', label: 'Nume Produs', required: true },
         { name: 'slug', type: 'text', label: 'Slug', required: true, unique: true, index: true },
-        { name: 'description', type: 'richText', label: 'Descriere', editor: lexicalEditor() },
-        { name: 'images', type: 'array', label: 'Imagini', fields: [{ name: 'image', type: 'upload', relationTo: 'media', required: true }] },
+        { name: 'shortDescription', type: 'textarea', label: 'Descriere Scurtă', admin: { description: 'Afișată în lista de produse și pe card' } },
+        { name: 'description', type: 'richText', label: 'Descriere Detaliată', editor: lexicalEditor() },
+        { name: 'images', type: 'array', label: 'Imagini', minRows: 1, fields: [{ name: 'image', type: 'upload', relationTo: 'media', required: true }] },
         { name: 'category', type: 'relationship', relationTo: 'product-categories', label: 'Categorie' },
-        // Simple price fields for easy frontend usage
-        { name: 'price', type: 'number', label: 'Pret (RON)', required: true, min: 0 },
-        { name: 'salePrice', type: 'number', label: 'Pret Redus (RON)', min: 0 },
+        { name: 'sku', type: 'text', label: 'Cod Produs (SKU)', index: true },
+        // Plugin default fields FIRST (inventory, priceInRON from plugin)
+        // Plugin provides: inventory, priceInRONEnabled, priceInRON
         ...(Array.isArray(defaultCollection.fields) ? defaultCollection.fields.filter(Boolean) : []),
-        { name: 'badge', type: 'text', label: 'Badge' },
-        { name: 'featured', type: 'checkbox', label: 'Featured', defaultValue: false },
+        // Custom fields for filtering and categorization AFTER plugin defaults
+        {
+          name: 'brand',
+          type: 'text',
+          label: 'Brand',
+          index: true,
+          admin: { position: 'sidebar' },
+        },
+        {
+          name: 'tags',
+          type: 'relationship',
+          relationTo: 'product-tags' as const,
+          hasMany: true,
+          label: 'Tag-uri',
+          admin: {
+            position: 'sidebar',
+            description: 'Nou, Promoție, Bestseller, etc.',
+          },
+        },
+        {
+          name: 'relatedProducts',
+          type: 'relationship',
+          relationTo: 'products',
+          hasMany: true,
+          maxRows: 4,
+          label: 'Produse Similare',
+          filterOptions: ({ id }) => {
+            if (!id) return true
+            return { id: { not_equals: id } }
+          },
+          admin: { description: 'Selectează până la 4 produse similare' },
+        },
+        // Specifications array
+        {
+          name: 'specifications',
+          type: 'array',
+          label: 'Specificații',
+          fields: [
+            { name: 'name', type: 'text', label: 'Nume', required: true },
+            { name: 'value', type: 'text', label: 'Valoare', required: true },
+          ],
+        },
+        { name: 'badge', type: 'text', label: 'Badge', admin: { position: 'sidebar', description: 'Text scurt afișat pe card (ex: -20%)' } },
+        { name: 'featured', type: 'checkbox', label: 'Produs Recomandat', defaultValue: false, admin: { position: 'sidebar' } },
+        { name: 'order', type: 'number', label: 'Ordine Afișare', defaultValue: 0, admin: { position: 'sidebar' } },
       ],
     }),
   },
   orders: {
     ordersCollectionOverride: ({ defaultCollection }: { defaultCollection: CollectionConfig }) => ({
       ...defaultCollection,
+      access: {
+        ...defaultCollection.access,
+        // Allow guest checkout - anyone can create orders
+        create: () => true,
+      },
       admin: {
         ...defaultCollection.admin,
         group: 'Shop',
@@ -302,6 +361,19 @@ const ecommerceConfig: Parameters<typeof ecommercePlugin>[0] = {
         ],
       },
     }),
+  },
+  // Payment methods configuration
+  // Manual adapter for "cash on delivery" (plată la livrare)
+  // To add Stripe: import { stripeAdapter } from '@payloadcms/plugin-ecommerce/payments/stripe'
+  payments: {
+    paymentMethods: [
+      manualAdapter({ label: 'Plată la livrare' }),
+      // Add Stripe when configured:
+      // stripeAdapter({
+      //   secretKey: process.env.STRIPE_SECRET_KEY!,
+      //   webhookSecret: process.env.STRIPE_WEBHOOKS_SIGNING_SECRET!,
+      // }),
+    ],
   },
 }
 
@@ -345,12 +417,13 @@ export default buildConfig({
     FAQ,
     // ContactSubmissions removed - use Form Builder plugin's form-submissions
     ProductCategories,
+    ProductTags,
     NewsletterSubscribers,
     Subscriptions,
     SubscriptionOrders,
   ],
   cors: [getServerSideURL()].filter(Boolean),
-  globals: [Header, Footer, SiteTheme, Logo, BusinessInfo, ShopSettings],
+  globals: [Header, Footer, SiteTheme, Logo, BusinessInfo, ShopSettings, SystemPages],
   plugins: [
     ...plugins,
     // Ecommerce plugin cu Orders email notifications

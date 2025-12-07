@@ -7,6 +7,8 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 
 import { ThemeProvider } from '@/providers/ThemeProvider'
+import { EcommerceProviderWrapper } from '@/providers/EcommerceProvider'
+import { AuthProvider } from '@/providers/Auth'
 import { ToastProvider } from '@/components/Toast'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
@@ -16,6 +18,7 @@ import { BackToTop } from '@/components/BackToTop'
 import { CookieConsent } from '@/components/CookieConsent'
 import { AnnouncementBar } from '@/components/AnnouncementBar'
 import { generateThemeStyles } from '@/utilities/generateThemeStyles'
+import { getServerSideURL } from '@/utilities/getURL'
 
 import './globals.css'
 
@@ -71,6 +74,46 @@ export default async function RootLayout({
       <head>
         {/* Inline theme styles to prevent FOUC */}
         <style dangerouslySetInnerHTML={{ __html: themeStyles }} />
+        {/* JSON-LD Structured Data for LocalBusiness (Schema.org) */}
+        {businessInfoData?.name && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                '@context': 'https://schema.org',
+                '@type': 'LocalBusiness',
+                name: businessInfoData.name,
+                description: businessInfoData.description || undefined,
+                url: getServerSideURL(),
+                telephone: businessInfoData.phone || undefined,
+                email: businessInfoData.email || undefined,
+                address: businessInfoData.address?.street ? {
+                  '@type': 'PostalAddress',
+                  streetAddress: businessInfoData.address.street,
+                  addressLocality: businessInfoData.address.city || undefined,
+                  addressRegion: businessInfoData.address.county || undefined,
+                  postalCode: businessInfoData.address.postalCode || undefined,
+                  addressCountry: businessInfoData.address.country || 'RO',
+                } : undefined,
+                geo: businessInfoData.coordinates?.lat && businessInfoData.coordinates?.lng ? {
+                  '@type': 'GeoCoordinates',
+                  latitude: businessInfoData.coordinates.lat,
+                  longitude: businessInfoData.coordinates.lng,
+                } : undefined,
+                openingHours: businessInfoData.workingHours?.map((item) =>
+                  `${item.days}: ${item.hours}`
+                ) || undefined,
+                sameAs: [
+                  businessInfoData.social?.facebook,
+                  businessInfoData.social?.instagram,
+                  businessInfoData.social?.linkedin,
+                  businessInfoData.social?.youtube,
+                  businessInfoData.social?.tiktok,
+                ].filter(Boolean),
+              }),
+            }}
+          />
+        )}
         {/* Google Fonts for theme typography */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -89,7 +132,17 @@ export default async function RootLayout({
       </head>
       <body className={`${GeistSans.variable} ${GeistMono.variable} antialiased`}>
         <ThemeProvider siteTheme={siteThemeData}>
-          <ToastProvider>
+          <AuthProvider>
+          <EcommerceProviderWrapper>
+            <ToastProvider>
+              {/* Skip to main content link for accessibility */}
+            <a
+              href="#main-content"
+              className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-theme-primary focus:text-white focus:rounded-[var(--radius-button)] focus:outline-none focus:ring-2 focus:ring-theme-accent"
+            >
+              Salt la continutul principal
+            </a>
+
             {/* Announcement Bar - appears at very top */}
             {announcementBar?.enabled && announcementBar.message && (
               <AnnouncementBar
@@ -105,7 +158,7 @@ export default async function RootLayout({
 
             <AdminBar />
             <Header data={headerData} logo={logoData} businessInfo={businessInfoData} />
-            <main className="min-h-screen">{children}</main>
+            <main id="main-content" className="min-h-screen">{children}</main>
             <Footer data={footerData} businessInfo={businessInfoData} logo={logoData} />
 
             {/* Floating widgets */}
@@ -130,6 +183,8 @@ export default async function RootLayout({
               showDeclineButton={cookieConsent?.showDeclineButton}
             />
           </ToastProvider>
+          </EcommerceProviderWrapper>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

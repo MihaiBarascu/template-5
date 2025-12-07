@@ -2,8 +2,8 @@ import { defineConfig, devices } from '@playwright/test'
 
 import 'dotenv/config'
 
-// Use port 3005 to avoid conflicts with other services (e.g., Dokploy on 3000)
-const TEST_PORT = process.env.TEST_PORT || '3005'
+// Use port 3100 to avoid conflicts with other services (e.g., Dokploy on 3000, dev servers on 3005)
+const TEST_PORT = process.env.TEST_PORT || '3100'
 const BASE_URL = process.env.BASE_URL || `http://localhost:${TEST_PORT}`
 
 export default defineConfig({

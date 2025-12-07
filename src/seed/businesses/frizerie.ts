@@ -113,6 +113,7 @@ export async function seedFrizerie(payload: Payload) {
   console.log('\n📋 Setting up footer...')
   await seedFooter(payload, {
     variant: 'columns-4',
+    colorScheme: 'dark',
     columns: barbershopData.footer.columns,
     // Footer fara textura - se poate adauga din admin
   })

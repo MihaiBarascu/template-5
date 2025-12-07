@@ -10,8 +10,8 @@ export const Users: CollectionConfig = {
   access: {
     // Only admins can access admin panel for users
     admin: isAdminBoolean,
-    // Only admins can create new users
-    create: isAdmin,
+    // Anyone can register (create account) - required for ecommerce
+    create: () => true,
     // Only admins can delete users
     delete: isAdmin,
     // Users can read their own data, admins can read all
@@ -42,7 +42,8 @@ export const Users: CollectionConfig = {
         { label: 'Client', value: 'customer' },
       ],
       access: {
-        // Only admins can change roles
+        // Only admins can set or change roles
+        create: isAdminFieldLevel,
         update: isAdminFieldLevel,
       },
       admin: {

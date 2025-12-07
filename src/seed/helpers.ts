@@ -1,4 +1,4 @@
-import type { Page, SiteTheme, Service, Product, Post, Form } from '@/payload-types';
+import type { Page, SiteTheme, Service, Product, Post, Form, SystemPage } from '@/payload-types';
 import fs from 'fs';
 import path from 'path';
 import type { Payload } from 'payload';
@@ -410,10 +410,12 @@ export async function seedFooter(
       | 'columns-4'
       | 'columns-3'
       | 'with-newsletter';
+    colorScheme?: 'dark' | 'light';
     columns?: Array<{
       title: string;
       type: 'links' | 'contact' | 'schedule' | 'text' | 'social';
       links?: Array<{ label: string; type: 'custom'; url: string }>;
+      text?: string;
     }>;
     legalLinks?: Array<{ label: string; type: 'custom'; url: string }>;
     // Background image (imagine mare pe tot footer-ul)
@@ -430,6 +432,7 @@ export async function seedFooter(
     slug: 'footer',
     data: {
       variant: data.variant || 'columns-4',
+      colorScheme: data.colorScheme || 'dark',
       columns: data.columns,
       showSocialLinks: true,
       showContactInfo: true,
@@ -833,8 +836,8 @@ export async function seedProductCategories(
 
 // Product data type for seeding - uses Payload generated types with Omit for auto-generated fields
 type ProductSeedData = Partial<Omit<Product, 'id' | 'createdAt' | 'updatedAt'>> &
-  Pick<Product, 'title' | 'slug' | 'price'> &
-  { _status: 'published' | 'draft' }
+  Pick<Product, 'title' | 'slug'> &
+  { _status: 'published' | 'draft'; priceInRON?: number }
 
 // Helper to create products (eCommerce plugin)
 export async function seedProducts(
@@ -844,27 +847,24 @@ export async function seedProducts(
     slug: string;
     description?: string;
     price: number;
-    salePrice?: number;
     badge?: string;
     featured?: boolean;
     categoryId?: string;
     imageId?: string;
+    inventory?: number;
   }>,
 ) {
   for (const product of products) {
     const productData: ProductSeedData = {
       title: product.title,
       slug: product.slug,
-      price: product.price,
+      priceInRON: product.price,
       badge: product.badge,
       featured: product.featured || false,
+      // Set inventory - default to random 5-50 if not specified
+      inventory: product.inventory ?? Math.floor(Math.random() * 46) + 5,
       _status: 'published',
     };
-
-    // Add sale price if present
-    if (product.salePrice) {
-      productData.salePrice = product.salePrice;
-    }
 
     // Add category if present
     if (product.categoryId) {
@@ -1725,4 +1725,87 @@ export function createContactPageLayout(contactFormId: string | undefined, optio
         ]
       : []),
   ]
+}
+
+// Helper to seed system pages (shop, cart, checkout configuration)
+export async function seedSystemPages(
+  payload: Payload,
+  data?: Partial<SystemPage>,
+) {
+  const defaultData: Partial<SystemPage> = {
+    productsPage: {
+      title: 'Produsele Noastre',
+      description: 'Descopera intreaga gama de produse naturale si eco-friendly',
+      productsPerPage: 24,
+      gridColumns: '4',
+      defaultSort: 'newest',
+      showFilters: true,
+      showSearch: true,
+      showSort: true,
+      filterOptions: {
+        showCategoryFilter: true,
+        showPriceFilter: true,
+        showStockFilter: true,
+      },
+      seo: {
+        metaTitle: 'Produse | {siteName}',
+        metaDescription: 'Descopera toate produsele naturale si eco-friendly. Livrare rapida in toata tara.',
+      },
+    },
+    labels: {
+      filtersTitle: 'Filtre',
+      categoriesTitle: 'Categorii',
+      priceTitle: 'Pret',
+      stockTitle: 'Disponibilitate',
+      inStockLabel: 'Doar produse in stoc',
+      sortLabel: 'Sorteaza:',
+      resultsText: 'Afisam {count} din {total} produse',
+      noResultsText: 'Nu am gasit produse care sa corespunda cautarii.',
+      clearFiltersText: 'Sterge filtrele',
+      searchPlaceholder: 'Cauta produse...',
+      mobileFiltersButton: 'Filtre',
+      mobileApplyFilters: 'Aplica filtre',
+    },
+    cartPage: {
+      title: 'Cosul tau',
+      emptyCartMessage: 'Cosul tau este gol.',
+      continueShoppingText: 'Continua cumparaturile',
+      continueShoppingLink: '/produse',
+    },
+    checkoutPage: {
+      title: 'Finalizare comanda',
+      successMessage: 'Multumim pentru comanda! Vei primi un email de confirmare.',
+    },
+    accountPages: {
+      dashboardTitle: 'Contul meu',
+      dashboardDescription: 'Bine ai revenit! Gestioneaza contul tau de aici.',
+      addressesTitle: 'Adresele mele',
+      addressesDescription: 'Gestioneaza adresele tale de livrare si facturare salvate.',
+      ordersTitle: 'Comenzile mele',
+      ordersDescription: 'Vezi istoricul comenzilor tale.',
+      noOrdersMessage: 'Nu ai nicio comanda inca.',
+      loginTitle: 'Autentificare',
+      loginDescription: 'Intra in contul tau pentru a vedea comenzile si adresele salvate.',
+      loginButton: 'Autentificare',
+      registerTitle: 'Creeaza cont',
+      registerDescription: 'Creeaza un cont pentru a beneficia de avantaje exclusive.',
+      registerButton: 'Creeaza cont',
+      menuDashboard: 'Dashboard',
+      menuOrders: 'Comenzile mele',
+      menuAddresses: 'Adrese',
+      menuLogout: 'Deconectare',
+    },
+  }
+
+  // Merge default data with provided data
+  const mergedData = {
+    ...defaultData,
+    ...data,
+  }
+
+  await payload.updateGlobal({
+    slug: 'system-pages',
+    data: mergedData,
+  })
+  console.log('   System pages configured')
 }

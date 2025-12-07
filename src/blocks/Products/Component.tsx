@@ -1,21 +1,22 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Media } from '@/payload-types'
 import { useToast } from '@/components/Toast'
+import { useCart } from '@payloadcms/plugin-ecommerce/client/react'
 
 interface Product {
   id: string
   title: string
   slug: string
-  price?: number | null
-  salePrice?: number | null
+  priceInRON?: number | null
   badge?: string | null
   featured?: boolean | null
   images?: Array<{ image: Media | string }> | null
   category?: { title: string; slug: string } | string | null
+  inventory?: number | null
 }
 
 interface ProductsBlockProps {
@@ -23,7 +24,6 @@ interface ProductsBlockProps {
   heading?: string
   subheading?: string
   showPrice?: boolean
-  showSalePrice?: boolean
   showAddToCart?: boolean
   ctaButton?: {
     enabled?: boolean | null
@@ -39,13 +39,14 @@ export function ProductsBlock({
   heading,
   subheading,
   showPrice = true,
-  showSalePrice = true,
   showAddToCart = false,
   ctaButton,
   backgroundColor = 'default',
   products,
 }: ProductsBlockProps) {
   const { showToast } = useToast()
+  const { addItem } = useCart()
+  const [addingProductId, setAddingProductId] = useState<string | null>(null)
 
   const bgClasses = {
     default: 'bg-white',
@@ -68,31 +69,20 @@ export function ProductsBlock({
     return firstImage?.url || null
   }
 
-  const handleAddToCart = async (product: Product) => {
-    // Simple cart implementation - stores in localStorage
-    const cart = JSON.parse(localStorage.getItem('cart') || '[]')
-    const existingItem = cart.find((item: { id: string }) => item.id === product.id)
-
-    if (existingItem) {
-      existingItem.quantity += 1
-    } else {
-      cart.push({
-        id: product.id,
-        title: product.title,
-        price: product.salePrice || product.price,
-        image: getImageUrl(product),
-        quantity: 1,
+  const handleAddToCart = useCallback(async (product: Product) => {
+    setAddingProductId(product.id)
+    try {
+      await addItem({
+        product: product.id,
       })
+      showToast(`${product.title} a fost adaugat in cos!`, 'success')
+    } catch (error) {
+      console.error('Error adding to cart:', error)
+      showToast('A aparut o eroare. Incercati din nou.', 'error')
+    } finally {
+      setAddingProductId(null)
     }
-
-    localStorage.setItem('cart', JSON.stringify(cart))
-
-    // Dispatch event for cart update
-    window.dispatchEvent(new CustomEvent('cartUpdated'))
-
-    // Show feedback with toast
-    showToast(`${product.title} a fost adaugat in cos!`, 'success')
-  }
+  }, [addItem, showToast])
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('ro-RO', {
@@ -134,7 +124,8 @@ export function ProductsBlock({
         <div className={`grid gap-6 ${variant === 'carousel' ? '' : gridClasses[variant]}`}>
           {products.map((product, index) => {
             const imageUrl = getImageUrl(product)
-            const hasDiscount = product.salePrice && product.price && product.salePrice < product.price
+            const isOutOfStock = (product.inventory ?? 0) <= 0
+            const isAddingThis = addingProductId === product.id
 
             return (
               <div
@@ -164,6 +155,15 @@ export function ProductsBlock({
                       <span className="text-gray-400 text-4xl">📦</span>
                     </div>
                   )}
+
+                  {/* Out of Stock Overlay */}
+                  {isOutOfStock && (
+                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                      <span className="bg-white text-gray-900 px-4 py-2 rounded-md font-medium text-sm">
+                        Stoc epuizat
+                      </span>
+                    </div>
+                  )}
                 </Link>
 
                 {/* Content */}
@@ -183,26 +183,34 @@ export function ProductsBlock({
                   </Link>
 
                   {/* Price */}
-                  {showPrice && product.price && (
+                  {showPrice && product.priceInRON && (
                     <div className="mt-2 flex items-center gap-2">
-                      <span className={`font-bold ${hasDiscount ? 'text-red-600' : 'text-gray-900'}`}>
-                        {formatPrice(product.salePrice || product.price)}
+                      <span className="font-bold text-gray-900">
+                        {formatPrice(product.priceInRON)}
                       </span>
-                      {showSalePrice && hasDiscount && (
-                        <span className="text-sm text-gray-400 line-through">
-                          {formatPrice(product.price)}
-                        </span>
-                      )}
                     </div>
                   )}
 
                   {/* Add to Cart Button */}
                   {showAddToCart && (
                     <button
-                      onClick={() => handleAddToCart(product)}
-                      className="mt-3 w-full bg-theme-primary text-white py-2 px-4 rounded-md hover:bg-theme-primary/90 transition-colors text-sm font-medium"
+                      onClick={() => !isOutOfStock && !isAddingThis && handleAddToCart(product)}
+                      disabled={isOutOfStock || isAddingThis}
+                      className={`mt-3 w-full py-2 px-4 rounded-md transition-colors text-sm font-medium flex items-center justify-center gap-2 ${
+                        isOutOfStock || isAddingThis
+                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                          : 'bg-theme-primary text-white hover:bg-theme-primary/90'
+                      }`}
                     >
-                      Adauga in cos
+                      {isAddingThis ? (
+                        <>
+                          <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                          </svg>
+                          Se adauga...
+                        </>
+                      ) : isOutOfStock ? 'Indisponibil' : 'Adauga in cos'}
                     </button>
                   )}
                 </div>

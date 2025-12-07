@@ -592,7 +592,6 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   heading={block.heading ?? undefined}
                   subheading={block.subheading ?? undefined}
                   showPrice={block.showPrice ?? undefined}
-                  showSalePrice={block.showSalePrice ?? undefined}
                   showAddToCart={block.showAddToCart ?? undefined}
                   ctaButton={block.ctaButton ?? undefined}
                   backgroundColor={block.backgroundColor ?? undefined}

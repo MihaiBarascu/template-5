@@ -8,6 +8,8 @@ import { Calendar, User, ArrowLeft, ArrowRight, Share2, Facebook, Twitter, Linke
 import RichText from '@/components/RichText'
 import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical'
 import type { Post } from '@/payload-types'
+import { generatePostMeta } from '@/utilities/generateMeta'
+import { getServerSideURL } from '@/utilities/getURL'
 
 // Static generation with ISR - revalidated on-demand via hooks + fallback after 10 minutes
 export const dynamic = 'force-static'
@@ -61,22 +63,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!post.docs[0]) {
     return {
-      title: 'Articol negasit',
+      title: 'Articol negasit | Blog',
+      description: 'Articolul cautat nu a fost gasit.',
+      robots: {
+        index: false,
+        follow: false,
+      },
     }
   }
 
-  const postData = post.docs[0]
-  const featuredImage = postData.featuredImage as PostImage | null
-
-  return {
-    title: postData.title,
-    description: postData.excerpt || undefined,
-    openGraph: {
-      title: postData.title,
-      description: postData.excerpt || undefined,
-      images: featuredImage?.url ? [{ url: featuredImage.url }] : undefined,
-    },
-  }
+  // Use the improved generatePostMeta utility
+  return generatePostMeta({ post: post.docs[0] })
 }
 
 export async function generateStaticParams() {
@@ -142,8 +139,43 @@ export default async function BlogPostPage({ params }: PageProps) {
     relatedPosts = related.docs
   }
 
+  const serverUrl = getServerSideURL()
+
+  // JSON-LD Structured Data for Article (Schema.org)
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: postData.title,
+    description: postData.excerpt || '',
+    image: featuredImage?.url ? `${serverUrl}${featuredImage.url}` : undefined,
+    datePublished: postData.publishedAt || postData.createdAt,
+    dateModified: postData.updatedAt,
+    author: author ? {
+      '@type': 'Person',
+      name: author.name || author.email,
+    } : undefined,
+    publisher: {
+      '@type': 'Organization',
+      name: 'Site Business',
+      logo: {
+        '@type': 'ImageObject',
+        url: `${serverUrl}/og-image.png`,
+      },
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `${serverUrl}/blog/${postData.slug}`,
+    },
+  }
+
   return (
-    <main className="py-8">
+    <>
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <main className="py-8">
       {/* Hero/Header */}
       <article>
         {/* Featured Image */}
@@ -338,5 +370,6 @@ export default async function BlogPostPage({ params }: PageProps) {
         </section>
       )}
     </main>
+    </>
   )
 }

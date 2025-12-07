@@ -91,8 +91,10 @@ async function clearData(payload: Payload) {
     'forms',
     'categories',
     'product-categories',
+    'product-tags',
     'carts',
     'orders',
+    'addresses',
     'media',
     'subscriptions',
   ]
@@ -114,6 +116,29 @@ async function clearData(payload: Payload) {
     } catch (_e) {
       // Collection might not exist, skip
     }
+  }
+
+  // Clear users EXCEPT admin@example.com
+  try {
+    const users = await payload.find({
+      collection: 'users',
+      limit: 1000,
+      where: {
+        email: {
+          not_equals: 'admin@example.com',
+        },
+      },
+    })
+
+    for (const user of users.docs) {
+      await payload.delete({
+        collection: 'users',
+        id: user.id,
+      })
+    }
+    console.log(`   Cleared users (except admin): ${users.docs.length} items`)
+  } catch (_e) {
+    // Users collection error, skip
   }
 
   // Clear media files from filesystem

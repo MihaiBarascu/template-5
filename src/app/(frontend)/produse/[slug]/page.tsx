@@ -3,6 +3,8 @@ import configPromise from '@payload-config'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { ProductDetails } from './ProductDetails'
+import { generateProductMeta } from '@/utilities/generateMeta'
+import { getServerSideURL } from '@/utilities/getURL'
 
 // Revalidate page every 60 seconds for ISR
 export const revalidate = 60
@@ -56,52 +58,64 @@ export default async function ProductPage({ params }: PageProps) {
     relatedProducts = related.docs
   }
 
-  // Extract image URLs for the gallery
-  const images = (productData.images || [])
-    .map((img) => {
-      const imgData = img.image && typeof img.image !== 'string' ? img.image : null
-      return imgData?.url || null
-    })
-    .filter((url): url is string => url !== null)
-
   const category = typeof productData.category === 'object' ? productData.category : null
-  const salePrice = productData.salePrice ?? 0
-  const hasDiscount = salePrice > 0 && salePrice < productData.price
 
   // Prepare related products data
   const relatedProductsData = relatedProducts.map((related) => {
     const relatedImage = related.images?.[0]?.image
     const relatedImageUrl = relatedImage && typeof relatedImage !== 'string' ? relatedImage.url : null
-    const relatedSalePrice = related.salePrice ?? 0
-    const relatedHasDiscount = relatedSalePrice > 0 && relatedSalePrice < related.price
 
     return {
       id: related.id,
       slug: related.slug,
       title: related.title,
-      price: related.price,
-      salePrice: relatedSalePrice,
-      hasDiscount: relatedHasDiscount,
+      priceInRON: related.priceInRON ?? 0,
       imageUrl: relatedImageUrl ?? null,
     }
   })
 
+  // Get image URL for structured data
+  const firstImage = productData.images?.[0]?.image
+  const imageUrl = firstImage && typeof firstImage !== 'string' ? firstImage.url : null
+  const serverUrl = getServerSideURL()
+
+  // JSON-LD Structured Data for Product (Schema.org)
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: productData.title,
+    description: (productData as { shortDescription?: string }).shortDescription || '',
+    image: imageUrl ? `${serverUrl}${imageUrl}` : undefined,
+    sku: (productData as { sku?: string }).sku || productData.id,
+    brand: (productData as { brand?: string }).brand ? {
+      '@type': 'Brand',
+      name: (productData as { brand?: string }).brand,
+    } : undefined,
+    offers: {
+      '@type': 'Offer',
+      url: `${serverUrl}/produse/${productData.slug}`,
+      priceCurrency: 'RON',
+      price: productData.priceInRON ?? 0,
+      availability: (productData.inventory ?? 0) > 0
+        ? 'https://schema.org/InStock'
+        : 'https://schema.org/OutOfStock',
+      itemCondition: 'https://schema.org/NewCondition',
+    },
+  }
+
   return (
-    <ProductDetails
-      product={{
-        id: productData.id,
-        title: productData.title,
-        price: productData.price,
-        salePrice,
-        hasDiscount,
-        inventory: productData.inventory ?? 0,
-        badge: productData.badge || undefined,
-        description: productData.description,
-        images,
-      }}
-      category={category ? { title: category.title, slug: category.slug } : null}
-      relatedProducts={relatedProductsData}
-    />
+    <>
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <ProductDetails
+        product={productData}
+        category={category ? { title: category.title, slug: category.slug } : null}
+        relatedProducts={relatedProductsData}
+      />
+    </>
   )
 }
 
@@ -117,20 +131,22 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       },
     },
     limit: 1,
+    depth: 2, // Fetch related media for OG images
   })
 
   if (!product.docs[0]) {
     return {
-      title: 'Produs negasit',
+      title: 'Produs negasit | Magazin',
+      description: 'Produsul cautat nu a fost gasit.',
+      robots: {
+        index: false,
+        follow: false,
+      },
     }
   }
 
-  const productData = product.docs[0]
-
-  return {
-    title: `${productData.title} | EcoShop`,
-    description: (productData as { shortDescription?: string }).shortDescription || `Cumpara ${productData.title} la cel mai bun pret`,
-  }
+  // Use the improved generateProductMeta utility
+  return generateProductMeta({ product: product.docs[0] })
 }
 
 export async function generateStaticParams() {
@@ -140,11 +156,18 @@ export async function generateStaticParams() {
     const products = await payload.find({
       collection: 'products',
       limit: 100,
+      where: {
+        slug: {
+          exists: true,
+        },
+      },
     })
 
-    return products.docs.map((product) => ({
-      slug: product.slug,
-    }))
+    return products.docs
+      .filter((product) => product.slug)
+      .map((product) => ({
+        slug: product.slug,
+      }))
   } catch {
     // Return empty array during build when DB is not available
     // Pages will be generated on-demand with ISR

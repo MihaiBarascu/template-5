@@ -168,13 +168,13 @@ export function PriceListDottedBlock({
   const isDark = backgroundColor === 'dark'
 
   // Convert services to items if using services source
-  // Use attributes array - first attribute is typically price, second is duration
+  // Use direct price and duration fields from the Service collection
   const displayItems: PriceItem[] = services && services.length > 0
     ? services.map((service) => ({
         id: service.id,
         name: service.title,
-        price: service.attributes?.[0]?.value || '',
-        duration: service.attributes?.[1]?.value || null,
+        price: service.price || '',
+        duration: service.duration || null,
         description: service.shortDescription || null,
         featured: service.featured || false,
       }))

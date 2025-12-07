@@ -29,6 +29,19 @@ export const Footer: GlobalConfig = {
       ],
     },
     {
+      name: 'colorScheme',
+      type: 'select',
+      label: 'Schema culori',
+      defaultValue: 'dark',
+      admin: {
+        description: 'Determină culorile textului din footer',
+      },
+      options: [
+        { label: 'Întunecat (text deschis pe fundal închis)', value: 'dark' },
+        { label: 'Deschis (text închis pe fundal deschis)', value: 'light' },
+      ],
+    },
+    {
       name: 'columns',
       type: 'array',
       label: 'Coloane',
@@ -75,10 +88,11 @@ export const Footer: GlobalConfig = {
         },
         {
           name: 'text',
-          type: 'richText',
+          type: 'textarea',
           label: 'Continut',
           admin: {
             condition: (_, siblingData) => siblingData?.type === 'text',
+            rows: 5,
           },
         },
       ],

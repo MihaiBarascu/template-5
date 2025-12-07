@@ -82,6 +82,23 @@ pnpm test:e2e tests/e2e/production-ready.spec.ts
 pnpm test:screenshots
 ```
 
+### 5. E-commerce Checkout Tests (`ecommerce-checkout.spec.ts`)
+
+**Scop:** Testare completă flux checkout pentru business-uri cu ecommerce (magazin)
+**Durată:** ~5-10 minute
+**Când să rulezi:** După modificări la checkout, payment, cart
+
+```bash
+pnpm test:e2e tests/e2e/ecommerce-checkout.spec.ts
+```
+
+**Ce testează:**
+- Adăugare produse în coș
+- Completare formular checkout (billing address)
+- Plasare comandă cu "Plată la livrare"
+- Verificare mesaj succes
+- API endpoints (payments, carts, products)
+
 ---
 
 ## Comenzi Rapide
@@ -134,16 +151,17 @@ pnpm test:screenshots
 
 ### Business Types Disponibile
 
-| Tip            | Seed Command             | Caracteristici                 |
-| -------------- | ------------------------ | ------------------------------ |
-| `frizerie`     | `pnpm seed:frizerie`     | Servicii, Echipă, Programări   |
-| `dentist`      | `pnpm seed:dentist`      | Servicii medicale, Doctori     |
-| `avocat`       | `pnpm seed:avocat`       | Servicii juridice, Consultanță |
-| `restaurant`   | `pnpm seed:restaurant`   | Meniu, Galerie, Rezervări      |
-| `auto-service` | `pnpm seed:auto-service` | Servicii auto, Prețuri         |
-| `constructii`  | `pnpm seed:constructii`  | Portofoliu, Proiecte           |
-| `salon`        | `pnpm seed:salon`        | Tratamente, Stiliste           |
-| `magazin`      | `pnpm seed:magazin`      | Produse, Coș, Checkout         |
+| Tip            | Seed Command             | Caracteristici                              |
+| -------------- | ------------------------ | ------------------------------------------- |
+| `frizerie`     | `pnpm seed:frizerie`     | Servicii, Echipă, Programări                |
+| `dentist`      | `pnpm seed:dentist`      | Servicii medicale, Doctori                  |
+| `avocat`       | `pnpm seed:avocat`       | Servicii juridice, Consultanță              |
+| `restaurant`   | `pnpm seed:restaurant`   | Meniu, Galerie, Rezervări                   |
+| `auto-service` | `pnpm seed:auto-service` | Servicii auto, Prețuri                      |
+| `constructii`  | `pnpm seed:constructii`  | Portofoliu, Proiecte                        |
+| `salon`        | `pnpm seed:salon`        | Tratamente, Stiliste                        |
+| `magazin`      | `pnpm seed:magazin`      | **Ecommerce**: Produse, Coș, Checkout, Plăți|
+| `fitness`      | `pnpm seed:fitness`      | Clase, Antrenori, Abonamente                |
 
 ### Testare manuală rapidă
 
@@ -232,14 +250,14 @@ export default defineConfig({
 
 ```bash
 # .env.test
-BASE_URL=http://localhost:3005
-TEST_PORT=3005
+BASE_URL=http://localhost:3100
+TEST_PORT=3100
 SEED_TYPE=frizerie
 DESIGN_VARIANT=0
 CI=false
 ```
 
-> **Notă:** Testele folosesc portul 3005 implicit pentru a evita conflicte cu alte servicii (ex: Dokploy pe 3000). Poți schimba cu `TEST_PORT=3006 pnpm test:e2e`
+> **Notă:** Testele folosesc portul 3100 implicit pentru a evita conflicte cu alte servicii (ex: Dokploy pe 3000, dev servers pe 3005). Poți schimba cu `TEST_PORT=3200 pnpm test:e2e`
 
 ---
 

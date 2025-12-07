@@ -127,6 +127,7 @@ export async function seedFitness(payload: Payload) {
   // 7. Footer
   console.log('\n📋 Setting up footer...')
   await seedFooter(payload, {
+    colorScheme: 'dark',
     variant: 'columns-4',
     columns: fitnessData.footer.columns,
     // Footer fara textura - se poate adauga din admin

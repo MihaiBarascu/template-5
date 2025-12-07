@@ -84,6 +84,13 @@ const config = {
         'theme-text': 'var(--theme-text)',
         'theme-text-light': 'var(--theme-text-light)',
         'theme-text-muted': 'var(--theme-text-muted)',
+        // Contrast text colors - for text on colored backgrounds
+        'theme-text-on-primary': 'var(--theme-text-on-primary)',
+        'theme-text-on-secondary': 'var(--theme-text-on-secondary)',
+        'theme-text-on-accent': 'var(--theme-text-on-accent)',
+        'theme-text-on-dark': 'var(--theme-text-on-dark)',
+        'theme-text-on-light': 'var(--theme-text-on-light)',
+        'theme-text-on-surface': 'var(--theme-text-on-surface)',
         'theme-surface': 'var(--theme-surface)',
         'theme-surface-secondary': 'var(--theme-surface-secondary)',
         'theme-border': 'var(--theme-border)',

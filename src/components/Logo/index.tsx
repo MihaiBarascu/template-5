@@ -66,7 +66,7 @@ export function Logo({ data, businessName, variant = 'default' }: LogoProps) {
 
   // Text only
   return (
-    <span className="font-bold text-xl tracking-tight">{logoText}</span>
+    <span className="font-bold text-xl tracking-tight leading-none text-theme-primary">{logoText}</span>
   )
 }
 

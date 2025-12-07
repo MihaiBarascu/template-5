@@ -84,6 +84,7 @@ export interface Config {
     bookings: Booking;
     faq: Faq;
     'product-categories': ProductCategory;
+    'product-tags': ProductTag;
     'newsletter-subscribers': NewsletterSubscriber;
     subscriptions: Subscription;
     'subscription-orders': SubscriptionOrder;
@@ -127,6 +128,7 @@ export interface Config {
     bookings: BookingsSelect<false> | BookingsSelect<true>;
     faq: FaqSelect<false> | FaqSelect<true>;
     'product-categories': ProductCategoriesSelect<false> | ProductCategoriesSelect<true>;
+    'product-tags': ProductTagsSelect<false> | ProductTagsSelect<true>;
     'newsletter-subscribers': NewsletterSubscribersSelect<false> | NewsletterSubscribersSelect<true>;
     subscriptions: SubscriptionsSelect<false> | SubscriptionsSelect<true>;
     'subscription-orders': SubscriptionOrdersSelect<false> | SubscriptionOrdersSelect<true>;
@@ -152,6 +154,7 @@ export interface Config {
   db: {
     defaultIDType: string;
   };
+  fallbackLocale: null;
   globals: {
     header: Header;
     footer: Footer;
@@ -159,6 +162,7 @@ export interface Config {
     logo: Logo;
     'business-info': BusinessInfo;
     'shop-settings': ShopSetting;
+    'system-pages': SystemPage;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
@@ -167,6 +171,7 @@ export interface Config {
     logo: LogoSelect<false> | LogoSelect<true>;
     'business-info': BusinessInfoSelect<false> | BusinessInfoSelect<true>;
     'shop-settings': ShopSettingsSelect<false> | ShopSettingsSelect<true>;
+    'system-pages': SystemPagesSelect<false> | SystemPagesSelect<true>;
   };
   locale: null;
   user: User & {
@@ -1189,6 +1194,14 @@ export interface Page {
       )[]
     | null;
   publishedAt?: string | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (string | null) | Media;
+  };
   parent?: (string | null) | Page;
   breadcrumbs?:
     | {
@@ -1343,6 +1356,14 @@ export interface Service {
   featured?: boolean | null;
   active?: boolean | null;
   order?: number | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (string | null) | Media;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -1759,6 +1780,10 @@ export interface Product {
   id: string;
   title: string;
   slug: string;
+  /**
+   * Afișată în lista de produse și pe card
+   */
+  shortDescription?: string | null;
   description?: {
     root: {
       type: string;
@@ -1781,8 +1806,7 @@ export interface Product {
       }[]
     | null;
   category?: (string | null) | ProductCategory;
-  price: number;
-  salePrice?: number | null;
+  sku?: string | null;
   inventory?: number | null;
   enableVariants?: boolean | null;
   variantTypes?: (string | VariantType)[] | null;
@@ -1793,8 +1817,28 @@ export interface Product {
   };
   priceInRONEnabled?: boolean | null;
   priceInRON?: number | null;
+  brand?: string | null;
+  /**
+   * Nou, Promoție, Bestseller, etc.
+   */
+  tags?: (string | ProductTag)[] | null;
+  /**
+   * Selectează până la 4 produse similare
+   */
+  relatedProducts?: (string | Product)[] | null;
+  specifications?:
+    | {
+        name: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Text scurt afișat pe card (ex: -20%)
+   */
   badge?: string | null;
   featured?: boolean | null;
+  order?: number | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -1813,6 +1857,18 @@ export interface ProductCategory {
   slug: string;
   description?: string | null;
   image?: (string | null) | Media;
+  /**
+   * Nume icon Lucide opțional (ex: shirt, laptop, home, utensils)
+   */
+  icon?: string | null;
+  /**
+   * Selectează categoria părinte pentru ierarhie
+   */
+  parent?: (string | null) | ProductCategory;
+  /**
+   * Afișează pe homepage
+   */
+  featured?: boolean | null;
   order?: number | null;
   updatedAt: string;
   createdAt: string;
@@ -1870,6 +1926,34 @@ export interface Variant {
   createdAt: string;
   deletedAt?: string | null;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * Tag-uri pentru categorisire și filtrare produse (ex: Nou, Promoție, Bestseller)
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-tags".
+ */
+export interface ProductTag {
+  id: string;
+  /**
+   * Ex: Nou, Promoție, Bestseller, Eco-friendly
+   */
+  name: string;
+  /**
+   * URL-ul paginii (generat automat din titlu)
+   */
+  slug: string;
+  /**
+   * Culoare HEX pentru badge (ex: #e74c3c pentru roșu)
+   */
+  color?: string | null;
+  /**
+   * Nume icon Lucide opțional (ex: star, flame, leaf)
+   */
+  icon?: string | null;
+  order?: number | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2026,6 +2110,14 @@ export interface Post {
   author?: (string | null) | User;
   publishedAt?: string | null;
   relatedPosts?: (string | Post)[] | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (string | null) | Media;
+  };
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -2559,6 +2651,7 @@ export interface Cart {
         id?: string | null;
       }[]
     | null;
+  secret?: string | null;
   customer?: (string | null) | User;
   purchasedAt?: string | null;
   status?: ('active' | 'purchased' | 'abandoned') | null;
@@ -2617,6 +2710,14 @@ export interface Transaction {
         id?: string | null;
       }[]
     | null;
+  paymentMethod?: 'manual' | null;
+  manual?: {
+    paymentType?: ('cash_on_delivery' | 'pay_at_pickup' | 'bank_transfer') | null;
+    /**
+     * Note interne despre această plată
+     */
+    notes?: string | null;
+  };
   billingAddress?: {
     title?: string | null;
     firstName?: string | null;
@@ -2803,6 +2904,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'product-categories';
         value: string | ProductCategory;
+      } | null)
+    | ({
+        relationTo: 'product-tags';
+        value: string | ProductTag;
       } | null)
     | ({
         relationTo: 'newsletter-subscribers';
@@ -3705,6 +3810,13 @@ export interface PagesSelect<T extends boolean = true> {
         formBlock?: T | FormBlockSelect<T>;
       };
   publishedAt?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
   parent?: T;
   breadcrumbs?:
     | T
@@ -4018,6 +4130,13 @@ export interface PostsSelect<T extends boolean = true> {
   author?: T;
   publishedAt?: T;
   relatedPosts?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -4168,6 +4287,13 @@ export interface ServicesSelect<T extends boolean = true> {
   featured?: T;
   active?: T;
   order?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -4307,6 +4433,22 @@ export interface ProductCategoriesSelect<T extends boolean = true> {
   slug?: T;
   description?: T;
   image?: T;
+  icon?: T;
+  parent?: T;
+  featured?: T;
+  order?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-tags_select".
+ */
+export interface ProductTagsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  color?: T;
+  icon?: T;
   order?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -4677,6 +4819,7 @@ export interface VariantOptionsSelect<T extends boolean = true> {
 export interface ProductsSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
+  shortDescription?: T;
   description?: T;
   images?:
     | T
@@ -4685,16 +4828,26 @@ export interface ProductsSelect<T extends boolean = true> {
         id?: T;
       };
   category?: T;
-  price?: T;
-  salePrice?: T;
+  sku?: T;
   inventory?: T;
   enableVariants?: T;
   variantTypes?: T;
   variants?: T;
   priceInRONEnabled?: T;
   priceInRON?: T;
+  brand?: T;
+  tags?: T;
+  relatedProducts?: T;
+  specifications?:
+    | T
+    | {
+        name?: T;
+        value?: T;
+        id?: T;
+      };
   badge?: T;
   featured?: T;
+  order?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -4713,6 +4866,7 @@ export interface CartsSelect<T extends boolean = true> {
         quantity?: T;
         id?: T;
       };
+  secret?: T;
   customer?: T;
   purchasedAt?: T;
   status?: T;
@@ -4770,6 +4924,13 @@ export interface TransactionsSelect<T extends boolean = true> {
         variant?: T;
         quantity?: T;
         id?: T;
+      };
+  paymentMethod?: T;
+  manual?:
+    | T
+    | {
+        paymentType?: T;
+        notes?: T;
       };
   billingAddress?:
     | T
@@ -4932,6 +5093,10 @@ export interface Header {
 export interface Footer {
   id: string;
   variant?: ('columns-4' | 'columns-3' | 'minimal' | 'centered' | 'with-newsletter' | 'with-map') | null;
+  /**
+   * Determină culorile textului din footer
+   */
+  colorScheme?: ('dark' | 'light') | null;
   columns?:
     | {
         title?: string | null;
@@ -4949,21 +5114,7 @@ export interface Footer {
               id?: string | null;
             }[]
           | null;
-        text?: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        } | null;
+        text?: string | null;
         id?: string | null;
       }[]
     | null;
@@ -5075,6 +5226,15 @@ export interface SiteTheme {
     text?: string | null;
     textLight?: string | null;
     border?: string | null;
+    /**
+     * Text pe fundal primar (butoane, etc.)
+     */
+    textOnPrimary?: string | null;
+    textOnSecondary?: string | null;
+    textOnAccent?: string | null;
+    textOnDark?: string | null;
+    textOnLight?: string | null;
+    textOnSurface?: string | null;
   };
   useCustomFonts?: boolean | null;
   fonts?: {
@@ -5336,6 +5496,85 @@ export interface ShopSetting {
   createdAt?: string | null;
 }
 /**
+ * Configurare pagini sistem (produse, cos, checkout)
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "system-pages".
+ */
+export interface SystemPage {
+  id: string;
+  productsPage?: {
+    title?: string | null;
+    description?: string | null;
+    productsPerPage?: number | null;
+    gridColumns?: ('2' | '3' | '4') | null;
+    defaultSort?: ('newest' | 'price_asc' | 'price_desc' | 'name_asc' | 'name_desc') | null;
+    showFilters?: boolean | null;
+    showSearch?: boolean | null;
+    showSort?: boolean | null;
+    filterOptions?: {
+      showCategoryFilter?: boolean | null;
+      showPriceFilter?: boolean | null;
+      showStockFilter?: boolean | null;
+    };
+    seo?: {
+      /**
+       * Foloseste {siteName} pentru numele site-ului
+       */
+      metaTitle?: string | null;
+      metaDescription?: string | null;
+    };
+  };
+  labels?: {
+    filtersTitle?: string | null;
+    categoriesTitle?: string | null;
+    priceTitle?: string | null;
+    stockTitle?: string | null;
+    inStockLabel?: string | null;
+    sortLabel?: string | null;
+    /**
+     * Placeholders: {count}, {total}
+     */
+    resultsText?: string | null;
+    noResultsText?: string | null;
+    clearFiltersText?: string | null;
+    searchPlaceholder?: string | null;
+    mobileFiltersButton?: string | null;
+    mobileApplyFilters?: string | null;
+  };
+  cartPage?: {
+    title?: string | null;
+    emptyCartMessage?: string | null;
+    continueShoppingText?: string | null;
+    continueShoppingLink?: string | null;
+  };
+  checkoutPage?: {
+    title?: string | null;
+    successMessage?: string | null;
+  };
+  accountPages?: {
+    dashboardTitle?: string | null;
+    dashboardDescription?: string | null;
+    addressesTitle?: string | null;
+    addressesDescription?: string | null;
+    ordersTitle?: string | null;
+    ordersDescription?: string | null;
+    noOrdersMessage?: string | null;
+    loginTitle?: string | null;
+    loginDescription?: string | null;
+    loginButton?: string | null;
+    registerTitle?: string | null;
+    registerDescription?: string | null;
+    registerButton?: string | null;
+    menuDashboard?: string | null;
+    menuOrders?: string | null;
+    menuAddresses?: string | null;
+    menuLogout?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header_select".
  */
@@ -5394,6 +5633,7 @@ export interface HeaderSelect<T extends boolean = true> {
  */
 export interface FooterSelect<T extends boolean = true> {
   variant?: T;
+  colorScheme?: T;
   columns?:
     | T
     | {
@@ -5477,6 +5717,12 @@ export interface SiteThemeSelect<T extends boolean = true> {
         text?: T;
         textLight?: T;
         border?: T;
+        textOnPrimary?: T;
+        textOnSecondary?: T;
+        textOnAccent?: T;
+        textOnDark?: T;
+        textOnLight?: T;
+        textOnSurface?: T;
       };
   useCustomFonts?: T;
   fonts?:
@@ -5646,6 +5892,91 @@ export interface ShopSettingsSelect<T extends boolean = true> {
   checkoutText?: T;
   emptyCartMessage?: T;
   orderSuccessMessage?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "system-pages_select".
+ */
+export interface SystemPagesSelect<T extends boolean = true> {
+  productsPage?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        productsPerPage?: T;
+        gridColumns?: T;
+        defaultSort?: T;
+        showFilters?: T;
+        showSearch?: T;
+        showSort?: T;
+        filterOptions?:
+          | T
+          | {
+              showCategoryFilter?: T;
+              showPriceFilter?: T;
+              showStockFilter?: T;
+            };
+        seo?:
+          | T
+          | {
+              metaTitle?: T;
+              metaDescription?: T;
+            };
+      };
+  labels?:
+    | T
+    | {
+        filtersTitle?: T;
+        categoriesTitle?: T;
+        priceTitle?: T;
+        stockTitle?: T;
+        inStockLabel?: T;
+        sortLabel?: T;
+        resultsText?: T;
+        noResultsText?: T;
+        clearFiltersText?: T;
+        searchPlaceholder?: T;
+        mobileFiltersButton?: T;
+        mobileApplyFilters?: T;
+      };
+  cartPage?:
+    | T
+    | {
+        title?: T;
+        emptyCartMessage?: T;
+        continueShoppingText?: T;
+        continueShoppingLink?: T;
+      };
+  checkoutPage?:
+    | T
+    | {
+        title?: T;
+        successMessage?: T;
+      };
+  accountPages?:
+    | T
+    | {
+        dashboardTitle?: T;
+        dashboardDescription?: T;
+        addressesTitle?: T;
+        addressesDescription?: T;
+        ordersTitle?: T;
+        ordersDescription?: T;
+        noOrdersMessage?: T;
+        loginTitle?: T;
+        loginDescription?: T;
+        loginButton?: T;
+        registerTitle?: T;
+        registerDescription?: T;
+        registerButton?: T;
+        menuDashboard?: T;
+        menuOrders?: T;
+        menuAddresses?: T;
+        menuLogout?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

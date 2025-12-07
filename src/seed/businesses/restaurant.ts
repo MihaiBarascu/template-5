@@ -103,6 +103,7 @@ export async function seedRestaurant(payload: Payload) {
   console.log('\n📋 Setting up footer...')
   const decorativeId = getImageId('textures/restaurant-decorative.png')
   await seedFooter(payload, {
+    colorScheme: 'dark',
     variant: 'columns-4',
     columns: [
       {

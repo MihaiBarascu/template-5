@@ -31,6 +31,13 @@ export interface DesignVariant {
       text: string
       textLight: string
       border: string
+      // Contrast colors - for text on colored backgrounds (optional - uses defaults from generateThemeStyles variant)
+      textOnPrimary?: string
+      textOnSecondary?: string
+      textOnAccent?: string
+      textOnDark?: string
+      textOnLight?: string
+      textOnSurface?: string
     }
     fontPreset: 'modern' | 'elegant' | 'bold' | 'minimalist' | 'classic'
     stylePreset: 'modern' | 'classic' | 'bold' | 'minimal'
@@ -74,6 +81,13 @@ export const barbershopVariants: DesignVariant[] = [
         text: '#1a1a1a',
         textLight: '#666666',
         border: '#e5e5e5',
+        // Contrast colors
+        textOnPrimary: '#c9a227',    // Gold on black - elegant
+        textOnSecondary: '#0d0d0d',  // Black on gold
+        textOnAccent: '#0d0d0d',     // Black on gold
+        textOnDark: '#f5f5f5',       // Light on dark
+        textOnLight: '#1a1a1a',      // Dark on light
+        textOnSurface: '#1a1a1a',    // Dark on white
       },
       fontPreset: 'bold',
       stylePreset: 'bold',
@@ -112,6 +126,13 @@ export const barbershopVariants: DesignVariant[] = [
         text: '#0f172a',
         textLight: '#64748b',
         border: '#e2e8f0',
+        // Contrast colors
+        textOnPrimary: '#ffffff',    // White on red
+        textOnSecondary: '#ffffff',  // White on navy
+        textOnAccent: '#ffffff',     // White on red
+        textOnDark: '#f8fafc',       // Light on dark
+        textOnLight: '#0f172a',      // Dark on light
+        textOnSurface: '#0f172a',    // Dark on white
       },
       fontPreset: 'modern',
       stylePreset: 'modern',
@@ -150,6 +171,13 @@ export const barbershopVariants: DesignVariant[] = [
         text: '#3d2914',
         textLight: '#8b7355',
         border: '#e8e0d5',
+        // Contrast colors
+        textOnPrimary: '#faf8f5',    // Cream on brown
+        textOnSecondary: '#3d2914',  // Dark on tan
+        textOnAccent: '#3d2914',     // Dark on gold
+        textOnDark: '#faf8f5',       // Light on dark
+        textOnLight: '#3d2914',      // Dark on light
+        textOnSurface: '#3d2914',    // Dark on cream
       },
       fontPreset: 'classic',
       stylePreset: 'classic',
@@ -188,6 +216,13 @@ export const barbershopVariants: DesignVariant[] = [
         text: '#171717',
         textLight: '#737373',
         border: '#e5e5e5',
+        // Contrast colors
+        textOnPrimary: '#ffffff',    // White on black
+        textOnSecondary: '#ffffff',  // White on gray
+        textOnAccent: '#ffffff',     // White on dark
+        textOnDark: '#fafafa',       // Light on dark
+        textOnLight: '#171717',      // Dark on light
+        textOnSurface: '#171717',    // Dark on white
       },
       fontPreset: 'minimalist',
       stylePreset: 'minimal',

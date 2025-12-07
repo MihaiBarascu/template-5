@@ -10,6 +10,7 @@ interface CartItem {
   price: number
   image?: string | null
   quantity: number
+  maxQuantity?: number // Stoc disponibil
 }
 
 interface CartBlockProps {
@@ -65,8 +66,17 @@ export function CartBlock({
   const updateQuantity = (itemId: string, newQuantity: number) => {
     if (newQuantity < 1) return
 
-    const updatedCart = cart.map((item) =>
-      item.id === itemId ? { ...item, quantity: newQuantity } : item
+    // Find the item to check maxQuantity
+    const item = cart.find((i) => i.id === itemId)
+    if (!item) return
+
+    // Check stock limit
+    if (item.maxQuantity !== undefined && newQuantity > item.maxQuantity) {
+      return // Don't allow exceeding stock
+    }
+
+    const updatedCart = cart.map((i) =>
+      i.id === itemId ? { ...i, quantity: newQuantity } : i
     )
     setCart(updatedCart)
     localStorage.setItem('cart', JSON.stringify(updatedCart))
@@ -186,34 +196,45 @@ export function CartBlock({
 
                   {/* Quantity */}
                   {showQuantitySelector && (
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        className={`w-8 h-8 rounded-md flex items-center justify-center ${
-                          backgroundColor === 'dark'
-                            ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                            : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
-                        }`}
-                      >
-                        -
-                      </button>
-                      <span
-                        className={`w-8 text-center font-medium ${
-                          backgroundColor === 'dark' ? 'text-white' : 'text-gray-900'
-                        }`}
-                      >
-                        {item.quantity}
-                      </span>
-                      <button
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className={`w-8 h-8 rounded-md flex items-center justify-center ${
-                          backgroundColor === 'dark'
-                            ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                            : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
-                        }`}
-                      >
-                        +
-                      </button>
+                    <div className="flex flex-col items-center gap-1">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          disabled={item.quantity <= 1}
+                          className={`w-8 h-8 rounded-md flex items-center justify-center transition-colors ${
+                            item.quantity <= 1
+                              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                              : backgroundColor === 'dark'
+                                ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                                : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
+                          }`}
+                        >
+                          -
+                        </button>
+                        <span
+                          className={`w-8 text-center font-medium ${
+                            backgroundColor === 'dark' ? 'text-white' : 'text-gray-900'
+                          }`}
+                        >
+                          {item.quantity}
+                        </span>
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          disabled={item.maxQuantity !== undefined && item.quantity >= item.maxQuantity}
+                          className={`w-8 h-8 rounded-md flex items-center justify-center transition-colors ${
+                            item.maxQuantity !== undefined && item.quantity >= item.maxQuantity
+                              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                              : backgroundColor === 'dark'
+                                ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                                : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
+                          }`}
+                        >
+                          +
+                        </button>
+                      </div>
+                      {item.maxQuantity !== undefined && item.quantity >= item.maxQuantity && (
+                        <span className="text-xs text-orange-600">Max stoc</span>
+                      )}
                     </div>
                   )}
 

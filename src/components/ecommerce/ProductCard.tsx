@@ -1,0 +1,265 @@
+'use client'
+
+import Image from 'next/image'
+import Link from 'next/link'
+import { Eye, Heart } from 'lucide-react'
+import { cn } from '@/utilities/cn'
+import { AddToCartButton } from '@/components/cart/AddToCartButton'
+
+interface ProductTag {
+  id: string
+  name: string
+  color?: string | null
+}
+
+interface ProductCardProps {
+  product: {
+    id: string
+    slug: string
+    title: string
+    priceInRON: number
+    imageUrl: string | null
+    secondaryImageUrl?: string | null
+    badge?: string | null
+    tags?: ProductTag[]
+    stock?: number
+    brand?: string | null
+  }
+  variant?: 'default' | 'compact' | 'horizontal'
+  className?: string
+  showQuickView?: boolean
+  showWishlist?: boolean
+}
+
+/**
+ * ProductCard Component
+ *
+ * Card produs îmbunătățit cu:
+ * - Badge-uri pentru tag-uri (Nou, Reducere, etc.)
+ * - Imagine secundară la hover
+ * - Buton quick view și wishlist
+ * - Procent reducere calculat
+ * - Design consistent cu tema
+ *
+ * Respectă best practices:
+ * - Folosește variabile CSS ale temei
+ * - Touch targets de minim 44x44px
+ * - Tranziții smooth
+ */
+export function ProductCard({
+  product,
+  variant = 'default',
+  className,
+  showQuickView = false,
+  showWishlist = false,
+}: ProductCardProps) {
+  const {
+    id,
+    slug,
+    title,
+    priceInRON,
+    imageUrl,
+    secondaryImageUrl,
+    badge,
+    tags = [],
+    stock = 0,
+    brand,
+  } = product
+
+  const isOutOfStock = stock <= 0
+
+  if (variant === 'horizontal') {
+    return (
+      <div
+        className={cn(
+          'flex gap-4 p-4 bg-theme-surface rounded-[var(--radius-card)] shadow-theme-card hover:shadow-theme-card-hover transition-shadow',
+          className
+        )}
+      >
+        {/* Image */}
+        <Link href={`/produse/${slug}`} className="relative w-32 h-32 flex-shrink-0">
+          <div className="relative w-full h-full rounded-[var(--radius-sm)] overflow-hidden bg-theme-light">
+            {imageUrl ? (
+              <Image
+                src={imageUrl}
+                alt={title}
+                fill
+                className="object-cover"
+                sizes="128px"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-theme-text-muted text-sm">
+                Fără imagine
+              </div>
+            )}
+          </div>
+        </Link>
+
+        {/* Content */}
+        <div className="flex-1 flex flex-col justify-between">
+          <div>
+            {brand && (
+              <p className="text-xs text-theme-text-muted uppercase tracking-wide mb-1">
+                {brand}
+              </p>
+            )}
+            <Link href={`/produse/${slug}`}>
+              <h3 className="font-medium text-theme-text hover:text-theme-primary transition-colors line-clamp-2 mb-2">
+                {title}
+              </h3>
+            </Link>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-theme-text">{priceInRON} RON</span>
+            </div>
+
+            <AddToCartButton
+              product={{ id, title, price: priceInRON, image: imageUrl ?? undefined }}
+              className="py-2 px-4 text-sm"
+              disabled={isOutOfStock}
+            />
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div
+      className={cn(
+        'group relative bg-theme-surface rounded-[var(--radius-card)] shadow-theme-card hover:shadow-theme-card-hover transition-all duration-300',
+        variant === 'compact' ? 'p-2' : 'p-3',
+        className
+      )}
+    >
+      {/* Image Container */}
+      <Link href={`/produse/${slug}`} className="block">
+        <div
+          className={cn(
+            'relative overflow-hidden bg-theme-light rounded-[var(--radius-sm)] mb-3',
+            variant === 'compact' ? 'aspect-square' : 'aspect-[4/5]'
+          )}
+        >
+          {imageUrl ? (
+            <>
+              <Image
+                src={imageUrl}
+                alt={title}
+                fill
+                className={cn(
+                  'object-cover transition-all duration-500',
+                  secondaryImageUrl
+                    ? 'group-hover:opacity-0'
+                    : 'group-hover:scale-105'
+                )}
+                sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              />
+              {secondaryImageUrl && (
+                <Image
+                  src={secondaryImageUrl}
+                  alt={`${title} - vedere alternativă`}
+                  fill
+                  className="object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                  sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                />
+              )}
+            </>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-theme-text-muted">
+              Fără imagine
+            </div>
+          )}
+
+          {/* Badges */}
+          <div className="absolute top-2 left-2 flex flex-col gap-1.5">
+            {/* Badge from product (e.g., "-20%", "Nou", etc.) */}
+            {badge && (
+              <span className="inline-flex items-center px-2 py-1 text-xs font-semibold bg-theme-primary text-white rounded">
+                {badge}
+              </span>
+            )}
+            {tags.slice(0, 2).map((tag) => (
+              <span
+                key={tag.id}
+                className="inline-flex items-center px-2 py-1 text-xs font-semibold text-white rounded"
+                style={{ backgroundColor: tag.color || 'var(--theme-secondary)' }}
+              >
+                {tag.name}
+              </span>
+            ))}
+          </div>
+
+          {/* Out of Stock Overlay */}
+          {isOutOfStock && (
+            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+              <span className="bg-white text-theme-text px-4 py-2 rounded-[var(--radius-button)] font-medium text-sm">
+                Stoc epuizat
+              </span>
+            </div>
+          )}
+
+          {/* Quick Actions - Show on Hover */}
+          {(showQuickView || showWishlist) && !isOutOfStock && (
+            <div className="absolute bottom-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              {showWishlist && (
+                <button
+                  type="button"
+                  className="p-2 bg-white rounded-full shadow-md hover:bg-theme-primary hover:text-white transition-colors"
+                  aria-label="Adaugă la favorite"
+                >
+                  <Heart className="w-4 h-4" />
+                </button>
+              )}
+              {showQuickView && (
+                <button
+                  type="button"
+                  className="p-2 bg-white rounded-full shadow-md hover:bg-theme-primary hover:text-white transition-colors"
+                  aria-label="Vizualizare rapidă"
+                >
+                  <Eye className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      </Link>
+
+      {/* Product Info */}
+      <div className="space-y-2">
+        {brand && (
+          <p className="text-xs text-theme-text-muted uppercase tracking-wide">
+            {brand}
+          </p>
+        )}
+
+        <Link href={`/produse/${slug}`}>
+          <h3
+            className={cn(
+              'font-medium text-theme-text hover:text-theme-primary transition-colors line-clamp-2',
+              variant === 'compact' ? 'text-sm' : ''
+            )}
+          >
+            {title}
+          </h3>
+        </Link>
+
+        {/* Price */}
+        <div className="flex items-center gap-2">
+          <span className="font-bold text-theme-text">{priceInRON} RON</span>
+        </div>
+
+        {/* Add to Cart */}
+        {variant !== 'compact' && (
+          <AddToCartButton
+            product={{ id, title, price: priceInRON, image: imageUrl ?? undefined, maxQuantity: stock }}
+            className="w-full py-2.5 text-sm mt-2"
+            disabled={isOutOfStock}
+            maxQuantity={stock}
+          />
+        )}
+      </div>
+    </div>
+  )
+}

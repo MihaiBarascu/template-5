@@ -3,6 +3,7 @@ import {
   createAdminUser,
   seedSiteTheme,
   seedBusinessInfo,
+  seedSystemPages,
   seedLogo,
   seedHeader,
   seedFooter,
@@ -73,6 +74,9 @@ export async function seedMagazin(payload: Payload) {
       'https://www.google.com/maps?q=Bulevardul+Magheru+50,+Sector+1,+Bucuresti,+Romania&output=embed',
   })
 
+  console.log('\n📄 Setting up system pages (shop config)...')
+  await seedSystemPages(payload)
+
   console.log('\n🏷️ Setting up logo...')
   await seedLogo(payload, { type: 'text', text: 'EcoShop' })
 
@@ -85,6 +89,7 @@ export async function seedMagazin(payload: Payload) {
 
   console.log('\n📋 Setting up footer...')
   await seedFooter(payload, {
+    colorScheme: 'dark',
     variant: 'columns-4',
     columns: [
       { title: 'Despre Noi', type: 'text' },
@@ -92,10 +97,10 @@ export async function seedMagazin(payload: Payload) {
         title: 'Categorii',
         type: 'links',
         links: [
-          { label: 'Cosmetice Naturale', type: 'custom', url: '/categorii/cosmetice-naturale' },
-          { label: 'Alimentatie Bio', type: 'custom', url: '/categorii/alimentatie-bio' },
-          { label: 'Suplimente', type: 'custom', url: '/categorii/suplimente-nutritive' },
-          { label: 'Casa & Gradina', type: 'custom', url: '/categorii/casa-gradina' },
+          { label: 'Cosmetice Naturale', type: 'custom', url: '/produse?categorie=cosmetice-naturale' },
+          { label: 'Alimentatie Bio', type: 'custom', url: '/produse?categorie=alimentatie-bio' },
+          { label: 'Suplimente', type: 'custom', url: '/produse?categorie=suplimente-nutritive' },
+          { label: 'Casa & Gradina', type: 'custom', url: '/produse?categorie=casa-gradina' },
         ],
       },
       { title: 'Program', type: 'schedule' },
@@ -476,31 +481,8 @@ function buildHomepageLayout(variant: DesignVariant, getImageId: (filename: stri
 
 async function createAdditionalPages(payload: Payload, variant: DesignVariant, formsMap: Map<string, string>) {
   const contactFormId = formsMap.get('Formular de contact')
-  // Products page
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Produse',
-      slug: 'produse',
-      heroType: 'minimal',
-      hero: { headline: 'Produsele Noastre', subheadline: 'Descopera gama completa de produse naturale' },
-      layout: [
-        {
-          blockType: 'products',
-          variant: 'grid-4',
-          heading: 'Toate Produsele',
-          source: 'collection',
-          limit: 24,
-          showPrice: true,
-          showSalePrice: true,
-          showAddToCart: true,
-          backgroundColor: 'default',
-        },
-      ],
-      _status: 'published',
-    },
-  })
-  console.log('   Created Products page')
+  // Note: Products page (/produse) is now a dedicated route with filters
+  // No need to create it via CMS pages
 
   // Categories page
   await payload.create({

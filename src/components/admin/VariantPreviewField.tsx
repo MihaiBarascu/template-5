@@ -194,6 +194,42 @@ const THEME_VARIANTS = {
     borderRadius: 'full',
     shadows: 'subtle',
   },
+  'fitness-orange': {
+    name: 'Fitness Orange',
+    description: 'Energic, sport, dinamic. Perfect pentru săli fitness, centre sportive, antrenori personali.',
+    colors: {
+      primary: '#f13a11',
+      secondary: '#171819',
+      accent: '#f97316',
+      dark: '#171819',
+      light: '#ffffff',
+      surface: '#f9f9f9',
+      text: '#171819',
+      textLight: '#666262',
+      border: '#e5e5e5',
+    },
+    fonts: { heading: 'Work Sans', body: 'Work Sans' },
+    borderRadius: 'small',
+    shadows: 'subtle',
+  },
+  'fitness-dark': {
+    name: 'Fitness Dark',
+    description: 'Dark cu accent roșu, stil gym modern. Ideal pentru săli hardcore, CrossFit, MMA.',
+    colors: {
+      primary: '#ef4444',
+      secondary: '#dc2626',
+      accent: '#f87171',
+      dark: '#0f0f0f',
+      light: '#1a1a1a',
+      surface: '#141414',
+      text: '#ffffff',
+      textLight: '#a1a1aa',
+      border: '#2d2d2d',
+    },
+    fonts: { heading: 'Montserrat', body: 'Inter' },
+    borderRadius: 'small',
+    shadows: 'none',
+  },
 }
 
 export const VariantPreviewField: React.FC = () => {

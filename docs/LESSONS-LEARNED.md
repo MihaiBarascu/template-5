@@ -6,6 +6,84 @@ Acest document conține lecțiile învățate și cele mai importante reguli de 
 
 ---
 
+## ⚠️ REGULA FUNDAMENTALĂ - PAYLOAD CMS BEST PRACTICES
+
+### NICIODATĂ NU FACEM LUCRURI DE CAPUL NOSTRU!
+
+**Acest proiect este construit cu Payload CMS și trebuie să respectăm 100% best practices-urile oficiale.**
+
+#### Resurse Oficiale (OBLIGATORIU de consultat înainte de orice modificare):
+
+1. **Documentație Payload CMS**: https://payloadcms.com/docs
+2. **Plugin Ecommerce**: https://payloadcms.com/docs/ecommerce/overview
+3. **GitHub Payload**: https://github.com/payloadcms/payload
+4. **Exemple oficiale**: https://github.com/payloadcms/payload/tree/main/examples
+5. **llms-full.txt**: https://payloadcms.com/llms-full.txt (pentru referință AI)
+
+#### Reguli de Aur:
+
+| Regulă | Ce să faci | Ce să NU faci |
+|--------|-----------|---------------|
+| **Colecții** | Folosește pattern-uri din documentație | Nu inventa structuri noi |
+| **Plugin Override** | Spread `defaultCollection.fields` + adaugă câmpuri | Nu înlocui complet fields array |
+| **Hooks** | Folosește `req` pentru tranzacții | Nu face operații separate |
+| **Access Control** | Folosește pattern-uri oficiale | Nu hardcoda logica |
+| **Types** | Generează cu `pnpm generate:types` | Nu scrie tipuri manual |
+| **Queries** | Folosește `select` pentru performanță | Nu folosește `depth: 10` |
+
+#### Pattern Corect pentru Plugin Override:
+
+```typescript
+// ✅ CORECT - respectă Payload best practices
+productsCollectionOverride: ({ defaultCollection }) => ({
+  ...defaultCollection,
+  admin: {
+    ...defaultCollection.admin,
+    // Modificări admin
+  },
+  fields: [
+    // Câmpuri custom ÎNAINTE
+    { name: 'title', type: 'text', required: true },
+    // Câmpuri DEFAULT din plugin
+    ...(defaultCollection.fields || []),
+    // Câmpuri custom DUPĂ
+    { name: 'brand', type: 'text' },
+  ],
+})
+
+// ❌ GREȘIT - nu respectă pattern-ul
+productsCollectionOverride: ({ defaultCollection }) => ({
+  ...defaultCollection,
+  fields: [
+    // Înlocuiește complet câmpurile fără a păstra defaults
+    { name: 'title', type: 'text' },
+    { name: 'price', type: 'number' },  // Poate intra în conflict cu plugin
+  ],
+})
+```
+
+#### Înainte de Orice Modificare:
+
+1. ✅ Citește documentația oficială pentru feature-ul respectiv
+2. ✅ Verifică dacă există un plugin oficial pentru funcționalitate
+3. ✅ Verifică exemplele din GitHub
+4. ✅ Folosește pattern-urile din documentația Payload skill
+5. ✅ Testează că nu strici funcționalități existente
+
+#### Documentație Locală Payload Skill:
+
+Acest proiect are acces la Payload CMS skill cu referințe pentru:
+- `FIELDS.md` - Toate tipurile de câmpuri și opțiuni
+- `COLLECTIONS.md` - Pattern-uri colecții, auth, upload, drafts
+- `HOOKS.md` - Hooks și context patterns
+- `ACCESS-CONTROL.md` - Access control și RBAC
+- `QUERIES.md` - Query operators și Local API
+- `PLUGIN-DEVELOPMENT.md` - Dezvoltare plugins
+
+**NU UITA: Când nu ești sigur, consultă ÎNTOTDEAUNA documentația oficială Payload CMS!**
+
+---
+
 ## 1. Sistemul de Culori cu CSS Variables
 
 ### Regula Fundamentală
@@ -927,6 +1005,797 @@ done
 - [ ] Environment variables setate (.env.production)
 - [ ] `pnpm build` trece fără erori
 - [ ] RESEND_API_KEY configurat pentru producție
+
+---
+
+## 24. Content Block cu Nested Blocks
+
+### Pattern pentru Blocuri în Coloane
+
+Content Block-ul poate conține alte blocuri în fiecare coloană, permițând layout-uri complexe (ex: Contact info + Form pe 2 coloane).
+
+### 24.1 Config.ts - Adăugare Suport pentru Nested Blocks
+
+```typescript
+// În /src/blocks/Content/config.ts
+{
+  name: 'contentType',
+  type: 'select',
+  defaultValue: 'richText',
+  options: [
+    { label: 'Rich Text', value: 'richText' },
+    { label: 'Imagine', value: 'image' },
+    { label: 'Video', value: 'video' },
+    { label: 'Blocuri', value: 'blocks' },  // NOU!
+  ],
+},
+{
+  name: 'blocks',
+  type: 'blocks',
+  label: 'Blocuri',
+  blocks: [FormBlock, ContactBlock, MapBlock, CTABlock],  // Ce blocuri permit
+  admin: {
+    condition: (_, siblingData) => siblingData?.contentType === 'blocks',
+  },
+},
+```
+
+### 24.2 Component.tsx - Renderare Nested Blocks
+
+```tsx
+// Import RenderBlocks
+import { RenderBlocks } from '../RenderBlocks'
+
+// Componentă ASYNC pentru a suporta RenderBlocks
+export const ContentBlock: React.FC<ContentBlockProps> = async ({ columns = [] }) => {
+  return (
+    <section>
+      {await Promise.all(columns.map(async (column, index) => (
+        <div key={column.id || index}>
+          {/* Alte tipuri de content... */}
+
+          {column.contentType === 'blocks' && column.blocks && column.blocks.length > 0 && (
+            <div className="[&>*:first-child]:mt-0 [&>section]:py-0">
+              <RenderBlocks blocks={column.blocks as LayoutBlock[]} />
+            </div>
+          )}
+        </div>
+      )))}
+    </section>
+  )
+}
+```
+
+### 24.3 CSS Important pentru Nested Blocks
+
+```css
+/* Elimină margin-top de pe primul bloc nested */
+[&>*:first-child]:mt-0
+
+/* Elimină padding vertical de pe secțiuni nested */
+[&>section]:py-0
+```
+
+---
+
+## 25. Helper Functions pentru Seeder Layouts
+
+### Pattern pentru Layout-uri Reutilizabile
+
+Când ai layout-uri identice în multiple seeders, creează helper functions.
+
+### 25.1 Exemplu: createContactPageLayout()
+
+```typescript
+// În /src/seed/helpers.ts
+export function createContactPageLayout(
+  contactFormId: string | undefined,
+  options?: {
+    heading?: string
+    subheading?: string
+    showMap?: boolean
+  }
+) {
+  return [
+    {
+      blockType: 'content' as const,
+      columns: [
+        {
+          width: 'half' as const,
+          contentType: 'blocks' as const,
+          blocks: [
+            {
+              blockType: 'contact' as const,
+              heading: options?.heading || 'Informații de Contact',
+              // ... alte props
+            }
+          ],
+        },
+        {
+          width: 'half' as const,
+          contentType: 'blocks' as const,
+          blocks: contactFormId ? [
+            {
+              blockType: 'form' as const,
+              form: contactFormId,
+              variant: 'card' as const,
+            }
+          ] : [],
+        },
+      ],
+    },
+    // Map block opțional...
+  ]
+}
+```
+
+### 25.2 Folosire în Seeders
+
+```typescript
+// În orice business seeder
+import { createContactPageLayout } from '../helpers'
+
+const pages = [
+  {
+    slug: 'contact',
+    title: 'Contact',
+    layout: createContactPageLayout(contactFormId, {
+      heading: 'Contactează-ne',
+      showMap: true,
+    }),
+  },
+]
+```
+
+### Beneficii:
+- **DRY** - Nu mai duplici cod în 9+ fișiere
+- **Mentenanță ușoară** - Schimbi într-un singur loc
+- **Consistență** - Toate paginile de contact arată la fel
+
+---
+
+## 26. FormBlock Variants
+
+### Variante Disponibile
+
+| Variant | Descriere | Use Case |
+|---------|-----------|----------|
+| `standard` | Form simplu, fără styling | Când e deja într-un card |
+| `card` | Form cu background, shadow, border | Standalone forms |
+| `centered` | Card centrat cu max-width | Landing pages |
+| `minimal` | Fără background, doar border subtle | Forms în sidebars |
+
+### Regula pentru Consistență
+
+**ÎNTOTDEAUNA** folosește aceeași variantă pentru formulare similare:
+- Booking form: `card`
+- Contact form: `card` (NU `standard`!)
+- Newsletter: `minimal`
+
+### Exemplu Config în Seeder
+
+```typescript
+{
+  blockType: 'form' as const,
+  form: formId,
+  variant: 'card' as const,  // ← Consistent cu alte forms
+  heading: 'Trimite-ne un mesaj',
+}
+```
+
+---
+
+## 27. Prevenirea Submitărilor Multiple
+
+### Pattern pentru Forms cu Loading State
+
+```tsx
+'use client'
+
+function ContactForm() {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (isSubmitting) return  // IMPORTANT: Previne click-uri multiple
+
+    setIsSubmitting(true)
+
+    try {
+      await fetch('/api/submit', { /* ... */ })
+      // Handle success
+    } catch (error) {
+      // Handle error
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      {/* Form fields */}
+      <button
+        type="submit"
+        disabled={isSubmitting}
+        className={cn(
+          'btn',
+          isSubmitting && 'opacity-50 cursor-not-allowed'
+        )}
+      >
+        {isSubmitting ? 'Se trimite...' : 'Trimite'}
+      </button>
+    </form>
+  )
+}
+```
+
+### Reguli:
+1. **Check la început** - `if (isSubmitting) return`
+2. **Disable button** - `disabled={isSubmitting}`
+3. **Visual feedback** - Opacity redusă, cursor-not-allowed
+4. **Text feedback** - "Se trimite..." în loc de "Trimite"
+
+---
+
+## 28. Greșeli de Evitat
+
+### ❌ 28.1 setTimeout pentru Loading State
+
+**GREȘIT:**
+```tsx
+const [isLoaded, setIsLoaded] = useState(false)
+
+useEffect(() => {
+  setTimeout(() => setIsLoaded(true), 100)  // ❌ Arbitrar, nesigur
+}, [])
+```
+
+**CORECT:**
+```tsx
+useEffect(() => {
+  setIsLoaded(true)  // ✅ Imediat după mount
+}, [])
+
+// SAU cu requestAnimationFrame pentru animații
+useEffect(() => {
+  requestAnimationFrame(() => setIsLoaded(true))
+}, [])
+```
+
+### ❌ 28.2 Cod Duplicat în Seeders
+
+**GREȘIT:** Copy-paste aceleași 50 linii de layout în 9 fișiere.
+
+**CORECT:** Creează helper function în `helpers.ts`.
+
+### ❌ 28.3 Uitarea Actualizării Tuturor Seeders
+
+**GREȘIT:** Modifici layout-ul paginii de contact într-un seeder și uiți celelalte 8.
+
+**CORECT:**
+1. Folosește helper functions
+2. SAU: Grep pentru toate locurile:
+```bash
+grep -r "slug: 'contact'" src/seed/businesses/
+```
+
+### ❌ 28.4 Styling Inconsistent pentru Formulare
+
+**GREȘIT:**
+- Booking form cu `variant: 'card'`
+- Contact form cu `variant: 'standard'`
+
+**CORECT:** Folosește aceeași variantă pentru toate formularele standalone.
+
+### ❌ 28.5 Nested Blocks fără CSS Reset
+
+**GREȘIT:**
+```tsx
+<RenderBlocks blocks={column.blocks} />  // Padding/margin nedorite
+```
+
+**CORECT:**
+```tsx
+<div className="[&>*:first-child]:mt-0 [&>section]:py-0">
+  <RenderBlocks blocks={column.blocks} />
+</div>
+```
+
+### ❌ 28.6 Componente Sync cu RenderBlocks
+
+**GREȘIT:**
+```tsx
+export const ContentBlock: React.FC<Props> = ({ columns }) => {
+  // RenderBlocks poate fi async
+  return <RenderBlocks blocks={...} />  // ❌ Eroare
+}
+```
+
+**CORECT:**
+```tsx
+export const ContentBlock: React.FC<Props> = async ({ columns }) => {
+  return await Promise.all(columns.map(async (col) => (
+    <RenderBlocks blocks={...} />  // ✅ Componentă async
+  )))
+}
+```
+
+---
+
+## 29. Quick Reference - Content Block cu Nested Blocks
+
+### Workflow pentru Adăugare Nested Block Nou
+
+1. **Adaugă în config imports:**
+```typescript
+import { NewBlock } from '../NewBlock/config'
+```
+
+2. **Adaugă în blocks array:**
+```typescript
+blocks: [FormBlock, ContactBlock, MapBlock, CTABlock, NewBlock],
+```
+
+3. **Regenerează types:**
+```bash
+npm run generate:types
+```
+
+4. **Testează în admin:**
+   - Creează o pagină
+   - Adaugă Content Block
+   - Adaugă o coloană cu contentType: "Blocuri"
+   - Verifică că noul bloc apare în opțiuni
+
+---
+
+---
+
+## 30. Ecommerce Plugin - Access Control și 404 Errors
+
+### 30.1 Problema: 404 pe `/api/payments/manual/initiate`
+
+**Simptome:**
+- `curl` către endpoint funcționează (returnează 400 validation error)
+- Cereri din browser (cu cookies) returnează 404 "Cart not found"
+- Comanda nu poate fi plasată
+
+**Cauza Rădăcină:**
+
+Pluginul `@payloadcms/plugin-ecommerce` folosește `overrideAccess: false` în endpoint-urile de payment:
+
+```javascript
+// node_modules/@payloadcms/plugin-ecommerce/dist/endpoints/initiatePayment.js
+cart = await payload.findByID({
+    id: cartID,
+    collection: 'carts',
+    overrideAccess: false,  // RESPECTĂ access control!
+    user
+});
+if (!cart) {
+    return Response.json({ message: `Cart not found` }, { status: 404 });
+}
+```
+
+Dacă access control-ul colecției `carts` nu permite citirea, `findByID` returnează `null` și pluginul returnează 404.
+
+**Configurația GREȘITĂ:**
+
+```typescript
+carts: {
+  cartsCollectionOverride: ({ defaultCollection }) => ({
+    ...defaultCollection,
+    access: {
+      ...defaultCollection.access,
+      create: () => true,
+      update: () => true,
+      // ❌ LIPSEȘTE: read access
+    },
+  }),
+},
+```
+
+**Configurația CORECTĂ:**
+
+```typescript
+carts: {
+  cartsCollectionOverride: ({ defaultCollection }) => ({
+    ...defaultCollection,
+    access: {
+      ...defaultCollection.access,
+      create: () => true,
+      update: () => true,
+      read: () => true,  // ✅ NECESAR pentru checkout
+    },
+  }),
+},
+```
+
+### 30.2 Access Control pentru Ecommerce Plugin
+
+**Regula de Aur:** Când override-ui access control-ul unei colecții din plugin, trebuie să incluzi TOATE operațiunile necesare:
+
+| Colecție | Operațiuni Necesare | Motiv |
+|----------|---------------------|-------|
+| `carts` | `create`, `update`, `read` | Payment endpoints citesc coșul |
+| `orders` | `create` (pentru guest checkout) | Permit comenzi fără autentificare |
+| `transactions` | Plugin le gestionează intern | Nu override-ui fără motiv |
+
+### 30.3 Debugging Access Control Issues
+
+**Pas 1:** Test direct cu curl (fără autentificare):
+```bash
+curl -X POST http://localhost:3010/api/payments/manual/initiate \
+  -H "Content-Type: application/json" \
+  -d '{"cartID": "test"}'
+```
+Dacă returnează 400 (validation error), endpoint-ul există.
+
+**Pas 2:** Test acces direct la colecție:
+```bash
+curl http://localhost:3010/api/carts/{cart-id} \
+  -H "Cookie: payload-token=..."
+```
+Dacă returnează 403 sau "not allowed", e problemă de access control.
+
+**Pas 3:** Verifică plugin source:
+```bash
+grep -r "overrideAccess: false" node_modules/@payloadcms/plugin-ecommerce/
+```
+
+### 30.4 Best Practices pentru Payment Adapters
+
+1. **Manual Adapter** - pentru "plată la livrare":
+   - Nu necesită procesare externă
+   - Creează direct Transaction și Order
+   - Access control trebuie să permită operațiunile
+
+2. **Stripe Adapter** - pentru carduri:
+   - Necesită STRIPE_SECRET_KEY și STRIPE_WEBHOOKS_SIGNING_SECRET
+   - Webhook-urile gestionează confirmarea plății
+   - Orders sunt create de webhook, nu de frontend
+
+3. **Testare:**
+   - ÎNTOTDEAUNA testează checkout flow complet cu Playwright
+   - Testează atât guest checkout cât și user autentificat
+   - Verifică că email-urile sunt trimise
+
+### 30.5 Inventar - Câmpul `inventory` vs `stock`
+
+**IMPORTANT:** Plugin-ul ecommerce folosește câmpul `inventory`, NU `stock`!
+
+**Greșeală frecventă:** Definirea unui câmp `stock` separat în Products.ts când plugin-ul deja adaugă `inventory`.
+
+**Câmpuri corecte:**
+- `inventory` - câmpul standard al plugin-ului ecommerce (folosește acest câmp!)
+- Nu defini câmpuri custom pentru stoc
+
+**Decrementarea inventarului:**
+
+**IMPORTANT:** Payload plugin-ul ecommerce face **DECREMENTARE AUTOMATĂ** a inventarului!
+
+**Unde se face decrementarea:**
+- **NU** în `paymentMethod.confirmOrder()` (adaptorul Stripe/Manual)
+- **DA** în `confirmOrderHandler` din `/endpoints/confirmOrder.js` (handler-ul endpoint-ului)
+
+**Fluxul corect:**
+1. Frontend apelează `/api/payments/{method}/confirm`
+2. Handler-ul (`confirmOrderHandler`) apelează `paymentMethod.confirmOrder()`
+3. Adaptorul creează order + transaction și returnează `transactionID`
+4. **După succes**, handler-ul decrementează inventarul:
+
+```javascript
+// Din /endpoints/confirmOrder.js (liniile 101-127)
+if (paymentResponse.transactionID) {
+  const transaction = await payload.findByID({...})
+  for (const item of transaction.items) {
+    if (item.variant) {
+      await payload.db.updateOne({
+        id,
+        collection: variantsSlug,
+        data: { inventory: { $inc: item.quantity * -1 } }
+      })
+    } else if (item.product) {
+      await payload.db.updateOne({
+        id,
+        collection: productsSlug,
+        data: { inventory: { $inc: item.quantity * -1 } }
+      })
+    }
+  }
+}
+```
+
+**Concluzie pentru adaptorul nostru manual:**
+- NU decrementăm inventar în `confirmOrder.ts` (adapterul nostru)
+- Payload handler-ul face automat decrementarea după ce primește `transactionID`
+- Varianta noastră clean este corectă!
+
+---
+
+## 31. Componente Ecommerce
+
+### Locație: `src/components/ecommerce/`
+
+| Componentă | Descriere | Utilizare |
+|------------|-----------|-----------|
+| `Breadcrumbs` | Navigare ierarhică | Pagini produs, categorii |
+| `ProductCard` | Card produs cu badge-uri, hover | Liste produse, grile |
+| `ProductSort` | Dropdown sortare URL-based | Toolbar pagini categorii |
+| `ProductFilters` | Sidebar filtre cu checkbox-uri și range | Pagini categorii |
+
+### Pattern-uri Respectate:
+1. **Sistemul de teme** - Folosesc variabile CSS (`text-theme-text`, `bg-theme-light`)
+2. **Touch targets** - Toate butoanele au minim 44x44px
+3. **URL state** - Filtrele și sortarea folosesc query params (bookmarkable)
+4. **Accessibility** - ARIA labels, focus-visible, keyboard navigation
+5. **Server/Client Separation** - Funcțiile helper (ex: `getSortParams`) sunt în fișiere separate de componente client
+
+### ⚠️ Server/Client Separation (Next.js App Router)
+
+**IMPORTANT:** În Next.js App Router, funcțiile exportate din fișiere cu `'use client'` NU pot fi folosite pe server.
+
+**Structură corectă:**
+```
+src/components/ecommerce/
+├── sortUtils.ts          # Server-compatible helpers (getSortParams, SortOption)
+├── ProductSort.tsx       # 'use client' - componentă UI
+├── ProductCard.tsx       # 'use client' - componentă UI
+└── index.ts              # Re-export din fișierele potrivite
+```
+
+**Greșeală frecventă:**
+```typescript
+// ❌ GREȘIT - funcție în fișier 'use client'
+// ProductSort.tsx
+'use client'
+export function getSortParams(sort) { ... }  // Nu poate fi importată pe server!
+```
+
+**Pattern corect:**
+```typescript
+// ✅ CORECT - funcție în fișier separat (fără 'use client')
+// sortUtils.ts
+export function getSortParams(sort: SortOption): string { ... }
+
+// ProductSort.tsx
+'use client'
+import type { SortOption } from './sortUtils'  // Doar tipuri sunt OK
+```
+
+### Exemplu Utilizare ProductCard:
+
+```tsx
+<ProductCard
+  product={{
+    id: 'product-1',
+    slug: 'produs-exemplu',
+    title: 'Produs Exemplu',
+    price: 100,
+    salePrice: 80,
+    imageUrl: '/image.jpg',
+    tags: [{ id: 't1', name: 'Nou', color: '#22c55e' }],
+    stock: 10,
+    brand: 'Brand Exemplu',
+  }}
+  showQuickView={false}
+  showWishlist={false}
+/>
+```
+
+### Exemplu Utilizare Breadcrumbs:
+
+```tsx
+<Breadcrumbs
+  items={[
+    { label: 'Categorii', href: '/categorii' },
+    { label: 'Electronice', href: '/categorii/electronice' },
+    { label: 'Produsul Curent' },  // Fără href = current page
+  ]}
+/>
+```
+
+---
+
+---
+
+## 32. Testarea Completă a Tuturor Seed-urilor (9 Business Types)
+
+### 32.1 Rezultatele Testării E2E cu Playwright
+
+Am testat toate cele 9 tipuri de business disponibile în template, rulând fiecare seed și verificând site-ul generat cu Playwright MCP.
+
+| # | SEED_TYPE | Brand | Temă CSS | Status |
+|---|-----------|-------|----------|--------|
+| 1 | `magazin` | EcoShop | `dark-gold` | ✅ PASS |
+| 2 | `frizerie` | Urban Barber | `dark-gold` | ✅ PASS |
+| 3 | `salon` | Beauty Studio | `pink-soft` | ✅ PASS |
+| 4 | `fitness` | Transilvania Fitness | `fitness-orange` | ✅ PASS |
+| 5 | `restaurant` | La Copac Restaurant | `warm-orange` | ✅ PASS |
+| 6 | `dentist` | DentalMed Clinic | `teal-modern` | ✅ PASS |
+| 7 | `avocat` | Cabinet Avocat Ionescu | `classic-blue` (Navy & Gold) | ✅ PASS |
+| 8 | `auto-service` | AutoPro | `modern-red` | ✅ PASS |
+| 9 | `constructii` | BuildPro | `warm-orange` (Industrial) | ✅ PASS |
+
+### 32.2 Comanda pentru Testare Seed
+
+```bash
+# Pattern general
+PAYLOAD_SECRET=universal-business-secret-key-2024 \
+DATABASE_URI="mongodb://admin:password123@localhost:27017/template5?authSource=admin" \
+SEED_TYPE=<business_type> \
+npx tsx src/seed/index.ts
+
+# Exemplu pentru fitness
+SEED_TYPE=fitness npx tsx src/seed/index.ts
+
+# După seed, restart server
+pkill -f "next dev"; rm -rf .next && PORT=3010 pnpm dev &
+```
+
+### 32.3 Elemente Comune Verificate în Toate Site-urile
+
+| Element | Descriere | Prezent în toate |
+|---------|-----------|------------------|
+| **Hero Section** | Imagine, titlu, descriere, CTA-uri | ✅ |
+| **Announcement Bar** | Banner cu ofertă specială | ✅ |
+| **Servicii/Produse** | Grid cu prețuri și descrieri | ✅ |
+| **Echipă** | Membri cu experiență și specializări | ✅ (exceptie: magazin) |
+| **Testimoniale** | Review-uri de la clienți | ✅ |
+| **FAQ** | Întrebări frecvente cu accordion | ✅ |
+| **Galerie/Portofoliu** | Imagini proiecte/lucrări | ✅ |
+| **Blog** | 3 articole relevante per nișă | ✅ |
+| **Program de lucru** | Ore deschidere configurabile | ✅ |
+| **Locații** | Adresă, telefon, rating Google | ✅ |
+| **Statistici** | Ani experiență, clienți, etc. | ✅ |
+| **Footer** | Navigație, contact, legal | ✅ |
+| **WhatsApp Button** | Floating contact button | ✅ |
+| **Newsletter** | Formular abonare | ✅ |
+
+### 32.4 Elemente Specifice per Business Type
+
+#### Magazin (EcoShop)
+- **Tip**: E-commerce complet
+- **Specific**: Produse, coș, checkout, categorii
+- **Componente**: ProductCard, AddToCart, CartModal, CheckoutPage
+
+#### Frizerie / Salon / Dentist
+- **Tip**: Servicii cu programare
+- **Specific**: Booking form, lista servicii cu prețuri și durată
+- **Componente**: BookingForm, ServiceCard, TeamMember
+
+#### Fitness
+- **Tip**: Abonamente
+- **Specific**: Clase fitness, orar, abonamente (Basic/Standard/Premium/Anual)
+- **Componente**: ScheduleTable, PricingTable, TrainerCard
+
+#### Restaurant
+- **Tip**: Meniu + rezervări
+- **Specific**: Categorii meniu, bucătari, program zilnic detaliat
+- **Componente**: MenuCategory, ChefCard, ReservationForm
+
+#### Avocat
+- **Tip**: Servicii profesionale
+- **Specific**: Domenii de practică, timeline firmă, rata de succes
+- **Componente**: PracticeAreaCard, TimelineBlock, StatisticsBlock
+
+#### Auto-Service
+- **Tip**: Service auto
+- **Specific**: Servicii cu prețuri fixe, mecanici cu specializări
+- **Componente**: ServiceCard (cu durată), MechanicCard, ProcessSteps
+
+#### Constructii
+- **Tip**: Proiecte la comandă
+- **Specific**: Portofoliu proiecte, timeline companie, devize
+- **Componente**: PortfolioGallery, TimelineBlock, ProcessSteps
+
+### 32.5 Erori Non-Critice Întâlnite
+
+| Eroare | Cauză | Impact | Soluție |
+|--------|-------|--------|---------|
+| `401 validation_error - API key is invalid` | Resend API key lipsă/invalid | Newsletter emails nu se trimit | Configurează RESEND_API_KEY |
+| `Could not revalidate /path` | Seed rulează fără Next.js context | Niciun impact | Ignoră, e normal în seed |
+| `duration-[8000ms] is ambiguous` | Warning Tailwind CSS | Niciun impact vizual | Poate fi fixat în config |
+
+### 32.6 Workflow Complet de Testare
+
+```bash
+# 1. Pornește MongoDB (dacă nu rulează)
+docker-compose up -d mongodb
+
+# 2. Loop prin toate business-urile
+for business in magazin frizerie salon fitness restaurant dentist avocat auto-service constructii; do
+  echo "🧪 Testing: $business"
+
+  # Rulează seed
+  SEED_TYPE=$business npx tsx src/seed/index.ts
+
+  # Restart server
+  pkill -f "next dev" 2>/dev/null
+  rm -rf .next
+  PORT=3010 pnpm dev &
+
+  # Așteaptă server
+  sleep 20
+
+  # Verifică API
+  curl -s http://localhost:3010/api/globals/business-info | grep -o '"name":"[^"]*"'
+
+  # Testează cu Playwright (opțional)
+  # pnpm exec playwright test tests/e2e/smoke.spec.ts
+
+  echo "✅ $business done"
+done
+```
+
+### 32.7 Checklist Pre-Lansare per Business
+
+- [ ] Seed rulează fără erori fatale
+- [ ] Homepage se încarcă corect
+- [ ] Toate secțiunile sunt populate (hero, servicii, echipă, etc.)
+- [ ] Navigația funcționează
+- [ ] Formulare se pot trimite (contact, booking, newsletter)
+- [ ] Imagini se încarcă (nu broken images)
+- [ ] Mobile responsive funcționează
+- [ ] Footer conține toate link-urile
+- [ ] WhatsApp button apare
+
+### 32.8 Teme CSS Disponibile per Business
+
+| Business | Temă | Culori Principale |
+|----------|------|-------------------|
+| magazin | `dark-gold` | Gold pe fundal întunecat |
+| frizerie | `dark-gold` | Gold pe fundal întunecat |
+| salon | `pink-soft` | Roz pastel, feminin |
+| fitness | `fitness-orange` | Portocaliu energic |
+| restaurant | `warm-orange` | Portocaliu cald, brown accente |
+| dentist | `teal-modern` | Teal/turcoaz, clean medical |
+| avocat | `classic-blue` | Navy albastru, gold accente |
+| auto-service | `modern-red` | Roșu pe fundal întunecat |
+| constructii | `warm-orange` | Portocaliu industrial |
+
+### 32.9 Timp Estimat per Seed
+
+| Etapă | Durată |
+|-------|--------|
+| Clear existing data | ~2 sec |
+| Upload images (10-12) | ~5-10 sec |
+| Create services/products | ~1 sec |
+| Create team members | ~1 sec |
+| Create pages | ~2 sec |
+| Create blog posts | ~1 sec |
+| **Total seed** | **~15-20 sec** |
+| **Server restart + compile** | **~20-30 sec** |
+| **Homepage first load** | **~5-10 sec** |
+
+### 32.10 Tips pentru Debugging Seed-uri
+
+1. **Verifică dacă MongoDB rulează:**
+   ```bash
+   docker ps | grep mongo
+   ```
+
+2. **Verifică conexiunea:**
+   ```bash
+   mongosh "mongodb://admin:password123@localhost:27017/template5?authSource=admin" --eval "db.stats()"
+   ```
+
+3. **Vezi log-urile seed-ului:**
+   - Fiecare etapă afișează ce creează
+   - Erorile sunt afișate în roșu
+   - Warnings în galben
+
+4. **Reset complet database:**
+   ```bash
+   mongosh "mongodb://admin:password123@localhost:27017/template5?authSource=admin" --eval "db.dropDatabase()"
+   ```
+
+5. **Verifică imaginile:**
+   ```bash
+   curl -I http://localhost:3010/api/media/file/hero-main.jpg
+   # Trebuie să returneze 200 OK
+   ```
 
 ---
 
