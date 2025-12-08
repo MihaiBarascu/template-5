@@ -156,13 +156,25 @@ async function clearData(payload: Payload, clearMedia: boolean = false) {
     // Users collection error, skip
   }
 
-  // Clear local media folder if --with-images
+  // Clear local media folder contents if --with-images
+  // Note: We only delete files inside, not the folder itself (Docker volume permissions)
   if (clearMedia) {
     const mediaDir = path.join(process.cwd(), 'media')
     if (fs.existsSync(mediaDir)) {
-      fs.rmSync(mediaDir, { recursive: true, force: true })
-      fs.mkdirSync(mediaDir, { recursive: true })
-      console.log('   Local media folder cleared')
+      const files = fs.readdirSync(mediaDir)
+      for (const file of files) {
+        const filePath = path.join(mediaDir, file)
+        try {
+          if (fs.statSync(filePath).isDirectory()) {
+            fs.rmSync(filePath, { recursive: true, force: true })
+          } else {
+            fs.unlinkSync(filePath)
+          }
+        } catch (_e) {
+          // Skip files we can't delete
+        }
+      }
+      console.log(`   Local media folder cleared: ${files.length} items`)
     }
   }
 
