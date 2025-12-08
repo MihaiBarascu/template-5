@@ -104,8 +104,8 @@ export function TeamMemberDetailBlock({
     return (
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <div className="text-center py-8 bg-gray-100 rounded-lg">
-            <p className="text-gray-500">{l.notFoundMessage}</p>
+          <div className="text-center py-8 bg-theme-light rounded-lg">
+            <p className="text-theme-text-muted">{l.notFoundMessage}</p>
           </div>
         </div>
       </section>
@@ -113,7 +113,7 @@ export function TeamMemberDetailBlock({
   }
 
   const bgClasses = {
-    default: 'bg-gray-50',
+    default: 'bg-theme-light',
     light: 'bg-theme-light',
     dark: 'bg-theme-dark text-white',
   }
@@ -132,7 +132,7 @@ export function TeamMemberDetailBlock({
         {/* Breadcrumb */}
         {showBreadcrumb && (
           <nav className="mb-8">
-            <ol className="flex items-center space-x-2 text-sm text-gray-500">
+            <ol className="flex items-center space-x-2 text-sm text-theme-text-muted">
               <li>
                 <Link href="/" className="hover:text-theme-primary transition-colors">
                   {l.breadcrumbHome}
@@ -192,13 +192,13 @@ export function TeamMemberDetailBlock({
 
                 {/* Experience Badge */}
                 {showExperience && experienceYears && (
-                  <div className="flex items-center justify-center gap-3 py-4 border-y border-gray-100">
+                  <div className="flex items-center justify-center gap-3 py-4 border-y border-theme-border">
                     <Award className="w-8 h-8 text-theme-primary" />
                     <div>
                       <p className="text-2xl font-bold text-theme-dark">
                         {experienceYears}+
                       </p>
-                      <p className="text-sm text-gray-600">{l.experienceTitle}</p>
+                      <p className="text-sm text-theme-text-light">{l.experienceTitle}</p>
                     </div>
                   </div>
                 )}
@@ -209,7 +209,7 @@ export function TeamMemberDetailBlock({
                     {memberData.contact.email && (
                       <a
                         href={`mailto:${memberData.contact.email}`}
-                        className="flex items-center gap-3 text-gray-600 hover:text-theme-primary transition-colors"
+                        className="flex items-center gap-3 text-theme-text-light hover:text-theme-primary transition-colors"
                       >
                         <Mail className="w-5 h-5 flex-shrink-0" />
                         <span className="text-sm break-all">{memberData.contact.email}</span>
@@ -218,7 +218,7 @@ export function TeamMemberDetailBlock({
                     {memberData.contact.phone && (
                       <a
                         href={`tel:${memberData.contact.phone}`}
-                        className="flex items-center gap-3 text-gray-600 hover:text-theme-primary transition-colors"
+                        className="flex items-center gap-3 text-theme-text-light hover:text-theme-primary transition-colors"
                       >
                         <Phone className="w-5 h-5 flex-shrink-0" />
                         <span className="text-sm">{memberData.contact.phone}</span>
@@ -288,7 +288,7 @@ export function TeamMemberDetailBlock({
             <div className="bg-white rounded-xl shadow-lg p-8">
               {/* Rich Text Content */}
               {memberData.bio && (
-                <div className="prose prose-lg max-w-none prose-headings:text-theme-dark prose-headings:font-bold prose-p:text-gray-700 prose-p:leading-relaxed prose-strong:text-theme-dark prose-a:text-theme-primary hover:prose-a:text-theme-primary/80">
+                <div className="prose prose-lg max-w-none prose-headings:text-theme-dark prose-headings:font-bold prose-p:text-theme-text-light prose-p:leading-relaxed prose-strong:text-theme-dark prose-a:text-theme-primary hover:prose-a:text-theme-primary/80">
                   <RichText data={memberData.bio} />
                 </div>
               )}
@@ -325,7 +325,7 @@ export function TeamMemberDetailBlock({
                   {memberData.schedule.map((item, index) => (
                     <div
                       key={index}
-                      className="flex justify-between items-center py-3 border-b border-gray-100 last:border-0"
+                      className="flex justify-between items-center py-3 border-b border-theme-border last:border-0"
                     >
                       <span className="font-medium text-theme-dark capitalize">
                         {item.day}
@@ -349,7 +349,7 @@ export function TeamMemberDetailBlock({
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Link
                     href={`${paths.bookingPath}?antrenor=${encodeURIComponent(memberData.name || '')}`}
-                    className="inline-flex items-center justify-center px-6 py-3 bg-white text-theme-primary font-bold rounded-lg hover:bg-gray-100 transition-colors"
+                    className="inline-flex items-center justify-center px-6 py-3 bg-white text-theme-primary font-bold rounded-lg hover:bg-theme-light transition-colors"
                   >
                     {l.ctaButtonText}
                   </Link>
@@ -412,7 +412,7 @@ export function TeamMemberDetailBlock({
                               </span>
                             ))}
                             {member.specializations.length > 2 && (
-                              <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
+                              <span className="text-xs px-2 py-1 bg-theme-light text-theme-text-light rounded-full">
                                 +{member.specializations.length - 2}
                               </span>
                             )}

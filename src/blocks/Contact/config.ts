@@ -1,10 +1,24 @@
 import type { Block } from 'payload'
 
+/**
+ * ContactInfo Block
+ *
+ * Displays business contact information (address, phone, email, hours, social).
+ * For maps, use the separate Map block.
+ * For contact forms, use the Form block.
+ *
+ * To create a full contact page with form + info + map, use the Content block
+ * with columns:
+ *   - Column 1 (50%): ContactInfo block
+ *   - Column 2 (50%): Form block
+ *   - Below: Map block (full width)
+ */
 export const ContactBlock: Block = {
   slug: 'contact',
+  interfaceName: 'ContactBlock',
   labels: {
-    singular: 'Contact Info',
-    plural: 'Contact Info',
+    singular: 'Date Contact',
+    plural: 'Date Contact',
   },
   imageURL: '/blocks/contact.svg',
   fields: [
@@ -12,21 +26,19 @@ export const ContactBlock: Block = {
       name: 'variant',
       type: 'select',
       label: 'Varianta',
-      defaultValue: 'split',
+      defaultValue: 'standard',
       options: [
-        { label: 'Split (2 coloane)', value: 'split' },
-        { label: 'Centrat', value: 'centered' },
-        { label: 'Cu harta', value: 'with-map' },
-        { label: 'Full width', value: 'full-width' },
+        { label: 'Standard (lista verticala)', value: 'standard' },
+        { label: 'Carduri', value: 'cards' },
+        { label: 'Compact (o linie)', value: 'compact' },
         { label: 'Minimal', value: 'minimal' },
-        { label: 'Carduri contact', value: 'cards' },
+        { label: 'Full (info + formular + harta)', value: 'full' },
       ],
     },
     {
       name: 'heading',
       type: 'text',
       label: 'Titlu sectiune',
-      defaultValue: 'Contacteaza-ne',
     },
     {
       name: 'subheading',
@@ -35,18 +47,9 @@ export const ContactBlock: Block = {
     },
     // Contact info display options
     {
-      name: 'showContactInfo',
-      type: 'checkbox',
-      label: 'Afiseaza informatii contact',
-      defaultValue: true,
-    },
-    {
       name: 'contactInfoItems',
       type: 'group',
       label: 'Informatii afisate',
-      admin: {
-        condition: (_, siblingData) => siblingData?.showContactInfo,
-      },
       fields: [
         {
           name: 'showAddress',
@@ -80,25 +83,72 @@ export const ContactBlock: Block = {
         },
       ],
     },
-    // Map options
+    // Form relationship - for 'full' variant
     {
-      name: 'showMap',
-      type: 'checkbox',
-      label: 'Afiseaza harta',
-      defaultValue: false,
-    },
-    {
-      name: 'mapPosition',
-      type: 'select',
-      label: 'Pozitie harta',
-      defaultValue: 'bottom',
+      name: 'form',
+      type: 'relationship',
+      relationTo: 'forms',
+      label: 'Formular contact',
       admin: {
-        condition: (_, siblingData) => siblingData?.showMap,
+        condition: (_, siblingData) => siblingData?.variant === 'full',
+        description: 'Selecteaza formularul de contact pentru varianta Full',
       },
-      options: [
-        { label: 'Deasupra', value: 'top' },
-        { label: 'Dedesubt', value: 'bottom' },
-        { label: 'Lateral', value: 'side' },
+    },
+    // Map settings - for 'full' variant
+    {
+      name: 'mapSettings',
+      type: 'group',
+      label: 'Setari harta',
+      admin: {
+        condition: (_, siblingData) => siblingData?.variant === 'full',
+      },
+      fields: [
+        {
+          name: 'showMap',
+          type: 'checkbox',
+          label: 'Afiseaza harta',
+          defaultValue: true,
+        },
+        {
+          name: 'mapHeight',
+          type: 'select',
+          label: 'Inaltime harta',
+          defaultValue: 'medium',
+          options: [
+            { label: 'Mica (300px)', value: 'small' },
+            { label: 'Medie (400px)', value: 'medium' },
+            { label: 'Mare (500px)', value: 'large' },
+          ],
+        },
+        {
+          name: 'mapHeading',
+          type: 'text',
+          label: 'Titlu sectiune harta',
+          defaultValue: 'Locatia noastra',
+        },
+      ],
+    },
+    // Form labels - for 'full' variant
+    {
+      name: 'formSettings',
+      type: 'group',
+      label: 'Setari formular',
+      admin: {
+        condition: (_, siblingData) => siblingData?.variant === 'full',
+      },
+      fields: [
+        {
+          name: 'formHeading',
+          type: 'text',
+          label: 'Titlu formular',
+          defaultValue: 'Trimite-ne un mesaj',
+        },
+        {
+          name: 'formSubheading',
+          type: 'textarea',
+          label: 'Subtitlu formular',
+          defaultValue: 'Completeaza formularul si te vom contacta in cel mai scurt timp',
+        },
       ],
     },
     // Background
@@ -106,8 +156,9 @@ export const ContactBlock: Block = {
       name: 'backgroundColor',
       type: 'select',
       label: 'Culoare fundal',
-      defaultValue: 'default',
+      defaultValue: 'transparent',
       options: [
+        { label: 'Transparent', value: 'transparent' },
         { label: 'Default', value: 'default' },
         { label: 'Light', value: 'light' },
         { label: 'Dark', value: 'dark' },
@@ -120,14 +171,9 @@ export const ContactBlock: Block = {
       label: 'Text Labels (i18n)',
       admin: {
         description: 'Personalizare text pentru diferite limbi',
+        condition: () => false, // Hide by default, show via admin condition if needed
       },
       fields: [
-        {
-          name: 'contactInfoTitle',
-          type: 'text',
-          label: 'Titlu informatii contact',
-          defaultValue: 'Informatii de contact',
-        },
         {
           name: 'addressLabel',
           type: 'text',

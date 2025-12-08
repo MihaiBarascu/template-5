@@ -691,7 +691,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
       heroType: 'minimal',
       hero: { headline: 'Contact', subheadline: 'Suntem aici pentru tine' },
       layout: [
-        ...createContactPageLayout(contactFormId),
+        ...(createContactPageLayout(contactFormId) || []),
         {
           blockType: 'faq',
           variant: 'accordion',

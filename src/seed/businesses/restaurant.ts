@@ -728,7 +728,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
             },
           },
         }] : []),
-        { blockType: 'contact' as const, variant: 'minimal' as const, heading: 'Informatii Restaurant', showContactInfo: true, contactInfoItems: { showAddress: true, showPhone: true, showEmail: true, showWorkingHours: true, showSocial: false }, showMap: false, backgroundColor: 'light' as const },
+        { blockType: 'contact' as const, variant: 'minimal' as const, heading: 'Informatii Restaurant', contactInfoItems: { showAddress: true, showPhone: true, showEmail: true, showWorkingHours: true, showSocial: false }, backgroundColor: 'light' as const },
       ],
       _status: 'published',
     },

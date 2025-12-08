@@ -111,7 +111,7 @@ export function AnnouncementBarBlock({
       red: 'bg-red-600',
       green: 'bg-green-600',
       blue: 'bg-blue-600',
-      black: 'bg-gray-900',
+      black: 'bg-theme-dark',
       gradient: 'bg-gradient-to-r from-theme-primary to-purple-600',
     }[backgroundColor] || 'bg-theme-primary'
 
@@ -159,7 +159,7 @@ export function AnnouncementBarBlock({
             {variant === 'with-button' && ctaButton?.link && (
               <a
                 href={ctaButton.link}
-                className="px-4 py-1 bg-white text-gray-900 rounded text-xs font-medium hover:bg-gray-100 transition-colors"
+                className="px-4 py-1 bg-white text-theme-text rounded text-xs font-medium hover:bg-theme-light transition-colors"
               >
                 {ctaButton.label || 'Vezi oferta'}
               </a>

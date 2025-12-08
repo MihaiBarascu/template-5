@@ -273,923 +273,39 @@ export interface Page {
   };
   layout?:
     | (
-        | {
-            variant?: ('centered' | 'left-aligned' | 'split' | 'fullscreen' | 'video' | 'minimal' | 'slider') | null;
-            headline: string;
-            subheadline?: string | null;
-            image?: (string | null) | Media;
-            videoUrl?: string | null;
-            slides?:
-              | {
-                  image: string | Media;
-                  headline?: string | null;
-                  subheadline?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            ctaButtons?:
-              | {
-                  label: string;
-                  link: string;
-                  variant?: ('default' | 'outline' | 'ghost') | null;
-                  id?: string | null;
-                }[]
-              | null;
-            overlayOpacity?: ('0' | '25' | '50' | '75') | null;
-            textColor?: ('auto' | 'dark' | 'light') | null;
-            height?: ('small' | 'medium' | 'large' | 'fullscreen') | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'hero';
-          }
-        | {
-            variant?: ('grid-3' | 'grid-4' | 'grid-2' | 'list' | 'list-alternating' | 'price-list') | null;
-            heading?: string | null;
-            subheading?: string | null;
-            source?: ('collection' | 'manual' | 'custom') | null;
-            selectedServices?: (string | Service)[] | null;
-            filterByCategory?: (string | null) | Category;
-            limit?: number | null;
-            onlyFeatured?: boolean | null;
-            customServices?:
-              | {
-                  title: string;
-                  description?: string | null;
-                  icon?: string | null;
-                  image?: (string | null) | Media;
-                  price?: number | null;
-                  link?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            showPrices?: boolean | null;
-            showIcons?: boolean | null;
-            showDuration?: boolean | null;
-            showBookButton?: boolean | null;
-            bookButtonText?: string | null;
-            bookButtonLink?: string | null;
-            ctaButton?: {
-              enabled?: boolean | null;
-              label?: string | null;
-              link?: string | null;
-            };
-            /**
-             * Ex: /servicii - cardurile vor fi clickable si vor duce la /servicii/slug-serviciu. Lasati gol pentru a dezactiva link-urile.
-             */
-            detailBasePath?: string | null;
-            backgroundColor?: ('default' | 'light' | 'dark' | 'primary') | null;
-            /**
-             * Customize text labels for different languages
-             */
-            labels?: {
-              currencySymbol?: string | null;
-              fromLabel?: string | null;
-            };
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'services';
-          }
-        | {
-            variant?: ('grid' | 'grid-centered' | 'carousel' | 'list' | 'featured' | 'with-modal') | null;
-            heading?: string | null;
-            subheading?: string | null;
-            source?: ('collection' | 'manual') | null;
-            selectedMembers?: (string | Team)[] | null;
-            limit?: number | null;
-            onlyFeatured?: boolean | null;
-            showRole?: boolean | null;
-            showBio?: boolean | null;
-            showSocial?: boolean | null;
-            showContact?: boolean | null;
-            /**
-             * Ex: /echipa - cardurile vor deveni clickable si vor duce la /echipa/slug-membru
-             */
-            detailBasePath?: string | null;
-            columns?: ('2' | '3' | '4') | null;
-            backgroundColor?: ('default' | 'light' | 'dark') | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'team';
-          }
-        | {
-            variant?: ('carousel' | 'grid' | 'single-featured' | 'masonry' | 'cards-rotating' | 'minimal') | null;
-            heading?: string | null;
-            subheading?: string | null;
-            source?: ('collection' | 'manual') | null;
-            selectedTestimonials?: (string | Testimonial)[] | null;
-            limit?: number | null;
-            onlyFeatured?: boolean | null;
-            showRating?: boolean | null;
-            showAvatar?: boolean | null;
-            showSource?: boolean | null;
-            autoplay?: boolean | null;
-            backgroundColor?: ('default' | 'light' | 'dark' | 'primary') | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'testimonials';
-          }
-        | {
-            variant?:
-              | ('grid-masonry' | 'grid-uniform' | 'carousel' | 'filterable' | 'lightbox' | 'case-studies')
-              | null;
-            heading?: string | null;
-            subheading?: string | null;
-            source?: ('collection' | 'manual') | null;
-            selectedProjects?: (string | Portfolio)[] | null;
-            filterByCategory?: (string | null) | Category;
-            limit?: number | null;
-            onlyFeatured?: boolean | null;
-            showDescription?: boolean | null;
-            showClient?: boolean | null;
-            columns?: ('2' | '3' | '4') | null;
-            ctaButton?: {
-              enabled?: boolean | null;
-              label?: string | null;
-              link?: string | null;
-            };
-            backgroundColor?: ('default' | 'light' | 'dark') | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'portfolio';
-          }
-        | {
-            variant?: ('accordion' | 'two-columns' | 'tabs' | 'searchable' | 'numbered') | null;
-            heading?: string | null;
-            subheading?: string | null;
-            source?: ('collection' | 'manual' | 'custom') | null;
-            selectedFAQs?: (string | Faq)[] | null;
-            filterByCategory?: (string | null) | Category;
-            limit?: number | null;
-            customFAQs?:
-              | {
-                  question: string;
-                  answer: {
-                    root: {
-                      type: string;
-                      children: {
-                        type: any;
-                        version: number;
-                        [k: string]: unknown;
-                      }[];
-                      direction: ('ltr' | 'rtl') | null;
-                      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-                      indent: number;
-                      version: number;
-                    };
-                    [k: string]: unknown;
-                  };
-                  id?: string | null;
-                }[]
-              | null;
-            defaultOpen?: ('none' | 'first' | 'all') | null;
-            backgroundColor?: ('default' | 'light' | 'dark') | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'faq';
-          }
-        | {
-            variant?: ('split' | 'centered' | 'with-map' | 'full-width' | 'minimal' | 'cards') | null;
-            heading?: string | null;
-            subheading?: string | null;
-            showContactInfo?: boolean | null;
-            contactInfoItems?: {
-              showAddress?: boolean | null;
-              showPhone?: boolean | null;
-              showEmail?: boolean | null;
-              showWorkingHours?: boolean | null;
-              showSocial?: boolean | null;
-            };
-            showMap?: boolean | null;
-            mapPosition?: ('top' | 'bottom' | 'side') | null;
-            backgroundColor?: ('default' | 'light' | 'dark') | null;
-            /**
-             * Personalizare text pentru diferite limbi
-             */
-            labels?: {
-              contactInfoTitle?: string | null;
-              addressLabel?: string | null;
-              phoneLabel?: string | null;
-              emailLabel?: string | null;
-              scheduleLabel?: string | null;
-              socialLabel?: string | null;
-            };
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'contact';
-          }
-        | {
-            variant?: ('centered' | 'split' | 'with-image' | 'gradient' | 'minimal' | 'floating' | 'with-form') | null;
-            headline: string;
-            subheadline?: string | null;
-            image?: (string | null) | Media;
-            buttons?:
-              | {
-                  label: string;
-                  link: string;
-                  variant?: ('default' | 'outline' | 'ghost') | null;
-                  id?: string | null;
-                }[]
-              | null;
-            showPhoneNumber?: boolean | null;
-            backgroundColor?: ('default' | 'light' | 'dark' | 'primary' | 'accent') | null;
-            textAlignment?: ('left' | 'center' | 'right') | null;
-            size?: ('small' | 'medium' | 'large') | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'cta';
-          }
-        | {
-            variant?: ('grid-3' | 'grid-4' | 'masonry' | 'carousel' | 'lightbox' | 'instagram') | null;
-            heading?: string | null;
-            subheading?: string | null;
-            source?: ('custom' | 'portfolio') | null;
-            limit?: number | null;
-            images?:
-              | {
-                  image: string | Media;
-                  caption?: string | null;
-                  /**
-                   * Ex: Tunsori, Barba, Colorare (pentru filtrare)
-                   */
-                  category?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            showCaptions?: boolean | null;
-            aspectRatio?: ('auto' | 'square' | '4-3' | '16-9' | '3-2') | null;
-            gap?: ('none' | 'small' | 'medium' | 'large') | null;
-            backgroundColor?: ('default' | 'light' | 'dark') | null;
-            /**
-             * Customize text labels for different languages
-             */
-            labels?: {
-              allFilter?: string | null;
-            };
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'gallery';
-          }
-        | {
-            variant?: ('inline' | 'grid-4' | 'grid-3' | 'with-icons' | 'animated' | 'minimal') | null;
-            heading?: string | null;
-            source?: ('businessInfo' | 'custom') | null;
-            stats?:
-              | {
-                  value: string;
-                  label: string;
-                  icon?: string | null;
-                  /**
-                   * Ex: +, %, ani
-                   */
-                  suffix?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            animated?: boolean | null;
-            backgroundColor?: ('default' | 'light' | 'dark' | 'primary') | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'stats';
-          }
-        | {
-            columns?:
-              | {
-                  width?: ('full' | 'three-quarters' | 'two-thirds' | 'half' | 'one-third' | 'one-quarter') | null;
-                  alignment?: ('top' | 'center' | 'bottom') | null;
-                  contentType?: ('richText' | 'image' | 'video' | 'blocks') | null;
-                  richText?: {
-                    root: {
-                      type: string;
-                      children: {
-                        type: any;
-                        version: number;
-                        [k: string]: unknown;
-                      }[];
-                      direction: ('ltr' | 'rtl') | null;
-                      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-                      indent: number;
-                      version: number;
-                    };
-                    [k: string]: unknown;
-                  } | null;
-                  image?: (string | null) | Media;
-                  videoUrl?: string | null;
-                  /**
-                   * Adauga blocuri in aceasta coloana (formulare, contact, harta, CTA)
-                   */
-                  blocks?:
-                    | (
-                        | FormBlock
-                        | {
-                            variant?: ('split' | 'centered' | 'with-map' | 'full-width' | 'minimal' | 'cards') | null;
-                            heading?: string | null;
-                            subheading?: string | null;
-                            showContactInfo?: boolean | null;
-                            contactInfoItems?: {
-                              showAddress?: boolean | null;
-                              showPhone?: boolean | null;
-                              showEmail?: boolean | null;
-                              showWorkingHours?: boolean | null;
-                              showSocial?: boolean | null;
-                            };
-                            showMap?: boolean | null;
-                            mapPosition?: ('top' | 'bottom' | 'side') | null;
-                            backgroundColor?: ('default' | 'light' | 'dark') | null;
-                            /**
-                             * Personalizare text pentru diferite limbi
-                             */
-                            labels?: {
-                              contactInfoTitle?: string | null;
-                              addressLabel?: string | null;
-                              phoneLabel?: string | null;
-                              emailLabel?: string | null;
-                              scheduleLabel?: string | null;
-                              socialLabel?: string | null;
-                            };
-                            id?: string | null;
-                            blockName?: string | null;
-                            blockType: 'contact';
-                          }
-                        | {
-                            variant?: ('full-width' | 'contained' | 'with-info') | null;
-                            heading?: string | null;
-                            source?: ('businessInfo' | 'custom') | null;
-                            customEmbed?: string | null;
-                            height?: ('small' | 'medium' | 'large') | null;
-                            showDirectionsButton?: boolean | null;
-                            id?: string | null;
-                            blockName?: string | null;
-                            blockType: 'map';
-                          }
-                        | {
-                            variant?:
-                              | (
-                                  | 'centered'
-                                  | 'split'
-                                  | 'with-image'
-                                  | 'gradient'
-                                  | 'minimal'
-                                  | 'floating'
-                                  | 'with-form'
-                                )
-                              | null;
-                            headline: string;
-                            subheadline?: string | null;
-                            image?: (string | null) | Media;
-                            buttons?:
-                              | {
-                                  label: string;
-                                  link: string;
-                                  variant?: ('default' | 'outline' | 'ghost') | null;
-                                  id?: string | null;
-                                }[]
-                              | null;
-                            showPhoneNumber?: boolean | null;
-                            backgroundColor?: ('default' | 'light' | 'dark' | 'primary' | 'accent') | null;
-                            textAlignment?: ('left' | 'center' | 'right') | null;
-                            size?: ('small' | 'medium' | 'large') | null;
-                            id?: string | null;
-                            blockName?: string | null;
-                            blockType: 'cta';
-                          }
-                      )[]
-                    | null;
-                  id?: string | null;
-                }[]
-              | null;
-            backgroundColor?: ('default' | 'light' | 'dark') | null;
-            paddingTop?: ('none' | 'small' | 'medium' | 'large') | null;
-            paddingBottom?: ('none' | 'small' | 'medium' | 'large') | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'content';
-          }
-        | {
-            variant?: ('grid-4' | 'grid-3' | 'carousel' | 'list' | 'featured') | null;
-            heading?: string | null;
-            subheading?: string | null;
-            source?: ('collection' | 'manual') | null;
-            selectedProducts?: (string | Product)[] | null;
-            filterByCategory?: (string | null) | Category;
-            limit?: number | null;
-            onlyFeatured?: boolean | null;
-            onlySale?: boolean | null;
-            showPrice?: boolean | null;
-            showSalePrice?: boolean | null;
-            showAddToCart?: boolean | null;
-            ctaButton?: {
-              enabled?: boolean | null;
-              label?: string | null;
-              link?: string | null;
-            };
-            backgroundColor?: ('default' | 'light' | 'dark') | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'products';
-          }
-        | {
-            variant?: ('full-width' | 'contained' | 'with-info') | null;
-            heading?: string | null;
-            source?: ('businessInfo' | 'custom') | null;
-            customEmbed?: string | null;
-            height?: ('small' | 'medium' | 'large') | null;
-            showDirectionsButton?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'map';
-          }
-        | {
-            variant?: ('standard' | 'with-service' | 'with-person' | 'full' | 'minimal') | null;
-            heading?: string | null;
-            subheading?: string | null;
-            showServiceSelection?: boolean | null;
-            showTeamSelection?: boolean | null;
-            showDatePicker?: boolean | null;
-            showTimePicker?: boolean | null;
-            requiredFields?: {
-              name?: boolean | null;
-              email?: boolean | null;
-              phone?: boolean | null;
-              notes?: boolean | null;
-            };
-            submitButtonText?: string | null;
-            successMessage?: string | null;
-            showWhatsappOption?: boolean | null;
-            showPhoneOption?: boolean | null;
-            backgroundColor?: ('default' | 'light' | 'dark' | 'primary') | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'booking';
-          }
-        | {
-            variant?: ('full' | 'compact') | null;
-            heading?: string | null;
-            showQuantitySelector?: boolean | null;
-            showRemoveButton?: boolean | null;
-            showSubtotal?: boolean | null;
-            checkoutButtonText?: string | null;
-            checkoutLink?: string | null;
-            emptyCartMessage?: string | null;
-            continueShoppingLink?: string | null;
-            backgroundColor?: ('default' | 'light' | 'dark') | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'cart';
-          }
-        | {
-            variant?: ('full' | 'compact') | null;
-            heading?: string | null;
-            showOrderSummary?: boolean | null;
-            showShippingOptions?: boolean | null;
-            showPaymentOptions?: boolean | null;
-            submitButtonText?: string | null;
-            successMessage?: string | null;
-            backgroundColor?: ('default' | 'light' | 'dark') | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'checkout';
-          }
+        | HeroBlock
+        | ServicesBlock
+        | TeamBlock
+        | TestimonialsBlock
+        | PortfolioBlock
+        | FaqBlock
+        | ContactBlock
+        | CtaBlock
+        | GalleryBlock
+        | StatsBlock
+        | ContentBlock
+        | ProductsBlock
+        | MapBlock
+        | BookingBlock
+        | CartBlock
+        | CheckoutBlock
         | VideoEmbedBlock
         | PriceListDottedBlock
         | BeforeAfterBlock
-        | {
-            variant?: ('simple' | 'with-image' | 'dark' | 'with-pattern' | 'inline') | null;
-            heading?: string | null;
-            subheading?: string | null;
-            placeholder?: string | null;
-            buttonText?: string | null;
-            successMessage?: string | null;
-            backgroundImage?: (string | null) | Media;
-            privacyText?: string | null;
-            showPrivacyLink?: boolean | null;
-            benefits?:
-              | {
-                  text?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'newsletter';
-          }
-        | {
-            variant?: ('bar' | 'grid-3' | 'grid-4' | 'inline' | 'cards' | 'minimal') | null;
-            /**
-             * Optional - lasa gol pentru a afisa doar badge-urile
-             */
-            heading?: string | null;
-            source?: ('preset' | 'custom') | null;
-            /**
-             * Alege badge-urile pe care vrei sa le afisezi
-             */
-            presets?:
-              | (
-                  | 'free-shipping'
-                  | 'fast-shipping'
-                  | 'return-30'
-                  | 'return-14'
-                  | 'secure-payment'
-                  | 'warranty'
-                  | 'support-24-7'
-                  | 'quality'
-                  | 'fair-price'
-                  | 'free-shipping-threshold'
-                  | 'experience-years'
-                  | 'happy-customers'
-                  | 'romanian-products'
-                  | 'eco-friendly'
-                  | 'free-consultation'
-                  | 'online-booking'
-                )[]
-              | null;
-            /**
-             * Completeaza valorile pentru badge-urile selectate (daca e cazul)
-             */
-            customValues?: {
-              shippingThreshold?: number | null;
-              experienceYears?: number | null;
-              happyCustomersCount?: string | null;
-              warrantyPeriod?: string | null;
-            };
-            badges?:
-              | {
-                  icon:
-                    | 'Truck'
-                    | 'Package'
-                    | 'Shield'
-                    | 'ShieldCheck'
-                    | 'CheckCircle'
-                    | 'Star'
-                    | 'Heart'
-                    | 'Phone'
-                    | 'Clock'
-                    | 'Calendar'
-                    | 'CreditCard'
-                    | 'Gift'
-                    | 'Award'
-                    | 'Users'
-                    | 'ThumbsUp'
-                    | 'Leaf'
-                    | 'Recycle'
-                    | 'RefreshCw'
-                    | 'Headphones'
-                    | 'MessageCircle'
-                    | 'Zap'
-                    | 'BadgeCheck'
-                    | 'CircleDollarSign'
-                    | 'Banknote';
-                  title: string;
-                  description?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            /**
-             * Debifati pentru a afisa doar iconitele si titlurile
-             */
-            showDescriptions?: boolean | null;
-            iconSize?: ('small' | 'medium' | 'large') | null;
-            backgroundColor?: ('default' | 'light' | 'dark' | 'primary' | 'transparent') | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'trust-badges';
-          }
-        | {
-            variant?: ('numbered' | 'icons' | 'timeline' | 'horizontal-cards' | 'connected' | 'alternating') | null;
-            heading?: string | null;
-            subheading?: string | null;
-            steps?:
-              | {
-                  title: string;
-                  description?: string | null;
-                  icon?:
-                    | (
-                        | 'Search'
-                        | 'MousePointerClick'
-                        | 'Calendar'
-                        | 'CheckCircle'
-                        | 'User'
-                        | 'Store'
-                        | 'ShoppingCart'
-                        | 'CreditCard'
-                        | 'Package'
-                        | 'Truck'
-                        | 'Home'
-                        | 'Phone'
-                        | 'Mail'
-                        | 'MessageSquare'
-                        | 'Settings'
-                        | 'FileText'
-                        | 'Scissors'
-                        | 'Star'
-                        | 'Heart'
-                        | 'ClipboardCheck'
-                      )
-                    | null;
-                  image?: (string | null) | Media;
-                  id?: string | null;
-                }[]
-              | null;
-            showNumbers?: boolean | null;
-            ctaButton?: {
-              enabled?: boolean | null;
-              label?: string | null;
-              link?: string | null;
-            };
-            backgroundColor?: ('default' | 'light' | 'dark' | 'primary') | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'how-it-works';
-          }
-        | {
-            variant?: ('simple' | 'carousel' | 'cards' | 'grayscale' | 'with-text' | 'marquee') | null;
-            /**
-             * Ex: "Partenerii nostri", "Au avut incredere in noi", "As Seen In"
-             */
-            heading?: string | null;
-            subheading?: string | null;
-            logos?:
-              | {
-                  logo: string | Media;
-                  /**
-                   * Pentru accesibilitate (alt text)
-                   */
-                  name: string;
-                  /**
-                   * URL catre site-ul partenerului
-                   */
-                  url?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            logoSize?: ('small' | 'medium' | 'large') | null;
-            columns?: ('3' | '4' | '5' | '6') | null;
-            /**
-             * Afiseaza logo-urile in alb-negru (colorate la hover)
-             */
-            grayscale?: boolean | null;
-            backgroundColor?: ('default' | 'light' | 'dark' | 'transparent') | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'logo-cloud';
-          }
-        | {
-            variant?: ('grid-3' | 'grid-2' | 'grid-4' | 'list' | 'carousel' | 'featured' | 'minimal') | null;
-            heading?: string | null;
-            subheading?: string | null;
-            source?: ('collection' | 'manual') | null;
-            selectedPosts?: (string | Post)[] | null;
-            filterByCategory?: (string | null) | Category;
-            limit?: number | null;
-            showImage?: boolean | null;
-            showExcerpt?: boolean | null;
-            showDate?: boolean | null;
-            showCategory?: boolean | null;
-            showAuthor?: boolean | null;
-            showReadMore?: boolean | null;
-            readMoreText?: string | null;
-            ctaButton?: {
-              enabled?: boolean | null;
-              label?: string | null;
-              link?: string | null;
-            };
-            backgroundColor?: ('default' | 'light' | 'dark' | 'primary') | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'latestPosts';
-          }
+        | NewsletterBlock
+        | TrustBadgesBlock
+        | HowItWorksBlock
+        | LogoCloudBlock
+        | LatestPostsBlock
         | OpeningHoursBlock
         | LocationsBlock
         | BrandLogosBlock
         | TimelineBlock
         | AnnouncementBarBlock
-        | {
-            variant?: ('cards-3' | 'cards-4' | 'cards-overlay' | 'list-compact' | 'table-compare') | null;
-            heading?: string | null;
-            subheading?: string | null;
-            source?: ('collection' | 'manual') | null;
-            selectedSubscriptions?: (string | Subscription)[] | null;
-            filterByType?:
-              | ('all' | 'gym' | 'spa' | 'solar' | 'fitness-spa' | 'classes' | 'personal' | 'premium')
-              | null;
-            limit?: number | null;
-            showImage?: boolean | null;
-            showFeatures?: boolean | null;
-            showOldPrice?: boolean | null;
-            highlightStyle?: ('border' | 'background' | 'elevated' | 'badge') | null;
-            ctaButton?: {
-              enabled?: boolean | null;
-              label?: string | null;
-              link?: string | null;
-            };
-            backgroundColor?: ('default' | 'light' | 'dark' | 'primary') | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'subscriptionCards';
-          }
-        | {
-            variant?: ('table-week' | 'list-days' | 'cards-days') | null;
-            heading?: string | null;
-            subheading?: string | null;
-            source?: ('collection' | 'custom') | null;
-            filterByCategory?:
-              | ('all' | 'cardio' | 'strength' | 'flexibility' | 'mind-body' | 'combat' | 'dance' | 'hiit')
-              | null;
-            customSchedule?:
-              | {
-                  day: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
-                  startTime: string;
-                  endTime?: string | null;
-                  title: string;
-                  trainer?: string | null;
-                  room?: string | null;
-                  color?: ('primary' | 'orange' | 'blue' | 'green' | 'purple') | null;
-                  id?: string | null;
-                }[]
-              | null;
-            showTrainer?: boolean | null;
-            showDuration?: boolean | null;
-            showRoom?: boolean | null;
-            showCategoryFilter?: boolean | null;
-            highlightToday?: boolean | null;
-            startHour?: number | null;
-            endHour?: number | null;
-            ctaButton?: {
-              enabled?: boolean | null;
-              label?: string | null;
-              link?: string | null;
-            };
-            backgroundColor?: ('default' | 'light' | 'dark') | null;
-            /**
-             * Customize text labels for different languages
-             */
-            labels?: {
-              allFilter?: string | null;
-              todayBadge?: string | null;
-              noClasses?: string | null;
-              detailsButton?: string | null;
-              timeHeader?: string | null;
-              /**
-               * JSON object with day translations: { "monday": "Luni", ... }
-               */
-              dayLabels?:
-                | {
-                    [k: string]: unknown;
-                  }
-                | unknown[]
-                | string
-                | number
-                | boolean
-                | null;
-            };
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'scheduleTable';
-          }
-        | {
-            /**
-             * Selecteaza membrul echipei de afisat
-             */
-            member: string | Team;
-            variant?: ('full' | 'compact' | 'hero') | null;
-            showBreadcrumb?: boolean | null;
-            showExperience?: boolean | null;
-            showSpecializations?: boolean | null;
-            showContact?: boolean | null;
-            showSocialMedia?: boolean | null;
-            showSchedule?: boolean | null;
-            showCTA?: boolean | null;
-            showRelatedMembers?: boolean | null;
-            relatedMembersCount?: number | null;
-            relatedMembersTitle?: string | null;
-            backgroundColor?: ('default' | 'light' | 'dark') | null;
-            /**
-             * Customize all text labels for different languages
-             */
-            labels?: {
-              breadcrumbHome?: string | null;
-              breadcrumbTeam?: string | null;
-              experienceTitle?: string | null;
-              specializationsTitle?: string | null;
-              scheduleTitle?: string | null;
-              contactTitle?: string | null;
-              ctaTitle?: string | null;
-              ctaDescription?: string | null;
-              ctaButtonText?: string | null;
-              ctaSecondaryButtonText?: string | null;
-              viewAllTeamText?: string | null;
-              notFoundMessage?: string | null;
-            };
-            /**
-             * Configure URL paths
-             */
-            links?: {
-              teamBasePath?: string | null;
-              contactPath?: string | null;
-              classesPath?: string | null;
-              bookingPath?: string | null;
-            };
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'teamMemberDetail';
-          }
-        | {
-            /**
-             * Selecteaza serviciul de afisat
-             */
-            service: string | Service;
-            variant?: ('full' | 'compact' | 'hero') | null;
-            showBreadcrumb?: boolean | null;
-            /**
-             * Only shown if service has schedule data
-             */
-            showSchedule?: boolean | null;
-            showPricing?: boolean | null;
-            /**
-             * Shows assigned team member/instructor
-             */
-            showTeamMember?: boolean | null;
-            showBenefits?: boolean | null;
-            showFeatures?: boolean | null;
-            showRequirements?: boolean | null;
-            showRelatedServices?: boolean | null;
-            relatedServicesCount?: number | null;
-            relatedServicesTitle?: string | null;
-            ctaButtonText?: string | null;
-            /**
-             * Leave empty to use default booking link
-             */
-            ctaButtonLink?: string | null;
-            backgroundColor?: ('default' | 'light' | 'dark') | null;
-            /**
-             * Customize all text labels for different languages
-             */
-            labels?: {
-              breadcrumbHome?: string | null;
-              breadcrumbServices?: string | null;
-              benefitsTitle?: string | null;
-              featuresTitle?: string | null;
-              scheduleTitle?: string | null;
-              pricingTitle?: string | null;
-              teamMemberTitle?: string | null;
-              requirementsTitle?: string | null;
-              viewAllServicesText?: string | null;
-              minutesLabel?: string | null;
-              spotsLabel?: string | null;
-              priceFromLabel?: string | null;
-              dropInLabel?: string | null;
-              monthlyLabel?: string | null;
-              packageLabel?: string | null;
-              currencySymbol?: string | null;
-              /**
-               * JSON object with day translations: { "monday": "Luni", ... }
-               */
-              dayLabels?:
-                | {
-                    [k: string]: unknown;
-                  }
-                | unknown[]
-                | string
-                | number
-                | boolean
-                | null;
-              /**
-               * JSON object with difficulty translations
-               */
-              difficultyLabels?:
-                | {
-                    [k: string]: unknown;
-                  }
-                | unknown[]
-                | string
-                | number
-                | boolean
-                | null;
-              /**
-               * JSON object with service type translations
-               */
-              serviceTypeLabels?:
-                | {
-                    [k: string]: unknown;
-                  }
-                | unknown[]
-                | string
-                | number
-                | boolean
-                | null;
-              notFoundMessage?: string | null;
-            };
-            /**
-             * Configure URL paths
-             */
-            links?: {
-              servicesBasePath?: string | null;
-              teamBasePath?: string | null;
-              bookingPath?: string | null;
-            };
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'serviceDetail';
-          }
+        | SubscriptionCardsBlock
+        | ScheduleTableBlock
+        | TeamMemberDetailBlock
+        | ServiceDetailBlock
         | FormBlock
       )[]
     | null;
@@ -1243,7 +359,7 @@ export interface Media {
       filesize?: number | null;
       filename?: string | null;
     };
-    card?: {
+    square?: {
       url?: string | null;
       width?: number | null;
       height?: number | null;
@@ -1251,7 +367,39 @@ export interface Media {
       filesize?: number | null;
       filename?: string | null;
     };
-    hero?: {
+    small?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    medium?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    large?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    xlarge?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    og?: {
       url?: string | null;
       width?: number | null;
       height?: number | null;
@@ -1260,6 +408,90 @@ export interface Media {
       filename?: string | null;
     };
   };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeroBlock".
+ */
+export interface HeroBlock {
+  variant?: ('centered' | 'left-aligned' | 'split' | 'fullscreen' | 'video' | 'minimal' | 'slider') | null;
+  headline: string;
+  subheadline?: string | null;
+  image?: (string | null) | Media;
+  videoUrl?: string | null;
+  slides?:
+    | {
+        image: string | Media;
+        headline?: string | null;
+        subheadline?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  ctaButtons?:
+    | {
+        label: string;
+        link: string;
+        variant?: ('default' | 'outline' | 'ghost') | null;
+        id?: string | null;
+      }[]
+    | null;
+  overlayOpacity?: ('0' | '25' | '50' | '75') | null;
+  textColor?: ('auto' | 'dark' | 'light') | null;
+  height?: ('small' | 'medium' | 'large' | 'fullscreen') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'hero';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ServicesBlock".
+ */
+export interface ServicesBlock {
+  variant?: ('grid-3' | 'grid-4' | 'grid-2' | 'list' | 'list-alternating' | 'price-list') | null;
+  heading?: string | null;
+  subheading?: string | null;
+  source?: ('collection' | 'manual' | 'custom') | null;
+  selectedServices?: (string | Service)[] | null;
+  filterByCategory?: (string | null) | Category;
+  limit?: number | null;
+  onlyFeatured?: boolean | null;
+  customServices?:
+    | {
+        title: string;
+        description?: string | null;
+        icon?: string | null;
+        image?: (string | null) | Media;
+        price?: number | null;
+        link?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  showPrices?: boolean | null;
+  showIcons?: boolean | null;
+  showDuration?: boolean | null;
+  showBookButton?: boolean | null;
+  bookButtonText?: string | null;
+  bookButtonLink?: string | null;
+  ctaButton?: {
+    enabled?: boolean | null;
+    label?: string | null;
+    link?: string | null;
+  };
+  /**
+   * Ex: /servicii - cardurile vor fi clickable si vor duce la /servicii/slug-serviciu. Lasati gol pentru a dezactiva link-urile.
+   */
+  detailBasePath?: string | null;
+  backgroundColor?: ('default' | 'light' | 'dark' | 'primary') | null;
+  /**
+   * Customize text labels for different languages
+   */
+  labels?: {
+    currencySymbol?: string | null;
+    fromLabel?: string | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'services';
 }
 /**
  * Servicii flexibile cu atribute dinamice și opțiuni avansate
@@ -1457,6 +689,53 @@ export interface Category {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TeamBlock".
+ */
+export interface TeamBlock {
+  variant?: ('grid' | 'grid-centered' | 'carousel' | 'list' | 'featured' | 'with-modal') | null;
+  heading?: string | null;
+  subheading?: string | null;
+  source?: ('collection' | 'manual') | null;
+  selectedMembers?: (string | Team)[] | null;
+  limit?: number | null;
+  onlyFeatured?: boolean | null;
+  showRole?: boolean | null;
+  showBio?: boolean | null;
+  showSocial?: boolean | null;
+  showContact?: boolean | null;
+  /**
+   * Ex: /echipa - cardurile vor deveni clickable si vor duce la /echipa/slug-membru
+   */
+  detailBasePath?: string | null;
+  columns?: ('2' | '3' | '4') | null;
+  backgroundColor?: ('default' | 'light' | 'dark') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'team';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TestimonialsBlock".
+ */
+export interface TestimonialsBlock {
+  variant?: ('carousel' | 'grid' | 'single-featured' | 'masonry' | 'cards-rotating' | 'minimal') | null;
+  heading?: string | null;
+  subheading?: string | null;
+  source?: ('collection' | 'manual') | null;
+  selectedTestimonials?: (string | Testimonial)[] | null;
+  limit?: number | null;
+  onlyFeatured?: boolean | null;
+  showRating?: boolean | null;
+  showAvatar?: boolean | null;
+  showSource?: boolean | null;
+  autoplay?: boolean | null;
+  backgroundColor?: ('default' | 'light' | 'dark' | 'primary') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'testimonials';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "testimonials".
  */
 export interface Testimonial {
@@ -1472,6 +751,32 @@ export interface Testimonial {
   order?: number | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PortfolioBlock".
+ */
+export interface PortfolioBlock {
+  variant?: ('grid-masonry' | 'grid-uniform' | 'carousel' | 'filterable' | 'lightbox' | 'case-studies') | null;
+  heading?: string | null;
+  subheading?: string | null;
+  source?: ('collection' | 'manual') | null;
+  selectedProjects?: (string | Portfolio)[] | null;
+  filterByCategory?: (string | null) | Category;
+  limit?: number | null;
+  onlyFeatured?: boolean | null;
+  showDescription?: boolean | null;
+  showClient?: boolean | null;
+  columns?: ('2' | '3' | '4') | null;
+  ctaButton?: {
+    enabled?: boolean | null;
+    label?: string | null;
+    link?: string | null;
+  };
+  backgroundColor?: ('default' | 'light' | 'dark') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'portfolio';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1524,6 +829,45 @@ export interface Portfolio {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FaqBlock".
+ */
+export interface FaqBlock {
+  variant?: ('accordion' | 'two-columns' | 'tabs' | 'searchable' | 'numbered') | null;
+  heading?: string | null;
+  subheading?: string | null;
+  source?: ('collection' | 'manual' | 'custom') | null;
+  selectedFAQs?: (string | Faq)[] | null;
+  filterByCategory?: (string | null) | Category;
+  limit?: number | null;
+  customFAQs?:
+    | {
+        question: string;
+        answer: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  defaultOpen?: ('none' | 'first' | 'all') | null;
+  backgroundColor?: ('default' | 'light' | 'dark') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'faq';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "faq".
  */
 export interface Faq {
@@ -1551,36 +895,46 @@ export interface Faq {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "FormBlock".
+ * via the `definition` "ContactBlock".
  */
-export interface FormBlock {
-  /**
-   * Selecteaza formularul definit in admin
-   */
-  form: string | Form;
-  variant?: ('standard' | 'card' | 'centered' | 'minimal') | null;
-  enableIntro?: boolean | null;
+export interface ContactBlock {
+  variant?: ('standard' | 'cards' | 'compact' | 'minimal' | 'full') | null;
   heading?: string | null;
   subheading?: string | null;
-  introContent?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  backgroundColor?: ('default' | 'light' | 'dark') | null;
+  contactInfoItems?: {
+    showAddress?: boolean | null;
+    showPhone?: boolean | null;
+    showEmail?: boolean | null;
+    showWorkingHours?: boolean | null;
+    showSocial?: boolean | null;
+  };
+  /**
+   * Selecteaza formularul de contact pentru varianta Full
+   */
+  form?: (string | null) | Form;
+  mapSettings?: {
+    showMap?: boolean | null;
+    mapHeight?: ('small' | 'medium' | 'large') | null;
+    mapHeading?: string | null;
+  };
+  formSettings?: {
+    formHeading?: string | null;
+    formSubheading?: string | null;
+  };
+  backgroundColor?: ('transparent' | 'default' | 'light' | 'dark') | null;
+  /**
+   * Personalizare text pentru diferite limbi
+   */
+  labels?: {
+    addressLabel?: string | null;
+    phoneLabel?: string | null;
+    emailLabel?: string | null;
+    scheduleLabel?: string | null;
+    socialLabel?: string | null;
+  };
   id?: string | null;
   blockName?: string | null;
-  blockType: 'formBlock';
+  blockType: 'contact';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1774,6 +1128,230 @@ export interface Form {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CtaBlock".
+ */
+export interface CtaBlock {
+  variant?: ('centered' | 'split' | 'with-image' | 'gradient' | 'minimal' | 'floating' | 'with-form') | null;
+  headline: string;
+  subheadline?: string | null;
+  image?: (string | null) | Media;
+  buttons?:
+    | {
+        label: string;
+        link: string;
+        variant?: ('default' | 'outline' | 'ghost') | null;
+        id?: string | null;
+      }[]
+    | null;
+  showPhoneNumber?: boolean | null;
+  backgroundColor?: ('default' | 'light' | 'dark' | 'primary' | 'accent') | null;
+  textAlignment?: ('left' | 'center' | 'right') | null;
+  size?: ('small' | 'medium' | 'large') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'cta';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GalleryBlock".
+ */
+export interface GalleryBlock {
+  variant?: ('grid-3' | 'grid-4' | 'masonry' | 'carousel' | 'lightbox' | 'instagram') | null;
+  heading?: string | null;
+  subheading?: string | null;
+  source?: ('custom' | 'portfolio') | null;
+  limit?: number | null;
+  images?:
+    | {
+        image: string | Media;
+        caption?: string | null;
+        /**
+         * Ex: Tunsori, Barba, Colorare (pentru filtrare)
+         */
+        category?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  showCaptions?: boolean | null;
+  aspectRatio?: ('auto' | 'square' | '4-3' | '16-9' | '3-2') | null;
+  gap?: ('none' | 'small' | 'medium' | 'large') | null;
+  backgroundColor?: ('default' | 'light' | 'dark') | null;
+  /**
+   * Customize text labels for different languages
+   */
+  labels?: {
+    allFilter?: string | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'gallery';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "StatsBlock".
+ */
+export interface StatsBlock {
+  variant?: ('inline' | 'grid-4' | 'grid-3' | 'with-icons' | 'animated' | 'minimal') | null;
+  heading?: string | null;
+  source?: ('businessInfo' | 'custom') | null;
+  stats?:
+    | {
+        value: string;
+        label: string;
+        icon?: string | null;
+        /**
+         * Ex: +, %, ani
+         */
+        suffix?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  animated?: boolean | null;
+  backgroundColor?: ('default' | 'light' | 'dark' | 'primary') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'stats';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ContentBlock".
+ */
+export interface ContentBlock {
+  columns?:
+    | {
+        width?:
+          | (
+              | '100'
+              | '90'
+              | '80'
+              | '75'
+              | '70'
+              | '66'
+              | '60'
+              | '50'
+              | '40'
+              | '33'
+              | '30'
+              | '25'
+              | '20'
+              | 'full'
+              | 'three-quarters'
+              | 'two-thirds'
+              | 'half'
+              | 'one-third'
+              | 'one-quarter'
+            )
+          | null;
+        alignment?: ('top' | 'center' | 'bottom') | null;
+        contentType?: ('richText' | 'image' | 'video' | 'blocks') | null;
+        richText?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        image?: (string | null) | Media;
+        videoUrl?: string | null;
+        /**
+         * Adauga blocuri in aceasta coloana (formulare, contact, harta, CTA)
+         */
+        blocks?: (FormBlock | ContactBlock | MapBlock | CtaBlock)[] | null;
+        id?: string | null;
+      }[]
+    | null;
+  backgroundColor?: ('default' | 'light' | 'dark') | null;
+  paddingTop?: ('none' | 'small' | 'medium' | 'large') | null;
+  paddingBottom?: ('none' | 'small' | 'medium' | 'large') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'content';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FormBlock".
+ */
+export interface FormBlock {
+  /**
+   * Selecteaza formularul definit in admin
+   */
+  form: string | Form;
+  variant?: ('standard' | 'card' | 'centered' | 'minimal') | null;
+  enableIntro?: boolean | null;
+  heading?: string | null;
+  subheading?: string | null;
+  introContent?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  backgroundColor?: ('default' | 'light' | 'dark') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'formBlock';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MapBlock".
+ */
+export interface MapBlock {
+  variant?: ('full-width' | 'contained' | 'with-info') | null;
+  heading?: string | null;
+  source?: ('businessInfo' | 'custom') | null;
+  customEmbed?: string | null;
+  height?: ('small' | 'medium' | 'large') | null;
+  showDirectionsButton?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'map';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProductsBlock".
+ */
+export interface ProductsBlock {
+  variant?: ('grid-4' | 'grid-3' | 'carousel' | 'list' | 'featured') | null;
+  heading?: string | null;
+  subheading?: string | null;
+  source?: ('collection' | 'manual') | null;
+  selectedProducts?: (string | Product)[] | null;
+  filterByCategory?: (string | null) | Category;
+  limit?: number | null;
+  onlyFeatured?: boolean | null;
+  onlySale?: boolean | null;
+  showPrice?: boolean | null;
+  showSalePrice?: boolean | null;
+  showAddToCart?: boolean | null;
+  ctaButton?: {
+    enabled?: boolean | null;
+    label?: string | null;
+    link?: string | null;
+  };
+  backgroundColor?: ('default' | 'light' | 'dark') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'products';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "products".
  */
 export interface Product {
@@ -1957,6 +1535,69 @@ export interface ProductTag {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BookingBlock".
+ */
+export interface BookingBlock {
+  variant?: ('standard' | 'with-service' | 'with-person' | 'full' | 'minimal') | null;
+  heading?: string | null;
+  subheading?: string | null;
+  showServiceSelection?: boolean | null;
+  showTeamSelection?: boolean | null;
+  showDatePicker?: boolean | null;
+  showTimePicker?: boolean | null;
+  requiredFields?: {
+    name?: boolean | null;
+    email?: boolean | null;
+    phone?: boolean | null;
+    notes?: boolean | null;
+  };
+  submitButtonText?: string | null;
+  successMessage?: string | null;
+  showWhatsappOption?: boolean | null;
+  showPhoneOption?: boolean | null;
+  backgroundColor?: ('default' | 'light' | 'dark' | 'primary') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'booking';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CartBlock".
+ */
+export interface CartBlock {
+  variant?: ('full' | 'compact') | null;
+  heading?: string | null;
+  showQuantitySelector?: boolean | null;
+  showRemoveButton?: boolean | null;
+  showSubtotal?: boolean | null;
+  checkoutButtonText?: string | null;
+  checkoutLink?: string | null;
+  emptyCartMessage?: string | null;
+  continueShoppingLink?: string | null;
+  backgroundColor?: ('default' | 'light' | 'dark') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'cart';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CheckoutBlock".
+ */
+export interface CheckoutBlock {
+  variant?: ('full' | 'compact') | null;
+  heading?: string | null;
+  showOrderSummary?: boolean | null;
+  showShippingOptions?: boolean | null;
+  showPaymentOptions?: boolean | null;
+  submitButtonText?: string | null;
+  successMessage?: string | null;
+  backgroundColor?: ('default' | 'light' | 'dark') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'checkout';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "VideoEmbedBlock".
  */
 export interface VideoEmbedBlock {
@@ -2074,6 +1715,231 @@ export interface BeforeAfterBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'beforeAfter';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "NewsletterBlock".
+ */
+export interface NewsletterBlock {
+  variant?: ('simple' | 'with-image' | 'dark' | 'with-pattern' | 'inline') | null;
+  heading?: string | null;
+  subheading?: string | null;
+  placeholder?: string | null;
+  buttonText?: string | null;
+  successMessage?: string | null;
+  backgroundImage?: (string | null) | Media;
+  privacyText?: string | null;
+  showPrivacyLink?: boolean | null;
+  benefits?:
+    | {
+        text?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'newsletter';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TrustBadgesBlock".
+ */
+export interface TrustBadgesBlock {
+  variant?: ('bar' | 'grid-3' | 'grid-4' | 'inline' | 'cards' | 'minimal') | null;
+  /**
+   * Optional - lasa gol pentru a afisa doar badge-urile
+   */
+  heading?: string | null;
+  source?: ('preset' | 'custom') | null;
+  /**
+   * Alege badge-urile pe care vrei sa le afisezi
+   */
+  presets?:
+    | (
+        | 'free-shipping'
+        | 'fast-shipping'
+        | 'return-30'
+        | 'return-14'
+        | 'secure-payment'
+        | 'warranty'
+        | 'support-24-7'
+        | 'quality'
+        | 'fair-price'
+        | 'free-shipping-threshold'
+        | 'experience-years'
+        | 'happy-customers'
+        | 'romanian-products'
+        | 'eco-friendly'
+        | 'free-consultation'
+        | 'online-booking'
+      )[]
+    | null;
+  /**
+   * Completeaza valorile pentru badge-urile selectate (daca e cazul)
+   */
+  customValues?: {
+    shippingThreshold?: number | null;
+    experienceYears?: number | null;
+    happyCustomersCount?: string | null;
+    warrantyPeriod?: string | null;
+  };
+  badges?:
+    | {
+        icon:
+          | 'Truck'
+          | 'Package'
+          | 'Shield'
+          | 'ShieldCheck'
+          | 'CheckCircle'
+          | 'Star'
+          | 'Heart'
+          | 'Phone'
+          | 'Clock'
+          | 'Calendar'
+          | 'CreditCard'
+          | 'Gift'
+          | 'Award'
+          | 'Users'
+          | 'ThumbsUp'
+          | 'Leaf'
+          | 'Recycle'
+          | 'RefreshCw'
+          | 'Headphones'
+          | 'MessageCircle'
+          | 'Zap'
+          | 'BadgeCheck'
+          | 'CircleDollarSign'
+          | 'Banknote';
+        title: string;
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Debifati pentru a afisa doar iconitele si titlurile
+   */
+  showDescriptions?: boolean | null;
+  iconSize?: ('small' | 'medium' | 'large') | null;
+  backgroundColor?: ('default' | 'light' | 'dark' | 'primary' | 'transparent') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'trust-badges';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HowItWorksBlock".
+ */
+export interface HowItWorksBlock {
+  variant?: ('numbered' | 'icons' | 'timeline' | 'horizontal-cards' | 'connected' | 'alternating') | null;
+  heading?: string | null;
+  subheading?: string | null;
+  steps?:
+    | {
+        title: string;
+        description?: string | null;
+        icon?:
+          | (
+              | 'Search'
+              | 'MousePointerClick'
+              | 'Calendar'
+              | 'CheckCircle'
+              | 'User'
+              | 'Store'
+              | 'ShoppingCart'
+              | 'CreditCard'
+              | 'Package'
+              | 'Truck'
+              | 'Home'
+              | 'Phone'
+              | 'Mail'
+              | 'MessageSquare'
+              | 'Settings'
+              | 'FileText'
+              | 'Scissors'
+              | 'Star'
+              | 'Heart'
+              | 'ClipboardCheck'
+            )
+          | null;
+        image?: (string | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  showNumbers?: boolean | null;
+  ctaButton?: {
+    enabled?: boolean | null;
+    label?: string | null;
+    link?: string | null;
+  };
+  backgroundColor?: ('default' | 'light' | 'dark' | 'primary') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'how-it-works';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LogoCloudBlock".
+ */
+export interface LogoCloudBlock {
+  variant?: ('simple' | 'carousel' | 'cards' | 'grayscale' | 'with-text' | 'marquee') | null;
+  /**
+   * Ex: "Partenerii nostri", "Au avut incredere in noi", "As Seen In"
+   */
+  heading?: string | null;
+  subheading?: string | null;
+  logos?:
+    | {
+        logo: string | Media;
+        /**
+         * Pentru accesibilitate (alt text)
+         */
+        name: string;
+        /**
+         * URL catre site-ul partenerului
+         */
+        url?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  logoSize?: ('small' | 'medium' | 'large') | null;
+  columns?: ('3' | '4' | '5' | '6') | null;
+  /**
+   * Afiseaza logo-urile in alb-negru (colorate la hover)
+   */
+  grayscale?: boolean | null;
+  backgroundColor?: ('default' | 'light' | 'dark' | 'transparent') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'logo-cloud';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LatestPostsBlock".
+ */
+export interface LatestPostsBlock {
+  variant?: ('grid-3' | 'grid-2' | 'grid-4' | 'list' | 'carousel' | 'featured' | 'minimal') | null;
+  heading?: string | null;
+  subheading?: string | null;
+  source?: ('collection' | 'manual') | null;
+  selectedPosts?: (string | Post)[] | null;
+  filterByCategory?: (string | null) | Category;
+  limit?: number | null;
+  showImage?: boolean | null;
+  showExcerpt?: boolean | null;
+  showDate?: boolean | null;
+  showCategory?: boolean | null;
+  showAuthor?: boolean | null;
+  showReadMore?: boolean | null;
+  readMoreText?: string | null;
+  ctaButton?: {
+    enabled?: boolean | null;
+    label?: string | null;
+    link?: string | null;
+  };
+  backgroundColor?: ('default' | 'light' | 'dark' | 'primary') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'latestPosts';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2323,6 +2189,32 @@ export interface AnnouncementBarBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SubscriptionCardsBlock".
+ */
+export interface SubscriptionCardsBlock {
+  variant?: ('cards-3' | 'cards-4' | 'cards-overlay' | 'list-compact' | 'table-compare') | null;
+  heading?: string | null;
+  subheading?: string | null;
+  source?: ('collection' | 'manual') | null;
+  selectedSubscriptions?: (string | Subscription)[] | null;
+  filterByType?: ('all' | 'gym' | 'spa' | 'solar' | 'fitness-spa' | 'classes' | 'personal' | 'premium') | null;
+  limit?: number | null;
+  showImage?: boolean | null;
+  showFeatures?: boolean | null;
+  showOldPrice?: boolean | null;
+  highlightStyle?: ('border' | 'background' | 'elevated' | 'badge') | null;
+  ctaButton?: {
+    enabled?: boolean | null;
+    label?: string | null;
+    link?: string | null;
+  };
+  backgroundColor?: ('default' | 'light' | 'dark' | 'primary') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'subscriptionCards';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "subscriptions".
  */
 export interface Subscription {
@@ -2375,6 +2267,220 @@ export interface Subscription {
   active?: boolean | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ScheduleTableBlock".
+ */
+export interface ScheduleTableBlock {
+  variant?: ('table-week' | 'list-days' | 'cards-days') | null;
+  heading?: string | null;
+  subheading?: string | null;
+  source?: ('collection' | 'custom') | null;
+  filterByCategory?: ('all' | 'cardio' | 'strength' | 'flexibility' | 'mind-body' | 'combat' | 'dance' | 'hiit') | null;
+  customSchedule?:
+    | {
+        day: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+        startTime: string;
+        endTime?: string | null;
+        title: string;
+        trainer?: string | null;
+        room?: string | null;
+        color?: ('primary' | 'orange' | 'blue' | 'green' | 'purple') | null;
+        id?: string | null;
+      }[]
+    | null;
+  showTrainer?: boolean | null;
+  showDuration?: boolean | null;
+  showRoom?: boolean | null;
+  showCategoryFilter?: boolean | null;
+  highlightToday?: boolean | null;
+  startHour?: number | null;
+  endHour?: number | null;
+  ctaButton?: {
+    enabled?: boolean | null;
+    label?: string | null;
+    link?: string | null;
+  };
+  backgroundColor?: ('default' | 'light' | 'dark') | null;
+  /**
+   * Customize text labels for different languages
+   */
+  labels?: {
+    allFilter?: string | null;
+    todayBadge?: string | null;
+    noClasses?: string | null;
+    detailsButton?: string | null;
+    timeHeader?: string | null;
+    /**
+     * JSON object with day translations: { "monday": "Luni", ... }
+     */
+    dayLabels?:
+      | {
+          [k: string]: unknown;
+        }
+      | unknown[]
+      | string
+      | number
+      | boolean
+      | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'scheduleTable';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TeamMemberDetailBlock".
+ */
+export interface TeamMemberDetailBlock {
+  /**
+   * Selecteaza membrul echipei de afisat
+   */
+  member: string | Team;
+  variant?: ('full' | 'compact' | 'hero') | null;
+  showBreadcrumb?: boolean | null;
+  showExperience?: boolean | null;
+  showSpecializations?: boolean | null;
+  showContact?: boolean | null;
+  showSocialMedia?: boolean | null;
+  showSchedule?: boolean | null;
+  showCTA?: boolean | null;
+  showRelatedMembers?: boolean | null;
+  relatedMembersCount?: number | null;
+  relatedMembersTitle?: string | null;
+  backgroundColor?: ('default' | 'light' | 'dark') | null;
+  /**
+   * Customize all text labels for different languages
+   */
+  labels?: {
+    breadcrumbHome?: string | null;
+    breadcrumbTeam?: string | null;
+    experienceTitle?: string | null;
+    specializationsTitle?: string | null;
+    scheduleTitle?: string | null;
+    contactTitle?: string | null;
+    ctaTitle?: string | null;
+    ctaDescription?: string | null;
+    ctaButtonText?: string | null;
+    ctaSecondaryButtonText?: string | null;
+    viewAllTeamText?: string | null;
+    notFoundMessage?: string | null;
+  };
+  /**
+   * Configure URL paths
+   */
+  links?: {
+    teamBasePath?: string | null;
+    contactPath?: string | null;
+    classesPath?: string | null;
+    bookingPath?: string | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'teamMemberDetail';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ServiceDetailBlock".
+ */
+export interface ServiceDetailBlock {
+  /**
+   * Selecteaza serviciul de afisat
+   */
+  service: string | Service;
+  variant?: ('full' | 'compact' | 'hero') | null;
+  showBreadcrumb?: boolean | null;
+  /**
+   * Only shown if service has schedule data
+   */
+  showSchedule?: boolean | null;
+  showPricing?: boolean | null;
+  /**
+   * Shows assigned team member/instructor
+   */
+  showTeamMember?: boolean | null;
+  showBenefits?: boolean | null;
+  showFeatures?: boolean | null;
+  showRequirements?: boolean | null;
+  showRelatedServices?: boolean | null;
+  relatedServicesCount?: number | null;
+  relatedServicesTitle?: string | null;
+  ctaButtonText?: string | null;
+  /**
+   * Leave empty to use default booking link
+   */
+  ctaButtonLink?: string | null;
+  backgroundColor?: ('default' | 'light' | 'dark') | null;
+  /**
+   * Customize all text labels for different languages
+   */
+  labels?: {
+    breadcrumbHome?: string | null;
+    breadcrumbServices?: string | null;
+    benefitsTitle?: string | null;
+    featuresTitle?: string | null;
+    scheduleTitle?: string | null;
+    pricingTitle?: string | null;
+    teamMemberTitle?: string | null;
+    requirementsTitle?: string | null;
+    viewAllServicesText?: string | null;
+    minutesLabel?: string | null;
+    spotsLabel?: string | null;
+    priceFromLabel?: string | null;
+    dropInLabel?: string | null;
+    monthlyLabel?: string | null;
+    packageLabel?: string | null;
+    currencySymbol?: string | null;
+    /**
+     * JSON object with day translations: { "monday": "Luni", ... }
+     */
+    dayLabels?:
+      | {
+          [k: string]: unknown;
+        }
+      | unknown[]
+      | string
+      | number
+      | boolean
+      | null;
+    /**
+     * JSON object with difficulty translations
+     */
+    difficultyLabels?:
+      | {
+          [k: string]: unknown;
+        }
+      | unknown[]
+      | string
+      | number
+      | boolean
+      | null;
+    /**
+     * JSON object with service type translations
+     */
+    serviceTypeLabels?:
+      | {
+          [k: string]: unknown;
+        }
+      | unknown[]
+      | string
+      | number
+      | boolean
+      | null;
+    notFoundMessage?: string | null;
+  };
+  /**
+   * Configure URL paths
+   */
+  links?: {
+    servicesBasePath?: string | null;
+    teamBasePath?: string | null;
+    bookingPath?: string | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'serviceDetail';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3057,756 +3163,39 @@ export interface PagesSelect<T extends boolean = true> {
   layout?:
     | T
     | {
-        hero?:
-          | T
-          | {
-              variant?: T;
-              headline?: T;
-              subheadline?: T;
-              image?: T;
-              videoUrl?: T;
-              slides?:
-                | T
-                | {
-                    image?: T;
-                    headline?: T;
-                    subheadline?: T;
-                    id?: T;
-                  };
-              ctaButtons?:
-                | T
-                | {
-                    label?: T;
-                    link?: T;
-                    variant?: T;
-                    id?: T;
-                  };
-              overlayOpacity?: T;
-              textColor?: T;
-              height?: T;
-              id?: T;
-              blockName?: T;
-            };
-        services?:
-          | T
-          | {
-              variant?: T;
-              heading?: T;
-              subheading?: T;
-              source?: T;
-              selectedServices?: T;
-              filterByCategory?: T;
-              limit?: T;
-              onlyFeatured?: T;
-              customServices?:
-                | T
-                | {
-                    title?: T;
-                    description?: T;
-                    icon?: T;
-                    image?: T;
-                    price?: T;
-                    link?: T;
-                    id?: T;
-                  };
-              showPrices?: T;
-              showIcons?: T;
-              showDuration?: T;
-              showBookButton?: T;
-              bookButtonText?: T;
-              bookButtonLink?: T;
-              ctaButton?:
-                | T
-                | {
-                    enabled?: T;
-                    label?: T;
-                    link?: T;
-                  };
-              detailBasePath?: T;
-              backgroundColor?: T;
-              labels?:
-                | T
-                | {
-                    currencySymbol?: T;
-                    fromLabel?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        team?:
-          | T
-          | {
-              variant?: T;
-              heading?: T;
-              subheading?: T;
-              source?: T;
-              selectedMembers?: T;
-              limit?: T;
-              onlyFeatured?: T;
-              showRole?: T;
-              showBio?: T;
-              showSocial?: T;
-              showContact?: T;
-              detailBasePath?: T;
-              columns?: T;
-              backgroundColor?: T;
-              id?: T;
-              blockName?: T;
-            };
-        testimonials?:
-          | T
-          | {
-              variant?: T;
-              heading?: T;
-              subheading?: T;
-              source?: T;
-              selectedTestimonials?: T;
-              limit?: T;
-              onlyFeatured?: T;
-              showRating?: T;
-              showAvatar?: T;
-              showSource?: T;
-              autoplay?: T;
-              backgroundColor?: T;
-              id?: T;
-              blockName?: T;
-            };
-        portfolio?:
-          | T
-          | {
-              variant?: T;
-              heading?: T;
-              subheading?: T;
-              source?: T;
-              selectedProjects?: T;
-              filterByCategory?: T;
-              limit?: T;
-              onlyFeatured?: T;
-              showDescription?: T;
-              showClient?: T;
-              columns?: T;
-              ctaButton?:
-                | T
-                | {
-                    enabled?: T;
-                    label?: T;
-                    link?: T;
-                  };
-              backgroundColor?: T;
-              id?: T;
-              blockName?: T;
-            };
-        faq?:
-          | T
-          | {
-              variant?: T;
-              heading?: T;
-              subheading?: T;
-              source?: T;
-              selectedFAQs?: T;
-              filterByCategory?: T;
-              limit?: T;
-              customFAQs?:
-                | T
-                | {
-                    question?: T;
-                    answer?: T;
-                    id?: T;
-                  };
-              defaultOpen?: T;
-              backgroundColor?: T;
-              id?: T;
-              blockName?: T;
-            };
-        contact?:
-          | T
-          | {
-              variant?: T;
-              heading?: T;
-              subheading?: T;
-              showContactInfo?: T;
-              contactInfoItems?:
-                | T
-                | {
-                    showAddress?: T;
-                    showPhone?: T;
-                    showEmail?: T;
-                    showWorkingHours?: T;
-                    showSocial?: T;
-                  };
-              showMap?: T;
-              mapPosition?: T;
-              backgroundColor?: T;
-              labels?:
-                | T
-                | {
-                    contactInfoTitle?: T;
-                    addressLabel?: T;
-                    phoneLabel?: T;
-                    emailLabel?: T;
-                    scheduleLabel?: T;
-                    socialLabel?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        cta?:
-          | T
-          | {
-              variant?: T;
-              headline?: T;
-              subheadline?: T;
-              image?: T;
-              buttons?:
-                | T
-                | {
-                    label?: T;
-                    link?: T;
-                    variant?: T;
-                    id?: T;
-                  };
-              showPhoneNumber?: T;
-              backgroundColor?: T;
-              textAlignment?: T;
-              size?: T;
-              id?: T;
-              blockName?: T;
-            };
-        gallery?:
-          | T
-          | {
-              variant?: T;
-              heading?: T;
-              subheading?: T;
-              source?: T;
-              limit?: T;
-              images?:
-                | T
-                | {
-                    image?: T;
-                    caption?: T;
-                    category?: T;
-                    id?: T;
-                  };
-              showCaptions?: T;
-              aspectRatio?: T;
-              gap?: T;
-              backgroundColor?: T;
-              labels?:
-                | T
-                | {
-                    allFilter?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        stats?:
-          | T
-          | {
-              variant?: T;
-              heading?: T;
-              source?: T;
-              stats?:
-                | T
-                | {
-                    value?: T;
-                    label?: T;
-                    icon?: T;
-                    suffix?: T;
-                    id?: T;
-                  };
-              animated?: T;
-              backgroundColor?: T;
-              id?: T;
-              blockName?: T;
-            };
-        content?:
-          | T
-          | {
-              columns?:
-                | T
-                | {
-                    width?: T;
-                    alignment?: T;
-                    contentType?: T;
-                    richText?: T;
-                    image?: T;
-                    videoUrl?: T;
-                    blocks?:
-                      | T
-                      | {
-                          formBlock?: T | FormBlockSelect<T>;
-                          contact?:
-                            | T
-                            | {
-                                variant?: T;
-                                heading?: T;
-                                subheading?: T;
-                                showContactInfo?: T;
-                                contactInfoItems?:
-                                  | T
-                                  | {
-                                      showAddress?: T;
-                                      showPhone?: T;
-                                      showEmail?: T;
-                                      showWorkingHours?: T;
-                                      showSocial?: T;
-                                    };
-                                showMap?: T;
-                                mapPosition?: T;
-                                backgroundColor?: T;
-                                labels?:
-                                  | T
-                                  | {
-                                      contactInfoTitle?: T;
-                                      addressLabel?: T;
-                                      phoneLabel?: T;
-                                      emailLabel?: T;
-                                      scheduleLabel?: T;
-                                      socialLabel?: T;
-                                    };
-                                id?: T;
-                                blockName?: T;
-                              };
-                          map?:
-                            | T
-                            | {
-                                variant?: T;
-                                heading?: T;
-                                source?: T;
-                                customEmbed?: T;
-                                height?: T;
-                                showDirectionsButton?: T;
-                                id?: T;
-                                blockName?: T;
-                              };
-                          cta?:
-                            | T
-                            | {
-                                variant?: T;
-                                headline?: T;
-                                subheadline?: T;
-                                image?: T;
-                                buttons?:
-                                  | T
-                                  | {
-                                      label?: T;
-                                      link?: T;
-                                      variant?: T;
-                                      id?: T;
-                                    };
-                                showPhoneNumber?: T;
-                                backgroundColor?: T;
-                                textAlignment?: T;
-                                size?: T;
-                                id?: T;
-                                blockName?: T;
-                              };
-                        };
-                    id?: T;
-                  };
-              backgroundColor?: T;
-              paddingTop?: T;
-              paddingBottom?: T;
-              id?: T;
-              blockName?: T;
-            };
-        products?:
-          | T
-          | {
-              variant?: T;
-              heading?: T;
-              subheading?: T;
-              source?: T;
-              selectedProducts?: T;
-              filterByCategory?: T;
-              limit?: T;
-              onlyFeatured?: T;
-              onlySale?: T;
-              showPrice?: T;
-              showSalePrice?: T;
-              showAddToCart?: T;
-              ctaButton?:
-                | T
-                | {
-                    enabled?: T;
-                    label?: T;
-                    link?: T;
-                  };
-              backgroundColor?: T;
-              id?: T;
-              blockName?: T;
-            };
-        map?:
-          | T
-          | {
-              variant?: T;
-              heading?: T;
-              source?: T;
-              customEmbed?: T;
-              height?: T;
-              showDirectionsButton?: T;
-              id?: T;
-              blockName?: T;
-            };
-        booking?:
-          | T
-          | {
-              variant?: T;
-              heading?: T;
-              subheading?: T;
-              showServiceSelection?: T;
-              showTeamSelection?: T;
-              showDatePicker?: T;
-              showTimePicker?: T;
-              requiredFields?:
-                | T
-                | {
-                    name?: T;
-                    email?: T;
-                    phone?: T;
-                    notes?: T;
-                  };
-              submitButtonText?: T;
-              successMessage?: T;
-              showWhatsappOption?: T;
-              showPhoneOption?: T;
-              backgroundColor?: T;
-              id?: T;
-              blockName?: T;
-            };
-        cart?:
-          | T
-          | {
-              variant?: T;
-              heading?: T;
-              showQuantitySelector?: T;
-              showRemoveButton?: T;
-              showSubtotal?: T;
-              checkoutButtonText?: T;
-              checkoutLink?: T;
-              emptyCartMessage?: T;
-              continueShoppingLink?: T;
-              backgroundColor?: T;
-              id?: T;
-              blockName?: T;
-            };
-        checkout?:
-          | T
-          | {
-              variant?: T;
-              heading?: T;
-              showOrderSummary?: T;
-              showShippingOptions?: T;
-              showPaymentOptions?: T;
-              submitButtonText?: T;
-              successMessage?: T;
-              backgroundColor?: T;
-              id?: T;
-              blockName?: T;
-            };
+        hero?: T | HeroBlockSelect<T>;
+        services?: T | ServicesBlockSelect<T>;
+        team?: T | TeamBlockSelect<T>;
+        testimonials?: T | TestimonialsBlockSelect<T>;
+        portfolio?: T | PortfolioBlockSelect<T>;
+        faq?: T | FaqBlockSelect<T>;
+        contact?: T | ContactBlockSelect<T>;
+        cta?: T | CtaBlockSelect<T>;
+        gallery?: T | GalleryBlockSelect<T>;
+        stats?: T | StatsBlockSelect<T>;
+        content?: T | ContentBlockSelect<T>;
+        products?: T | ProductsBlockSelect<T>;
+        map?: T | MapBlockSelect<T>;
+        booking?: T | BookingBlockSelect<T>;
+        cart?: T | CartBlockSelect<T>;
+        checkout?: T | CheckoutBlockSelect<T>;
         videoEmbed?: T | VideoEmbedBlockSelect<T>;
         priceListDotted?: T | PriceListDottedBlockSelect<T>;
         beforeAfter?: T | BeforeAfterBlockSelect<T>;
-        newsletter?:
-          | T
-          | {
-              variant?: T;
-              heading?: T;
-              subheading?: T;
-              placeholder?: T;
-              buttonText?: T;
-              successMessage?: T;
-              backgroundImage?: T;
-              privacyText?: T;
-              showPrivacyLink?: T;
-              benefits?:
-                | T
-                | {
-                    text?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        'trust-badges'?:
-          | T
-          | {
-              variant?: T;
-              heading?: T;
-              source?: T;
-              presets?: T;
-              customValues?:
-                | T
-                | {
-                    shippingThreshold?: T;
-                    experienceYears?: T;
-                    happyCustomersCount?: T;
-                    warrantyPeriod?: T;
-                  };
-              badges?:
-                | T
-                | {
-                    icon?: T;
-                    title?: T;
-                    description?: T;
-                    id?: T;
-                  };
-              showDescriptions?: T;
-              iconSize?: T;
-              backgroundColor?: T;
-              id?: T;
-              blockName?: T;
-            };
-        'how-it-works'?:
-          | T
-          | {
-              variant?: T;
-              heading?: T;
-              subheading?: T;
-              steps?:
-                | T
-                | {
-                    title?: T;
-                    description?: T;
-                    icon?: T;
-                    image?: T;
-                    id?: T;
-                  };
-              showNumbers?: T;
-              ctaButton?:
-                | T
-                | {
-                    enabled?: T;
-                    label?: T;
-                    link?: T;
-                  };
-              backgroundColor?: T;
-              id?: T;
-              blockName?: T;
-            };
-        'logo-cloud'?:
-          | T
-          | {
-              variant?: T;
-              heading?: T;
-              subheading?: T;
-              logos?:
-                | T
-                | {
-                    logo?: T;
-                    name?: T;
-                    url?: T;
-                    id?: T;
-                  };
-              logoSize?: T;
-              columns?: T;
-              grayscale?: T;
-              backgroundColor?: T;
-              id?: T;
-              blockName?: T;
-            };
-        latestPosts?:
-          | T
-          | {
-              variant?: T;
-              heading?: T;
-              subheading?: T;
-              source?: T;
-              selectedPosts?: T;
-              filterByCategory?: T;
-              limit?: T;
-              showImage?: T;
-              showExcerpt?: T;
-              showDate?: T;
-              showCategory?: T;
-              showAuthor?: T;
-              showReadMore?: T;
-              readMoreText?: T;
-              ctaButton?:
-                | T
-                | {
-                    enabled?: T;
-                    label?: T;
-                    link?: T;
-                  };
-              backgroundColor?: T;
-              id?: T;
-              blockName?: T;
-            };
+        newsletter?: T | NewsletterBlockSelect<T>;
+        'trust-badges'?: T | TrustBadgesBlockSelect<T>;
+        'how-it-works'?: T | HowItWorksBlockSelect<T>;
+        'logo-cloud'?: T | LogoCloudBlockSelect<T>;
+        latestPosts?: T | LatestPostsBlockSelect<T>;
         openingHours?: T | OpeningHoursBlockSelect<T>;
         locations?: T | LocationsBlockSelect<T>;
         brandLogos?: T | BrandLogosBlockSelect<T>;
         timeline?: T | TimelineBlockSelect<T>;
         announcementBar?: T | AnnouncementBarBlockSelect<T>;
-        subscriptionCards?:
-          | T
-          | {
-              variant?: T;
-              heading?: T;
-              subheading?: T;
-              source?: T;
-              selectedSubscriptions?: T;
-              filterByType?: T;
-              limit?: T;
-              showImage?: T;
-              showFeatures?: T;
-              showOldPrice?: T;
-              highlightStyle?: T;
-              ctaButton?:
-                | T
-                | {
-                    enabled?: T;
-                    label?: T;
-                    link?: T;
-                  };
-              backgroundColor?: T;
-              id?: T;
-              blockName?: T;
-            };
-        scheduleTable?:
-          | T
-          | {
-              variant?: T;
-              heading?: T;
-              subheading?: T;
-              source?: T;
-              filterByCategory?: T;
-              customSchedule?:
-                | T
-                | {
-                    day?: T;
-                    startTime?: T;
-                    endTime?: T;
-                    title?: T;
-                    trainer?: T;
-                    room?: T;
-                    color?: T;
-                    id?: T;
-                  };
-              showTrainer?: T;
-              showDuration?: T;
-              showRoom?: T;
-              showCategoryFilter?: T;
-              highlightToday?: T;
-              startHour?: T;
-              endHour?: T;
-              ctaButton?:
-                | T
-                | {
-                    enabled?: T;
-                    label?: T;
-                    link?: T;
-                  };
-              backgroundColor?: T;
-              labels?:
-                | T
-                | {
-                    allFilter?: T;
-                    todayBadge?: T;
-                    noClasses?: T;
-                    detailsButton?: T;
-                    timeHeader?: T;
-                    dayLabels?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        teamMemberDetail?:
-          | T
-          | {
-              member?: T;
-              variant?: T;
-              showBreadcrumb?: T;
-              showExperience?: T;
-              showSpecializations?: T;
-              showContact?: T;
-              showSocialMedia?: T;
-              showSchedule?: T;
-              showCTA?: T;
-              showRelatedMembers?: T;
-              relatedMembersCount?: T;
-              relatedMembersTitle?: T;
-              backgroundColor?: T;
-              labels?:
-                | T
-                | {
-                    breadcrumbHome?: T;
-                    breadcrumbTeam?: T;
-                    experienceTitle?: T;
-                    specializationsTitle?: T;
-                    scheduleTitle?: T;
-                    contactTitle?: T;
-                    ctaTitle?: T;
-                    ctaDescription?: T;
-                    ctaButtonText?: T;
-                    ctaSecondaryButtonText?: T;
-                    viewAllTeamText?: T;
-                    notFoundMessage?: T;
-                  };
-              links?:
-                | T
-                | {
-                    teamBasePath?: T;
-                    contactPath?: T;
-                    classesPath?: T;
-                    bookingPath?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        serviceDetail?:
-          | T
-          | {
-              service?: T;
-              variant?: T;
-              showBreadcrumb?: T;
-              showSchedule?: T;
-              showPricing?: T;
-              showTeamMember?: T;
-              showBenefits?: T;
-              showFeatures?: T;
-              showRequirements?: T;
-              showRelatedServices?: T;
-              relatedServicesCount?: T;
-              relatedServicesTitle?: T;
-              ctaButtonText?: T;
-              ctaButtonLink?: T;
-              backgroundColor?: T;
-              labels?:
-                | T
-                | {
-                    breadcrumbHome?: T;
-                    breadcrumbServices?: T;
-                    benefitsTitle?: T;
-                    featuresTitle?: T;
-                    scheduleTitle?: T;
-                    pricingTitle?: T;
-                    teamMemberTitle?: T;
-                    requirementsTitle?: T;
-                    viewAllServicesText?: T;
-                    minutesLabel?: T;
-                    spotsLabel?: T;
-                    priceFromLabel?: T;
-                    dropInLabel?: T;
-                    monthlyLabel?: T;
-                    packageLabel?: T;
-                    currencySymbol?: T;
-                    dayLabels?: T;
-                    difficultyLabels?: T;
-                    serviceTypeLabels?: T;
-                    notFoundMessage?: T;
-                  };
-              links?:
-                | T
-                | {
-                    servicesBasePath?: T;
-                    teamBasePath?: T;
-                    bookingPath?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
+        subscriptionCards?: T | SubscriptionCardsBlockSelect<T>;
+        scheduleTable?: T | ScheduleTableBlockSelect<T>;
+        teamMemberDetail?: T | TeamMemberDetailBlockSelect<T>;
+        serviceDetail?: T | ServiceDetailBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
       };
   publishedAt?: T;
@@ -3832,6 +3221,329 @@ export interface PagesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeroBlock_select".
+ */
+export interface HeroBlockSelect<T extends boolean = true> {
+  variant?: T;
+  headline?: T;
+  subheadline?: T;
+  image?: T;
+  videoUrl?: T;
+  slides?:
+    | T
+    | {
+        image?: T;
+        headline?: T;
+        subheadline?: T;
+        id?: T;
+      };
+  ctaButtons?:
+    | T
+    | {
+        label?: T;
+        link?: T;
+        variant?: T;
+        id?: T;
+      };
+  overlayOpacity?: T;
+  textColor?: T;
+  height?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ServicesBlock_select".
+ */
+export interface ServicesBlockSelect<T extends boolean = true> {
+  variant?: T;
+  heading?: T;
+  subheading?: T;
+  source?: T;
+  selectedServices?: T;
+  filterByCategory?: T;
+  limit?: T;
+  onlyFeatured?: T;
+  customServices?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        icon?: T;
+        image?: T;
+        price?: T;
+        link?: T;
+        id?: T;
+      };
+  showPrices?: T;
+  showIcons?: T;
+  showDuration?: T;
+  showBookButton?: T;
+  bookButtonText?: T;
+  bookButtonLink?: T;
+  ctaButton?:
+    | T
+    | {
+        enabled?: T;
+        label?: T;
+        link?: T;
+      };
+  detailBasePath?: T;
+  backgroundColor?: T;
+  labels?:
+    | T
+    | {
+        currencySymbol?: T;
+        fromLabel?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TeamBlock_select".
+ */
+export interface TeamBlockSelect<T extends boolean = true> {
+  variant?: T;
+  heading?: T;
+  subheading?: T;
+  source?: T;
+  selectedMembers?: T;
+  limit?: T;
+  onlyFeatured?: T;
+  showRole?: T;
+  showBio?: T;
+  showSocial?: T;
+  showContact?: T;
+  detailBasePath?: T;
+  columns?: T;
+  backgroundColor?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TestimonialsBlock_select".
+ */
+export interface TestimonialsBlockSelect<T extends boolean = true> {
+  variant?: T;
+  heading?: T;
+  subheading?: T;
+  source?: T;
+  selectedTestimonials?: T;
+  limit?: T;
+  onlyFeatured?: T;
+  showRating?: T;
+  showAvatar?: T;
+  showSource?: T;
+  autoplay?: T;
+  backgroundColor?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PortfolioBlock_select".
+ */
+export interface PortfolioBlockSelect<T extends boolean = true> {
+  variant?: T;
+  heading?: T;
+  subheading?: T;
+  source?: T;
+  selectedProjects?: T;
+  filterByCategory?: T;
+  limit?: T;
+  onlyFeatured?: T;
+  showDescription?: T;
+  showClient?: T;
+  columns?: T;
+  ctaButton?:
+    | T
+    | {
+        enabled?: T;
+        label?: T;
+        link?: T;
+      };
+  backgroundColor?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FaqBlock_select".
+ */
+export interface FaqBlockSelect<T extends boolean = true> {
+  variant?: T;
+  heading?: T;
+  subheading?: T;
+  source?: T;
+  selectedFAQs?: T;
+  filterByCategory?: T;
+  limit?: T;
+  customFAQs?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
+  defaultOpen?: T;
+  backgroundColor?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ContactBlock_select".
+ */
+export interface ContactBlockSelect<T extends boolean = true> {
+  variant?: T;
+  heading?: T;
+  subheading?: T;
+  contactInfoItems?:
+    | T
+    | {
+        showAddress?: T;
+        showPhone?: T;
+        showEmail?: T;
+        showWorkingHours?: T;
+        showSocial?: T;
+      };
+  form?: T;
+  mapSettings?:
+    | T
+    | {
+        showMap?: T;
+        mapHeight?: T;
+        mapHeading?: T;
+      };
+  formSettings?:
+    | T
+    | {
+        formHeading?: T;
+        formSubheading?: T;
+      };
+  backgroundColor?: T;
+  labels?:
+    | T
+    | {
+        addressLabel?: T;
+        phoneLabel?: T;
+        emailLabel?: T;
+        scheduleLabel?: T;
+        socialLabel?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CtaBlock_select".
+ */
+export interface CtaBlockSelect<T extends boolean = true> {
+  variant?: T;
+  headline?: T;
+  subheadline?: T;
+  image?: T;
+  buttons?:
+    | T
+    | {
+        label?: T;
+        link?: T;
+        variant?: T;
+        id?: T;
+      };
+  showPhoneNumber?: T;
+  backgroundColor?: T;
+  textAlignment?: T;
+  size?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GalleryBlock_select".
+ */
+export interface GalleryBlockSelect<T extends boolean = true> {
+  variant?: T;
+  heading?: T;
+  subheading?: T;
+  source?: T;
+  limit?: T;
+  images?:
+    | T
+    | {
+        image?: T;
+        caption?: T;
+        category?: T;
+        id?: T;
+      };
+  showCaptions?: T;
+  aspectRatio?: T;
+  gap?: T;
+  backgroundColor?: T;
+  labels?:
+    | T
+    | {
+        allFilter?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "StatsBlock_select".
+ */
+export interface StatsBlockSelect<T extends boolean = true> {
+  variant?: T;
+  heading?: T;
+  source?: T;
+  stats?:
+    | T
+    | {
+        value?: T;
+        label?: T;
+        icon?: T;
+        suffix?: T;
+        id?: T;
+      };
+  animated?: T;
+  backgroundColor?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ContentBlock_select".
+ */
+export interface ContentBlockSelect<T extends boolean = true> {
+  columns?:
+    | T
+    | {
+        width?: T;
+        alignment?: T;
+        contentType?: T;
+        richText?: T;
+        image?: T;
+        videoUrl?: T;
+        blocks?:
+          | T
+          | {
+              formBlock?: T | FormBlockSelect<T>;
+              contact?: T | ContactBlockSelect<T>;
+              map?: T | MapBlockSelect<T>;
+              cta?: T | CtaBlockSelect<T>;
+            };
+        id?: T;
+      };
+  backgroundColor?: T;
+  paddingTop?: T;
+  paddingBottom?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "FormBlock_select".
  */
 export interface FormBlockSelect<T extends boolean = true> {
@@ -3841,6 +3553,110 @@ export interface FormBlockSelect<T extends boolean = true> {
   heading?: T;
   subheading?: T;
   introContent?: T;
+  backgroundColor?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MapBlock_select".
+ */
+export interface MapBlockSelect<T extends boolean = true> {
+  variant?: T;
+  heading?: T;
+  source?: T;
+  customEmbed?: T;
+  height?: T;
+  showDirectionsButton?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProductsBlock_select".
+ */
+export interface ProductsBlockSelect<T extends boolean = true> {
+  variant?: T;
+  heading?: T;
+  subheading?: T;
+  source?: T;
+  selectedProducts?: T;
+  filterByCategory?: T;
+  limit?: T;
+  onlyFeatured?: T;
+  onlySale?: T;
+  showPrice?: T;
+  showSalePrice?: T;
+  showAddToCart?: T;
+  ctaButton?:
+    | T
+    | {
+        enabled?: T;
+        label?: T;
+        link?: T;
+      };
+  backgroundColor?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BookingBlock_select".
+ */
+export interface BookingBlockSelect<T extends boolean = true> {
+  variant?: T;
+  heading?: T;
+  subheading?: T;
+  showServiceSelection?: T;
+  showTeamSelection?: T;
+  showDatePicker?: T;
+  showTimePicker?: T;
+  requiredFields?:
+    | T
+    | {
+        name?: T;
+        email?: T;
+        phone?: T;
+        notes?: T;
+      };
+  submitButtonText?: T;
+  successMessage?: T;
+  showWhatsappOption?: T;
+  showPhoneOption?: T;
+  backgroundColor?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CartBlock_select".
+ */
+export interface CartBlockSelect<T extends boolean = true> {
+  variant?: T;
+  heading?: T;
+  showQuantitySelector?: T;
+  showRemoveButton?: T;
+  showSubtotal?: T;
+  checkoutButtonText?: T;
+  checkoutLink?: T;
+  emptyCartMessage?: T;
+  continueShoppingLink?: T;
+  backgroundColor?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CheckoutBlock_select".
+ */
+export interface CheckoutBlockSelect<T extends boolean = true> {
+  variant?: T;
+  heading?: T;
+  showOrderSummary?: T;
+  showShippingOptions?: T;
+  showPaymentOptions?: T;
+  submitButtonText?: T;
+  successMessage?: T;
   backgroundColor?: T;
   id?: T;
   blockName?: T;
@@ -3947,6 +3763,142 @@ export interface BeforeAfterBlockSelect<T extends boolean = true> {
         id?: T;
       };
   sliderPosition?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "NewsletterBlock_select".
+ */
+export interface NewsletterBlockSelect<T extends boolean = true> {
+  variant?: T;
+  heading?: T;
+  subheading?: T;
+  placeholder?: T;
+  buttonText?: T;
+  successMessage?: T;
+  backgroundImage?: T;
+  privacyText?: T;
+  showPrivacyLink?: T;
+  benefits?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TrustBadgesBlock_select".
+ */
+export interface TrustBadgesBlockSelect<T extends boolean = true> {
+  variant?: T;
+  heading?: T;
+  source?: T;
+  presets?: T;
+  customValues?:
+    | T
+    | {
+        shippingThreshold?: T;
+        experienceYears?: T;
+        happyCustomersCount?: T;
+        warrantyPeriod?: T;
+      };
+  badges?:
+    | T
+    | {
+        icon?: T;
+        title?: T;
+        description?: T;
+        id?: T;
+      };
+  showDescriptions?: T;
+  iconSize?: T;
+  backgroundColor?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HowItWorksBlock_select".
+ */
+export interface HowItWorksBlockSelect<T extends boolean = true> {
+  variant?: T;
+  heading?: T;
+  subheading?: T;
+  steps?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        icon?: T;
+        image?: T;
+        id?: T;
+      };
+  showNumbers?: T;
+  ctaButton?:
+    | T
+    | {
+        enabled?: T;
+        label?: T;
+        link?: T;
+      };
+  backgroundColor?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LogoCloudBlock_select".
+ */
+export interface LogoCloudBlockSelect<T extends boolean = true> {
+  variant?: T;
+  heading?: T;
+  subheading?: T;
+  logos?:
+    | T
+    | {
+        logo?: T;
+        name?: T;
+        url?: T;
+        id?: T;
+      };
+  logoSize?: T;
+  columns?: T;
+  grayscale?: T;
+  backgroundColor?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LatestPostsBlock_select".
+ */
+export interface LatestPostsBlockSelect<T extends boolean = true> {
+  variant?: T;
+  heading?: T;
+  subheading?: T;
+  source?: T;
+  selectedPosts?: T;
+  filterByCategory?: T;
+  limit?: T;
+  showImage?: T;
+  showExcerpt?: T;
+  showDate?: T;
+  showCategory?: T;
+  showAuthor?: T;
+  showReadMore?: T;
+  readMoreText?: T;
+  ctaButton?:
+    | T
+    | {
+        enabled?: T;
+        label?: T;
+        link?: T;
+      };
+  backgroundColor?: T;
   id?: T;
   blockName?: T;
 }
@@ -4118,6 +4070,182 @@ export interface AnnouncementBarBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SubscriptionCardsBlock_select".
+ */
+export interface SubscriptionCardsBlockSelect<T extends boolean = true> {
+  variant?: T;
+  heading?: T;
+  subheading?: T;
+  source?: T;
+  selectedSubscriptions?: T;
+  filterByType?: T;
+  limit?: T;
+  showImage?: T;
+  showFeatures?: T;
+  showOldPrice?: T;
+  highlightStyle?: T;
+  ctaButton?:
+    | T
+    | {
+        enabled?: T;
+        label?: T;
+        link?: T;
+      };
+  backgroundColor?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ScheduleTableBlock_select".
+ */
+export interface ScheduleTableBlockSelect<T extends boolean = true> {
+  variant?: T;
+  heading?: T;
+  subheading?: T;
+  source?: T;
+  filterByCategory?: T;
+  customSchedule?:
+    | T
+    | {
+        day?: T;
+        startTime?: T;
+        endTime?: T;
+        title?: T;
+        trainer?: T;
+        room?: T;
+        color?: T;
+        id?: T;
+      };
+  showTrainer?: T;
+  showDuration?: T;
+  showRoom?: T;
+  showCategoryFilter?: T;
+  highlightToday?: T;
+  startHour?: T;
+  endHour?: T;
+  ctaButton?:
+    | T
+    | {
+        enabled?: T;
+        label?: T;
+        link?: T;
+      };
+  backgroundColor?: T;
+  labels?:
+    | T
+    | {
+        allFilter?: T;
+        todayBadge?: T;
+        noClasses?: T;
+        detailsButton?: T;
+        timeHeader?: T;
+        dayLabels?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TeamMemberDetailBlock_select".
+ */
+export interface TeamMemberDetailBlockSelect<T extends boolean = true> {
+  member?: T;
+  variant?: T;
+  showBreadcrumb?: T;
+  showExperience?: T;
+  showSpecializations?: T;
+  showContact?: T;
+  showSocialMedia?: T;
+  showSchedule?: T;
+  showCTA?: T;
+  showRelatedMembers?: T;
+  relatedMembersCount?: T;
+  relatedMembersTitle?: T;
+  backgroundColor?: T;
+  labels?:
+    | T
+    | {
+        breadcrumbHome?: T;
+        breadcrumbTeam?: T;
+        experienceTitle?: T;
+        specializationsTitle?: T;
+        scheduleTitle?: T;
+        contactTitle?: T;
+        ctaTitle?: T;
+        ctaDescription?: T;
+        ctaButtonText?: T;
+        ctaSecondaryButtonText?: T;
+        viewAllTeamText?: T;
+        notFoundMessage?: T;
+      };
+  links?:
+    | T
+    | {
+        teamBasePath?: T;
+        contactPath?: T;
+        classesPath?: T;
+        bookingPath?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ServiceDetailBlock_select".
+ */
+export interface ServiceDetailBlockSelect<T extends boolean = true> {
+  service?: T;
+  variant?: T;
+  showBreadcrumb?: T;
+  showSchedule?: T;
+  showPricing?: T;
+  showTeamMember?: T;
+  showBenefits?: T;
+  showFeatures?: T;
+  showRequirements?: T;
+  showRelatedServices?: T;
+  relatedServicesCount?: T;
+  relatedServicesTitle?: T;
+  ctaButtonText?: T;
+  ctaButtonLink?: T;
+  backgroundColor?: T;
+  labels?:
+    | T
+    | {
+        breadcrumbHome?: T;
+        breadcrumbServices?: T;
+        benefitsTitle?: T;
+        featuresTitle?: T;
+        scheduleTitle?: T;
+        pricingTitle?: T;
+        teamMemberTitle?: T;
+        requirementsTitle?: T;
+        viewAllServicesText?: T;
+        minutesLabel?: T;
+        spotsLabel?: T;
+        priceFromLabel?: T;
+        dropInLabel?: T;
+        monthlyLabel?: T;
+        packageLabel?: T;
+        currencySymbol?: T;
+        dayLabels?: T;
+        difficultyLabels?: T;
+        serviceTypeLabels?: T;
+        notFoundMessage?: T;
+      };
+  links?:
+    | T
+    | {
+        servicesBasePath?: T;
+        teamBasePath?: T;
+        bookingPath?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "posts_select".
  */
 export interface PostsSelect<T extends boolean = true> {
@@ -4172,7 +4300,7 @@ export interface MediaSelect<T extends boolean = true> {
               filesize?: T;
               filename?: T;
             };
-        card?:
+        square?:
           | T
           | {
               url?: T;
@@ -4182,7 +4310,47 @@ export interface MediaSelect<T extends boolean = true> {
               filesize?: T;
               filename?: T;
             };
-        hero?:
+        small?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        medium?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        large?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        xlarge?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        og?:
           | T
           | {
               url?: T;

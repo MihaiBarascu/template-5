@@ -57,8 +57,8 @@ export function CheckoutBlock({
 
   const bgClasses = {
     default: 'bg-white',
-    light: 'bg-gray-50',
-    dark: 'bg-gray-900 text-white',
+    light: 'bg-theme-light',
+    dark: 'bg-theme-dark text-white',
   }
 
   useEffect(() => {
@@ -172,14 +172,14 @@ export function CheckoutBlock({
       <section className={`py-16 ${bgClasses[backgroundColor]}`}>
         <div className="container mx-auto px-4">
           <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
+            <div className="h-8 bg-theme-light rounded w-1/4 mb-6"></div>
             <div className="grid lg:grid-cols-2 gap-8">
               <div className="space-y-4">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="h-12 bg-gray-200 rounded"></div>
+                  <div key={i} className="h-12 bg-theme-light rounded"></div>
                 ))}
               </div>
-              <div className="h-64 bg-gray-200 rounded"></div>
+              <div className="h-64 bg-theme-light rounded"></div>
             </div>
           </div>
         </div>
@@ -192,7 +192,7 @@ export function CheckoutBlock({
       <section className={`py-16 ${bgClasses[backgroundColor]}`}>
         <div className="container mx-auto px-4 text-center">
           <div className="text-6xl mb-4">🛒</div>
-          <p className={`text-lg mb-6 ${backgroundColor === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+          <p className={`text-lg mb-6 ${backgroundColor === 'dark' ? 'text-white/70' : 'text-theme-text-light'}`}>
             Cosul tau este gol.
           </p>
           <Link
@@ -212,10 +212,10 @@ export function CheckoutBlock({
       <section className={`py-16 ${bgClasses[backgroundColor]}`}>
         <div className="container mx-auto px-4 text-center max-w-lg">
           <div className="text-6xl mb-4">✅</div>
-          <h2 className={`text-2xl font-bold mb-4 ${backgroundColor === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+          <h2 className={`text-2xl font-bold mb-4 ${backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'}`}>
             Comanda plasata cu succes!
           </h2>
-          <p className={`mb-6 ${backgroundColor === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+          <p className={`mb-6 ${backgroundColor === 'dark' ? 'text-white/70' : 'text-theme-text-light'}`}>
             {successMessage}
           </p>
           <Link
@@ -231,12 +231,12 @@ export function CheckoutBlock({
 
   const inputClasses = `w-full px-4 py-3 rounded-md border ${
     backgroundColor === 'dark'
-      ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400'
-      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'
+      ? 'bg-white/5 border-white/10 text-white placeholder-theme-text-muted'
+      : 'bg-white border-theme-border text-theme-text placeholder-theme-text-muted'
   } focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent`
 
   const labelClasses = `block text-sm font-medium mb-1 ${
-    backgroundColor === 'dark' ? 'text-gray-300' : 'text-gray-700'
+    backgroundColor === 'dark' ? 'text-white/70' : 'text-theme-text-light'
   }`
 
   return (
@@ -244,7 +244,7 @@ export function CheckoutBlock({
       <div className="container mx-auto px-4">
         {heading && (
           <h2
-            className={`text-3xl font-bold mb-8 ${backgroundColor === 'dark' ? 'text-white' : 'text-gray-900'}`}
+            className={`text-3xl font-bold mb-8 ${backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'}`}
           >
             {heading}
           </h2>
@@ -255,10 +255,10 @@ export function CheckoutBlock({
             {/* Form Fields */}
             <div className="lg:col-span-2 space-y-6">
               {/* Contact Information */}
-              <div className={`p-6 rounded-lg ${backgroundColor === 'dark' ? 'bg-gray-800' : 'bg-gray-50'}`}>
+              <div className={`p-6 rounded-lg ${backgroundColor === 'dark' ? 'bg-white/5' : 'bg-theme-light'}`}>
                 <h3
                   className={`text-lg font-semibold mb-4 ${
-                    backgroundColor === 'dark' ? 'text-white' : 'text-gray-900'
+                    backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'
                   }`}
                 >
                   Informatii contact
@@ -316,10 +316,10 @@ export function CheckoutBlock({
               </div>
 
               {/* Shipping Address */}
-              <div className={`p-6 rounded-lg ${backgroundColor === 'dark' ? 'bg-gray-800' : 'bg-gray-50'}`}>
+              <div className={`p-6 rounded-lg ${backgroundColor === 'dark' ? 'bg-white/5' : 'bg-theme-light'}`}>
                 <h3
                   className={`text-lg font-semibold mb-4 ${
-                    backgroundColor === 'dark' ? 'text-white' : 'text-gray-900'
+                    backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'
                   }`}
                 >
                   Adresa de livrare
@@ -379,10 +379,10 @@ export function CheckoutBlock({
 
               {/* Shipping Options */}
               {showShippingOptions && (
-                <div className={`p-6 rounded-lg ${backgroundColor === 'dark' ? 'bg-gray-800' : 'bg-gray-50'}`}>
+                <div className={`p-6 rounded-lg ${backgroundColor === 'dark' ? 'bg-white/5' : 'bg-theme-light'}`}>
                   <h3
                     className={`text-lg font-semibold mb-4 ${
-                      backgroundColor === 'dark' ? 'text-white' : 'text-gray-900'
+                      backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'
                     }`}
                   >
                     Metoda de livrare
@@ -393,8 +393,8 @@ export function CheckoutBlock({
                         formData.shippingMethod === 'standard'
                           ? 'border-primary bg-primary/5'
                           : backgroundColor === 'dark'
-                            ? 'border-gray-700'
-                            : 'border-gray-200'
+                            ? 'border-white/10'
+                            : 'border-theme-border'
                       }`}
                     >
                       <input
@@ -406,10 +406,10 @@ export function CheckoutBlock({
                         className="w-4 h-4 text-primary"
                       />
                       <div className="flex-grow">
-                        <span className={backgroundColor === 'dark' ? 'text-white' : 'text-gray-900'}>
+                        <span className={backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'}>
                           Livrare standard (2-4 zile)
                         </span>
-                        <p className={`text-sm ${backgroundColor === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                        <p className={`text-sm ${backgroundColor === 'dark' ? 'text-white/60' : 'text-theme-text-muted'}`}>
                           {subtotal >= 200 ? 'Gratuit' : '20 lei'}
                         </p>
                       </div>
@@ -419,8 +419,8 @@ export function CheckoutBlock({
                         formData.shippingMethod === 'express'
                           ? 'border-primary bg-primary/5'
                           : backgroundColor === 'dark'
-                            ? 'border-gray-700'
-                            : 'border-gray-200'
+                            ? 'border-white/10'
+                            : 'border-theme-border'
                       }`}
                     >
                       <input
@@ -432,10 +432,10 @@ export function CheckoutBlock({
                         className="w-4 h-4 text-primary"
                       />
                       <div className="flex-grow">
-                        <span className={backgroundColor === 'dark' ? 'text-white' : 'text-gray-900'}>
+                        <span className={backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'}>
                           Livrare express (1 zi)
                         </span>
-                        <p className={`text-sm ${backgroundColor === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                        <p className={`text-sm ${backgroundColor === 'dark' ? 'text-white/60' : 'text-theme-text-muted'}`}>
                           35 lei
                         </p>
                       </div>
@@ -446,10 +446,10 @@ export function CheckoutBlock({
 
               {/* Payment Options */}
               {showPaymentOptions && (
-                <div className={`p-6 rounded-lg ${backgroundColor === 'dark' ? 'bg-gray-800' : 'bg-gray-50'}`}>
+                <div className={`p-6 rounded-lg ${backgroundColor === 'dark' ? 'bg-white/5' : 'bg-theme-light'}`}>
                   <h3
                     className={`text-lg font-semibold mb-4 ${
-                      backgroundColor === 'dark' ? 'text-white' : 'text-gray-900'
+                      backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'
                     }`}
                   >
                     Metoda de plata
@@ -460,8 +460,8 @@ export function CheckoutBlock({
                         formData.paymentMethod === 'card'
                           ? 'border-primary bg-primary/5'
                           : backgroundColor === 'dark'
-                            ? 'border-gray-700'
-                            : 'border-gray-200'
+                            ? 'border-white/10'
+                            : 'border-theme-border'
                       }`}
                     >
                       <input
@@ -472,7 +472,7 @@ export function CheckoutBlock({
                         onChange={handleInputChange}
                         className="w-4 h-4 text-primary"
                       />
-                      <span className={backgroundColor === 'dark' ? 'text-white' : 'text-gray-900'}>
+                      <span className={backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'}>
                         Card bancar (Visa, Mastercard)
                       </span>
                     </label>
@@ -481,8 +481,8 @@ export function CheckoutBlock({
                         formData.paymentMethod === 'cash'
                           ? 'border-primary bg-primary/5'
                           : backgroundColor === 'dark'
-                            ? 'border-gray-700'
-                            : 'border-gray-200'
+                            ? 'border-white/10'
+                            : 'border-theme-border'
                       }`}
                     >
                       <input
@@ -493,7 +493,7 @@ export function CheckoutBlock({
                         onChange={handleInputChange}
                         className="w-4 h-4 text-primary"
                       />
-                      <span className={backgroundColor === 'dark' ? 'text-white' : 'text-gray-900'}>
+                      <span className={backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'}>
                         Ramburs la livrare
                       </span>
                     </label>
@@ -502,10 +502,10 @@ export function CheckoutBlock({
               )}
 
               {/* Notes */}
-              <div className={`p-6 rounded-lg ${backgroundColor === 'dark' ? 'bg-gray-800' : 'bg-gray-50'}`}>
+              <div className={`p-6 rounded-lg ${backgroundColor === 'dark' ? 'bg-white/5' : 'bg-theme-light'}`}>
                 <h3
                   className={`text-lg font-semibold mb-4 ${
-                    backgroundColor === 'dark' ? 'text-white' : 'text-gray-900'
+                    backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'
                   }`}
                 >
                   Note comanda (optional)
@@ -526,12 +526,12 @@ export function CheckoutBlock({
               <div className="lg:col-span-1">
                 <div
                   className={`p-6 rounded-lg sticky top-24 ${
-                    backgroundColor === 'dark' ? 'bg-gray-800' : 'bg-gray-50'
+                    backgroundColor === 'dark' ? 'bg-white/5' : 'bg-theme-light'
                   }`}
                 >
                   <h3
                     className={`text-lg font-semibold mb-4 ${
-                      backgroundColor === 'dark' ? 'text-white' : 'text-gray-900'
+                      backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'
                     }`}
                   >
                     Sumar comanda
@@ -545,7 +545,7 @@ export function CheckoutBlock({
                           {item.image ? (
                             <Image src={item.image} alt={item.title} fill className="object-cover" />
                           ) : (
-                            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                            <div className="w-full h-full bg-theme-light flex items-center justify-center">
                               <span>📦</span>
                             </div>
                           )}
@@ -553,18 +553,18 @@ export function CheckoutBlock({
                         <div className="flex-grow min-w-0">
                           <p
                             className={`text-sm font-medium truncate ${
-                              backgroundColor === 'dark' ? 'text-white' : 'text-gray-900'
+                              backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'
                             }`}
                           >
                             {item.title}
                           </p>
-                          <p className={`text-xs ${backgroundColor === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                          <p className={`text-xs ${backgroundColor === 'dark' ? 'text-white/60' : 'text-theme-text-muted'}`}>
                             {item.quantity} x {formatPrice(item.price)}
                           </p>
                         </div>
                         <span
                           className={`text-sm font-medium ${
-                            backgroundColor === 'dark' ? 'text-white' : 'text-gray-900'
+                            backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'
                           }`}
                         >
                           {formatPrice(item.price * item.quantity)}
@@ -576,12 +576,12 @@ export function CheckoutBlock({
                   {/* Totals */}
                   <div
                     className={`border-t pt-4 space-y-2 ${
-                      backgroundColor === 'dark' ? 'border-gray-700' : 'border-gray-200'
+                      backgroundColor === 'dark' ? 'border-white/10' : 'border-theme-border'
                     }`}
                   >
                     <div
                       className={`flex justify-between ${
-                        backgroundColor === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                        backgroundColor === 'dark' ? 'text-white/70' : 'text-theme-text-light'
                       }`}
                     >
                       <span>Subtotal</span>
@@ -589,7 +589,7 @@ export function CheckoutBlock({
                     </div>
                     <div
                       className={`flex justify-between ${
-                        backgroundColor === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                        backgroundColor === 'dark' ? 'text-white/70' : 'text-theme-text-light'
                       }`}
                     >
                       <span>Transport</span>
@@ -597,7 +597,7 @@ export function CheckoutBlock({
                     </div>
                     <div
                       className={`flex justify-between font-bold text-lg pt-2 border-t ${
-                        backgroundColor === 'dark' ? 'border-gray-700 text-white' : 'border-gray-200 text-gray-900'
+                        backgroundColor === 'dark' ? 'border-white/10 text-white' : 'border-theme-border text-theme-text'
                       }`}
                     >
                       <span>Total</span>
@@ -616,7 +616,7 @@ export function CheckoutBlock({
                   <Link
                     href="/cos"
                     className={`block text-center mt-4 text-sm ${
-                      backgroundColor === 'dark' ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'
+                      backgroundColor === 'dark' ? 'text-white/60 hover:text-white/70' : 'text-theme-text-muted hover:text-theme-text-light'
                     }`}
                   >
                     ← Inapoi la cos

@@ -1,6 +1,7 @@
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { resendAdapter } from '@payloadcms/email-resend'
+import { s3Storage } from '@payloadcms/storage-s3'
 import { ecommercePlugin } from '@payloadcms/plugin-ecommerce'
 import { manualAdapter } from '@/payments'
 import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
@@ -434,6 +435,27 @@ export default buildConfig({
       generateLabel: (_, doc) => doc.title as string,
       generateURL: (docs) => docs.reduce((url, doc) => `${url}/${doc.slug}`, ''),
     }),
+    // Cloudflare R2 Storage (via S3-compatible API)
+    // Local: fara R2_BUCKET -> foloseste ./media folder
+    // Productie: fiecare afacere are propriul R2 bucket pe Dokploy
+    ...(process.env.R2_BUCKET
+      ? [
+          s3Storage({
+            collections: {
+              media: true,
+            },
+            bucket: process.env.R2_BUCKET,
+            config: {
+              credentials: {
+                accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
+                secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
+              },
+              region: 'auto',
+              endpoint: process.env.R2_ENDPOINT,
+            },
+          }),
+        ]
+      : []),
   ],
   secret: process.env.PAYLOAD_SECRET || '',
   // Email configuration (Resend) - pentru notificari booking, contact, comenzi

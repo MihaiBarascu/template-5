@@ -1,0 +1,120 @@
+---
+status: ACTIVE
+type: lesson
+created: 2025-12-08
+updated: 2025-12-08
+tags: [lessons, bugs, fixes, tips]
+---
+
+# Lessons Learned - Index
+
+> Acest fisier indexeaza toate lectiile invatate in proiect.
+> Pentru detalii complete, vezi [LESSONS-LEARNED.md](../LESSONS-LEARNED.md)
+
+---
+
+## CRITICE (Trebuie stiute!)
+
+### Ecommerce Plugin
+
+| Data | Problema | Solutie |
+|------|----------|---------|
+| 2025-12-08 | 404 "Cart not found" la checkout | Plugin foloseste `overrideAccess: false` - adauga `read: () => true` in carts access |
+| 2025-12-08 | ProductCard folosea localStorage | Schimba `AddToCartButton` cu `AddToCart` (useCart din plugin) |
+| 2025-12-08 | Order status invalid | Plugin accepta: `processing`, `completed`, `cancelled`, `refunded` - NU `pending` |
+| 2025-12-07 | Inventory nu se decrementeaza | Plugin-ul face AUTOMAT - nu decrementa manual in adapter |
+| 2025-12-07 | Campul `stock` vs `inventory` | Plugin foloseste `inventory` - nu crea camp `stock` separat |
+
+### Payload CMS General
+
+| Data | Problema | Solutie |
+|------|----------|---------|
+| 2025-12-01 | Hooks nu ruleaza in aceeasi tranzactie | Transmite `req` la toate operatiile Local API din hooks |
+| 2025-12-01 | Loop infinit in hooks | Foloseste `context.skipRevalidation` sau similar |
+| 2025-12-01 | TypeScript errors la blocuri | Adauga `interfaceName` in config.ts pentru fiecare bloc |
+
+---
+
+## DESIGN SYSTEM
+
+| Data | Problema | Solutie |
+|------|----------|---------|
+| 2025-12-01 | Text invizibil pe fundal dark | Pattern `isDark ? 'text-white' : 'text-theme-text'` |
+| 2025-12-01 | Border invizibil | `isDark ? 'border-white/10' : 'border-theme-border'` |
+| 2025-12-01 | Culori hardcodate nu respecta tema | NICIODATA `text-gray-600`, INTOTDEAUNA `text-theme-text-light` |
+
+---
+
+## SEEDING
+
+| Data | Problema | Solutie |
+|------|----------|---------|
+| 2025-12-05 | Imagini corupte (HTML ca JPG) | Verifica cu `file imagine.jpg` ca formatul e corect |
+| 2025-12-05 | Email invalid @example.com | Foloseste @mailinator.com sau @test.com |
+| 2025-12-05 | Extensie gresita (.jpg pentru PNG) | Renumeste fisierul cu extensia corecta |
+
+---
+
+## BLOCKS
+
+| Data | Problema | Solutie |
+|------|----------|---------|
+| 2025-12-06 | Nested blocks au padding nedorit | CSS: `[&>*:first-child]:mt-0 [&>section]:py-0` |
+| 2025-12-06 | RenderBlocks in component sync | Fa componenta `async` cu `await Promise.all()` |
+| 2025-12-05 | Map block nu se afiseaza | Campul corect e `googleMapsEmbed` nu `mapEmbed` |
+
+---
+
+## SERVER/CLIENT SEPARATION
+
+| Data | Problema | Solutie |
+|------|----------|---------|
+| 2025-12-07 | Functii din 'use client' nu merg pe server | Muta helper functions in fisier separat fara 'use client' |
+
+---
+
+## TESTING
+
+| Data | Problema | Solutie |
+|------|----------|---------|
+| 2025-12-08 | Playwright nu gaseste elemente | Foloseste `mcp__playwright__browser_snapshot` pentru accessibility tree |
+| 2025-12-05 | Server nu raspunde in teste | Asteapta cu `mcp__playwright__browser_wait_for` |
+
+---
+
+## Quick Reference
+
+### Comenzi utile
+
+```bash
+# Regenereaza tipuri dupa modificari schema
+pnpm generate:types
+
+# Seed un business specific
+SEED_TYPE=magazin pnpm seed
+
+# Verifica imagini corupte
+find public/images -name "*.jpg" -exec file {} \; | grep -v "JPEG"
+
+# Fix email-uri in toate seeders
+sed -i "s/@example\.com/@mailinator.com/g" src/seed/businesses/*.ts
+```
+
+### Pattern-uri comune
+
+```typescript
+// Extrage URL imagine din Media | string
+function getImageUrl(image: Media | string | null): string | null {
+  if (!image) return null
+  if (typeof image === 'string') return image
+  return image.url || null
+}
+
+// Pattern isDark pentru blocuri
+const isDark = backgroundColor === 'dark' || backgroundColor === 'primary'
+className={isDark ? 'text-white' : 'text-theme-text'}
+```
+
+---
+
+*Pentru detalii complete, vezi [LESSONS-LEARNED.md](../LESSONS-LEARNED.md)*

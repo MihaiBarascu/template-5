@@ -1799,5 +1799,353 @@ done
 
 ---
 
+## 33. Arhitectura Blocurilor de Contact (Refactorizare)
+
+### 33.1 Problema Identificată
+
+Blocul Contact era prea monolitic - combina:
+- Date de contact (adresă, telefon, email, program, social)
+- Formular de contact
+- Hartă Google Maps
+
+Acest design făcea dificilă compunerea flexibilă în layout-uri diferite.
+
+### 33.2 Soluția - Blocuri Composable
+
+Am separat funcționalitatea în blocuri specializate care pot fi compuse independent:
+
+| Bloc | Scop | Locație |
+|------|------|---------|
+| **ContactInfo** | Date contact (adresă, telefon, email, ore, social) | `src/blocks/Contact/` |
+| **Map** | Hartă Google Maps standalone | `src/blocks/Map/` |
+| **Form** | Formular cu variante | `src/blocks/Form/` |
+| **Content** | Container cu coloane pentru compunere | `src/blocks/Content/` |
+
+### 33.3 Variante ContactInfo (nou)
+
+```typescript
+// Variantele disponibile pentru blocul Contact simplificat:
+'standard'  // Lista verticală cu icoane (default)
+'cards'     // Carduri pentru fiecare tip de informație
+'compact'   // O linie cu icoane
+'minimal'   // Doar text, fără icoane
+```
+
+### 33.4 Cum se Compun Blocuri pentru Contact Page
+
+#### Layout Side-by-Side (Contact Info + Form):
+
+```typescript
+{
+  blockType: 'content',
+  backgroundColor: 'light',
+  columns: [
+    {
+      width: 'half',
+      contentType: 'blocks',
+      blocks: [
+        {
+          blockType: 'contact',
+          variant: 'standard',
+          heading: 'Informatii de Contact',
+          contactInfoItems: {
+            showAddress: true,
+            showPhone: true,
+            showEmail: true,
+            showWorkingHours: true,
+            showSocial: true,
+          },
+        },
+      ],
+    },
+    {
+      width: 'half',
+      contentType: 'blocks',
+      blocks: [
+        {
+          blockType: 'formBlock',
+          form: contactFormId,
+          variant: 'card',
+        },
+      ],
+    },
+  ],
+}
+// + Map block separat dedesubt
+{
+  blockType: 'map',
+  variant: 'contained',
+  heading: 'Unde ne gasesti',
+  source: 'businessInfo',
+  height: 'medium',
+}
+```
+
+### 33.5 Helper Function pentru Seeding
+
+```typescript
+// În src/seed/helpers.ts
+createContactPageLayout(contactFormId, {
+  heading: 'Contacteaza-ne',
+  subheading: 'Suntem aici pentru tine',
+  showMap: true,
+  layout: 'side-by-side', // sau 'stacked', 'form-only', 'info-only'
+  mapHeading: 'Locatia noastra',
+})
+```
+
+### 33.6 Beneficii
+
+1. **Flexibilitate** - Poți pune Contact Info oriunde în pagină
+2. **Reutilizare** - Același bloc Contact Info poate fi folosit în Footer, Homepage, etc.
+3. **Claritate** - Fiecare bloc face un singur lucru
+4. **Compunere** - Folosești Content block cu coloane pentru layout-uri complexe
+5. **Mentenanță** - Mai ușor de întreținut și testat
+
+### 33.7 Migrare de la Vechiul Format
+
+**Vechi (deprecated):**
+```typescript
+{
+  blockType: 'contact',
+  variant: 'with-map',
+  showMap: true,
+  mapPosition: 'side',
+  // ... toate într-un singur bloc
+}
+```
+
+**Nou (recomandat):**
+```typescript
+// Content block cu coloane
+{
+  blockType: 'content',
+  columns: [
+    { blocks: [{ blockType: 'contact' }] },
+    { blocks: [{ blockType: 'formBlock', form: id }] },
+  ],
+}
+// Map separat
+{ blockType: 'map' }
+```
+
+---
+
+## 34. Contact Page Layout Improvements (40%/60%)
+
+### 34.1 Problema Originală
+
+Layout-ul vechi folosea coloane egale (50%/50%) care nu era optimal pentru:
+- Contact info (nevoie mai puțin spațiu)
+- Formular de contact (nevoie mai mult spațiu)
+
+### 34.2 Soluția - Layout 40%/60%
+
+Am actualizat Content block să suporte lățimi procentuale și am modificat `createContactPageLayout()` pentru layout asimetric:
+
+```typescript
+// În helpers.ts - createContactPageLayout()
+columns: [
+  {
+    width: '40',  // 40% pentru info contact
+    contentType: 'blocks',
+    blocks: [{ blockType: 'contact', ... }],
+  },
+  {
+    width: '60',  // 60% pentru formular
+    contentType: 'blocks',
+    blocks: [{ blockType: 'formBlock', ... }],
+  },
+],
+```
+
+### 34.3 Lățimi Procentuale Disponibile
+
+```typescript
+// Content/config.ts - opțiuni width
+'100' | '90' | '80' | '75' | '70' | '66' | '60' | '50' | '40' | '33' | '30' | '25' | '20'
+
+// Plus legacy values pentru backwards compatibility
+'full' | 'three-quarters' | 'two-thirds' | 'half' | 'one-third' | 'one-quarter'
+```
+
+### 34.4 CSS Classes pentru Width
+
+```typescript
+// Content/Component.tsx
+const percentageWidthClasses: Record<string, string> = {
+  '100': 'w-full',
+  '90': 'w-full lg:w-[90%]',
+  '80': 'w-full lg:w-4/5',
+  '75': 'w-full lg:w-3/4',
+  '70': 'w-full lg:w-[70%]',
+  '66': 'w-full lg:w-2/3',
+  '60': 'w-full lg:w-[60%]',
+  '50': 'w-full lg:w-1/2',
+  '40': 'w-full lg:w-[40%]',
+  '33': 'w-full lg:w-1/3',
+  '30': 'w-full lg:w-[30%]',
+  '25': 'w-full lg:w-1/4',
+  '20': 'w-full lg:w-1/5',
+}
+```
+
+### 34.5 Mobile Responsive
+
+**Important:** Toate coloanele devin `w-full` pe mobile (sub `lg` breakpoint).
+
+Layout-ul se transformă astfel:
+- **Desktop (lg+)**: 40% + 60% side-by-side
+- **Mobile (<lg)**: 100% stacked (contact info sus, form jos)
+
+### 34.6 Map Block Standalone
+
+Map-ul a fost separat ca bloc independent:
+
+```typescript
+// Map block folosește businessInfo pentru embed URL
+{
+  blockType: 'map',
+  variant: 'full-width',
+  heading: 'Unde ne gasesti',
+  source: 'businessInfo',  // Preia googleMapsEmbed din business-info global
+  height: 'medium',
+  showDirectionsButton: true,
+}
+```
+
+### 34.7 Fix Bug: `googleMapsEmbed` vs `mapEmbed`
+
+**Problemă:** Map block nu se afișa pentru că folosea câmp greșit.
+
+**Fix în Map/Component.tsx:**
+```typescript
+// GREȘIT (înainte)
+businessInfo?: {
+  mapEmbed?: string | null  // Câmp inexistent
+}
+
+// CORECT (după)
+businessInfo?: {
+  googleMapsEmbed?: string | null  // Câmp din business-info global
+}
+```
+
+### 34.8 Testate pe Toate Business Types
+
+| Business Type | Layout 40%/60% | Map Block | Mobile Stack |
+|---------------|----------------|-----------|--------------|
+| frizerie | ✅ | ✅ | ✅ |
+| fitness | ✅ | ✅ | ✅ |
+| magazin | ✅ | ✅ | ✅ |
+| restaurant | ✅ | ✅ | ✅ |
+
+### 34.9 Comandă pentru Testare Rapidă
+
+```bash
+# Test un business type specific
+rm -rf database.sqlite media/* && SEED_TYPE=frizerie pnpm seed
+PORT=3015 pnpm dev &
+# Navigate to http://localhost:3015/contact
+```
+
+---
+
+## 35. Verificare Conformitate Cod vs Documentație
+
+### 35.1 Checklist Rapid pentru Audit
+
+Când verifici dacă codul respectă documentația, verifică:
+
+```bash
+# 1. Culori hardcodate în blocuri (trebuie să fie 0)
+grep -r "text-gray-\|bg-gray-" src/blocks/ --include="*.tsx" | wc -l
+
+# 2. interfaceName în toate config.ts
+for f in src/blocks/*/config.ts; do
+  grep -q "interfaceName" "$f" || echo "LIPSĂ: $f"
+done
+
+# 3. saveToJWT pe role în Users
+grep -A2 "name: 'role'" src/collections/Users.ts | grep saveToJWT
+
+# 4. Carts read access pentru checkout
+grep -A5 "cartsCollectionOverride" src/payload.config.ts | grep "read:"
+```
+
+### 35.2 Înlocuire Culori Hardcodate - Mapare Completă
+
+| Hardcodat | Tematic (light bg) | Tematic (dark bg) |
+|-----------|-------------------|-------------------|
+| `text-gray-900` | `text-theme-text` | `text-white` |
+| `text-gray-600` | `text-theme-text-light` | `text-white/70` |
+| `text-gray-500` | `text-theme-text-muted` | `text-white/60` |
+| `text-gray-400` | `text-theme-text-muted` | `text-white/50` |
+| `text-gray-300` | - | `text-white/70` |
+| `bg-gray-50` | `bg-theme-light` | - |
+| `bg-gray-100` | `bg-theme-light` | - |
+| `bg-gray-200` | `bg-theme-light` | - |
+| `bg-gray-700` | - | `bg-white/10` |
+| `bg-gray-800` | - | `bg-white/5` |
+| `bg-gray-900` | `bg-theme-dark` | - |
+| `border-gray-200` | `border-theme-border` | - |
+| `border-gray-300` | `border-theme-border` | `border-white/10` |
+
+### 35.3 Când Adaugi Bloc Nou - Checklist
+
+- [ ] `config.ts` are `interfaceName: 'NumeBlock'`
+- [ ] `Component.tsx` folosește culori tematice (NU gray-*)
+- [ ] Pattern `isDark` pentru fundal dark/light
+- [ ] Export adăugat în `RenderBlocks.tsx`
+- [ ] Rulat `pnpm generate:types`
+
+### 35.4 Playwright MCP pentru Verificare Vizuală
+
+După modificări în blocuri, verifică rapid cu Playwright:
+
+```
+1. mcp__playwright__browser_navigate -> http://localhost:3010
+2. mcp__playwright__browser_snapshot (verifică structura)
+3. mcp__playwright__browser_take_screenshot (verifică vizual)
+4. Navighează pe pagini cheie: /produse, /contact, /checkout
+```
+
+### 35.5 ⚠️ IMPORTANT: Cache Next.js pentru Imagini
+
+**Problema:** După rularea unui seed nou, imaginile vechi pot rămâne vizibile în browser chiar și cu Ctrl+Shift+R.
+
+**Cauza:** Next.js cache-ează imaginile optimizate în `.next/cache/images/` (poate ajunge la 100MB+).
+
+**Soluție - După fiecare seed:**
+```bash
+# Șterge cache-ul de imagini Next.js
+rm -rf .next/cache/images
+
+# SAU curățare completă (recomandat)
+rm -rf .next && pnpm dev
+```
+
+**Workflow corect pentru schimbare seed:**
+```bash
+# 1. Oprește serverul (Ctrl+C)
+# 2. Rulează seed-ul nou
+pnpm seed:frizerie
+
+# 3. Curăță cache-ul
+rm -rf .next/cache/images
+
+# 4. Repornește serverul
+pnpm dev
+
+# 5. Hard refresh în browser (Ctrl+Shift+R)
+```
+
+**De ce se întâmplă:**
+- Next.js Image Optimization cache-ează imaginile procesate
+- Filename-urile rămân aceleași între seeduri (ex: `hero-main.jpg`)
+- Next.js servește imaginea din cache bazat pe filename, nu pe conținut
+
+---
+
 *Documentație actualizată: December 2025*
 *Pentru Universal Business Website Template - Payload CMS 3.x + Next.js 15*

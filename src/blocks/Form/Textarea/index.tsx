@@ -33,7 +33,7 @@ export const Textarea: React.FC<
         id={name}
         defaultValue={defaultValue ?? undefined}
         rows={rows}
-        className={inputClassName || 'w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-500 transition-colors focus:outline-none focus:ring-2 focus:ring-theme-primary resize-y'}
+        className={inputClassName || 'w-full px-4 py-3 rounded-lg border border-theme-border bg-white text-theme-text placeholder-theme-text-muted transition-colors focus:outline-none focus:ring-2 focus:ring-theme-primary resize-y'}
         {...register(name, { required: required ?? false })}
       />
       {errors[name] && <Error name={name} />}

@@ -44,13 +44,13 @@ export function TimelineBlock({
   const bgClass =
     {
       default: 'bg-white',
-      light: 'bg-gray-50',
-      dark: 'bg-gray-900 text-white',
+      light: 'bg-theme-light',
+      dark: 'bg-theme-dark text-white',
     }[bgColor] || 'bg-white'
 
-  const textMuted = bgColor === 'dark' ? 'text-gray-400' : 'text-gray-600'
-  const borderColor = bgColor === 'dark' ? 'border-gray-700' : 'border-gray-200'
-  const connectorColor = bgColor === 'dark' ? 'bg-gray-700' : 'bg-gray-200'
+  const textMuted = bgColor === 'dark' ? 'text-white/60' : 'text-theme-text-light'
+  const borderColor = bgColor === 'dark' ? 'border-white/10' : 'border-theme-border'
+  const connectorColor = bgColor === 'dark' ? 'bg-white/10' : 'bg-theme-border'
 
   if (variant === 'horizontal') {
     return (
@@ -141,7 +141,7 @@ export function TimelineBlock({
                       className={cn(
                         'absolute left-1/2 -translate-x-1/2 w-4 h-4 rounded-full z-10',
                         'bg-theme-primary border-4',
-                        bgColor === 'dark' ? 'border-gray-900' : 'border-white'
+                        bgColor === 'dark' ? 'border-theme-dark' : 'border-white'
                       )}
                     />
 
@@ -233,7 +233,7 @@ export function TimelineBlock({
                 <div
                   className={cn(
                     'flex-1 p-6 rounded-xl',
-                    bgColor === 'dark' ? 'bg-gray-800' : 'bg-gray-50'
+                    bgColor === 'dark' ? 'bg-white/5' : 'bg-theme-light'
                   )}
                 >
                   <h3 className="text-xl font-semibold mb-2">{event.title}</h3>

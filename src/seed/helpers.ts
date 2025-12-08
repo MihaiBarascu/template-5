@@ -3,13 +3,41 @@ import fs from 'fs';
 import path from 'path';
 import type { Payload } from 'payload';
 
-// Image cache to avoid re-uploading the same image
+// Flag to reuse existing images (when --with-images is NOT provided)
+let reuseExistingImages = false;
+
+// Set reuse images flag
+export function setReuseExistingImages(reuse: boolean): void {
+  reuseExistingImages = reuse;
+}
+
+// Image cache to avoid repeated DB lookups in same session
 const imageCache: Map<string, string> = new Map();
 
 // Clear the image cache - call before each seed run
 export function clearImageCache(): void {
   imageCache.clear();
   console.log('   Image cache cleared');
+}
+
+// Helper to find existing image by filename in media collection
+async function findExistingImage(payload: Payload, filename: string): Promise<string | null> {
+  try {
+    const existing = await payload.find({
+      collection: 'media',
+      where: {
+        filename: { equals: filename },
+      },
+      limit: 1,
+    });
+
+    if (existing.docs.length > 0) {
+      return existing.docs[0].id;
+    }
+  } catch (_e) {
+    // Ignore errors
+  }
+  return null;
 }
 
 // Helper to upload image from URL
@@ -19,14 +47,28 @@ export async function uploadImageFromURL(
   filename: string,
   alt: string,
 ): Promise<string | null> {
-  // Check cache first
-  const cacheKey = `${url}-${filename}`;
+  // Check in-memory cache first
+  const cacheKey = filename;
   if (imageCache.has(cacheKey)) {
     return imageCache.get(cacheKey) || null;
   }
 
+  // If reusing existing images, search in DB by filename
+  if (reuseExistingImages) {
+    const existingId = await findExistingImage(payload, filename);
+    if (existingId) {
+      console.log(`   ♻️  Reusing: ${filename}`);
+      imageCache.set(cacheKey, existingId);
+      return existingId;
+    }
+    // Not found - skip upload when reusing
+    console.log(`   ⚠️  Not found: ${filename} (run with --with-images to upload)`);
+    return null;
+  }
+
+  // Fresh upload mode (--with-images)
   try {
-    console.log(`   Downloading: ${filename}...`);
+    console.log(`   ⬇️  Downloading: ${filename}...`);
     const response = await fetch(url);
     if (!response.ok) {
       console.error(`   Failed to fetch image: ${url}`);
@@ -36,7 +78,6 @@ export async function uploadImageFromURL(
     const buffer = await response.arrayBuffer();
     const tempDir = path.join(process.cwd(), 'temp-uploads');
 
-    // Create temp directory if it doesn't exist
     if (!fs.existsSync(tempDir)) {
       fs.mkdirSync(tempDir, { recursive: true });
     }
@@ -44,10 +85,6 @@ export async function uploadImageFromURL(
     const tempFilePath = path.join(tempDir, filename);
     fs.writeFileSync(tempFilePath, new Uint8Array(buffer));
 
-    // Content type from response (not needed for Payload upload which detects from file)
-    const _contentType = response.headers.get('content-type') || 'image/jpeg';
-
-    // Upload to Payload
     const media = await payload.create({
       collection: 'media',
       data: {
@@ -56,12 +93,10 @@ export async function uploadImageFromURL(
       filePath: tempFilePath,
     });
 
-    // Clean up temp file
     fs.unlinkSync(tempFilePath);
 
-    // Cache the result
     imageCache.set(cacheKey, media.id);
-    console.log(`   Uploaded: ${filename}`);
+    console.log(`   ✅ Uploaded: ${filename}`);
 
     return media.id;
   } catch (error) {
@@ -126,22 +161,35 @@ export async function uploadLocalImage(
   filePath: string,
   alt: string,
 ): Promise<string | null> {
-  // Check cache first
-  const cacheKey = `local-${filePath}`;
+  const filename = path.basename(filePath);
+  const cacheKey = filename;
+
+  // Check in-memory cache first
   if (imageCache.has(cacheKey)) {
     return imageCache.get(cacheKey) || null;
   }
 
+  // If reusing existing images, search in DB by filename
+  if (reuseExistingImages) {
+    const existingId = await findExistingImage(payload, filename);
+    if (existingId) {
+      console.log(`   ♻️  Reusing: ${filename}`);
+      imageCache.set(cacheKey, existingId);
+      return existingId;
+    }
+    console.log(`   ⚠️  Not found: ${filename} (run with --with-images to upload)`);
+    return null;
+  }
+
+  // Fresh upload mode (--with-images)
   try {
-    const filename = path.basename(filePath);
-    console.log(`   Uploading local: ${filename}...`);
+    console.log(`   ⬆️  Uploading local: ${filename}...`);
 
     if (!fs.existsSync(filePath)) {
       console.error(`   File not found: ${filePath}`);
       return null;
     }
 
-    // Upload to Payload
     const media = await payload.create({
       collection: 'media',
       data: {
@@ -150,9 +198,8 @@ export async function uploadLocalImage(
       filePath: filePath,
     });
 
-    // Cache the result
     imageCache.set(cacheKey, media.id);
-    console.log(`   Uploaded: ${filename}`);
+    console.log(`   ✅ Uploaded: ${filename}`);
 
     return media.id;
   } catch (error) {
@@ -1639,42 +1686,117 @@ export const formTemplates = {
 }
 
 /**
- * Helper to create contact page layout with 2-column design
- * Left column: Contact info (phone, email, address, hours)
- * Right column: Contact form
- * Bottom: Map (optional)
+ * Helper to create contact page layout with composable blocks
+ *
+ * Architecture:
+ * - ContactInfo block: displays business contact details (address, phone, email, hours, social)
+ * - Form block: displays the contact form
+ * - Map block: displays the Google Maps embed
+ *
+ * These can be composed using the Content block with columns for flexible layouts.
+ *
+ * Layout options:
+ * - 'side-by-side': Contact info on left, form on right (default)
+ * - 'stacked': Contact info on top, form below
+ * - 'form-only': Just the form
+ * - 'info-only': Just contact info
  */
 export function createContactPageLayout(contactFormId: string | undefined, options?: {
   heading?: string
   subheading?: string
   showMap?: boolean
-}) {
+  layout?: 'side-by-side' | 'stacked' | 'form-only' | 'info-only'
+  mapHeading?: string
+}): Page['layout'] {
   const {
     heading = 'Informatii de Contact',
     subheading = 'Gaseste-ne sau contacteaza-ne direct',
     showMap = true,
+    layout = 'side-by-side',
+    mapHeading = 'Unde ne gasesti',
   } = options || {}
 
-  return [
-    // 2-column layout: Contact Info + Form
-    {
+  const blocks: Page['layout'] = []
+
+  // Form-only layout
+  if (layout === 'form-only' && contactFormId) {
+    blocks.push({
+      blockType: 'formBlock' as const,
+      form: contactFormId,
+      variant: 'card' as const,
+      enableIntro: true,
+      heading: 'Contacteaza-ne',
+      subheading: 'Completeaza formularul si te vom contacta in cel mai scurt timp',
+      backgroundColor: 'light' as const,
+    })
+  }
+  // Info-only layout
+  else if (layout === 'info-only') {
+    blocks.push({
+      blockType: 'contact' as const,
+      variant: 'standard' as const,
+      heading,
+      subheading,
+      contactInfoItems: {
+        showAddress: true,
+        showPhone: true,
+        showEmail: true,
+        showWorkingHours: true,
+        showSocial: true,
+      },
+      backgroundColor: 'light' as const,
+    })
+  }
+  // Stacked layout
+  else if (layout === 'stacked') {
+    // Contact info section
+    blocks.push({
+      blockType: 'contact' as const,
+      variant: 'cards' as const,
+      heading,
+      subheading,
+      contactInfoItems: {
+        showAddress: true,
+        showPhone: true,
+        showEmail: true,
+        showWorkingHours: true,
+        showSocial: false,
+      },
+      backgroundColor: 'light' as const,
+    })
+    // Form section
+    if (contactFormId) {
+      blocks.push({
+        blockType: 'formBlock' as const,
+        form: contactFormId,
+        variant: 'card' as const,
+        enableIntro: true,
+        heading: 'Trimite-ne un Mesaj',
+        subheading: 'Completeaza formularul si te vom contacta in cel mai scurt timp',
+        backgroundColor: 'default' as const,
+      })
+    }
+  }
+  // Side-by-side layout (default) - using Content block with columns
+  // Layout inspired by old design: info 40% left, form 60% right
+  else {
+    blocks.push({
       blockType: 'content' as const,
       backgroundColor: 'light' as const,
       paddingTop: 'large' as const,
       paddingBottom: 'large' as const,
       columns: [
-        // Left column - Contact info
+        // Left column - Contact info (40%)
         {
-          width: 'half' as const,
+          width: '40' as const,
           alignment: 'top' as const,
           contentType: 'blocks' as const,
           blocks: [
             {
               blockType: 'contact' as const,
-              variant: 'minimal' as const,
+              variant: 'standard' as const,
               heading,
               subheading,
-              showContactInfo: true,
               contactInfoItems: {
                 showAddress: true,
                 showPhone: true,
@@ -1682,16 +1804,15 @@ export function createContactPageLayout(contactFormId: string | undefined, optio
                 showWorkingHours: true,
                 showSocial: true,
               },
-              showMap: false,
-              backgroundColor: 'default' as const,
+              backgroundColor: 'transparent' as const,
             },
           ],
         },
-        // Right column - Contact form
+        // Right column - Contact form (60%)
         ...(contactFormId
           ? [
               {
-                width: 'half' as const,
+                width: '60' as const,
                 alignment: 'top' as const,
                 contentType: 'blocks' as const,
                 blocks: [
@@ -1709,22 +1830,22 @@ export function createContactPageLayout(contactFormId: string | undefined, optio
             ]
           : []),
       ],
-    },
-    // Map section below (optional)
-    ...(showMap
-      ? [
-          {
-            blockType: 'contact' as const,
-            variant: 'with-map' as const,
-            heading: 'Unde ne gasesti',
-            showContactInfo: false,
-            showMap: true,
-            mapPosition: 'bottom' as const,
-            backgroundColor: 'default' as const,
-          },
-        ]
-      : []),
-  ]
+    })
+  }
+
+  // Map section below (optional) - using dedicated Map block
+  if (showMap) {
+    blocks.push({
+      blockType: 'map' as const,
+      variant: 'contained' as const,
+      heading: mapHeading,
+      source: 'businessInfo' as const,
+      height: 'medium' as const,
+      showDirectionsButton: true,
+    })
+  }
+
+  return blocks
 }
 
 // Helper to seed system pages (shop, cart, checkout configuration)

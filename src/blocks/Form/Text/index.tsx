@@ -23,7 +23,7 @@ export const Text: React.FC<
         type="text"
         id={name}
         defaultValue={defaultValue}
-        className={inputClassName || 'w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-500 transition-colors focus:outline-none focus:ring-2 focus:ring-theme-primary'}
+        className={inputClassName || 'w-full px-4 py-3 rounded-lg border border-theme-border bg-white text-theme-text placeholder-theme-text-muted transition-colors focus:outline-none focus:ring-2 focus:ring-theme-primary'}
         {...register(name, { required })}
       />
       {errors[name] && <Error name={name} />}

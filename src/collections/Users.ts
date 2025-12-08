@@ -41,6 +41,8 @@ export const Users: CollectionConfig = {
         { label: 'Administrator', value: 'admin' },
         { label: 'Client', value: 'customer' },
       ],
+      // IMPORTANT: Include role in JWT token for access control without DB queries
+      saveToJWT: true,
       access: {
         // Only admins can set or change roles
         create: isAdminFieldLevel,

@@ -2,6 +2,7 @@ import type { Block } from 'payload'
 
 export const PortfolioBlock: Block = {
   slug: 'portfolio',
+  interfaceName: 'PortfolioBlock',
   labels: {
     singular: 'Portofoliu',
     plural: 'Portofoliu',

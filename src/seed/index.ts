@@ -20,7 +20,7 @@ import { seedConstructii } from './businesses/constructii'
 import { seedSalon } from './businesses/salon'
 import { seedMagazin } from './businesses/magazin'
 import { seedFitness } from './businesses/fitness'
-import { clearImageCache } from './helpers'
+import { clearImageCache, setReuseExistingImages } from './helpers'
 
 const seeders: Record<string, (payload: Payload) => Promise<void>> = {
   frizerie: seedFrizerie,
@@ -34,10 +34,21 @@ const seeders: Record<string, (payload: Payload) => Promise<void>> = {
   fitness: seedFitness,
 }
 
+// Parse command line arguments
+const args = process.argv.slice(2)
+const withImages = args.includes('--with-images')
+
 async function seed() {
   const seedType = process.env.SEED_TYPE || 'frizerie'
 
-  console.log(`\n🌱 Starting seed for: ${seedType}\n`)
+  console.log(`\n🌱 Starting seed for: ${seedType}`)
+  if (withImages) {
+    console.log('📸 --with-images: will clear media and upload fresh images')
+  } else {
+    console.log('♻️  Reusing existing images from media collection')
+    setReuseExistingImages(true)
+  }
+  console.log('')
 
   const payload = await getPayload({ config })
 
@@ -50,9 +61,9 @@ async function seed() {
   }
 
   try {
-    // Clear existing data (optional - can be commented out)
+    // Clear existing data
     console.log('🗑️  Clearing existing data...')
-    await clearData(payload)
+    await clearData(payload, withImages)
     clearImageCache()
 
     // Run the seeder
@@ -73,7 +84,8 @@ async function seed() {
   process.exit(0)
 }
 
-async function clearData(payload: Payload) {
+async function clearData(payload: Payload, clearMedia: boolean = false) {
+  // Collections to clear (media only if --with-images flag)
   const collections: (keyof Config['collections'])[] = [
     'pages',
     'posts',
@@ -86,7 +98,6 @@ async function clearData(payload: Payload) {
     'subscription-orders',
     'newsletter-subscribers',
     'faq',
-    // 'contact-submissions' removed - using Form Builder plugin's form-submissions
     'form-submissions',
     'forms',
     'categories',
@@ -95,9 +106,13 @@ async function clearData(payload: Payload) {
     'carts',
     'orders',
     'addresses',
-    'media',
     'subscriptions',
   ]
+
+  // Add media to clear list if --with-images flag is present
+  if (clearMedia) {
+    collections.push('media')
+  }
 
   for (const collection of collections) {
     try {
@@ -141,17 +156,21 @@ async function clearData(payload: Payload) {
     // Users collection error, skip
   }
 
-  // Clear media files from filesystem
-  const mediaDir = path.join(process.cwd(), 'media')
-  if (fs.existsSync(mediaDir)) {
-    const files = fs.readdirSync(mediaDir)
-    for (const file of files) {
-      const filePath = path.join(mediaDir, file)
-      if (fs.statSync(filePath).isFile()) {
-        fs.unlinkSync(filePath)
-      }
+  // Clear local media folder if --with-images
+  if (clearMedia) {
+    const mediaDir = path.join(process.cwd(), 'media')
+    if (fs.existsSync(mediaDir)) {
+      fs.rmSync(mediaDir, { recursive: true, force: true })
+      fs.mkdirSync(mediaDir, { recursive: true })
+      console.log('   Local media folder cleared')
     }
-    console.log(`   Cleared media files: ${files.length} files`)
+  }
+
+  // Clear Next.js image cache
+  const nextImageCacheDir = path.join(process.cwd(), '.next', 'cache', 'images')
+  if (fs.existsSync(nextImageCacheDir)) {
+    fs.rmSync(nextImageCacheDir, { recursive: true, force: true })
+    console.log('   Next.js image cache cleared')
   }
 }
 

@@ -2,6 +2,7 @@ import type { Block } from 'payload'
 
 export const TeamBlock: Block = {
   slug: 'team',
+  interfaceName: 'TeamBlock',
   labels: {
     singular: 'Echipa',
     plural: 'Echipa',

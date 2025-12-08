@@ -39,7 +39,7 @@ export function LogoCloudBlock({
   const bgColors = {
     default: 'bg-background',
     light: 'bg-muted/50',
-    dark: 'bg-gray-900 text-white',
+    dark: 'bg-theme-dark text-white',
     transparent: 'bg-transparent',
   }
 
@@ -69,7 +69,7 @@ export function LogoCloudBlock({
           'relative flex items-center justify-center p-4 transition-all duration-300',
           variant === 'cards' &&
             (backgroundColor === 'dark'
-              ? 'bg-gray-800 rounded-lg'
+              ? 'bg-white/5 rounded-lg'
               : 'bg-white rounded-lg shadow-sm'),
           (grayscale || variant === 'grayscale') &&
             'grayscale opacity-60 hover:grayscale-0 hover:opacity-100',
@@ -124,7 +124,7 @@ export function LogoCloudBlock({
         <p
           className={cn(
             'text-sm font-medium uppercase tracking-wider',
-            backgroundColor === 'dark' ? 'text-gray-400' : 'text-muted-foreground',
+            backgroundColor === 'dark' ? 'text-white/60' : 'text-muted-foreground',
           )}
         >
           {heading || 'Partenerii nostri'}
@@ -198,7 +198,7 @@ export function LogoCloudBlock({
               <h2
                 className={cn(
                   'text-lg md:text-xl font-semibold',
-                  backgroundColor === 'dark' ? 'text-gray-300' : 'text-muted-foreground',
+                  backgroundColor === 'dark' ? 'text-white/70' : 'text-muted-foreground',
                 )}
               >
                 {heading}
@@ -208,7 +208,7 @@ export function LogoCloudBlock({
               <p
                 className={cn(
                   'mt-2 text-sm',
-                  backgroundColor === 'dark' ? 'text-gray-400' : 'text-muted-foreground',
+                  backgroundColor === 'dark' ? 'text-white/60' : 'text-muted-foreground',
                 )}
               >
                 {subheading}

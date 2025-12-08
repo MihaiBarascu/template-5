@@ -1018,7 +1018,6 @@ async function createAdditionalPages(
           blockType: 'contact' as const,
           variant: 'minimal' as const,
           heading: 'Vino la Sala',
-          showContactInfo: true,
           contactInfoItems: {
             showAddress: true,
             showPhone: true,
@@ -1026,7 +1025,6 @@ async function createAdditionalPages(
             showWorkingHours: true,
             showSocial: false,
           },
-          showMap: false,
           backgroundColor: 'light' as const,
         },
       ],
@@ -1100,7 +1098,6 @@ async function createAdditionalPages(
             blockType: 'contact' as const,
             variant: 'minimal' as const,
             heading: 'Ai intrebari?',
-            showContactInfo: true,
             contactInfoItems: {
               showAddress: false,
               showPhone: true,
@@ -1108,7 +1105,6 @@ async function createAdditionalPages(
               showWorkingHours: true,
               showSocial: false,
             },
-            showMap: false,
             backgroundColor: 'light' as const,
           },
         ],

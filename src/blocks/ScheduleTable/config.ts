@@ -2,6 +2,7 @@ import type { Block } from 'payload'
 
 export const ScheduleTableBlock: Block = {
   slug: 'scheduleTable',
+  interfaceName: 'ScheduleTableBlock',
   labels: {
     singular: 'Tabel Program Clase',
     plural: 'Tabel Program Clase',

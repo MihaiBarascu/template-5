@@ -30,7 +30,7 @@ export const Select: React.FC<
               id={name}
               value={value || ''}
               onChange={(e) => onChange(e.target.value)}
-              className={inputClassName || 'w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-theme-primary'}
+              className={inputClassName || 'w-full px-4 py-3 rounded-lg border border-theme-border bg-white text-theme-text transition-colors focus:outline-none focus:ring-2 focus:ring-theme-primary'}
             >
               <option value="">Selecteaza o optiune</option>
               {options.map(({ label, value }) => (

@@ -108,7 +108,7 @@ export function SubscriptionCardsBlock({
                           ) : feature ? (
                             <X className="w-5 h-5 text-red-500 mx-auto" />
                           ) : (
-                            <span className="text-gray-300">-</span>
+                            <span className="text-theme-text-muted">-</span>
                           )}
                         </td>
                       )
@@ -168,7 +168,7 @@ export function SubscriptionCardsBlock({
                       <span className="text-3xl font-bold">{subscription.pricing?.amount}</span>
                       <span className="text-sm opacity-80">{subscription.pricing?.currency || 'RON'}{subscription.pricing?.period}</span>
                       {showOldPrice && subscription.pricing?.oldPrice && (
-                        <span className="line-through text-gray-400 text-sm">{subscription.pricing.oldPrice}</span>
+                        <span className="line-through text-theme-text-muted text-sm">{subscription.pricing.oldPrice}</span>
                       )}
                     </div>
                     {subscription.cta?.label && (
@@ -257,7 +257,7 @@ export function SubscriptionCardsBlock({
                     <span className="text-sm text-theme-text-light">{subscription.pricing?.period}</span>
                     {showOldPrice && subscription.pricing?.oldPrice && (
                       <div className="mt-1">
-                        <span className="line-through text-gray-400">{subscription.pricing.oldPrice} RON</span>
+                        <span className="line-through text-theme-text-muted">{subscription.pricing.oldPrice} RON</span>
                       </div>
                     )}
                   </div>
@@ -270,9 +270,9 @@ export function SubscriptionCardsBlock({
                           {feature.included ? (
                             <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
                           ) : (
-                            <X className="w-5 h-5 text-gray-300 flex-shrink-0 mt-0.5" />
+                            <X className="w-5 h-5 text-theme-text-muted flex-shrink-0 mt-0.5" />
                           )}
-                          <span className={feature.included ? '' : 'text-gray-400'}>{feature.text}</span>
+                          <span className={feature.included ? '' : 'text-theme-text-muted'}>{feature.text}</span>
                         </li>
                       ))}
                     </ul>

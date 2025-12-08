@@ -72,16 +72,16 @@ export const FormBlockComponent: React.FC<
   const bgColorKey = backgroundColor || 'default'
   const bgClass = {
     default: 'bg-white',
-    light: 'bg-gray-50',
-    dark: 'bg-gray-900 text-white',
+    light: 'bg-theme-light',
+    dark: 'bg-theme-dark text-white',
   }[bgColorKey] || 'bg-white'
 
   // Input classes based on background
   const inputClassName = cn(
     'w-full px-4 py-3 rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-theme-primary',
     backgroundColor === 'dark'
-      ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400'
-      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500',
+      ? 'bg-white/5 border-white/10 text-white placeholder-theme-text-muted'
+      : 'bg-white border-theme-border text-theme-text placeholder-theme-text-muted',
   )
 
   const onSubmit = useCallback(
@@ -252,7 +252,7 @@ export const FormBlockComponent: React.FC<
               <h3 className="text-xl font-semibold mb-4">{heading}</h3>
             )}
             {enableIntro && subheading && (
-              <p className={cn('mb-6', backgroundColor === 'dark' ? 'text-gray-300' : 'text-gray-600')}>
+              <p className={cn('mb-6', backgroundColor === 'dark' ? 'text-white/70' : 'text-theme-text-light')}>
                 {subheading}
               </p>
             )}
@@ -274,7 +274,7 @@ export const FormBlockComponent: React.FC<
                 <p
                   className={cn(
                     'text-lg max-w-2xl mx-auto',
-                    backgroundColor === 'dark' ? 'text-gray-300' : 'text-gray-600',
+                    backgroundColor === 'dark' ? 'text-white/70' : 'text-theme-text-light',
                   )}
                 >
                   {subheading}
@@ -306,7 +306,7 @@ export const FormBlockComponent: React.FC<
                 <p
                   className={cn(
                     'text-lg max-w-2xl mx-auto',
-                    backgroundColor === 'dark' ? 'text-gray-300' : 'text-gray-600',
+                    backgroundColor === 'dark' ? 'text-white/70' : 'text-theme-text-light',
                   )}
                 >
                   {subheading}
@@ -317,7 +317,7 @@ export const FormBlockComponent: React.FC<
           <div
             className={cn(
               'max-w-xl mx-auto p-6 md:p-8 rounded-lg',
-              backgroundColor === 'dark' ? 'bg-gray-800' : 'bg-white shadow-lg',
+              backgroundColor === 'dark' ? 'bg-white/5' : 'bg-white shadow-lg',
             )}
           >
             {enableIntro && introContent && (
@@ -343,7 +343,7 @@ export const FormBlockComponent: React.FC<
               <p
                 className={cn(
                   'text-lg max-w-2xl mx-auto',
-                  backgroundColor === 'dark' ? 'text-gray-300' : 'text-gray-600',
+                  backgroundColor === 'dark' ? 'text-white/70' : 'text-theme-text-light',
                 )}
               >
                 {subheading}

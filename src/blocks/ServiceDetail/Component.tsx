@@ -105,7 +105,7 @@ function getDifficultyColor(difficulty: string) {
 
 function _getServiceTypeColor(serviceType: string) {
   const colors: Record<string, string> = {
-    standard: 'bg-gray-100 text-gray-700',
+    standard: 'bg-theme-light text-theme-text-light',
     class: 'bg-purple-100 text-purple-700',
     individual: 'bg-blue-100 text-blue-700',
     consultation: 'bg-teal-100 text-teal-700',
@@ -180,8 +180,8 @@ export function ServiceDetailBlock({
     return (
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <div className="text-center py-8 bg-gray-100 rounded-lg">
-            <p className="text-gray-500">{l.notFoundMessage}</p>
+          <div className="text-center py-8 bg-theme-light rounded-lg">
+            <p className="text-theme-text-muted">{l.notFoundMessage}</p>
           </div>
         </div>
       </section>
@@ -515,7 +515,7 @@ export function ServiceDetailBlock({
                 </div>
                 <Link
                   href={bookingLink}
-                  className="mt-6 w-full block text-center bg-white text-theme-primary font-bold py-3 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="mt-6 w-full block text-center bg-white text-theme-primary font-bold py-3 rounded-lg hover:bg-theme-light transition-colors"
                 >
                   {ctaButtonText}
                 </Link>

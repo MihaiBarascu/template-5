@@ -50,8 +50,8 @@ export function ProductsBlock({
 
   const bgClasses = {
     default: 'bg-white',
-    light: 'bg-gray-50',
-    dark: 'bg-gray-900 text-white',
+    light: 'bg-theme-light',
+    dark: 'bg-theme-dark text-white',
   }
 
   const gridClasses = {
@@ -105,14 +105,14 @@ export function ProductsBlock({
           <div className="text-center mb-12">
             {heading && (
               <h2
-                className={`text-3xl md:text-4xl font-bold mb-4 ${backgroundColor === 'dark' ? 'text-white' : 'text-gray-900'}`}
+                className={`text-3xl md:text-4xl font-bold mb-4 ${backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'}`}
               >
                 {heading}
               </h2>
             )}
             {subheading && (
               <p
-                className={`text-lg max-w-2xl mx-auto ${backgroundColor === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}
+                className={`text-lg max-w-2xl mx-auto ${backgroundColor === 'dark' ? 'text-white/70' : 'text-theme-text-light'}`}
               >
                 {subheading}
               </p>
@@ -151,15 +151,15 @@ export function ProductsBlock({
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   ) : (
-                    <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                      <span className="text-gray-400 text-4xl">📦</span>
+                    <div className="w-full h-full bg-theme-light flex items-center justify-center">
+                      <span className="text-theme-text-muted text-4xl">📦</span>
                     </div>
                   )}
 
                   {/* Out of Stock Overlay */}
                   {isOutOfStock && (
                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                      <span className="bg-white text-gray-900 px-4 py-2 rounded-md font-medium text-sm">
+                      <span className="bg-white text-theme-text px-4 py-2 rounded-md font-medium text-sm">
                         Stoc epuizat
                       </span>
                     </div>
@@ -170,14 +170,14 @@ export function ProductsBlock({
                 <div className="p-4">
                   {/* Category */}
                   {product.category && typeof product.category === 'object' && (
-                    <span className="text-xs text-gray-500 uppercase tracking-wide">
+                    <span className="text-xs text-theme-text-muted uppercase tracking-wide">
                       {product.category.title}
                     </span>
                   )}
 
                   {/* Title */}
                   <Link href={`/produse/${product.slug}`}>
-                    <h3 className="font-semibold text-gray-900 mt-1 group-hover:text-primary transition-colors line-clamp-2">
+                    <h3 className="font-semibold text-theme-text mt-1 group-hover:text-primary transition-colors line-clamp-2">
                       {product.title}
                     </h3>
                   </Link>
@@ -185,7 +185,7 @@ export function ProductsBlock({
                   {/* Price */}
                   {showPrice && product.priceInRON && (
                     <div className="mt-2 flex items-center gap-2">
-                      <span className="font-bold text-gray-900">
+                      <span className="font-bold text-theme-text">
                         {formatPrice(product.priceInRON)}
                       </span>
                     </div>
@@ -198,7 +198,7 @@ export function ProductsBlock({
                       disabled={isOutOfStock || isAddingThis}
                       className={`mt-3 w-full py-2 px-4 rounded-md transition-colors text-sm font-medium flex items-center justify-center gap-2 ${
                         isOutOfStock || isAddingThis
-                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                          ? 'bg-theme-border text-theme-text-muted cursor-not-allowed'
                           : 'bg-theme-primary text-white hover:bg-theme-primary/90'
                       }`}
                     >
@@ -226,7 +226,7 @@ export function ProductsBlock({
               href={ctaButton.link}
               className={`inline-flex items-center gap-2 px-6 py-3 rounded-md font-medium transition-colors ${
                 backgroundColor === 'dark'
-                  ? 'bg-white text-gray-900 hover:bg-gray-100'
+                  ? 'bg-white text-theme-text hover:bg-theme-light'
                   : 'bg-theme-primary text-white hover:bg-theme-primary/90'
               }`}
             >

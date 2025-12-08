@@ -4,7 +4,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Eye, Heart } from 'lucide-react'
 import { cn } from '@/utilities/cn'
-import { AddToCartButton } from '@/components/cart/AddToCartButton'
+import { AddToCart } from '@/components/cart/AddToCart'
+import type { Product } from '@/payload-types'
 
 interface ProductTag {
   id: string
@@ -115,10 +116,9 @@ export function ProductCard({
               <span className="font-bold text-theme-text">{priceInRON} RON</span>
             </div>
 
-            <AddToCartButton
-              product={{ id, title, price: priceInRON, image: imageUrl ?? undefined }}
+            <AddToCart
+              product={{ id, title, slug, priceInRON, inventory: stock } as Product}
               className="py-2 px-4 text-sm"
-              disabled={isOutOfStock}
             />
           </div>
         </div>
@@ -252,11 +252,9 @@ export function ProductCard({
 
         {/* Add to Cart */}
         {variant !== 'compact' && (
-          <AddToCartButton
-            product={{ id, title, price: priceInRON, image: imageUrl ?? undefined, maxQuantity: stock }}
+          <AddToCart
+            product={{ id, title, slug, priceInRON, inventory: stock } as Product}
             className="w-full py-2.5 text-sm mt-2"
-            disabled={isOutOfStock}
-            maxQuantity={stock}
           />
         )}
       </div>

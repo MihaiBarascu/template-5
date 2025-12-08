@@ -41,6 +41,8 @@ import { ServiceDetailBlock } from './ServiceDetail/Component'
 import { ContentBlock } from './Content/Component'
 // Form Builder block
 import { FormBlockComponent } from './Form/Component'
+// Map block
+import { MapBlock } from './Map/Component'
 
 type LayoutBlock = NonNullable<Page['layout']>[number]
 
@@ -473,18 +475,17 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
             }
 
             case 'contact': {
-              // Contact block now only shows contact info (no form)
-              // Use FormBlock for forms
+              // ContactInfo block - displays business contact details
+              // For maps, use the Map block
+              // For contact forms, use the Form block
+              // These can be composed using the Content block with columns
               return (
                 <ContactBlock
                   key={block.id || index}
                   variant={block.variant ?? undefined}
                   heading={block.heading ?? undefined}
                   subheading={block.subheading ?? undefined}
-                  showContactInfo={block.showContactInfo ?? undefined}
                   contactInfoItems={block.contactInfoItems ?? undefined}
-                  showMap={block.showMap ?? undefined}
-                  mapPosition={block.mapPosition ?? undefined}
                   backgroundColor={block.backgroundColor ?? undefined}
                   labels={block.labels ?? undefined}
                   businessInfo={businessInfo}
@@ -1160,16 +1161,31 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
               )
             }
 
+            case 'map': {
+              return (
+                <MapBlock
+                  key={block.id || index}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
+                  source={block.source ?? undefined}
+                  customEmbed={block.customEmbed ?? undefined}
+                  height={block.height ?? undefined}
+                  showDirectionsButton={block.showDirectionsButton ?? undefined}
+                  businessInfo={businessInfo}
+                />
+              )
+            }
+
             default:
               // Placeholder for unimplemented blocks
               return (
                 <section key={block.id || index} className="py-16">
                   <div className="container mx-auto px-4">
-                    <div className="text-center py-8 bg-gray-100 rounded-lg">
-                      <p className="text-gray-500">
+                    <div className="text-center py-8 bg-theme-light rounded-lg">
+                      <p className="text-theme-text-muted">
                         Block: <strong>{blockType}</strong>
                       </p>
-                      <p className="text-sm text-gray-400 mt-2">Componenta va fi implementata</p>
+                      <p className="text-sm text-theme-text-muted mt-2">Componenta va fi implementata</p>
                     </div>
                   </div>
                 </section>

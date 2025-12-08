@@ -2,6 +2,7 @@ import type { Block } from 'payload'
 
 export const FAQBlock: Block = {
   slug: 'faq',
+  interfaceName: 'FaqBlock',
   labels: {
     singular: 'FAQ',
     plural: 'FAQ',

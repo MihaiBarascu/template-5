@@ -563,7 +563,6 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
           blockType: 'contact' as const,
           variant: 'minimal' as const,
           heading: 'Informatii Salon',
-          showContactInfo: true,
           contactInfoItems: {
             showAddress: true,
             showPhone: true,
@@ -571,7 +570,6 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
             showWorkingHours: true,
             showSocial: false,
           },
-          showMap: false,
           backgroundColor: 'light' as const,
         },
       ],
