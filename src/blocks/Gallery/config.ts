@@ -2,6 +2,7 @@ import type { Block } from 'payload'
 
 export const GalleryBlock: Block = {
   slug: 'gallery',
+  interfaceName: 'GalleryBlock',
   labels: {
     singular: 'Galerie',
     plural: 'Galerie',

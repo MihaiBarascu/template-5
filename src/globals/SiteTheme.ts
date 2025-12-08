@@ -314,6 +314,73 @@ export const SiteTheme: GlobalConfig = {
                     },
                   ],
                 },
+                // Contrast colors - for text on colored backgrounds
+                {
+                  type: 'collapsible',
+                  label: 'Culori Contrast (pentru text pe fundal colorat)',
+                  admin: {
+                    initCollapsed: true,
+                    description:
+                      'Culorile pentru text cand este afisat pe fundal colorat (ex: text pe buton primar)',
+                  },
+                  fields: [
+                    {
+                      type: 'row',
+                      fields: [
+                        {
+                          name: 'textOnPrimary',
+                          type: 'text',
+                          label: 'Text pe Primary',
+                          defaultValue: '#ffffff',
+                          admin: {
+                            width: '33%',
+                            description: 'Text pe fundal primar (butoane, etc.)',
+                          },
+                        },
+                        {
+                          name: 'textOnSecondary',
+                          type: 'text',
+                          label: 'Text pe Secondary',
+                          defaultValue: '#ffffff',
+                          admin: { width: '33%' },
+                        },
+                        {
+                          name: 'textOnAccent',
+                          type: 'text',
+                          label: 'Text pe Accent',
+                          defaultValue: '#000000',
+                          admin: { width: '33%' },
+                        },
+                      ],
+                    },
+                    {
+                      type: 'row',
+                      fields: [
+                        {
+                          name: 'textOnDark',
+                          type: 'text',
+                          label: 'Text pe Dark',
+                          defaultValue: '#ffffff',
+                          admin: { width: '33%' },
+                        },
+                        {
+                          name: 'textOnLight',
+                          type: 'text',
+                          label: 'Text pe Light',
+                          defaultValue: '#1a1a1a',
+                          admin: { width: '33%' },
+                        },
+                        {
+                          name: 'textOnSurface',
+                          type: 'text',
+                          label: 'Text pe Surface',
+                          defaultValue: '#1a1a1a',
+                          admin: { width: '33%' },
+                        },
+                      ],
+                    },
+                  ],
+                },
               ],
             },
           ],

@@ -178,6 +178,7 @@ function HeroCarousel({ slides, ctaButtons, height, overlayConfig }: {
                   src={slideImage.url}
                   alt={slideImage.alt || slide.headline || ''}
                   fill
+                  sizes="100vw"
                   className={cn(
                     'object-cover transition-transform duration-[8000ms] ease-out',
                     isActive ? 'scale-105' : 'scale-100'
@@ -231,8 +232,8 @@ function HeroCarousel({ slides, ctaButtons, height, overlayConfig }: {
                         className={cn(
                           'group inline-flex items-center justify-center px-8 py-4 rounded-[var(--radius-button)] font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-xl',
                           button.variant === 'outline'
-                            ? 'border-2 border-white text-white hover:bg-white hover:text-black'
-                            : 'bg-theme-secondary text-white hover:bg-theme-accent'
+                            ? 'border-2 border-white text-white hover:bg-white hover:text-theme-text'
+                            : 'bg-theme-secondary text-theme-text-on-secondary hover:bg-theme-accent hover:text-theme-text-on-accent'
                         )}
                       >
                         {button.label}
@@ -371,6 +372,7 @@ export function RenderHero({ type, data, social }: RenderHeroProps) {
               src={imageData.url}
               alt={imageData.alt || headline || ''}
               fill
+              sizes="100vw"
               className="object-cover"
               priority
             />
@@ -423,7 +425,7 @@ export function RenderHero({ type, data, social }: RenderHeroProps) {
                       ? 'border-2 border-white text-white hover:bg-white hover:text-black backdrop-blur-sm'
                       : button.variant === 'ghost'
                         ? 'text-white hover:bg-white/20 backdrop-blur-sm'
-                        : 'bg-theme-secondary text-white hover:bg-theme-accent shadow-xl'
+                        : 'bg-theme-secondary text-theme-text-on-secondary hover:bg-theme-accent shadow-xl'
                   )}
                 >
                   {button.label}
@@ -487,8 +489,8 @@ export function RenderHero({ type, data, social }: RenderHeroProps) {
                       className={cn(
                         'group inline-flex items-center justify-center px-8 py-4 rounded-[var(--radius-button)] font-semibold transition-all duration-300 hover:scale-105',
                         button.variant === 'outline'
-                          ? 'border-2 border-theme-primary text-theme-primary hover:bg-theme-primary hover:text-white'
-                          : 'bg-theme-primary text-white hover:opacity-90 shadow-lg hover:shadow-xl'
+                          ? 'border-2 border-theme-primary text-theme-primary hover:bg-theme-primary hover:text-theme-text-on-primary'
+                          : 'bg-theme-primary text-theme-text-on-primary hover:opacity-90 shadow-lg hover:shadow-xl'
                       )}
                     >
                       {button.label}
@@ -513,6 +515,7 @@ export function RenderHero({ type, data, social }: RenderHeroProps) {
                       src={imageData.url}
                       alt={imageData.alt || headline || ''}
                       fill
+                      sizes="(max-width: 768px) 100vw, 50vw"
                       className="object-cover hover:scale-105 transition-transform duration-700"
                       priority
                     />
@@ -570,7 +573,7 @@ export function RenderHero({ type, data, social }: RenderHeroProps) {
     )}>
       {imageData && (
         <div className="absolute inset-0">
-          <Image src={imageData.url} alt={imageData.alt || headline || ''} fill className="object-cover" priority />
+          <Image src={imageData.url} alt={imageData.alt || headline || ''} fill sizes="100vw" className="object-cover" priority />
           {overlayConfig && (
             <div className={overlayConfig.className} style={overlayConfig.style} />
           )}
@@ -622,10 +625,10 @@ export function RenderHero({ type, data, social }: RenderHeroProps) {
                   imageData
                     ? button.variant === 'outline'
                       ? 'border-2 border-white text-white hover:bg-white hover:text-black'
-                      : 'bg-theme-secondary text-white hover:bg-theme-accent shadow-xl'
+                      : 'bg-theme-secondary text-theme-text-on-secondary hover:bg-theme-accent shadow-xl'
                     : button.variant === 'outline'
-                      ? 'border-2 border-theme-primary text-theme-primary hover:bg-theme-primary hover:text-white'
-                      : 'bg-theme-primary text-white hover:opacity-90 shadow-lg'
+                      ? 'border-2 border-theme-primary text-theme-primary hover:bg-theme-primary hover:text-theme-text-on-primary'
+                      : 'bg-theme-primary text-theme-text-on-primary hover:opacity-90 shadow-lg'
                 )}
               >
                 {button.label}

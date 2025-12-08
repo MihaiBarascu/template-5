@@ -61,7 +61,7 @@ export default async function CategoriesPage() {
             {categoriesWithCount.map((category) => (
               <Link
                 key={category.id}
-                href={`/categorii/${category.slug}`}
+                href={`/produse?categorie=${category.slug}`}
                 className="group block p-6 bg-white border border-gray-200 rounded-xl hover:border-theme-primary hover:shadow-lg transition-all"
               >
                 <div className="w-12 h-12 bg-theme-primary/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-theme-primary/20 transition-colors">

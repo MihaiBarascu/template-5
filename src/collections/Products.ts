@@ -15,7 +15,7 @@ export const Products: CollectionConfig = {
     update: authenticated,
   },
   admin: {
-    defaultColumns: ['title', 'price', 'stock', 'featured'],
+    defaultColumns: ['title', 'price', 'inventory', 'featured'],
     useAsTitle: 'title',
     group: 'Business',
   },
@@ -81,28 +81,15 @@ export const Products: CollectionConfig = {
         },
       ],
     },
+    // NOTE: inventory field is added automatically by the ecommerce plugin
+    // Do NOT add a custom stock field - use the plugin's inventory field
     {
-      type: 'row',
-      fields: [
-        {
-          name: 'stock',
-          type: 'number',
-          label: 'Stoc',
-          defaultValue: 0,
-          admin: {
-            width: '50%',
-          },
-        },
-        {
-          name: 'unit',
-          type: 'text',
-          label: 'Unitate masura',
-          admin: {
-            width: '50%',
-            description: 'Ex: buc, kg, l, pachet',
-          },
-        },
-      ],
+      name: 'unit',
+      type: 'text',
+      label: 'Unitate masura',
+      admin: {
+        description: 'Ex: buc, kg, l, pachet',
+      },
     },
     {
       name: 'specifications',

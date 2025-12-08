@@ -2,6 +2,7 @@ import type { Block } from 'payload'
 
 export const SubscriptionCardsBlock: Block = {
   slug: 'subscriptionCards',
+  interfaceName: 'SubscriptionCardsBlock',
   labels: {
     singular: 'Carduri Abonamente',
     plural: 'Carduri Abonamente',

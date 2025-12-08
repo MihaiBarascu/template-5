@@ -54,14 +54,14 @@ function StarRating({ rating }: { rating: number }) {
       {[1, 2, 3, 4, 5].map((star) => (
         <svg
           key={star}
-          className={cn('w-4 h-4', star <= rating ? 'text-yellow-400' : 'text-gray-300')}
+          className={cn('w-4 h-4', star <= rating ? 'text-yellow-400' : 'text-white/70')}
           fill="currentColor"
           viewBox="0 0 20 20"
         >
           <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
         </svg>
       ))}
-      <span className="ml-1 text-sm text-gray-600">({rating.toFixed(1)})</span>
+      <span className="ml-1 text-sm text-theme-text-light">({rating.toFixed(1)})</span>
     </div>
   )
 }
@@ -83,12 +83,12 @@ export function LocationsBlock({
   const bgClass =
     {
       default: 'bg-white',
-      light: 'bg-gray-50',
-      dark: 'bg-gray-900 text-white',
+      light: 'bg-theme-light',
+      dark: 'bg-theme-dark text-white',
     }[bgColor] || 'bg-white'
 
-  const cardBg = backgroundColor === 'dark' ? 'bg-gray-800' : 'bg-white'
-  const textMuted = backgroundColor === 'dark' ? 'text-gray-400' : 'text-gray-600'
+  const cardBg = backgroundColor === 'dark' ? 'bg-white/5' : 'bg-white'
+  const textMuted = backgroundColor === 'dark' ? 'text-white/60' : 'text-theme-text-light'
 
   const LocationCard = ({ location }: { location: Location }) => {
     const imageUrl = getImageUrl(location.image)
@@ -161,7 +161,7 @@ export function LocationsBlock({
         </div>
 
         {showSchedule && location.schedule && location.schedule.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-gray-200">
+          <div className="mt-4 pt-4 border-t border-theme-border">
             <h4 className="text-sm font-medium mb-2">Program:</h4>
             <div className="space-y-1">
               {location.schedule.map((s, idx) => (
@@ -191,8 +191,8 @@ export function LocationsBlock({
               className={cn(
                 'py-2 px-4 text-sm rounded-lg border transition-colors',
                 backgroundColor === 'dark'
-                  ? 'border-gray-600 hover:bg-gray-700'
-                  : 'border-gray-300 hover:bg-gray-50'
+                  ? 'border-white/10 hover:bg-white/10'
+                  : 'border-theme-border hover:bg-theme-light'
               )}
             >
               Directii
@@ -219,7 +219,7 @@ export function LocationsBlock({
               {locationList.map((location, idx) => (
                 <div
                   key={location.id || idx}
-                  className={cn('p-4 rounded-lg border', cardBg, 'border-gray-200')}
+                  className={cn('p-4 rounded-lg border', cardBg, 'border-theme-border')}
                 >
                   <h3 className="font-semibold mb-1">{location.name}</h3>
                   <p className={cn('text-sm mb-2', textMuted)}>{location.address}</p>
@@ -286,7 +286,7 @@ export function LocationsBlock({
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
                   <h3 className="text-xl font-semibold mb-1">{location.name}</h3>
-                  <p className="text-sm text-gray-300">{location.address}</p>
+                  <p className="text-sm text-white/70">{location.address}</p>
                   {location.ctaButton?.link && (
                     <a
                       href={location.ctaButton.link}

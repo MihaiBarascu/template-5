@@ -3,7 +3,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { Logo } from '@/components/Logo'
-import { CartButton } from '@/components/cart/CartButton'
+import { Cart } from '@/components/cart'
+import { useAuth } from '@/providers/Auth'
 import { cn } from '@/utilities/cn'
 import type { Header as HeaderType, Logo as LogoType, BusinessInfo, Page } from '@/payload-types'
 
@@ -24,6 +25,7 @@ export function Header({ data, logo, businessInfo, showCart = false }: HeaderPro
   const [focusedSubmenuIndex, setFocusedSubmenuIndex] = useState<number>(-1)
   const dropdownRefs = useRef<(HTMLDivElement | null)[]>([])
   const submenuRefs = useRef<(HTMLAnchorElement | null)[]>([])
+  const { user, status } = useAuth()
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -198,7 +200,7 @@ export function Header({ data, logo, businessInfo, showCart = false }: HeaderPro
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
-            <Link href="/" className="flex-shrink-0">
+            <Link href="/" className="flex-shrink-0 flex items-center">
               <Logo data={logo} businessName={businessInfo?.name} />
             </Link>
 
@@ -309,14 +311,35 @@ export function Header({ data, logo, businessInfo, showCart = false }: HeaderPro
               })}
             </nav>
 
-            {/* Cart & CTA Button & Mobile Menu */}
+            {/* Account, Cart & CTA Button & Mobile Menu */}
             <div className="flex items-center gap-3">
-              {/* Cart Button - shows if showCart is true OR if CTA is a cart link */}
+              {/* Account Button - shows when ecommerce is active (showCart) */}
               {(showCart || ctaButton?.link === '/cos') && (
-                <CartButton variant="default" />
+                <Link
+                  href={status === 'loggedIn' ? '/cont' : '/cont/login'}
+                  className={cn(
+                    "hidden sm:flex items-center gap-2 p-2 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary focus-visible:ring-offset-2",
+                    variant === 'transparent'
+                      ? "text-white hover:bg-white/10"
+                      : "text-theme-text hover:bg-gray-100"
+                  )}
+                  aria-label={status === 'loggedIn' ? 'Contul meu' : 'Autentificare'}
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  {status === 'loggedIn' && user?.name && (
+                    <span className="text-sm font-medium max-w-[100px] truncate">{user.name}</span>
+                  )}
+                </Link>
               )}
 
-              {/* CTA Button - hide if it's a cart link (replaced by CartButton above) */}
+              {/* Cart Button - shows if showCart is true OR if CTA is a cart link */}
+              {(showCart || ctaButton?.link === '/cos') && (
+                <Cart />
+              )}
+
+              {/* CTA Button - hide if it's a cart link (replaced by Cart above) */}
               {ctaButton?.enabled && ctaButton.link !== '/cos' && (
                 <Link
                   href={ctaButton.link || '/contact'}
@@ -474,6 +497,20 @@ export function Header({ data, logo, businessInfo, showCart = false }: HeaderPro
               </Link>
             )
           })}
+
+          {/* Mobile Account Button - shows if showCart OR CTA is cart link */}
+          {(showCart || ctaButton?.link === '/cos') && (
+            <Link
+              href={status === 'loggedIn' ? '/cont' : '/cont/login'}
+              className="mt-2 flex items-center justify-center gap-2 px-4 py-3 rounded-theme-button font-medium border-2 border-theme-primary text-theme-primary hover:bg-theme-primary hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-theme-primary"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              {status === 'loggedIn' ? (user?.name || 'Contul meu') : 'Autentificare'}
+            </Link>
+          )}
 
           {/* Mobile Cart Button - shows if showCart OR CTA is cart link */}
           {(showCart || ctaButton?.link === '/cos') && (

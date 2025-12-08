@@ -2,6 +2,7 @@ import type { Block } from 'payload'
 
 export const LatestPostsBlock: Block = {
   slug: 'latestPosts',
+  interfaceName: 'LatestPostsBlock',
   labels: {
     singular: 'Ultimele Articole',
     plural: 'Ultimele Articole',

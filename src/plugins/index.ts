@@ -1,4 +1,5 @@
 import { revalidateRedirects } from '@/hooks/revalidateRedirects'
+import { processFormSubmission } from '@/hooks/processFormSubmission'
 import { beforeSyncWithSearch } from '@/search/beforeSync'
 import { searchFields } from '@/search/fieldOverrides'
 import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
@@ -8,7 +9,7 @@ import { redirectsPlugin } from '@payloadcms/plugin-redirects'
 import { searchPlugin } from '@payloadcms/plugin-search'
 import { seoPlugin } from '@payloadcms/plugin-seo'
 import { s3Storage } from '@payloadcms/storage-s3'
-import { GenerateTitle, GenerateURL } from '@payloadcms/plugin-seo/types'
+import { GenerateTitle, GenerateURL, GenerateDescription } from '@payloadcms/plugin-seo/types'
 import { FixedToolbarFeature, HeadingFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import { Plugin } from 'payload'
 
@@ -40,13 +41,64 @@ const s3StoragePlugin: Plugin | null =
       })
     : null
 
-const generateTitle: GenerateTitle<Post | Page> = ({ doc }) => {
-  return doc?.title ? `${doc.title} | Site Business` : 'Site Business Romania'
+// SEO Generation Functions - following Payload official documentation
+// https://payloadcms.com/docs/plugins/seo
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SEODoc = any // Using any to simplify complex union type handling
+
+const generateTitle: GenerateTitle<SEODoc> = ({ doc }) => {
+  if (!doc) return 'Site Business Romania'
+
+  // Handle different document types - try title first, then name
+  const title = doc.title || doc.name || null
+  return title ? `${title} | Site Business` : 'Site Business Romania'
 }
 
-const generateURL: GenerateURL<Post | Page> = ({ doc }) => {
+const generateDescription: GenerateDescription<SEODoc> = ({ doc }) => {
+  if (!doc) return ''
+
+  // Try different description fields based on document type
+  // Posts have 'excerpt', Products have 'shortDescription', Services have 'shortDescription'
+  if (doc.excerpt) {
+    return doc.excerpt
+  }
+  if (doc.shortDescription) {
+    return doc.shortDescription
+  }
+  // Fallback: extract from rich text description if available
+  if (doc.description && typeof doc.description === 'object') {
+    // For rich text, try to extract plain text from first paragraph
+    const desc = doc.description as { root?: { children?: Array<{ children?: Array<{ text?: string }> }> } }
+    if (desc?.root?.children?.[0]?.children?.[0]?.text) {
+      return desc.root.children[0].children[0].text.slice(0, 160)
+    }
+  }
+  return ''
+}
+
+// generateImage is optional - we'll let seoPlugin handle default behavior
+// by not providing it, the plugin will use the uploadsCollection setting
+
+const generateURL: GenerateURL<SEODoc> = ({ doc, collectionSlug }) => {
   const url = getServerSideURL()
-  return doc?.slug ? `${url}/${doc.slug}` : url
+
+  if (!doc?.slug) return url
+
+  // Different URL patterns for different collections
+  switch (collectionSlug) {
+    case 'posts':
+      return `${url}/blog/${doc.slug}`
+    case 'products':
+      return `${url}/produse/${doc.slug}`
+    case 'services':
+      return `${url}/servicii/${doc.slug}`
+    case 'pages':
+    default:
+      // Handle homepage
+      if (doc.slug === 'home') return url
+      return `${url}/${doc.slug}`
+  }
 }
 
 export const plugins: Plugin[] = [
@@ -77,32 +129,102 @@ export const plugins: Plugin[] = [
     generateURL: (docs) => docs.reduce((url, doc) => `${url}/${doc.slug}`, ''),
   }),
   seoPlugin({
+    // Collections that should have SEO fields
+    // Products collection is 'products' (created by ecommerce plugin)
+    collections: ['pages', 'posts', 'products', 'services'],
+    // Upload collection for meta images
+    uploadsCollection: 'media',
+    // Auto-generate functions
     generateTitle,
+    generateDescription,
     generateURL,
+    // Enable tabbed UI in admin for better UX
+    tabbedUI: true,
   }),
   formBuilderPlugin({
     fields: {
       payment: false,
+      // Add custom date field
+      date: {
+        fields: [
+          {
+            name: 'name',
+            type: 'text',
+            label: 'Nume camp (slug)',
+            required: true,
+            admin: {
+              description: 'Ex: date, dataPreferata',
+            },
+          },
+          {
+            name: 'label',
+            type: 'text',
+            label: 'Label',
+          },
+          {
+            name: 'width',
+            type: 'number',
+            label: 'Latime (%)',
+            defaultValue: 100,
+            min: 25,
+            max: 100,
+          },
+          {
+            name: 'required',
+            type: 'checkbox',
+            label: 'Obligatoriu',
+          },
+        ],
+      },
     },
     formOverrides: {
       fields: ({ defaultFields }) => {
-        return defaultFields.map((field) => {
-          if ('name' in field && field.name === 'confirmationMessage') {
-            return {
-              ...field,
-              editor: lexicalEditor({
-                features: ({ rootFeatures }) => {
-                  return [
-                    ...rootFeatures,
-                    FixedToolbarFeature(),
-                    HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4'] }),
-                  ]
-                },
-              }),
+        // Add formType field at the beginning
+        const formTypeField = {
+          name: 'formType',
+          type: 'select' as const,
+          label: 'Tip Formular',
+          required: true,
+          defaultValue: 'contact',
+          options: [
+            { label: 'Contact', value: 'contact' },
+            { label: 'Newsletter', value: 'newsletter' },
+            { label: 'Rezervare', value: 'booking' },
+            { label: 'Comanda', value: 'order' },
+            { label: 'Feedback', value: 'feedback' },
+            { label: 'Altele', value: 'other' },
+          ],
+          admin: {
+            description:
+              'Tipul formularului determina cum sunt procesate trimiterile (email-uri, salvare newsletter, etc.)',
+          },
+        }
+
+        return [
+          formTypeField,
+          ...defaultFields.map((field) => {
+            if ('name' in field && field.name === 'confirmationMessage') {
+              return {
+                ...field,
+                editor: lexicalEditor({
+                  features: ({ rootFeatures }) => {
+                    return [
+                      ...rootFeatures,
+                      FixedToolbarFeature(),
+                      HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4'] }),
+                    ]
+                  },
+                }),
+              }
             }
-          }
-          return field
-        })
+            return field
+          }),
+        ]
+      },
+    },
+    formSubmissionOverrides: {
+      hooks: {
+        afterChange: [processFormSubmission],
       },
     },
   }),
@@ -119,6 +241,7 @@ export const plugins: Plugin[] = [
   // Admin-ul poate exporta colectii in JSON si le poate reimporta
   importExportPlugin({
     collections: [
+      // Content collections
       'pages',
       'posts',
       'services',
@@ -126,8 +249,12 @@ export const plugins: Plugin[] = [
       'portfolio',
       'testimonials',
       'faq',
-      'price-packages',
+      'subscriptions',
       'categories',
+      // Operational collections
+      'bookings',
+      'subscription-orders',
+      'newsletter-subscribers',
     ],
   }),
   // S3/R2 storage for production (optional - only if env vars are set)

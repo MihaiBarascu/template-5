@@ -10,6 +10,7 @@ interface CartItem {
   price: number
   image?: string | null
   quantity: number
+  maxQuantity?: number // Stoc disponibil
 }
 
 interface CartBlockProps {
@@ -42,8 +43,8 @@ export function CartBlock({
 
   const bgClasses = {
     default: 'bg-white',
-    light: 'bg-gray-50',
-    dark: 'bg-gray-900 text-white',
+    light: 'bg-theme-light',
+    dark: 'bg-theme-dark text-white',
   }
 
   useEffect(() => {
@@ -65,8 +66,17 @@ export function CartBlock({
   const updateQuantity = (itemId: string, newQuantity: number) => {
     if (newQuantity < 1) return
 
-    const updatedCart = cart.map((item) =>
-      item.id === itemId ? { ...item, quantity: newQuantity } : item
+    // Find the item to check maxQuantity
+    const item = cart.find((i) => i.id === itemId)
+    if (!item) return
+
+    // Check stock limit
+    if (item.maxQuantity !== undefined && newQuantity > item.maxQuantity) {
+      return // Don't allow exceeding stock
+    }
+
+    const updatedCart = cart.map((i) =>
+      i.id === itemId ? { ...i, quantity: newQuantity } : i
     )
     setCart(updatedCart)
     localStorage.setItem('cart', JSON.stringify(updatedCart))
@@ -96,10 +106,10 @@ export function CartBlock({
       <section className={`py-16 ${bgClasses[backgroundColor]}`}>
         <div className="container mx-auto px-4">
           <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
+            <div className="h-8 bg-theme-light rounded w-1/4 mb-6"></div>
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-24 bg-gray-200 rounded"></div>
+                <div key={i} className="h-24 bg-theme-light rounded"></div>
               ))}
             </div>
           </div>
@@ -114,14 +124,14 @@ export function CartBlock({
         <div className="container mx-auto px-4">
           {heading && (
             <h2
-              className={`text-3xl font-bold mb-8 ${backgroundColor === 'dark' ? 'text-white' : 'text-gray-900'}`}
+              className={`text-3xl font-bold mb-8 ${backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'}`}
             >
               {heading}
             </h2>
           )}
           <div className="text-center py-12">
             <div className="text-6xl mb-4">🛒</div>
-            <p className={`text-lg mb-6 ${backgroundColor === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+            <p className={`text-lg mb-6 ${backgroundColor === 'dark' ? 'text-white/70' : 'text-theme-text-light'}`}>
               {emptyCartMessage}
             </p>
             <Link
@@ -142,7 +152,7 @@ export function CartBlock({
       <div className="container mx-auto px-4">
         {heading && (
           <h2
-            className={`text-3xl font-bold mb-8 ${backgroundColor === 'dark' ? 'text-white' : 'text-gray-900'}`}
+            className={`text-3xl font-bold mb-8 ${backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'}`}
           >
             {heading}
           </h2>
@@ -156,7 +166,7 @@ export function CartBlock({
                 <div
                   key={item.id}
                   className={`flex items-center gap-4 p-4 rounded-lg ${
-                    backgroundColor === 'dark' ? 'bg-gray-800' : 'bg-gray-50'
+                    backgroundColor === 'dark' ? 'bg-white/5' : 'bg-theme-light'
                   }`}
                 >
                   {/* Image */}
@@ -164,7 +174,7 @@ export function CartBlock({
                     {item.image ? (
                       <Image src={item.image} alt={item.title} fill className="object-cover" />
                     ) : (
-                      <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                      <div className="w-full h-full bg-theme-light flex items-center justify-center">
                         <span className="text-2xl">📦</span>
                       </div>
                     )}
@@ -174,53 +184,64 @@ export function CartBlock({
                   <div className="flex-grow min-w-0">
                     <h3
                       className={`font-semibold truncate ${
-                        backgroundColor === 'dark' ? 'text-white' : 'text-gray-900'
+                        backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'
                       }`}
                     >
                       {item.title}
                     </h3>
-                    <p className={`text-sm ${backgroundColor === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <p className={`text-sm ${backgroundColor === 'dark' ? 'text-white/60' : 'text-theme-text-muted'}`}>
                       {formatPrice(item.price)} / buc
                     </p>
                   </div>
 
                   {/* Quantity */}
                   {showQuantitySelector && (
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        className={`w-8 h-8 rounded-md flex items-center justify-center ${
-                          backgroundColor === 'dark'
-                            ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                            : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
-                        }`}
-                      >
-                        -
-                      </button>
-                      <span
-                        className={`w-8 text-center font-medium ${
-                          backgroundColor === 'dark' ? 'text-white' : 'text-gray-900'
-                        }`}
-                      >
-                        {item.quantity}
-                      </span>
-                      <button
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className={`w-8 h-8 rounded-md flex items-center justify-center ${
-                          backgroundColor === 'dark'
-                            ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                            : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
-                        }`}
-                      >
-                        +
-                      </button>
+                    <div className="flex flex-col items-center gap-1">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          disabled={item.quantity <= 1}
+                          className={`w-8 h-8 rounded-md flex items-center justify-center transition-colors ${
+                            item.quantity <= 1
+                              ? 'bg-theme-light text-theme-text-muted cursor-not-allowed'
+                              : backgroundColor === 'dark'
+                                ? 'bg-white/10 hover:bg-white/20 text-white'
+                                : 'bg-theme-light hover:bg-theme-border text-theme-text'
+                          }`}
+                        >
+                          -
+                        </button>
+                        <span
+                          className={`w-8 text-center font-medium ${
+                            backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'
+                          }`}
+                        >
+                          {item.quantity}
+                        </span>
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          disabled={item.maxQuantity !== undefined && item.quantity >= item.maxQuantity}
+                          className={`w-8 h-8 rounded-md flex items-center justify-center transition-colors ${
+                            item.maxQuantity !== undefined && item.quantity >= item.maxQuantity
+                              ? 'bg-theme-light text-theme-text-muted cursor-not-allowed'
+                              : backgroundColor === 'dark'
+                                ? 'bg-white/10 hover:bg-white/20 text-white'
+                                : 'bg-theme-light hover:bg-theme-border text-theme-text'
+                          }`}
+                        >
+                          +
+                        </button>
+                      </div>
+                      {item.maxQuantity !== undefined && item.quantity >= item.maxQuantity && (
+                        <span className="text-xs text-orange-600">Max stoc</span>
+                      )}
                     </div>
                   )}
 
                   {/* Price */}
                   <div
                     className={`font-bold text-right min-w-[80px] ${
-                      backgroundColor === 'dark' ? 'text-white' : 'text-gray-900'
+                      backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'
                     }`}
                   >
                     {formatPrice(item.price * item.quantity)}
@@ -243,7 +264,7 @@ export function CartBlock({
             <Link
               href={continueShoppingLink}
               className={`inline-flex items-center gap-2 mt-6 text-sm ${
-                backgroundColor === 'dark' ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-900'
+                backgroundColor === 'dark' ? 'text-white/70 hover:text-white' : 'text-theme-text-light hover:text-theme-text'
               }`}
             >
               ← Continua cumparaturile
@@ -254,12 +275,12 @@ export function CartBlock({
           {showSubtotal && variant === 'full' && (
             <div
               className={`p-6 rounded-lg h-fit ${
-                backgroundColor === 'dark' ? 'bg-gray-800' : 'bg-gray-50'
+                backgroundColor === 'dark' ? 'bg-white/5' : 'bg-theme-light'
               }`}
             >
               <h3
                 className={`text-lg font-semibold mb-4 ${
-                  backgroundColor === 'dark' ? 'text-white' : 'text-gray-900'
+                  backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'
                 }`}
               >
                 Sumar comanda
@@ -268,7 +289,7 @@ export function CartBlock({
               <div className="space-y-2 mb-4">
                 <div
                   className={`flex justify-between ${
-                    backgroundColor === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                    backgroundColor === 'dark' ? 'text-white/70' : 'text-theme-text-light'
                   }`}
                 >
                   <span>Subtotal</span>
@@ -276,7 +297,7 @@ export function CartBlock({
                 </div>
                 <div
                   className={`flex justify-between ${
-                    backgroundColor === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                    backgroundColor === 'dark' ? 'text-white/70' : 'text-theme-text-light'
                   }`}
                 >
                   <span>Transport</span>
@@ -286,21 +307,21 @@ export function CartBlock({
 
               <div
                 className={`border-t pt-4 mb-6 ${
-                  backgroundColor === 'dark' ? 'border-gray-700' : 'border-gray-200'
+                  backgroundColor === 'dark' ? 'border-white/10' : 'border-theme-border'
                 }`}
               >
                 <div className="flex justify-between font-bold text-lg">
-                  <span className={backgroundColor === 'dark' ? 'text-white' : 'text-gray-900'}>
+                  <span className={backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'}>
                     Total
                   </span>
-                  <span className={backgroundColor === 'dark' ? 'text-white' : 'text-gray-900'}>
+                  <span className={backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'}>
                     {formatPrice(subtotal >= 200 ? subtotal : subtotal + 20)}
                   </span>
                 </div>
                 {subtotal < 200 && (
                   <p
                     className={`text-sm mt-2 ${
-                      backgroundColor === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                      backgroundColor === 'dark' ? 'text-white/60' : 'text-theme-text-muted'
                     }`}
                   >
                     Mai adauga {formatPrice(200 - subtotal)} pentru transport gratuit!

@@ -2,6 +2,7 @@ import type { Block } from 'payload'
 
 export const TrustBadgesBlock: Block = {
   slug: 'trust-badges',
+  interfaceName: 'TrustBadgesBlock',
   labels: {
     singular: 'Trust Badges',
     plural: 'Trust Badges',

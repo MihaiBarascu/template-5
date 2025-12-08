@@ -32,24 +32,38 @@ export const Media: CollectionConfig = {
   ],
   upload: {
     adminThumbnail: 'thumbnail',
+    focalPoint: true, // Permite selectarea punctului focal pentru crop
     imageSizes: [
       {
         name: 'thumbnail',
         width: 300,
-        height: 300,
-        position: 'centre',
       },
       {
-        name: 'card',
-        width: 768,
-        height: 512,
-        position: 'centre',
+        name: 'square',
+        width: 500,
+        height: 500,
       },
       {
-        name: 'hero',
+        name: 'small',
+        width: 600,
+      },
+      {
+        name: 'medium',
+        width: 900,
+      },
+      {
+        name: 'large',
+        width: 1400,
+      },
+      {
+        name: 'xlarge',
         width: 1920,
-        height: 1080,
-        position: 'centre',
+      },
+      {
+        name: 'og',
+        width: 1200,
+        height: 630,
+        crop: 'center',
       },
     ],
     mimeTypes: ['image/*', 'application/pdf'],

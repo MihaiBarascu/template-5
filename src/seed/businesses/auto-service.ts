@@ -15,6 +15,9 @@ import {
   uploadLocalSeedImages,
   seedPosts,
   seedNewsletterSubscribers,
+  seedForms,
+  formTemplates,
+  createContactPageLayout,
 } from '../helpers'
 import { autoServiceImages, autoServiceData } from '../seed-data'
 import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
@@ -76,6 +79,7 @@ export async function seedAutoService(payload: Payload) {
 
   console.log('\n📋 Setting up footer...')
   await seedFooter(payload, {
+    colorScheme: 'dark',
     variant: 'columns-4',
     columns: [
       { title: 'Service Auto', type: 'text' },
@@ -92,7 +96,18 @@ export async function seedAutoService(payload: Payload) {
   })
 
   console.log('\n🔧 Creating services...')
-  await seedServices(payload, autoServiceData.services)
+  const createdServices = await seedServices(payload, autoServiceData.services)
+
+  // Create forms using Form Builder
+  console.log('\n📝 Creating forms...')
+  const serviceOptions = Array.from(createdServices.entries()).map(([title]) => ({
+    label: title,
+    value: title.toLowerCase().replace(/\s+/g, '-'),
+  }))
+  const formsMap = await seedForms(payload, [
+    formTemplates.contact(),
+    formTemplates.booking(serviceOptions),
+  ])
 
   console.log('\n👥 Creating team members...')
   const teamWithImages = autoServiceData.team.map((member) => ({
@@ -135,7 +150,7 @@ export async function seedAutoService(payload: Payload) {
   })
 
   console.log('\n📄 Creating additional pages...')
-  await createAdditionalPages(payload, variant)
+  await createAdditionalPages(payload, variant, formsMap)
 
   // Create blog posts
   console.log('\n📝 Creating blog posts...')
@@ -436,7 +451,10 @@ function buildHomepageLayout(variant: DesignVariant) {
   return variant.layout.sections.map((s) => sectionConfigs[s]).filter(Boolean)
 }
 
-async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
+async function createAdditionalPages(payload: Payload, variant: DesignVariant, formsMap: Map<string, string>) {
+  const contactFormId = formsMap.get('Formular de contact')
+  const bookingFormId = formsMap.get('Cerere programare')
+
   await payload.create({
     collection: 'pages',
     data: {
@@ -484,6 +502,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
   })
   console.log('   Created Prices page')
 
+  // Booking page - using FormBlock
   await payload.create({
     collection: 'pages',
     data: {
@@ -492,13 +511,32 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
       heroType: 'minimal',
       hero: { headline: 'Programeaza-te Online', subheadline: 'Completeaza formularul' },
       layout: [
-        { blockType: 'booking', variant: 'full', heading: 'Cerere Programare', showServiceSelection: true, showTeamSelection: false, showDatePicker: true, showTimePicker: true, submitButtonText: 'Trimite', successMessage: 'Te vom contacta pentru confirmare.', backgroundColor: 'light' },
+        ...(bookingFormId ? [{
+          blockType: 'formBlock' as const,
+          form: bookingFormId,
+          enableIntro: true,
+          introContent: {
+            root: {
+              type: 'root' as const,
+              children: [
+                { type: 'heading' as const, tag: 'h3' as const, children: [{ type: 'text' as const, text: 'Cerere Programare', format: 0, detail: 0, mode: 'normal' as const, style: '', version: 1 }], direction: 'ltr' as const, format: '' as const, indent: 0, version: 1 },
+                { type: 'paragraph' as const, children: [{ type: 'text' as const, text: 'Completeaza formularul si te vom contacta pentru confirmare.', format: 0, detail: 0, mode: 'normal' as const, style: '', version: 1 }], direction: 'ltr' as const, format: '' as const, indent: 0, textFormat: 0, version: 1 },
+              ],
+              direction: 'ltr' as const,
+              format: '' as const,
+              indent: 0,
+              version: 1,
+            },
+          },
+        }] : []),
+        { blockType: 'contact' as const, variant: 'minimal' as const, heading: 'Informatii Service', contactInfoItems: { showAddress: true, showPhone: true, showEmail: true, showWorkingHours: true, showSocial: false }, backgroundColor: 'light' as const },
       ],
       _status: 'published',
     },
   })
   console.log('   Created Booking page')
 
+  // Contact page - 2-column layout
   await payload.create({
     collection: 'pages',
     data: {
@@ -506,9 +544,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant) {
       slug: 'contact',
       heroType: 'minimal',
       hero: { headline: 'Contact', subheadline: 'Suntem aici sa te ajutam' },
-      layout: [
-        { blockType: 'contact', variant: 'split', heading: 'Contacteaza-ne', showForm: true, showContactInfo: true, showMap: true, mapPosition: 'bottom', backgroundColor: 'light' },
-      ],
+      layout: createContactPageLayout(contactFormId),
       _status: 'published',
     },
   })

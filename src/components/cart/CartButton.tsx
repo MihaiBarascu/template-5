@@ -1,5 +1,14 @@
 'use client'
 
+/**
+ * @deprecated This component uses localStorage for cart storage.
+ * Use `Cart` or `OpenCartButton` from `@/components/cart` instead,
+ * which use the official Payload ecommerce plugin with database-stored cart.
+ *
+ * This file is kept for backward compatibility.
+ * Will be removed in a future update.
+ */
+
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { cn } from '@/utilities/cn'

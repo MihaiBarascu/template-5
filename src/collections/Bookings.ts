@@ -65,6 +65,7 @@ export const Bookings: CollectionConfig = {
             clientEmail: populatedDoc.clientEmail,
             clientPhone: populatedDoc.clientPhone,
             service: populatedDoc.service,
+            serviceName: doc.serviceName, // Fallback text field
             teamMember: populatedDoc.teamMember,
             date: populatedDoc.date,
             time: populatedDoc.time,
@@ -92,6 +93,7 @@ export const Bookings: CollectionConfig = {
             const clientEmailHtml = formatBookingConfirmationEmail({
               clientName: populatedDoc.clientName,
               service: populatedDoc.service,
+              serviceName: doc.serviceName, // Fallback text field
               teamMember: populatedDoc.teamMember,
               date: populatedDoc.date,
               time: populatedDoc.time,
@@ -102,11 +104,15 @@ export const Bookings: CollectionConfig = {
                 : undefined,
             })
 
+            // Use service title if linked, otherwise use serviceName field
+            const serviceTitle =
+              typeof populatedDoc.service === 'object'
+                ? populatedDoc.service?.title
+                : doc.serviceName || 'Serviciu'
+
             await sendNotificationEmail(req.payload, {
               to: populatedDoc.clientEmail,
-              subject: `✅ Confirmare programare - ${
-                typeof populatedDoc.service === 'object' ? populatedDoc.service?.title : 'Serviciu'
-              }`,
+              subject: `✅ Confirmare programare - ${serviceTitle}`,
               html: clientEmailHtml,
             })
 
@@ -142,14 +148,23 @@ export const Bookings: CollectionConfig = {
       name: 'clientPhone',
       type: 'text',
       label: 'Telefon',
-      required: true,
     },
     {
       name: 'service',
       type: 'relationship',
       relationTo: 'services',
-      label: 'Serviciu',
-      required: true,
+      label: 'Serviciu (legat)',
+      admin: {
+        description: 'Legatura la serviciul din catalog (optional)',
+      },
+    },
+    {
+      name: 'serviceName',
+      type: 'text',
+      label: 'Serviciu solicitat',
+      admin: {
+        description: 'Numele serviciului ales din formular',
+      },
     },
     {
       name: 'teamMember',

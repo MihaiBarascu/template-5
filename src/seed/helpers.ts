@@ -1,15 +1,43 @@
-import type { Page, SiteTheme, Service, Product, Post } from '@/payload-types';
+import type { Page, SiteTheme, Service, Product, Post, Form, SystemPage } from '@/payload-types';
 import fs from 'fs';
 import path from 'path';
 import type { Payload } from 'payload';
 
-// Image cache to avoid re-uploading the same image
+// Flag to reuse existing images (when --with-images is NOT provided)
+let reuseExistingImages = false;
+
+// Set reuse images flag
+export function setReuseExistingImages(reuse: boolean): void {
+  reuseExistingImages = reuse;
+}
+
+// Image cache to avoid repeated DB lookups in same session
 const imageCache: Map<string, string> = new Map();
 
 // Clear the image cache - call before each seed run
 export function clearImageCache(): void {
   imageCache.clear();
   console.log('   Image cache cleared');
+}
+
+// Helper to find existing image by filename in media collection
+async function findExistingImage(payload: Payload, filename: string): Promise<string | null> {
+  try {
+    const existing = await payload.find({
+      collection: 'media',
+      where: {
+        filename: { equals: filename },
+      },
+      limit: 1,
+    });
+
+    if (existing.docs.length > 0) {
+      return existing.docs[0].id;
+    }
+  } catch (_e) {
+    // Ignore errors
+  }
+  return null;
 }
 
 // Helper to upload image from URL
@@ -19,14 +47,28 @@ export async function uploadImageFromURL(
   filename: string,
   alt: string,
 ): Promise<string | null> {
-  // Check cache first
-  const cacheKey = `${url}-${filename}`;
+  // Check in-memory cache first
+  const cacheKey = filename;
   if (imageCache.has(cacheKey)) {
     return imageCache.get(cacheKey) || null;
   }
 
+  // If reusing existing images, search in DB by filename
+  if (reuseExistingImages) {
+    const existingId = await findExistingImage(payload, filename);
+    if (existingId) {
+      console.log(`   ♻️  Reusing: ${filename}`);
+      imageCache.set(cacheKey, existingId);
+      return existingId;
+    }
+    // Not found - skip upload when reusing
+    console.log(`   ⚠️  Not found: ${filename} (run with --with-images to upload)`);
+    return null;
+  }
+
+  // Fresh upload mode (--with-images)
   try {
-    console.log(`   Downloading: ${filename}...`);
+    console.log(`   ⬇️  Downloading: ${filename}...`);
     const response = await fetch(url);
     if (!response.ok) {
       console.error(`   Failed to fetch image: ${url}`);
@@ -36,7 +78,6 @@ export async function uploadImageFromURL(
     const buffer = await response.arrayBuffer();
     const tempDir = path.join(process.cwd(), 'temp-uploads');
 
-    // Create temp directory if it doesn't exist
     if (!fs.existsSync(tempDir)) {
       fs.mkdirSync(tempDir, { recursive: true });
     }
@@ -44,10 +85,6 @@ export async function uploadImageFromURL(
     const tempFilePath = path.join(tempDir, filename);
     fs.writeFileSync(tempFilePath, new Uint8Array(buffer));
 
-    // Content type from response (not needed for Payload upload which detects from file)
-    const _contentType = response.headers.get('content-type') || 'image/jpeg';
-
-    // Upload to Payload
     const media = await payload.create({
       collection: 'media',
       data: {
@@ -56,12 +93,10 @@ export async function uploadImageFromURL(
       filePath: tempFilePath,
     });
 
-    // Clean up temp file
     fs.unlinkSync(tempFilePath);
 
-    // Cache the result
     imageCache.set(cacheKey, media.id);
-    console.log(`   Uploaded: ${filename}`);
+    console.log(`   ✅ Uploaded: ${filename}`);
 
     return media.id;
   } catch (error) {
@@ -126,22 +161,35 @@ export async function uploadLocalImage(
   filePath: string,
   alt: string,
 ): Promise<string | null> {
-  // Check cache first
-  const cacheKey = `local-${filePath}`;
+  const filename = path.basename(filePath);
+  const cacheKey = filename;
+
+  // Check in-memory cache first
   if (imageCache.has(cacheKey)) {
     return imageCache.get(cacheKey) || null;
   }
 
+  // If reusing existing images, search in DB by filename
+  if (reuseExistingImages) {
+    const existingId = await findExistingImage(payload, filename);
+    if (existingId) {
+      console.log(`   ♻️  Reusing: ${filename}`);
+      imageCache.set(cacheKey, existingId);
+      return existingId;
+    }
+    console.log(`   ⚠️  Not found: ${filename} (run with --with-images to upload)`);
+    return null;
+  }
+
+  // Fresh upload mode (--with-images)
   try {
-    const filename = path.basename(filePath);
-    console.log(`   Uploading local: ${filename}...`);
+    console.log(`   ⬆️  Uploading local: ${filename}...`);
 
     if (!fs.existsSync(filePath)) {
       console.error(`   File not found: ${filePath}`);
       return null;
     }
 
-    // Upload to Payload
     const media = await payload.create({
       collection: 'media',
       data: {
@@ -150,9 +198,8 @@ export async function uploadLocalImage(
       filePath: filePath,
     });
 
-    // Cache the result
     imageCache.set(cacheKey, media.id);
-    console.log(`   Uploaded: ${filename}`);
+    console.log(`   ✅ Uploaded: ${filename}`);
 
     return media.id;
   } catch (error) {
@@ -410,10 +457,12 @@ export async function seedFooter(
       | 'columns-4'
       | 'columns-3'
       | 'with-newsletter';
+    colorScheme?: 'dark' | 'light';
     columns?: Array<{
       title: string;
       type: 'links' | 'contact' | 'schedule' | 'text' | 'social';
       links?: Array<{ label: string; type: 'custom'; url: string }>;
+      text?: string;
     }>;
     legalLinks?: Array<{ label: string; type: 'custom'; url: string }>;
     // Background image (imagine mare pe tot footer-ul)
@@ -430,6 +479,7 @@ export async function seedFooter(
     slug: 'footer',
     data: {
       variant: data.variant || 'columns-4',
+      colorScheme: data.colorScheme || 'dark',
       columns: data.columns,
       showSocialLinks: true,
       showContactInfo: true,
@@ -497,7 +547,6 @@ export async function seedServices(
     }>;
     // Relationships
     assignedTeamMemberId?: string;
-    categoryId?: string;
     // CTA and navigation
     ctaLabel?: string;
     ctaLink?: string;
@@ -542,7 +591,6 @@ export async function seedServices(
           room: s.room,
         })),
         // Relationships
-        category: service.categoryId || undefined,
         assignedTeamMember: service.assignedTeamMemberId || undefined,
         // CTA
         ctaLabel: service.ctaLabel,
@@ -669,7 +717,8 @@ export async function seedFAQ(
   console.log(`   Created ${faqs.length} FAQs`);
 }
 
-// Helper to create price packages
+// DEPRECATED: seedPricePackages - use seedSubscriptions instead
+// This is a wrapper that converts old format to new Subscriptions format
 export async function seedPricePackages(
   payload: Payload,
   packages: Array<{
@@ -686,25 +735,21 @@ export async function seedPricePackages(
     order?: number;
   }>,
 ) {
-  for (const pkg of packages) {
-    await payload.create({
-      collection: 'price-packages',
-      data: {
-        title: pkg.title,
-        subtitle: pkg.subtitle,
-        description: pkg.description,
-        price: pkg.price,
-        oldPrice: pkg.oldPrice,
-        period: pkg.period || 'unic',
-        features: pkg.features,
-        cta: pkg.cta || { label: 'Alege pachetul', link: '/programare' },
-        highlighted: pkg.highlighted || false,
-        highlightLabel: pkg.highlightLabel || 'Cel mai popular',
-        order: pkg.order || 0,
-      },
-    });
-  }
-  console.log(`   Created ${packages.length} price packages`);
+  // Convert to seedSubscriptions format
+  const subscriptions = packages.map(pkg => ({
+    title: pkg.title,
+    subtitle: pkg.subtitle,
+    price: pkg.price,
+    oldPrice: pkg.oldPrice,
+    period: pkg.period === 'unic' ? undefined : `/${pkg.period || 'luna'}`,
+    features: pkg.features?.map(f => ({ text: f.feature, included: f.included })),
+    cta: pkg.cta ? { label: pkg.cta.label, url: pkg.cta.link } : undefined,
+    highlighted: pkg.highlighted,
+    highlightLabel: pkg.highlightLabel,
+    order: pkg.order,
+  }));
+
+  await seedSubscriptions(payload, subscriptions);
 }
 
 // Helper to create homepage with optional hero image
@@ -838,8 +883,8 @@ export async function seedProductCategories(
 
 // Product data type for seeding - uses Payload generated types with Omit for auto-generated fields
 type ProductSeedData = Partial<Omit<Product, 'id' | 'createdAt' | 'updatedAt'>> &
-  Pick<Product, 'title' | 'slug' | 'price'> &
-  { _status: 'published' | 'draft' }
+  Pick<Product, 'title' | 'slug'> &
+  { _status: 'published' | 'draft'; priceInRON?: number }
 
 // Helper to create products (eCommerce plugin)
 export async function seedProducts(
@@ -849,27 +894,24 @@ export async function seedProducts(
     slug: string;
     description?: string;
     price: number;
-    salePrice?: number;
     badge?: string;
     featured?: boolean;
     categoryId?: string;
     imageId?: string;
+    inventory?: number;
   }>,
 ) {
   for (const product of products) {
     const productData: ProductSeedData = {
       title: product.title,
       slug: product.slug,
-      price: product.price,
+      priceInRON: product.price,
       badge: product.badge,
       featured: product.featured || false,
+      // Set inventory - default to random 5-50 if not specified
+      inventory: product.inventory ?? Math.floor(Math.random() * 46) + 5,
       _status: 'published',
     };
-
-    // Add sale price if present
-    if (product.salePrice) {
-      productData.salePrice = product.salePrice;
-    }
 
     // Add category if present
     if (product.categoryId) {
@@ -1235,4 +1277,656 @@ export async function seedNewsletterSubscribers(
     }
   }
   console.log(`   Created ${subscribers.length} newsletter subscribers`);
+}
+
+// ================================
+// FORMS SEEDING (using Form Builder plugin)
+// ================================
+
+/**
+ * Form field type definition for seeding
+ */
+interface FormFieldInput {
+  blockType: 'text' | 'email' | 'textarea' | 'select' | 'checkbox' | 'number' | 'message' | 'date'
+  name: string
+  label?: string
+  width?: number
+  required?: boolean
+  defaultValue?: string | boolean | number
+  // For select fields
+  options?: Array<{ label: string; value: string }>
+  // For message fields (lexical rich text)
+  message?: {
+    root: {
+      type: string
+      children: Array<{ type: string; text?: string; children?: Array<{ type: string; text: string }> }>
+      direction: 'ltr' | 'rtl' | null
+      format: '' | 'left' | 'right' | 'start' | 'center' | 'end' | 'justify'
+      indent: number
+      version: number
+    }
+  }
+}
+
+/**
+ * Lexical rich text format for confirmation messages
+ */
+interface LexicalRichText {
+  root: {
+    type: string
+    children: Array<{ type: string; children: Array<{ type: string; text: string }> }>
+    direction: 'ltr' | 'rtl' | null
+    format: '' | 'left' | 'right' | 'start' | 'center' | 'end' | 'justify'
+    indent: number
+    version: number
+  }
+}
+
+/**
+ * Form type determines how submissions are processed
+ */
+type FormType = 'contact' | 'newsletter' | 'booking' | 'order' | 'feedback' | 'other'
+
+/**
+ * Form input definition for seeding
+ */
+interface FormInput {
+  title: string
+  formType: FormType
+  fields: FormFieldInput[]
+  submitButtonLabel?: string
+  confirmationType?: 'message' | 'redirect'
+  confirmationMessage?: LexicalRichText
+  redirect?: { url: string }
+  // emails removed - all notifications go to business-info email
+}
+
+/**
+ * Seed forms using Form Builder plugin
+ * Forms are stored in the 'forms' collection created by the plugin
+ */
+export async function seedForms(
+  payload: Payload,
+  forms: FormInput[],
+): Promise<Map<string, string>> {
+  console.log('📝 Creating forms...');
+  const formMap = new Map<string, string>();
+
+  for (const form of forms) {
+    try {
+      // Use type assertion because Payload's form builder types are complex
+      // and our simplified interface is compatible at runtime
+      const formData = {
+        title: form.title,
+        formType: form.formType,
+        fields: form.fields.map((field) => ({
+          blockType: field.blockType,
+          name: field.name,
+          label: field.label,
+          width: field.width,
+          required: field.required,
+          defaultValue: field.defaultValue?.toString(),
+          options: field.options,
+          message: field.message,
+        })),
+        submitButtonLabel: form.submitButtonLabel || 'Trimite',
+        confirmationType: form.confirmationType || 'message',
+        confirmationMessage: form.confirmationMessage,
+        redirect: form.redirect,
+        // emails removed - notifications go to business-info email
+      }
+
+      const created = await payload.create({
+        collection: 'forms',
+        // Cast to Omit<Form, 'id' | ...> - types are complex due to Lexical rich text
+        data: formData as Omit<Form, 'id' | 'createdAt' | 'updatedAt'>,
+      });
+
+      formMap.set(form.title, created.id);
+      console.log(`   Created form: ${form.title}`);
+    } catch (error) {
+      console.error(`   Error creating form ${form.title}:`, error);
+    }
+  }
+
+  console.log(`   Created ${formMap.size} forms`);
+  return formMap;
+}
+
+/**
+ * Predefined form templates for common use cases
+ */
+export const formTemplates = {
+  /**
+   * Newsletter subscription form
+   */
+  newsletter: (): FormInput => ({
+    title: 'Newsletter',
+    formType: 'newsletter',
+    submitButtonLabel: 'Aboneaza-te',
+    confirmationType: 'message',
+    confirmationMessage: {
+      root: {
+        type: 'root',
+        children: [
+          {
+            type: 'paragraph',
+            children: [{ type: 'text', text: 'Te-ai abonat cu succes la newsletter!' }],
+          },
+        ],
+        direction: 'ltr',
+        format: '',
+        indent: 0,
+        version: 1,
+      },
+    },
+    fields: [
+      {
+        blockType: 'email',
+        name: 'email',
+        label: 'Adresa de email',
+        width: 100,
+        required: true,
+      },
+      {
+        blockType: 'checkbox',
+        name: 'gdpr',
+        label: 'Sunt de acord cu politica de confidentialitate',
+        required: true,
+      },
+    ],
+  }),
+
+  /**
+   * Contact form
+   */
+  contact: (): FormInput => ({
+    title: 'Formular de contact',
+    formType: 'contact',
+    submitButtonLabel: 'Trimite mesajul',
+    confirmationType: 'message',
+    confirmationMessage: {
+      root: {
+        type: 'root',
+        children: [
+          {
+            type: 'paragraph',
+            children: [{ type: 'text', text: 'Multumim! Mesajul tau a fost trimis cu succes. Te vom contacta in cel mai scurt timp.' }],
+          },
+        ],
+        direction: 'ltr',
+        format: '',
+        indent: 0,
+        version: 1,
+      },
+    },
+    fields: [
+      {
+        blockType: 'text',
+        name: 'lastName',
+        label: 'Nume',
+        width: 50,
+        required: true,
+      },
+      {
+        blockType: 'text',
+        name: 'firstName',
+        label: 'Prenume',
+        width: 50,
+        required: true,
+      },
+      {
+        blockType: 'text',
+        name: 'phone',
+        label: 'Telefon',
+        width: 50,
+      },
+      {
+        blockType: 'email',
+        name: 'email',
+        label: 'Email',
+        width: 50,
+        required: true,
+      },
+      {
+        blockType: 'text',
+        name: 'subject',
+        label: 'Subiect',
+        width: 100,
+      },
+      {
+        blockType: 'textarea',
+        name: 'message',
+        label: 'Mesaj',
+        width: 100,
+        required: true,
+      },
+    ],
+  }),
+
+  /**
+   * Booking request form - professional version with date/time
+   */
+  booking: (
+    services: Array<{ label: string; value: string }>,
+    teamMembers?: Array<{ label: string; value: string }>,
+  ): FormInput => {
+    // Generate time slots from 9:00 to 20:00
+    const timeSlots = []
+    for (let hour = 9; hour <= 20; hour++) {
+      timeSlots.push({ label: `${hour}:00`, value: `${hour}:00` })
+      if (hour < 20) {
+        timeSlots.push({ label: `${hour}:30`, value: `${hour}:30` })
+      }
+    }
+
+    return {
+      title: 'Cerere programare',
+      formType: 'booking',
+      submitButtonLabel: 'Trimite Cererea',
+      confirmationType: 'message',
+      confirmationMessage: {
+        root: {
+          type: 'root',
+          children: [
+            {
+              type: 'paragraph',
+              children: [{ type: 'text', text: 'Cererea ta de programare a fost inregistrata cu succes! Te vom contacta in cel mai scurt timp pentru confirmare.' }],
+            },
+          ],
+          direction: 'ltr',
+          format: '',
+          indent: 0,
+          version: 1,
+        },
+      },
+      fields: [
+        {
+          blockType: 'text',
+          name: 'lastName',
+          label: 'Nume',
+          width: 50,
+          required: true,
+        },
+        {
+          blockType: 'text',
+          name: 'firstName',
+          label: 'Prenume',
+          width: 50,
+          required: true,
+        },
+        {
+          blockType: 'text',
+          name: 'phone',
+          label: 'Telefon',
+          width: 50,
+          required: true,
+        },
+        {
+          blockType: 'email',
+          name: 'email',
+          label: 'Email',
+          width: 50,
+          required: true,
+        },
+        {
+          blockType: 'select',
+          name: 'service',
+          label: 'Serviciu dorit',
+          width: 100,
+          required: true,
+          options: services,
+        },
+        // Optional team member selector
+        ...(teamMembers && teamMembers.length > 0
+          ? [
+              {
+                blockType: 'select' as const,
+                name: 'teamMember',
+                label: 'Specialist preferat',
+                width: 100,
+                required: false,
+                options: [{ label: 'Fara preferinta', value: 'none' }, ...teamMembers],
+              },
+            ]
+          : []),
+        {
+          blockType: 'date',
+          name: 'date',
+          label: 'Data preferata',
+          width: 50,
+          required: true,
+        },
+        {
+          blockType: 'select',
+          name: 'time',
+          label: 'Ora preferata',
+          width: 50,
+          required: true,
+          options: timeSlots,
+        },
+        {
+          blockType: 'textarea',
+          name: 'notes',
+          label: 'Mentiuni suplimentare',
+          width: 100,
+        },
+      ],
+    }
+  },
+
+  /**
+   * Subscription order form
+   */
+  subscriptionOrder: (subscriptions: Array<{ label: string; value: string }>): FormInput => ({
+    title: 'Comanda abonament',
+    formType: 'order',
+    submitButtonLabel: 'Comanda abonamentul',
+    confirmationType: 'message',
+    confirmationMessage: {
+      root: {
+        type: 'root',
+        children: [
+          {
+            type: 'paragraph',
+            children: [{ type: 'text', text: 'Comanda ta a fost inregistrata. Te vom contacta cu detaliile de plata.' }],
+          },
+        ],
+        direction: 'ltr',
+        format: '',
+        indent: 0,
+        version: 1,
+      },
+    },
+    fields: [
+      {
+        blockType: 'text',
+        name: 'lastName',
+        label: 'Nume',
+        width: 50,
+        required: true,
+      },
+      {
+        blockType: 'text',
+        name: 'firstName',
+        label: 'Prenume',
+        width: 50,
+        required: true,
+      },
+      {
+        blockType: 'text',
+        name: 'phone',
+        label: 'Telefon',
+        width: 50,
+        required: true,
+      },
+      {
+        blockType: 'email',
+        name: 'email',
+        label: 'Email',
+        width: 50,
+        required: true,
+      },
+      {
+        blockType: 'select',
+        name: 'subscription',
+        label: 'Abonament ales',
+        width: 100,
+        required: true,
+        options: subscriptions,
+      },
+      {
+        blockType: 'textarea',
+        name: 'notes',
+        label: 'Observatii',
+        width: 100,
+      },
+    ],
+  }),
+}
+
+/**
+ * Helper to create contact page layout with composable blocks
+ *
+ * Architecture:
+ * - ContactInfo block: displays business contact details (address, phone, email, hours, social)
+ * - Form block: displays the contact form
+ * - Map block: displays the Google Maps embed
+ *
+ * These can be composed using the Content block with columns for flexible layouts.
+ *
+ * Layout options:
+ * - 'side-by-side': Contact info on left, form on right (default)
+ * - 'stacked': Contact info on top, form below
+ * - 'form-only': Just the form
+ * - 'info-only': Just contact info
+ */
+export function createContactPageLayout(contactFormId: string | undefined, options?: {
+  heading?: string
+  subheading?: string
+  showMap?: boolean
+  layout?: 'side-by-side' | 'stacked' | 'form-only' | 'info-only'
+  mapHeading?: string
+}): Page['layout'] {
+  const {
+    heading = 'Informatii de Contact',
+    subheading = 'Gaseste-ne sau contacteaza-ne direct',
+    showMap = true,
+    layout = 'side-by-side',
+    mapHeading = 'Unde ne gasesti',
+  } = options || {}
+
+  const blocks: Page['layout'] = []
+
+  // Form-only layout
+  if (layout === 'form-only' && contactFormId) {
+    blocks.push({
+      blockType: 'formBlock' as const,
+      form: contactFormId,
+      variant: 'card' as const,
+      enableIntro: true,
+      heading: 'Contacteaza-ne',
+      subheading: 'Completeaza formularul si te vom contacta in cel mai scurt timp',
+      backgroundColor: 'light' as const,
+    })
+  }
+  // Info-only layout
+  else if (layout === 'info-only') {
+    blocks.push({
+      blockType: 'contact' as const,
+      variant: 'standard' as const,
+      heading,
+      subheading,
+      contactInfoItems: {
+        showAddress: true,
+        showPhone: true,
+        showEmail: true,
+        showWorkingHours: true,
+        showSocial: true,
+      },
+      backgroundColor: 'light' as const,
+    })
+  }
+  // Stacked layout
+  else if (layout === 'stacked') {
+    // Contact info section
+    blocks.push({
+      blockType: 'contact' as const,
+      variant: 'cards' as const,
+      heading,
+      subheading,
+      contactInfoItems: {
+        showAddress: true,
+        showPhone: true,
+        showEmail: true,
+        showWorkingHours: true,
+        showSocial: false,
+      },
+      backgroundColor: 'light' as const,
+    })
+    // Form section
+    if (contactFormId) {
+      blocks.push({
+        blockType: 'formBlock' as const,
+        form: contactFormId,
+        variant: 'card' as const,
+        enableIntro: true,
+        heading: 'Trimite-ne un Mesaj',
+        subheading: 'Completeaza formularul si te vom contacta in cel mai scurt timp',
+        backgroundColor: 'default' as const,
+      })
+    }
+  }
+  // Side-by-side layout (default) - using Content block with columns
+  // Layout inspired by old design: info 40% left, form 60% right
+  else {
+    blocks.push({
+      blockType: 'content' as const,
+      backgroundColor: 'light' as const,
+      paddingTop: 'large' as const,
+      paddingBottom: 'large' as const,
+      columns: [
+        // Left column - Contact info (40%)
+        {
+          width: '40' as const,
+          alignment: 'top' as const,
+          contentType: 'blocks' as const,
+          blocks: [
+            {
+              blockType: 'contact' as const,
+              variant: 'standard' as const,
+              heading,
+              subheading,
+              contactInfoItems: {
+                showAddress: true,
+                showPhone: true,
+                showEmail: true,
+                showWorkingHours: true,
+                showSocial: true,
+              },
+              backgroundColor: 'transparent' as const,
+            },
+          ],
+        },
+        // Right column - Contact form (60%)
+        ...(contactFormId
+          ? [
+              {
+                width: '60' as const,
+                alignment: 'top' as const,
+                contentType: 'blocks' as const,
+                blocks: [
+                  {
+                    blockType: 'formBlock' as const,
+                    form: contactFormId,
+                    variant: 'card' as const,
+                    enableIntro: true,
+                    heading: 'Trimite-ne un Mesaj',
+                    subheading: 'Completeaza formularul si te vom contacta in cel mai scurt timp',
+                    backgroundColor: 'default' as const,
+                  },
+                ],
+              },
+            ]
+          : []),
+      ],
+    })
+  }
+
+  // Map section below (optional) - using dedicated Map block
+  if (showMap) {
+    blocks.push({
+      blockType: 'map' as const,
+      variant: 'contained' as const,
+      heading: mapHeading,
+      source: 'businessInfo' as const,
+      height: 'medium' as const,
+      showDirectionsButton: true,
+    })
+  }
+
+  return blocks
+}
+
+// Helper to seed system pages (shop, cart, checkout configuration)
+export async function seedSystemPages(
+  payload: Payload,
+  data?: Partial<SystemPage>,
+) {
+  const defaultData: Partial<SystemPage> = {
+    productsPage: {
+      title: 'Produsele Noastre',
+      description: 'Descopera intreaga gama de produse naturale si eco-friendly',
+      productsPerPage: 24,
+      gridColumns: '4',
+      defaultSort: 'newest',
+      showFilters: true,
+      showSearch: true,
+      showSort: true,
+      filterOptions: {
+        showCategoryFilter: true,
+        showPriceFilter: true,
+        showStockFilter: true,
+      },
+      seo: {
+        metaTitle: 'Produse | {siteName}',
+        metaDescription: 'Descopera toate produsele naturale si eco-friendly. Livrare rapida in toata tara.',
+      },
+    },
+    labels: {
+      filtersTitle: 'Filtre',
+      categoriesTitle: 'Categorii',
+      priceTitle: 'Pret',
+      stockTitle: 'Disponibilitate',
+      inStockLabel: 'Doar produse in stoc',
+      sortLabel: 'Sorteaza:',
+      resultsText: 'Afisam {count} din {total} produse',
+      noResultsText: 'Nu am gasit produse care sa corespunda cautarii.',
+      clearFiltersText: 'Sterge filtrele',
+      searchPlaceholder: 'Cauta produse...',
+      mobileFiltersButton: 'Filtre',
+      mobileApplyFilters: 'Aplica filtre',
+    },
+    cartPage: {
+      title: 'Cosul tau',
+      emptyCartMessage: 'Cosul tau este gol.',
+      continueShoppingText: 'Continua cumparaturile',
+      continueShoppingLink: '/produse',
+    },
+    checkoutPage: {
+      title: 'Finalizare comanda',
+      successMessage: 'Multumim pentru comanda! Vei primi un email de confirmare.',
+    },
+    accountPages: {
+      dashboardTitle: 'Contul meu',
+      dashboardDescription: 'Bine ai revenit! Gestioneaza contul tau de aici.',
+      addressesTitle: 'Adresele mele',
+      addressesDescription: 'Gestioneaza adresele tale de livrare si facturare salvate.',
+      ordersTitle: 'Comenzile mele',
+      ordersDescription: 'Vezi istoricul comenzilor tale.',
+      noOrdersMessage: 'Nu ai nicio comanda inca.',
+      loginTitle: 'Autentificare',
+      loginDescription: 'Intra in contul tau pentru a vedea comenzile si adresele salvate.',
+      loginButton: 'Autentificare',
+      registerTitle: 'Creeaza cont',
+      registerDescription: 'Creeaza un cont pentru a beneficia de avantaje exclusive.',
+      registerButton: 'Creeaza cont',
+      menuDashboard: 'Dashboard',
+      menuOrders: 'Comenzile mele',
+      menuAddresses: 'Adrese',
+      menuLogout: 'Deconectare',
+    },
+  }
+
+  // Merge default data with provided data
+  const mergedData = {
+    ...defaultData,
+    ...data,
+  }
+
+  await payload.updateGlobal({
+    slug: 'system-pages',
+    data: mergedData,
+  })
+  console.log('   System pages configured')
 }

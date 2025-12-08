@@ -2,7 +2,6 @@ import { HeroBlock } from './Hero/config'
 import { ServicesBlock } from './Services/config'
 import { TeamBlock } from './Team/config'
 import { TestimonialsBlock } from './Testimonials/config'
-import { PricingBlock } from './Pricing/config'
 import { PortfolioBlock } from './Portfolio/config'
 import { FAQBlock } from './FAQ/config'
 import { ContactBlock } from './Contact/config'
@@ -29,18 +28,19 @@ import { LocationsBlock } from './Locations/config'
 import { BrandLogosBlock } from './BrandLogos/config'
 import { TimelineBlock } from './Timeline/config'
 import { AnnouncementBarBlock } from './AnnouncementBar/config'
-// Fitness/Universal blocks
+// Universal blocks
 import { SubscriptionCardsBlock } from './SubscriptionCards/config'
 import { ScheduleTableBlock } from './ScheduleTable/config'
 import { TeamMemberDetailBlock } from './TeamMemberDetail/config'
 import { ServiceDetailBlock } from './ServiceDetail/config'
+// Form Builder block - uses forms defined in admin
+import { FormBlock } from './Form/config'
 
 export const blocks = [
   HeroBlock,
   ServicesBlock,
   TeamBlock,
   TestimonialsBlock,
-  PricingBlock,
   PortfolioBlock,
   FAQBlock,
   ContactBlock,
@@ -72,6 +72,8 @@ export const blocks = [
   ScheduleTableBlock,
   TeamMemberDetailBlock,
   ServiceDetailBlock,
+  // Form Builder block
+  FormBlock,
 ]
 
 export {
@@ -79,7 +81,6 @@ export {
   ServicesBlock,
   TeamBlock,
   TestimonialsBlock,
-  PricingBlock,
   PortfolioBlock,
   FAQBlock,
   ContactBlock,
@@ -111,4 +112,6 @@ export {
   ScheduleTableBlock,
   TeamMemberDetailBlock,
   ServiceDetailBlock,
+  // Form Builder block
+  FormBlock,
 }

@@ -20,6 +20,7 @@ export interface BusinessConfig {
   heroText: RegExp | string
   hasProducts?: boolean
   hasPortfolio?: boolean
+  hasEcommerce?: boolean // Full checkout flow
   sections: string[]
 }
 
@@ -80,6 +81,7 @@ export const BUSINESS_CONFIGS: BusinessConfig[] = [
     brandName: 'EcoShop',
     heroText: /magazin|produse|shop|eco/i,
     hasProducts: true,
+    hasEcommerce: true, // Full checkout flow with payment
     sections: ['produse', 'testimoniale', 'faq', 'contact'],
   },
 ]

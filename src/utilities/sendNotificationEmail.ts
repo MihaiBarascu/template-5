@@ -64,12 +64,17 @@ export function formatBookingEmail(booking: {
   clientEmail: string
   clientPhone?: string | null
   service?: { title?: string | null } | string | null
+  serviceName?: string | null // Fallback text field for service name
   teamMember?: { name?: string | null } | string | null
   date?: string | null
   time?: string | null
   notes?: string | null
 }): string {
-  const serviceName = typeof booking.service === 'object' ? booking.service?.title || 'N/A' : 'N/A'
+  // Use service.title if linked, otherwise use serviceName text field
+  const serviceName =
+    typeof booking.service === 'object' && booking.service?.title
+      ? booking.service.title
+      : booking.serviceName || 'N/A'
   const staffName = typeof booking.teamMember === 'object' ? booking.teamMember?.name || 'Oricine disponibil' : 'Oricine disponibil'
 
   const formattedDate = booking.date ? new Date(booking.date).toLocaleDateString('ro-RO', {
@@ -164,6 +169,7 @@ export function formatBookingEmail(booking: {
 export function formatBookingConfirmationEmail(booking: {
   clientName: string
   service?: { title?: string | null } | string | null
+  serviceName?: string | null // Fallback text field for service name
   teamMember?: { name?: string | null } | string | null
   date?: string | null
   time?: string | null
@@ -171,7 +177,11 @@ export function formatBookingConfirmationEmail(booking: {
   businessPhone?: string | null
   businessAddress?: string | null
 }): string {
-  const serviceName = typeof booking.service === 'object' ? booking.service?.title || 'Serviciu' : 'Serviciu'
+  // Use service.title if linked, otherwise use serviceName text field
+  const serviceName =
+    typeof booking.service === 'object' && booking.service?.title
+      ? booking.service.title
+      : booking.serviceName || 'Serviciu'
   const staffName = typeof booking.teamMember === 'object' ? booking.teamMember?.name || null : null
 
   const formattedDate = booking.date ? new Date(booking.date).toLocaleDateString('ro-RO', {

@@ -65,16 +65,16 @@ export function BookingBlock({
 
   const bgClass = {
     default: 'bg-white',
-    light: 'bg-gray-50',
-    dark: 'bg-gray-900 text-white',
+    light: 'bg-theme-light',
+    dark: 'bg-theme-dark text-white',
     primary: 'bg-theme-primary text-white',
   }[backgroundColor] || 'bg-white'
 
   const inputClass = cn(
     'w-full px-4 py-3 rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-theme-primary',
     backgroundColor === 'dark' || backgroundColor === 'primary'
-      ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400'
-      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+      ? 'bg-white/5 border-white/10 text-white placeholder-theme-text-muted'
+      : 'bg-white border-theme-border text-theme-text placeholder-theme-text-muted'
   )
 
   const timeSlots = [
@@ -136,7 +136,7 @@ export function BookingBlock({
             <h2 className="text-3xl md:text-4xl font-bold mb-4">{heading}</h2>
           )}
           {subheading && (
-            <p className={cn('text-lg max-w-2xl mx-auto mb-8', backgroundColor === 'dark' || backgroundColor === 'primary' ? 'text-white/80' : 'text-gray-600')}>
+            <p className={cn('text-lg max-w-2xl mx-auto mb-8', backgroundColor === 'dark' || backgroundColor === 'primary' ? 'text-white/80' : 'text-theme-text-light')}>
               {subheading}
             </p>
           )}
@@ -147,7 +147,7 @@ export function BookingBlock({
                 className={cn(
                   'inline-flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors',
                   backgroundColor === 'primary'
-                    ? 'bg-white text-theme-primary hover:bg-gray-100'
+                    ? 'bg-white text-theme-primary hover:bg-theme-light'
                     : 'bg-theme-primary text-white hover:bg-theme-primary-dark'
                 )}
               >
@@ -188,7 +188,7 @@ export function BookingBlock({
               <h2 className="text-3xl md:text-4xl font-bold mb-4">{heading}</h2>
             )}
             {subheading && (
-              <p className={cn('text-lg max-w-2xl mx-auto', backgroundColor === 'dark' || backgroundColor === 'primary' ? 'text-white/80' : 'text-gray-600')}>
+              <p className={cn('text-lg max-w-2xl mx-auto', backgroundColor === 'dark' || backgroundColor === 'primary' ? 'text-white/80' : 'text-theme-text-light')}>
                 {subheading}
               </p>
             )}
@@ -197,7 +197,7 @@ export function BookingBlock({
 
         <div className={cn(
           'max-w-2xl mx-auto p-8 rounded-xl',
-          backgroundColor === 'dark' || backgroundColor === 'primary' ? 'bg-gray-800' : 'bg-white shadow-lg'
+          backgroundColor === 'dark' || backgroundColor === 'primary' ? 'bg-white/5' : 'bg-white shadow-lg'
         )}>
           {isSubmitted ? (
             <div className="text-center py-8">
@@ -205,7 +205,7 @@ export function BookingBlock({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <h3 className="text-xl font-semibold mb-2">Cerere trimisa!</h3>
-              <p className={backgroundColor === 'dark' || backgroundColor === 'primary' ? 'text-gray-300' : 'text-gray-600'}>
+              <p className={backgroundColor === 'dark' || backgroundColor === 'primary' ? 'text-white/70' : 'text-theme-text-light'}>
                 {successMessage}
               </p>
               <button
@@ -400,8 +400,8 @@ export function BookingBlock({
               </button>
 
               {(businessPhone || whatsapp) && (
-                <div className="text-center pt-4 border-t border-gray-200">
-                  <p className={cn('text-sm mb-3', backgroundColor === 'dark' || backgroundColor === 'primary' ? 'text-gray-400' : 'text-gray-500')}>
+                <div className="text-center pt-4 border-t border-theme-border">
+                  <p className={cn('text-sm mb-3', backgroundColor === 'dark' || backgroundColor === 'primary' ? 'text-white/60' : 'text-theme-text-muted')}>
                     Sau contacteaza-ne direct:
                   </p>
                   <div className="flex justify-center gap-4">

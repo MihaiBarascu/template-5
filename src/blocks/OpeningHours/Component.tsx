@@ -121,8 +121,8 @@ export function OpeningHoursBlock({
   const bgClass =
     {
       default: 'bg-white',
-      light: 'bg-gray-50',
-      dark: 'bg-gray-900 text-white',
+      light: 'bg-theme-light',
+      dark: 'bg-theme-dark text-white',
       primary: 'bg-theme-primary text-white',
     }[backgroundColor || 'default'] || 'bg-white'
 
@@ -138,15 +138,15 @@ export function OpeningHoursBlock({
             className={cn(
               'flex justify-between items-center py-2',
               index !== schedule.length - 1 && 'border-b',
-              backgroundColor === 'dark' ? 'border-gray-700' : 'border-gray-200'
+              backgroundColor === 'dark' ? 'border-white/10' : 'border-theme-border'
             )}
           >
             <span className="font-medium">{item.days}</span>
             <span
               className={cn(
                 item.isClosed && 'text-red-500',
-                !item.isClosed && backgroundColor !== 'dark' && 'text-gray-600',
-                !item.isClosed && backgroundColor === 'dark' && 'text-gray-300'
+                !item.isClosed && backgroundColor !== 'dark' && 'text-theme-text-light',
+                !item.isClosed && backgroundColor === 'dark' && 'text-white/70'
               )}
             >
               {item.isClosed ? 'Inchis' : item.hours || '-'}
@@ -188,7 +188,7 @@ export function OpeningHoursBlock({
                 <span
                   className={cn(
                     item.isClosed && 'text-red-500',
-                    backgroundColor === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                    backgroundColor === 'dark' ? 'text-white/70' : 'text-theme-text-light'
                   )}
                 >
                   {item.isClosed ? 'Inchis' : item.hours}
@@ -208,7 +208,7 @@ export function OpeningHoursBlock({
           <div
             className={cn(
               'max-w-md mx-auto p-6 rounded-xl shadow-lg',
-              backgroundColor === 'dark' ? 'bg-gray-800' : 'bg-white'
+              backgroundColor === 'dark' ? 'bg-white/5' : 'bg-white'
             )}
           >
             <div className="flex items-center justify-between mb-4">
@@ -261,7 +261,7 @@ export function OpeningHoursBlock({
                 <p
                   className={cn(
                     'text-lg mb-6',
-                    backgroundColor === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                    backgroundColor === 'dark' ? 'text-white/70' : 'text-theme-text-light'
                   )}
                 >
                   {subheading}
@@ -292,7 +292,7 @@ export function OpeningHoursBlock({
               <p
                 className={cn(
                   'text-lg mb-6',
-                  backgroundColor === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                  backgroundColor === 'dark' ? 'text-white/70' : 'text-theme-text-light'
                 )}
               >
                 {subheading}
@@ -306,7 +306,7 @@ export function OpeningHoursBlock({
             <div
               className={cn(
                 'p-6 rounded-xl mb-8',
-                backgroundColor === 'dark' ? 'bg-gray-800' : 'bg-gray-100'
+                backgroundColor === 'dark' ? 'bg-white/5' : 'bg-theme-light'
               )}
             >
               <ScheduleList />
@@ -317,7 +317,7 @@ export function OpeningHoursBlock({
                 className={cn(
                   'inline-flex items-center gap-2 px-8 py-3 rounded-lg font-medium transition-colors',
                   backgroundColor === 'primary'
-                    ? 'bg-white text-theme-primary hover:bg-gray-100'
+                    ? 'bg-white text-theme-primary hover:bg-theme-light'
                     : 'bg-theme-primary text-white hover:bg-theme-primary-dark'
                 )}
               >
@@ -358,7 +358,7 @@ export function OpeningHoursBlock({
             <p
               className={cn(
                 'text-lg mb-6',
-                backgroundColor === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                backgroundColor === 'dark' ? 'text-white/70' : 'text-theme-text-light'
               )}
             >
               {subheading}

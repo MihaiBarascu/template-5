@@ -2,6 +2,7 @@ import type { Block } from 'payload'
 
 export const LogoCloudBlock: Block = {
   slug: 'logo-cloud',
+  interfaceName: 'LogoCloudBlock',
   labels: {
     singular: 'Logo Cloud (Parteneri)',
     plural: 'Logo Cloud (Parteneri)',

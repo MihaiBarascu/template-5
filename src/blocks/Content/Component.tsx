@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { cn } from '@/utilities/cn'
 import RichText from '@/components/RichText'
 import type { Page } from '@/payload-types'
+import { RenderBlocks } from '../RenderBlocks'
 
 // Extract ContentBlock type from Page layout
 type LayoutBlock = NonNullable<Page['layout']>[number]
@@ -16,13 +17,45 @@ interface ContentBlockProps {
   paddingBottom?: 'none' | 'small' | 'medium' | 'large'
 }
 
-const widthClasses: Record<string, string> = {
+// Percentage-based widths (new system)
+const percentageWidthClasses: Record<string, string> = {
+  '100': 'w-full',
+  '90': 'w-full lg:w-[90%]',
+  '80': 'w-full lg:w-4/5',
+  '75': 'w-full lg:w-3/4',
+  '70': 'w-full lg:w-[70%]',
+  '66': 'w-full lg:w-2/3',
+  '60': 'w-full lg:w-[60%]',
+  '50': 'w-full lg:w-1/2',
+  '40': 'w-full lg:w-[40%]',
+  '33': 'w-full lg:w-1/3',
+  '30': 'w-full lg:w-[30%]',
+  '25': 'w-full lg:w-1/4',
+  '20': 'w-full lg:w-1/5',
+}
+
+// Legacy width classes (for backwards compatibility)
+const legacyWidthClasses: Record<string, string> = {
   full: 'w-full',
-  'three-quarters': 'w-full md:w-3/4',
-  'two-thirds': 'w-full md:w-2/3',
-  half: 'w-full md:w-1/2',
-  'one-third': 'w-full md:w-1/3',
-  'one-quarter': 'w-full md:w-1/4',
+  'three-quarters': 'w-full lg:w-3/4',
+  'two-thirds': 'w-full lg:w-2/3',
+  half: 'w-full lg:w-1/2',
+  'one-third': 'w-full lg:w-1/3',
+  'one-quarter': 'w-full lg:w-1/4',
+}
+
+// Combined width classes
+const getWidthClass = (width: string): string => {
+  // Check percentage widths first
+  if (percentageWidthClasses[width]) {
+    return percentageWidthClasses[width]
+  }
+  // Fall back to legacy values
+  if (legacyWidthClasses[width]) {
+    return legacyWidthClasses[width]
+  }
+  // Default to full width
+  return 'w-full'
 }
 
 const alignmentClasses: Record<string, string> = {
@@ -44,7 +77,7 @@ const bgClasses: Record<string, string> = {
   dark: 'bg-foreground text-background',
 }
 
-export const ContentBlock: React.FC<ContentBlockProps> = ({
+export const ContentBlock: React.FC<ContentBlockProps> = async ({
   columns = [],
   backgroundColor = 'default',
   paddingTop = 'medium',
@@ -61,8 +94,8 @@ export const ContentBlock: React.FC<ContentBlockProps> = ({
   return (
     <section className={cn(bgClasses[backgroundColor], topPadding, bottomPadding)}>
       <div className="container mx-auto px-4">
-        <div className="flex flex-wrap -mx-4">
-          {columns.map((column, index) => {
+        <div className="flex flex-wrap -mx-4 items-start">
+          {await Promise.all(columns.map(async (column, index) => {
             const width = column.width || 'full'
             const alignment = column.alignment || 'top'
 
@@ -71,7 +104,7 @@ export const ContentBlock: React.FC<ContentBlockProps> = ({
                 key={column.id || index}
                 className={cn(
                   'px-4 mb-8 last:mb-0',
-                  widthClasses[width],
+                  getWidthClass(width),
                   alignmentClasses[alignment]
                 )}
               >
@@ -117,9 +150,15 @@ export const ContentBlock: React.FC<ContentBlockProps> = ({
                     )}
                   </div>
                 )}
+
+                {column.contentType === 'blocks' && column.blocks && column.blocks.length > 0 && (
+                  <div className="[&>*:first-child]:mt-0 [&>section]:py-0">
+                    <RenderBlocks blocks={column.blocks as LayoutBlock[]} />
+                  </div>
+                )}
               </div>
             )
-          })}
+          }))}
         </div>
       </div>
     </section>

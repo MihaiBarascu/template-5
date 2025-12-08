@@ -8,9 +8,11 @@ export { Products } from './Products'
 export { Team } from './Team'
 export { Portfolio } from './Portfolio'
 export { Testimonials } from './Testimonials'
-export { PricePackages } from './PricePackages'
+// PricePackages removed - use Subscriptions instead
 export { Bookings } from './Bookings'
 export { FAQ } from './FAQ'
-export { ContactSubmissions } from './ContactSubmissions'
+// ContactSubmissions removed - use Form Builder plugin's form-submissions instead
 // Classes collection removed - use Services with serviceType: 'class' instead
 export { Subscriptions } from './Subscriptions'
+export { SubscriptionOrders } from './SubscriptionOrders'
+export { NewsletterSubscribers } from './NewsletterSubscribers'

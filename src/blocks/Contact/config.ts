@@ -1,10 +1,24 @@
 import type { Block } from 'payload'
 
+/**
+ * ContactInfo Block
+ *
+ * Displays business contact information (address, phone, email, hours, social).
+ * For maps, use the separate Map block.
+ * For contact forms, use the Form block.
+ *
+ * To create a full contact page with form + info + map, use the Content block
+ * with columns:
+ *   - Column 1 (50%): ContactInfo block
+ *   - Column 2 (50%): Form block
+ *   - Below: Map block (full width)
+ */
 export const ContactBlock: Block = {
   slug: 'contact',
+  interfaceName: 'ContactBlock',
   labels: {
-    singular: 'Contact',
-    plural: 'Contact',
+    singular: 'Date Contact',
+    plural: 'Date Contact',
   },
   imageURL: '/blocks/contact.svg',
   fields: [
@@ -12,228 +26,30 @@ export const ContactBlock: Block = {
       name: 'variant',
       type: 'select',
       label: 'Varianta',
-      defaultValue: 'split',
+      defaultValue: 'standard',
       options: [
-        { label: 'Split (formular + info)', value: 'split' },
-        { label: 'Centrat', value: 'centered' },
-        { label: 'Cu harta', value: 'with-map' },
-        { label: 'Full width', value: 'full-width' },
-        { label: 'Minimal (doar info)', value: 'minimal' },
-        { label: 'Carduri contact', value: 'cards' },
+        { label: 'Standard (lista verticala)', value: 'standard' },
+        { label: 'Carduri', value: 'cards' },
+        { label: 'Compact (o linie)', value: 'compact' },
+        { label: 'Minimal', value: 'minimal' },
+        { label: 'Full (info + formular + harta)', value: 'full' },
       ],
     },
     {
       name: 'heading',
       type: 'text',
       label: 'Titlu sectiune',
-      defaultValue: 'Contacteaza-ne',
     },
     {
       name: 'subheading',
       type: 'textarea',
       label: 'Subtitlu sectiune',
     },
-    {
-      name: 'showForm',
-      type: 'checkbox',
-      label: 'Afiseaza formular',
-      defaultValue: true,
-    },
-    {
-      name: 'formType',
-      type: 'select',
-      label: 'Tip formular',
-      defaultValue: 'standard',
-      admin: {
-        condition: (_, siblingData) => siblingData?.showForm,
-        description: 'Standard = campuri predefinite, Custom = campuri personalizate',
-      },
-      options: [
-        { label: 'Standard', value: 'standard' },
-        { label: 'Personalizat (custom fields)', value: 'custom' },
-      ],
-    },
-    // Standard form fields
-    {
-      name: 'formFields',
-      type: 'group',
-      label: 'Campuri formular standard',
-      admin: {
-        condition: (_, siblingData) => siblingData?.showForm && siblingData?.formType !== 'custom',
-      },
-      fields: [
-        {
-          name: 'showName',
-          type: 'checkbox',
-          label: 'Nume',
-          defaultValue: true,
-        },
-        {
-          name: 'showEmail',
-          type: 'checkbox',
-          label: 'Email',
-          defaultValue: true,
-        },
-        {
-          name: 'showPhone',
-          type: 'checkbox',
-          label: 'Telefon',
-          defaultValue: true,
-        },
-        {
-          name: 'showSubject',
-          type: 'checkbox',
-          label: 'Subiect',
-          defaultValue: false,
-        },
-        {
-          name: 'showService',
-          type: 'checkbox',
-          label: 'Selectie serviciu',
-          defaultValue: false,
-        },
-        {
-          name: 'showMessage',
-          type: 'checkbox',
-          label: 'Mesaj',
-          defaultValue: true,
-        },
-      ],
-    },
-    // Custom form fields array
-    {
-      name: 'customFields',
-      type: 'array',
-      label: 'Campuri personalizate',
-      admin: {
-        condition: (_, siblingData) => siblingData?.showForm && siblingData?.formType === 'custom',
-        description: 'Defineste campurile formularului in ordinea dorita',
-      },
-      fields: [
-        {
-          name: 'fieldType',
-          type: 'select',
-          label: 'Tip camp',
-          required: true,
-          defaultValue: 'text',
-          options: [
-            { label: 'Text', value: 'text' },
-            { label: 'Email', value: 'email' },
-            { label: 'Telefon', value: 'tel' },
-            { label: 'Numar', value: 'number' },
-            { label: 'Textarea (mesaj lung)', value: 'textarea' },
-            { label: 'Select (dropdown)', value: 'select' },
-            { label: 'Checkbox', value: 'checkbox' },
-            { label: 'Data', value: 'date' },
-            { label: 'Ora', value: 'time' },
-          ],
-        },
-        {
-          name: 'name',
-          type: 'text',
-          label: 'Nume camp (intern)',
-          required: true,
-          admin: {
-            description: 'Ex: preferredClass, experienceLevel (fara spatii sau caractere speciale)',
-          },
-        },
-        {
-          name: 'label',
-          type: 'text',
-          label: 'Eticheta afisata',
-          required: true,
-          admin: {
-            description: 'Ex: Clasa preferata, Nivel experienta',
-          },
-        },
-        {
-          name: 'placeholder',
-          type: 'text',
-          label: 'Placeholder',
-        },
-        {
-          name: 'required',
-          type: 'checkbox',
-          label: 'Obligatoriu',
-          defaultValue: false,
-        },
-        {
-          name: 'halfWidth',
-          type: 'checkbox',
-          label: 'Jumatate de latime (2 pe rand)',
-          defaultValue: false,
-        },
-        {
-          name: 'options',
-          type: 'array',
-          label: 'Optiuni (pentru select)',
-          admin: {
-            condition: (_, siblingData) => siblingData?.fieldType === 'select',
-          },
-          fields: [
-            {
-              name: 'label',
-              type: 'text',
-              label: 'Text afisat',
-              required: true,
-            },
-            {
-              name: 'value',
-              type: 'text',
-              label: 'Valoare',
-              required: true,
-            },
-          ],
-        },
-        {
-          name: 'min',
-          type: 'number',
-          label: 'Minim',
-          admin: {
-            condition: (_, siblingData) => siblingData?.fieldType === 'number',
-          },
-        },
-        {
-          name: 'max',
-          type: 'number',
-          label: 'Maxim',
-          admin: {
-            condition: (_, siblingData) => siblingData?.fieldType === 'number',
-          },
-        },
-      ],
-    },
-    {
-      name: 'submitButtonText',
-      type: 'text',
-      label: 'Text buton trimitere',
-      defaultValue: 'Trimite mesajul',
-      admin: {
-        condition: (_, siblingData) => siblingData?.showForm,
-      },
-    },
-    {
-      name: 'successMessage',
-      type: 'textarea',
-      label: 'Mesaj de succes',
-      defaultValue: 'Multumim! Mesajul tau a fost trimis cu succes. Te vom contacta in cel mai scurt timp.',
-      admin: {
-        condition: (_, siblingData) => siblingData?.showForm,
-      },
-    },
-    {
-      name: 'showContactInfo',
-      type: 'checkbox',
-      label: 'Afiseaza informatii contact',
-      defaultValue: true,
-    },
+    // Contact info display options
     {
       name: 'contactInfoItems',
       type: 'group',
       label: 'Informatii afisate',
-      admin: {
-        condition: (_, siblingData) => siblingData?.showContactInfo,
-      },
       fields: [
         {
           name: 'showAddress',
@@ -267,69 +83,102 @@ export const ContactBlock: Block = {
         },
       ],
     },
+    // Form relationship - for 'full' variant
     {
-      name: 'showMap',
-      type: 'checkbox',
-      label: 'Afiseaza harta',
-      defaultValue: false,
-    },
-    {
-      name: 'mapPosition',
-      type: 'select',
-      label: 'Pozitie harta',
-      defaultValue: 'bottom',
+      name: 'form',
+      type: 'relationship',
+      relationTo: 'forms',
+      label: 'Formular contact',
       admin: {
-        condition: (_, siblingData) => siblingData?.showMap,
+        condition: (_, siblingData) => siblingData?.variant === 'full',
+        description: 'Selecteaza formularul de contact pentru varianta Full',
       },
-      options: [
-        { label: 'Deasupra', value: 'top' },
-        { label: 'Dedesubt', value: 'bottom' },
-        { label: 'Lateral', value: 'side' },
+    },
+    // Map settings - for 'full' variant
+    {
+      name: 'mapSettings',
+      type: 'group',
+      label: 'Setari harta',
+      admin: {
+        condition: (_, siblingData) => siblingData?.variant === 'full',
+      },
+      fields: [
+        {
+          name: 'showMap',
+          type: 'checkbox',
+          label: 'Afiseaza harta',
+          defaultValue: true,
+        },
+        {
+          name: 'mapHeight',
+          type: 'select',
+          label: 'Inaltime harta',
+          defaultValue: 'medium',
+          options: [
+            { label: 'Mica (300px)', value: 'small' },
+            { label: 'Medie (400px)', value: 'medium' },
+            { label: 'Mare (500px)', value: 'large' },
+          ],
+        },
+        {
+          name: 'mapHeading',
+          type: 'text',
+          label: 'Titlu sectiune harta',
+          defaultValue: 'Locatia noastra',
+        },
       ],
     },
+    // Form labels - for 'full' variant
+    {
+      name: 'formSettings',
+      type: 'group',
+      label: 'Setari formular',
+      admin: {
+        condition: (_, siblingData) => siblingData?.variant === 'full',
+      },
+      fields: [
+        {
+          name: 'formHeading',
+          type: 'text',
+          label: 'Titlu formular',
+          defaultValue: 'Trimite-ne un mesaj',
+        },
+        {
+          name: 'formSubheading',
+          type: 'textarea',
+          label: 'Subtitlu formular',
+          defaultValue: 'Completeaza formularul si te vom contacta in cel mai scurt timp',
+        },
+      ],
+    },
+    // Background
     {
       name: 'backgroundColor',
       type: 'select',
       label: 'Culoare fundal',
-      defaultValue: 'light',
+      defaultValue: 'transparent',
       options: [
+        { label: 'Transparent', value: 'transparent' },
         { label: 'Default', value: 'default' },
         { label: 'Light', value: 'light' },
         { label: 'Dark', value: 'dark' },
       ],
     },
-    // Configurable labels for i18n
+    // Labels for i18n
     {
       name: 'labels',
       type: 'group',
       label: 'Text Labels (i18n)',
       admin: {
         description: 'Personalizare text pentru diferite limbi',
+        condition: () => false, // Hide by default, show via admin condition if needed
       },
       fields: [
         {
-          name: 'formTitle',
+          name: 'addressLabel',
           type: 'text',
-          label: 'Titlu formular',
-          defaultValue: 'Trimite-ne un mesaj',
-        },
-        {
-          name: 'contactInfoTitle',
-          type: 'text',
-          label: 'Titlu informatii contact',
-          defaultValue: 'Informatii de contact',
-        },
-        {
-          name: 'nameLabel',
-          type: 'text',
-          label: 'Label nume',
-          defaultValue: 'Nume complet',
-        },
-        {
-          name: 'emailLabel',
-          type: 'text',
-          label: 'Label email',
-          defaultValue: 'Email',
+          label: 'Label adresa',
+          defaultValue: 'Adresa',
         },
         {
           name: 'phoneLabel',
@@ -338,52 +187,10 @@ export const ContactBlock: Block = {
           defaultValue: 'Telefon',
         },
         {
-          name: 'subjectLabel',
+          name: 'emailLabel',
           type: 'text',
-          label: 'Label subiect',
-          defaultValue: 'Subiect',
-        },
-        {
-          name: 'serviceLabel',
-          type: 'text',
-          label: 'Label serviciu',
-          defaultValue: 'Serviciu de interes',
-        },
-        {
-          name: 'messageLabel',
-          type: 'text',
-          label: 'Label mesaj',
-          defaultValue: 'Mesaj',
-        },
-        {
-          name: 'selectPlaceholder',
-          type: 'text',
-          label: 'Placeholder select',
-          defaultValue: 'Selecteaza o optiune',
-        },
-        {
-          name: 'requiredText',
-          type: 'text',
-          label: 'Text camp obligatoriu',
-          defaultValue: '*',
-        },
-        {
-          name: 'submittingText',
-          type: 'text',
-          label: 'Text in timp ce se trimite',
-          defaultValue: 'Se trimite...',
-        },
-        {
-          name: 'errorMessage',
-          type: 'text',
-          label: 'Mesaj eroare',
-          defaultValue: 'A aparut o eroare. Te rugam sa incerci din nou.',
-        },
-        {
-          name: 'addressLabel',
-          type: 'text',
-          label: 'Label adresa',
-          defaultValue: 'Adresa',
+          label: 'Label email',
+          defaultValue: 'Email',
         },
         {
           name: 'scheduleLabel',

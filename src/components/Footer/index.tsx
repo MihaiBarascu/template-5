@@ -18,6 +18,17 @@ interface FooterProps {
 export function Footer({ data, businessInfo, logo }: FooterProps) {
   const currentYear = new Date().getFullYear()
   const _variant = data?.variant || 'columns-4'
+  const colorScheme = data?.colorScheme || 'dark'
+
+  // Color classes based on colorScheme
+  const bgClass = colorScheme === 'dark' ? 'bg-theme-dark' : 'bg-theme-light'
+  const textClass = colorScheme === 'dark' ? 'text-theme-text-on-dark' : 'text-theme-text-on-light'
+  const textMutedClass = colorScheme === 'dark' ? 'text-theme-text-on-dark/80' : 'text-theme-text-on-light/80'
+  const borderClass = colorScheme === 'dark' ? 'border-gray-800' : 'border-gray-200'
+  const overlayClass = colorScheme === 'dark' ? 'bg-theme-dark/50' : 'bg-theme-light/50'
+  const socialBgClass = colorScheme === 'dark' ? 'bg-white/10 hover:bg-white/20' : 'bg-black/10 hover:bg-black/20'
+  // Link-urile folosesc culoarea accent (auriu pentru dark-gold theme)
+  const linkClass = colorScheme === 'dark' ? 'text-theme-accent hover:text-theme-secondary' : 'text-theme-primary hover:text-theme-secondary'
 
   // Background texture settings (imagine mare pe tot footer-ul, nu se repeta)
   const bgImage = data?.backgroundImage as Media | null
@@ -75,7 +86,7 @@ export function Footer({ data, businessInfo, logo }: FooterProps) {
   }
 
   return (
-    <footer className="bg-theme-dark text-white relative overflow-hidden">
+    <footer className={`${bgClass} ${textClass} relative overflow-hidden`}>
       {/* Background texture image (imagine mare pe tot, nu se repeta) */}
       {bgImageUrl && (
         <div
@@ -93,7 +104,7 @@ export function Footer({ data, businessInfo, logo }: FooterProps) {
       {/* Theme color overlay - se aplica peste textura pentru a se integra cu tema */}
       {bgImageUrl && (
         <div
-          className="absolute inset-0 z-[1] pointer-events-none bg-theme-dark/50"
+          className={`absolute inset-0 z-[1] pointer-events-none ${overlayClass}`}
         />
       )}
 
@@ -114,10 +125,10 @@ export function Footer({ data, businessInfo, logo }: FooterProps) {
           {/* Logo & Description */}
           <div className="lg:col-span-1">
             <Link href="/" className="inline-block mb-4">
-              <Logo data={logo} businessName={businessInfo?.name} variant="light" />
+              <Logo data={logo} businessName={businessInfo?.name} variant={colorScheme === 'dark' ? 'light' : 'dark'} />
             </Link>
             {businessInfo?.description && (
-              <p className="text-white/80 text-sm leading-relaxed">
+              <p className={`${textMutedClass} text-sm leading-relaxed`}>
                 {businessInfo.description}
               </p>
             )}
@@ -127,7 +138,7 @@ export function Footer({ data, businessInfo, logo }: FooterProps) {
           {data?.columns?.map((column, index) => (
             <div key={index}>
               {column.title && (
-                <h4 className="font-semibold mb-4">{column.title}</h4>
+                <h4 className={`font-semibold mb-4 ${textClass}`}>{column.title}</h4>
               )}
 
               {column.type === 'links' && column.links && (
@@ -142,7 +153,7 @@ export function Footer({ data, businessInfo, logo }: FooterProps) {
                       <li key={link.id || linkIndex}>
                         <Link
                           href={href}
-                          className="text-white/80 hover:text-white transition-colors text-sm"
+                          className={`${linkClass} transition-colors text-sm`}
                           target={link.newTab ? '_blank' : undefined}
                         >
                           {link.label}
@@ -154,7 +165,7 @@ export function Footer({ data, businessInfo, logo }: FooterProps) {
               )}
 
               {column.type === 'contact' && businessInfo && (
-                <ul className="space-y-2 text-sm text-white/80">
+                <ul className={`space-y-2 text-sm ${textMutedClass}`}>
                   {businessInfo.address?.street && (
                     <li>{businessInfo.address.street}</li>
                   )}
@@ -163,14 +174,14 @@ export function Footer({ data, businessInfo, logo }: FooterProps) {
                   )}
                   {businessInfo.phone && (
                     <li>
-                      <a href={`tel:${businessInfo.phone}`} className="hover:text-white">
+                      <a href={`tel:${businessInfo.phone}`} className={`${linkClass} transition-colors`}>
                         {businessInfo.phone}
                       </a>
                     </li>
                   )}
                   {businessInfo.email && (
                     <li>
-                      <a href={`mailto:${businessInfo.email}`} className="hover:text-white">
+                      <a href={`mailto:${businessInfo.email}`} className={`${linkClass} transition-colors`}>
                         {businessInfo.email}
                       </a>
                     </li>
@@ -179,7 +190,7 @@ export function Footer({ data, businessInfo, logo }: FooterProps) {
               )}
 
               {column.type === 'schedule' && businessInfo?.workingHours && (
-                <ul className="space-y-2 text-sm text-white/80">
+                <ul className={`space-y-2 text-sm ${textMutedClass}`}>
                   {(businessInfo.workingHours as WorkingHoursItem[]).map((item, i: number) => (
                     <li key={i} className="flex justify-between">
                       <span>{item.days}</span>
@@ -196,7 +207,7 @@ export function Footer({ data, businessInfo, logo }: FooterProps) {
                       href={businessInfo.social.facebook}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors"
+                      className={`w-10 h-10 ${socialBgClass} rounded-full flex items-center justify-center transition-colors`}
                     >
                       FB
                     </a>
@@ -206,7 +217,7 @@ export function Footer({ data, businessInfo, logo }: FooterProps) {
                       href={businessInfo.social.instagram}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors"
+                      className={`w-10 h-10 ${socialBgClass} rounded-full flex items-center justify-center transition-colors`}
                     >
                       IG
                     </a>
@@ -216,12 +227,18 @@ export function Footer({ data, businessInfo, logo }: FooterProps) {
                       href={businessInfo.social.tiktok}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors"
+                      className={`w-10 h-10 ${socialBgClass} rounded-full flex items-center justify-center transition-colors`}
                     >
                       TK
                     </a>
                   )}
                 </div>
+              )}
+
+              {column.type === 'text' && column.text && (
+                <p className={`text-sm ${textMutedClass} whitespace-pre-line`}>
+                  {column.text}
+                </p>
               )}
             </div>
           ))}
@@ -229,7 +246,7 @@ export function Footer({ data, businessInfo, logo }: FooterProps) {
 
         {/* Badges & Payment Methods */}
         {((data?.badges && data.badges.length > 0) || (data?.showPaymentIcons && data?.paymentMethods && data.paymentMethods.length > 0)) && (
-          <div className="border-t border-gray-800 pt-8 mb-8 flex flex-wrap justify-center items-center gap-6">
+          <div className={`border-t ${borderClass} pt-8 mb-8 flex flex-wrap justify-center items-center gap-6`}>
             {/* ANPC and other badges */}
             {data?.badges?.map((badge, index) => {
               const imageData = badge.image as Media | null
@@ -270,7 +287,7 @@ export function Footer({ data, businessInfo, logo }: FooterProps) {
                 {data.paymentMethods.map((method) => (
                   <div
                     key={method}
-                    className="w-12 h-8 bg-white/10 rounded flex items-center justify-center text-xs font-medium text-white/80"
+                    className={`w-12 h-8 ${socialBgClass} rounded flex items-center justify-center text-xs font-medium ${textMutedClass}`}
                     title={method}
                   >
                     {method === 'visa' && (
@@ -295,8 +312,8 @@ export function Footer({ data, businessInfo, logo }: FooterProps) {
         )}
 
         {/* Bottom Bar */}
-        <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-white/80 text-sm">
+        <div className={`border-t ${borderClass} pt-8 flex flex-col md:flex-row justify-between items-center gap-4`}>
+          <p className={`${textMutedClass} text-sm`}>
             {getCopyrightText()}
           </p>
 
@@ -312,7 +329,7 @@ export function Footer({ data, businessInfo, logo }: FooterProps) {
                   <Link
                     key={index}
                     href={href}
-                    className="text-white/80 hover:text-white transition-colors"
+                    className={`${linkClass} transition-colors`}
                   >
                     {link.label}
                   </Link>

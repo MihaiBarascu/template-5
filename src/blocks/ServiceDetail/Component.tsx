@@ -14,7 +14,7 @@ import {
   Users,
 } from 'lucide-react'
 import * as LucideIcons from 'lucide-react'
-import type { Service, Team as TeamMember, Media, Category } from '@/payload-types'
+import type { Service, Team as TeamMember, Media } from '@/payload-types'
 import RichText from '@/components/RichText'
 
 // Default labels (used as fallbacks when not configured)
@@ -105,7 +105,7 @@ function getDifficultyColor(difficulty: string) {
 
 function _getServiceTypeColor(serviceType: string) {
   const colors: Record<string, string> = {
-    standard: 'bg-gray-100 text-gray-700',
+    standard: 'bg-theme-light text-theme-text-light',
     class: 'bg-purple-100 text-purple-700',
     individual: 'bg-blue-100 text-blue-700',
     consultation: 'bg-teal-100 text-teal-700',
@@ -180,8 +180,8 @@ export function ServiceDetailBlock({
     return (
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <div className="text-center py-8 bg-gray-100 rounded-lg">
-            <p className="text-gray-500">{l.notFoundMessage}</p>
+          <div className="text-center py-8 bg-theme-light rounded-lg">
+            <p className="text-theme-text-muted">{l.notFoundMessage}</p>
           </div>
         </div>
       </section>
@@ -197,7 +197,6 @@ export function ServiceDetailBlock({
   const image = serviceData.image as Media | null
   const assignedTeamMember = serviceData.assignedTeamMember as TeamMember | null
   const teamMemberImage = assignedTeamMember?.image as Media | null
-  const category = serviceData.category as Category | null
 
   // Get attributes for display
   const attributes = serviceData.attributes || []
@@ -265,11 +264,6 @@ export function ServiceDetailBlock({
                       className={`px-3 py-1 rounded-full text-sm font-medium ${getDifficultyColor(serviceData.difficulty)}`}
                     >
                       {difficultyLabels[serviceData.difficulty]}
-                    </span>
-                  )}
-                  {category && (
-                    <span className="px-3 py-1 bg-theme-primary/10 text-theme-primary rounded-full text-sm font-medium">
-                      {category.title}
                     </span>
                   )}
                 </div>
@@ -375,11 +369,6 @@ export function ServiceDetailBlock({
                       className={`px-4 py-2 rounded-full text-sm font-medium ${getDifficultyColor(serviceData.difficulty)}`}
                     >
                       {difficultyLabels[serviceData.difficulty]}
-                    </span>
-                  )}
-                  {category && (
-                    <span className="px-4 py-2 bg-theme-primary/10 text-theme-primary rounded-full text-sm font-medium">
-                      {category.title}
                     </span>
                   )}
                   {serviceData.featured && (
@@ -526,7 +515,7 @@ export function ServiceDetailBlock({
                 </div>
                 <Link
                   href={bookingLink}
-                  className="mt-6 w-full block text-center bg-white text-theme-primary font-bold py-3 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="mt-6 w-full block text-center bg-white text-theme-primary font-bold py-3 rounded-lg hover:bg-theme-light transition-colors"
                 >
                   {ctaButtonText}
                 </Link>

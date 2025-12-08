@@ -93,13 +93,13 @@ export function NewsletterBlock({
       case 'with-image':
         return 'relative py-20 md:py-28'
       case 'dark':
-        return 'bg-gray-900 py-16 md:py-20'
+        return 'bg-theme-dark py-16 md:py-20'
       case 'with-pattern':
         return 'bg-theme-primary py-16 md:py-20 relative overflow-hidden'
       case 'inline':
-        return 'bg-gray-100 py-8'
+        return 'bg-theme-light py-8'
       default:
-        return 'bg-gray-50 py-16 md:py-20'
+        return 'bg-theme-light py-16 md:py-20'
     }
   }
 
@@ -133,10 +133,10 @@ export function NewsletterBlock({
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex-1">
               {heading && (
-                <h3 className="text-xl font-bold text-gray-900">{heading}</h3>
+                <h3 className="text-xl font-bold text-theme-text">{heading}</h3>
               )}
               {subheading && (
-                <p className="text-gray-600 text-sm mt-1">{subheading}</p>
+                <p className="text-theme-text-light text-sm mt-1">{subheading}</p>
               )}
             </div>
 
@@ -161,7 +161,7 @@ export function NewsletterBlock({
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={placeholder || ''}
-                  className="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-theme-primary focus:border-transparent outline-none"
+                  className="flex-1 px-4 py-2.5 rounded-lg border border-theme-border focus:ring-2 focus:ring-theme-primary focus:border-transparent outline-none"
                 />
                 <button
                   type="submit"
@@ -232,7 +232,7 @@ export function NewsletterBlock({
             <h2
               className={cn(
                 'text-3xl md:text-4xl font-bold mb-4',
-                isDark || variant === 'with-pattern' ? 'text-white' : 'text-gray-900'
+                isDark || variant === 'with-pattern' ? 'text-white' : 'text-theme-text'
               )}
             >
               {heading}
@@ -245,8 +245,8 @@ export function NewsletterBlock({
               className={cn(
                 'text-lg mb-8',
                 isDark || variant === 'with-pattern'
-                  ? 'text-gray-300'
-                  : 'text-gray-600'
+                  ? 'text-white/70'
+                  : 'text-theme-text-light'
               )}
             >
               {subheading}
@@ -264,8 +264,8 @@ export function NewsletterBlock({
                     className={cn(
                       'flex items-center gap-2 text-sm',
                       isDark || variant === 'with-pattern'
-                        ? 'text-gray-300'
-                        : 'text-gray-600'
+                        ? 'text-white/70'
+                        : 'text-theme-text-light'
                     )}
                   >
                     <svg
@@ -318,11 +318,11 @@ export function NewsletterBlock({
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={placeholder || ''}
                   className={cn(
-                    'flex-1 px-5 py-3.5 rounded-xl text-gray-900 outline-none transition-all',
+                    'flex-1 px-5 py-3.5 rounded-xl text-theme-text outline-none transition-all',
                     'focus:ring-4',
                     isDark || variant === 'with-pattern'
                       ? 'bg-white focus:ring-white/20'
-                      : 'bg-white border border-gray-200 focus:ring-theme-primary/20 focus:border-theme-primary'
+                      : 'bg-white border border-theme-border focus:ring-theme-primary/20 focus:border-theme-primary'
                   )}
                 />
                 <button
@@ -333,7 +333,7 @@ export function NewsletterBlock({
                     'disabled:opacity-50 disabled:cursor-not-allowed',
                     'hover:scale-105 active:scale-95',
                     isDark || variant === 'with-pattern'
-                      ? 'bg-white text-gray-900 hover:bg-gray-100'
+                      ? 'bg-white text-theme-text hover:bg-theme-light'
                       : 'bg-theme-primary text-white hover:opacity-90'
                   )}
                 >
@@ -377,8 +377,8 @@ export function NewsletterBlock({
                   className={cn(
                     'text-sm',
                     isDark || variant === 'with-pattern'
-                      ? 'text-gray-400'
-                      : 'text-gray-500'
+                      ? 'text-white/60'
+                      : 'text-theme-text-muted'
                   )}
                 >
                   {privacyText}
@@ -390,7 +390,7 @@ export function NewsletterBlock({
                         className={cn(
                           'underline hover:no-underline',
                           isDark || variant === 'with-pattern'
-                            ? 'text-gray-300'
+                            ? 'text-white/70'
                             : 'text-theme-primary'
                         )}
                       >

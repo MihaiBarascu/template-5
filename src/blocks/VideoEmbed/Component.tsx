@@ -101,8 +101,8 @@ export function VideoEmbedBlock({
 
   const bgClass = {
     default: 'bg-white',
-    light: 'bg-gray-50',
-    dark: 'bg-gray-900 text-white',
+    light: 'bg-theme-light',
+    dark: 'bg-theme-dark text-white',
   }[backgroundColor || 'default']
 
   const maxWidthClass = {
@@ -160,7 +160,7 @@ export function VideoEmbedBlock({
       {/* Play button overlay */}
       <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors">
         <div className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center bg-white/90 rounded-full shadow-lg group-hover:scale-110 transition-transform">
-          <svg className="w-8 h-8 md:w-10 md:h-10 text-gray-900 ml-1" fill="currentColor" viewBox="0 0 24 24">
+          <svg className="w-8 h-8 md:w-10 md:h-10 text-theme-text ml-1" fill="currentColor" viewBox="0 0 24 24">
             <path d="M8 5v14l11-7z" />
           </svg>
         </div>
@@ -176,7 +176,7 @@ export function VideoEmbedBlock({
     >
       <button
         onClick={() => setLightboxOpen(false)}
-        className="absolute top-4 right-4 text-white hover:text-gray-300 z-10"
+        className="absolute top-4 right-4 text-white hover:text-white/70 z-10"
       >
         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -200,7 +200,7 @@ export function VideoEmbedBlock({
             {subheading && (
               <p className={cn(
                 'text-base md:text-lg max-w-2xl mx-auto',
-                backgroundColor === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                backgroundColor === 'dark' ? 'text-white/70' : 'text-theme-text-light'
               )}>
                 {subheading}
               </p>
@@ -225,7 +225,7 @@ export function VideoEmbedBlock({
               {sideContent.description && (
                 <p className={cn(
                   'text-base md:text-lg',
-                  backgroundColor === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                  backgroundColor === 'dark' ? 'text-white/70' : 'text-theme-text-light'
                 )}>
                   {sideContent.description}
                 </p>

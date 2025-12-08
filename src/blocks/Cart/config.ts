@@ -2,6 +2,7 @@ import type { Block } from 'payload'
 
 export const CartBlock: Block = {
   slug: 'cart',
+  interfaceName: 'CartBlock',
   labels: {
     singular: 'Cos de cumparaturi',
     plural: 'Cos de cumparaturi',

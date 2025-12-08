@@ -18,6 +18,14 @@
   --theme-text-light: #666666;
   --theme-text-muted: #999999;
   --theme-border: #e5e5e5;
+
+  /* Contrast text colors - for text on colored backgrounds */
+  --theme-text-on-primary: #ffffff;
+  --theme-text-on-secondary: #ffffff;
+  --theme-text-on-accent: #1a1a1a;
+  --theme-text-on-dark: #f5f5f5;
+  --theme-text-on-light: #1a1a1a;
+  --theme-text-on-surface: #1a1a1a;
   --theme-border-light: #f0f0f0;
 
   /* Typography */
@@ -112,7 +120,8 @@
     font-family: var(--font-heading);
     line-height: var(--heading-line-height);
     letter-spacing: var(--letter-spacing);
-    @apply font-bold text-theme-text;
+    @apply font-bold;
+    /* Note: text color NOT set here - allows contextual override (e.g., footer on dark bg) */
   }
 
   h1 {
@@ -144,6 +153,35 @@
   a {
     @apply text-theme-primary hover:opacity-80 transition-opacity;
   }
+
+  /* Focus visible styles for accessibility */
+  :focus-visible {
+    outline: 2px solid var(--theme-primary);
+    outline-offset: 2px;
+  }
+
+  /* Remove default focus for mouse users, keep for keyboard */
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* Minimum touch target size for interactive elements */
+  button,
+  [role="button"],
+  input[type="submit"],
+  input[type="button"],
+  a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Allow smaller inline links */
+  p a,
+  li a,
+  span a {
+    min-height: auto;
+    min-width: auto;
+  }
 }
 
 /* Section utilities */
@@ -167,14 +205,22 @@
 
   .section-bg-light {
     @apply bg-theme-light;
+    color: var(--theme-text-on-light);
   }
 
   .section-bg-dark {
-    @apply bg-theme-dark text-white;
+    @apply bg-theme-dark;
+    color: var(--theme-text-on-dark);
   }
 
   .section-bg-primary {
-    @apply bg-theme-primary text-white;
+    @apply bg-theme-primary;
+    color: var(--theme-text-on-primary);
+  }
+
+  .section-bg-surface {
+    @apply bg-theme-surface;
+    color: var(--theme-text-on-surface);
   }
 }
 
@@ -378,23 +424,32 @@
 
   /* Button styles */
   .btn-primary {
-    @apply inline-flex items-center justify-center text-white bg-theme-primary rounded-[var(--radius-button)] transition-all duration-200 hover:bg-theme-secondary hover:shadow-md active:scale-95;
+    @apply inline-flex items-center justify-center bg-theme-primary rounded-[var(--radius-button)] transition-all duration-200 hover:bg-theme-secondary hover:shadow-md active:scale-95;
+    color: var(--theme-text-on-primary);
     padding: var(--btn-padding-y) var(--btn-padding-x);
     font-weight: var(--btn-font-weight);
     text-transform: var(--btn-text-transform);
     letter-spacing: var(--btn-letter-spacing);
+  }
+  .btn-primary:hover {
+    color: var(--theme-text-on-secondary);
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center text-theme-primary bg-transparent border-2 border-theme-primary rounded-[var(--radius-button)] transition-all duration-200 hover:bg-theme-primary hover:text-white active:scale-95;
+    @apply inline-flex items-center justify-center text-theme-primary bg-transparent border-2 border-theme-primary rounded-[var(--radius-button)] transition-all duration-200 active:scale-95;
     padding: var(--btn-padding-y) var(--btn-padding-x);
     font-weight: var(--btn-font-weight);
     text-transform: var(--btn-text-transform);
     letter-spacing: var(--btn-letter-spacing);
   }
+  .btn-secondary:hover {
+    @apply bg-theme-primary;
+    color: var(--theme-text-on-primary);
+  }
 
   .btn-accent {
-    @apply inline-flex items-center justify-center text-white bg-theme-accent rounded-[var(--radius-button)] transition-all duration-200 hover:opacity-90 hover:shadow-md active:scale-95;
+    @apply inline-flex items-center justify-center bg-theme-accent rounded-[var(--radius-button)] transition-all duration-200 hover:opacity-90 hover:shadow-md active:scale-95;
+    color: var(--theme-text-on-accent);
     padding: var(--btn-padding-y) var(--btn-padding-x);
     font-weight: var(--btn-font-weight);
     text-transform: var(--btn-text-transform);

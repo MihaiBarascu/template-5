@@ -57,11 +57,11 @@ export function BrandLogosBlock({
   const bgClass =
     {
       default: 'bg-white',
-      light: 'bg-gray-50',
-      dark: 'bg-gray-900 text-white',
+      light: 'bg-theme-light',
+      dark: 'bg-theme-dark text-white',
     }[bgColor] || 'bg-white'
 
-  const textMuted = bgColor === 'dark' ? 'text-gray-400' : 'text-gray-600'
+  const textMuted = bgColor === 'dark' ? 'text-white/60' : 'text-theme-text-light'
 
   const sizeClass =
     {
@@ -170,7 +170,7 @@ export function BrandLogosBlock({
                 key={logo.id || idx}
                 className={cn(
                   'flex items-center justify-center p-4 rounded-lg',
-                  backgroundColor === 'dark' ? 'bg-gray-800' : 'bg-gray-50'
+                  backgroundColor === 'dark' ? 'bg-white/5' : 'bg-theme-light'
                 )}
               >
                 <LogoItem logo={logo} />
@@ -196,7 +196,7 @@ export function BrandLogosBlock({
           <div
             className={cn(
               'flex flex-wrap items-center justify-center gap-8 p-8 rounded-xl',
-              backgroundColor === 'dark' ? 'bg-gray-800' : 'bg-gray-50'
+              backgroundColor === 'dark' ? 'bg-white/5' : 'bg-theme-light'
             )}
           >
             {logoList.map((logo, idx) => (
