@@ -32,7 +32,7 @@ export const Bookings: CollectionConfig = {
         if (operation !== 'create') return doc
 
         try {
-          const businessEmail = await getBusinessEmail(req.payload)
+          const businessEmail = await getBusinessEmail(req.payload, req)
 
           if (!businessEmail) {
             console.log('⚠️ No business email configured - skipping booking notification')

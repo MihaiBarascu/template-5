@@ -67,7 +67,7 @@ export function CartModal() {
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-theme-border">
-            <h2 className="text-xl font-semibold text-theme-text">Cosul meu</h2>
+            <span className="text-xl font-semibold text-theme-text">Cosul meu</span>
             <button onClick={() => setIsOpen(false)} aria-label="Inchide cosul">
               <CloseCart />
             </button>

@@ -140,9 +140,10 @@ export default async function BlogPostPage({ params }: PageProps) {
   }
 
   const serverUrl = getServerSideURL()
+  const postUrl = `${serverUrl}/blog/${postData.slug}`
 
   // JSON-LD Structured Data for Article (Schema.org)
-  const jsonLd = {
+  const articleJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
     headline: postData.title,
@@ -168,12 +169,48 @@ export default async function BlogPostPage({ params }: PageProps) {
     },
   }
 
+  // JSON-LD Structured Data for BreadcrumbList (Schema.org)
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Acasă',
+        item: serverUrl,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Blog',
+        item: `${serverUrl}/blog`,
+      },
+      ...(category ? [{
+        '@type': 'ListItem',
+        position: 3,
+        name: category.title,
+        item: `${serverUrl}/blog?categorie=${category.slug}`,
+      }] : []),
+      {
+        '@type': 'ListItem',
+        position: category ? 4 : 3,
+        name: postData.title,
+      },
+    ],
+  }
+
   return (
     <>
-      {/* JSON-LD Structured Data */}
+      {/* JSON-LD Structured Data - Article */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
+      {/* JSON-LD Structured Data - Breadcrumbs */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       <main className="py-8">
       {/* Hero/Header */}
@@ -278,7 +315,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                 Distribuie:
               </span>
               <a
-                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}`}
+                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition-colors"
@@ -287,7 +324,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                 <Facebook className="w-5 h-5" />
               </a>
               <a
-                href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}&text=${encodeURIComponent(postData.title)}`}
+                href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(postUrl)}&text=${encodeURIComponent(postData.title)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center hover:bg-gray-800 transition-colors"
@@ -296,7 +333,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                 <Twitter className="w-5 h-5" />
               </a>
               <a
-                href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}&title=${encodeURIComponent(postData.title)}`}
+                href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(postUrl)}&title=${encodeURIComponent(postData.title)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-blue-700 text-white flex items-center justify-center hover:bg-blue-800 transition-colors"

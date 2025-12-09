@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { cn } from '@/utilities/cn'
 import * as LucideIcons from 'lucide-react'
-import type { Service, Media } from '@/payload-types'
+import type { Service, Media as MediaType } from '@/payload-types'
+import { Media } from '@/components/Media'
 
 interface ServicesBlockProps {
   variant?: string
@@ -466,7 +466,7 @@ export function ServicesBlock({
           {services.map((service, index) => {
             const serviceHref = detailBasePath && service.slug ? `${detailBasePath}/${service.slug}` : null
             const displayStyle = service.displayStyle || 'card'
-            const imageObj = service.image && typeof service.image === 'object' ? service.image as Media : null
+            const imageObj = service.image && typeof service.image === 'object' ? service.image as MediaType : null
 
             const cardClassName = cn(
               'group relative rounded-[var(--radius-card)] overflow-hidden',
@@ -486,11 +486,11 @@ export function ServicesBlock({
                 {/* Image for card-image style */}
                 {displayStyle === 'card-image' && imageObj?.url && (
                   <div className="relative h-48 w-full overflow-hidden">
-                    <Image
-                      src={imageObj.url}
-                      alt={imageObj.alt || service.title}
+                    <Media
+                      resource={imageObj}
                       fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      size="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      imgClassName="object-cover transition-transform duration-500 group-hover:scale-110"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                   </div>

@@ -225,6 +225,7 @@ export function TestimonialsBlock({
                 src={getAvatarUrl(testimonial.avatar)!}
                 alt={getAvatarAlt(testimonial.avatar, testimonial.name)}
                 fill
+                sizes="64px"
                 className="object-cover"
               />
             ) : (

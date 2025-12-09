@@ -119,6 +119,7 @@ export const ContentBlock: React.FC<ContentBlockProps> = async ({
                         src={column.image.url}
                         alt={(column.image as { alt?: string }).alt || ''}
                         fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
                         className="object-cover"
                       />
                     )}

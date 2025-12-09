@@ -9,11 +9,11 @@ import { redirectsPlugin } from '@payloadcms/plugin-redirects'
 import { searchPlugin } from '@payloadcms/plugin-search'
 import { seoPlugin } from '@payloadcms/plugin-seo'
 import { s3Storage } from '@payloadcms/storage-s3'
-import { GenerateTitle, GenerateURL, GenerateDescription } from '@payloadcms/plugin-seo/types'
+import { GenerateTitle, GenerateURL, GenerateDescription, GenerateImage } from '@payloadcms/plugin-seo/types'
 import { FixedToolbarFeature, HeadingFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import { Plugin } from 'payload'
 
-import type { Page, Post } from '@/payload-types'
+import type { Page as _Page, Post as _Post } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
 
 // S3/R2 Storage configuration (optional - for production)
@@ -77,8 +77,30 @@ const generateDescription: GenerateDescription<SEODoc> = ({ doc }) => {
   return ''
 }
 
-// generateImage is optional - we'll let seoPlugin handle default behavior
-// by not providing it, the plugin will use the uploadsCollection setting
+const generateImage: GenerateImage<SEODoc> = ({ doc }) => {
+  if (!doc) return null
+
+  // Posts have featuredImage
+  if (doc.featuredImage && typeof doc.featuredImage === 'object') {
+    return doc.featuredImage
+  }
+
+  // Products have images array
+  if (doc.images && Array.isArray(doc.images) && doc.images.length > 0) {
+    const firstImage = doc.images[0]
+    if (typeof firstImage === 'object' && firstImage?.image) {
+      return typeof firstImage.image === 'object' ? firstImage.image : null
+    }
+  }
+
+  // Services may have a single image
+  if (doc.image && typeof doc.image === 'object') {
+    return doc.image
+  }
+
+  // Fallback: let plugin use uploadsCollection default
+  return null
+}
 
 const generateURL: GenerateURL<SEODoc> = ({ doc, collectionSlug }) => {
   const url = getServerSideURL()
@@ -138,6 +160,7 @@ export const plugins: Plugin[] = [
     generateTitle,
     generateDescription,
     generateURL,
+    generateImage,
     // Enable tabbed UI in admin for better UX
     tabbedUI: true,
   }),

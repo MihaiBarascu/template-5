@@ -7,6 +7,7 @@ import {
   letterSpacingPresets,
   buttonPaddingPresets,
   buttonLetterSpacingPresets,
+  animationPresets,
 } from '@/theme/variants'
 
 // Re-export for backward compatibility
@@ -107,7 +108,16 @@ export function generateThemeStyles(siteTheme: SiteTheme | null): string {
     ? buttonLetterSpacingPresets[siteTheme?.buttonLetterSpacing || 'normal'] || '0'
     : '0'
 
-  return `
+  // Apply animations - use override if set, otherwise use moderate as default
+  const animationsKey = siteTheme?.animations || 'moderate'
+  const animations =
+    animationPresets[animationsKey as keyof typeof animationPresets] || animationPresets.moderate
+
+  // Derive play state from enabled flag (for decorative infinite animations)
+  const animationPlayState = animations.enabled === '1' ? 'running' : 'paused'
+
+  // Base CSS variables
+  const baseStyles = `
     :root {
       --theme-primary: ${colors.primary};
       --theme-secondary: ${colors.secondary};
@@ -149,6 +159,14 @@ export function generateThemeStyles(siteTheme: SiteTheme | null): string {
       --btn-text-transform: ${buttonTextTransform};
       --btn-font-weight: ${buttonFontWeight};
       --btn-letter-spacing: ${buttonLetterSpacing};
+      --animation-duration: ${animations.duration};
+      --animation-duration-fast: ${animations.durationFast};
+      --animation-duration-slow: ${animations.durationSlow};
+      --animation-timing: ${animations.timing};
+      --animation-enabled: ${animations.enabled};
+      --animation-play-state: ${animationPlayState};
     }
-  `.trim()
+  `
+
+  return baseStyles.trim()
 }

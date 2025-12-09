@@ -224,6 +224,7 @@ export function TeamBlock({
                       src={getImageUrl(member.image)!}
                       alt={getImageAlt(member.image, member.name)}
                       fill
+                      sizes="128px"
                       className="object-cover transition-transform duration-500 group-hover:scale-110"
                     />
                   ) : (
@@ -409,6 +410,7 @@ export function TeamBlock({
                         src={getImageUrl(member.image)!}
                         alt={getImageAlt(member.image, member.name)}
                         fill
+                        sizes="128px"
                         className="object-cover transition-transform duration-700 group-hover:scale-110"
                       />
                     ) : (

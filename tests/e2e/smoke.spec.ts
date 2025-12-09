@@ -15,6 +15,7 @@ const BUSINESS_TYPES = [
   'avocat',
   'constructii',
   'magazin',
+  'fitness',
 ] as const
 
 type BusinessType = (typeof BUSINESS_TYPES)[number]
@@ -39,8 +40,9 @@ test.describe('Smoke Tests - All Business Types', () => {
       // Seed this business type
       await seedBusiness(businessType)
 
-      // Navigate to homepage using baseURL from config
-      await page.goto(baseURL || 'http://localhost:3000', { waitUntil: 'domcontentloaded', timeout: 30000 })
+      // Navigate to homepage using baseURL from playwright.config.ts
+      const TEST_PORT = process.env.TEST_PORT || '3100'
+      await page.goto(baseURL || `http://localhost:${TEST_PORT}`, { waitUntil: 'domcontentloaded', timeout: 30000 })
 
       // 1. Page should have header
       const header = page.locator('header').first()

@@ -1,7 +1,6 @@
 'use client'
 
-import React, { useCallback, useState } from 'react'
-import { useForm, FormProvider } from 'react-hook-form'
+import React from 'react'
 import { cn } from '@/utilities/cn'
 import type { Form as PayloadFormType } from '@/payload-types'
 
@@ -99,9 +98,9 @@ export function ContactBlock({
   contactInfoItems: contactInfoItemsProp,
   backgroundColor = 'transparent',
   labels: labelsProp,
-  form,
-  mapSettings,
-  formSettings,
+  form: _form,
+  mapSettings: _mapSettings,
+  formSettings: _formSettings,
   businessInfo,
 }: ContactBlockProps) {
   const contactInfoItems = contactInfoItemsProp ?? {
@@ -226,7 +225,7 @@ export function ContactBlock({
               <div className={cn('w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4', isDark ? 'bg-white/10' : 'bg-theme-primary/10')}>
                 <PhoneIcon className={cn('w-6 h-6', isDark ? 'text-white' : 'text-theme-primary')} />
               </div>
-              <h4 className="font-semibold mb-1">{labels.phoneLabel || 'Telefon'}</h4>
+              <span className="block font-semibold mb-1">{labels.phoneLabel || 'Telefon'}</span>
               <p className={isDark ? 'text-white/60' : 'text-theme-text-muted'}>{businessInfo?.phone}</p>
             </a>
           )}
@@ -241,7 +240,7 @@ export function ContactBlock({
               <div className={cn('w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4', isDark ? 'bg-white/10' : 'bg-theme-primary/10')}>
                 <EmailIcon className={cn('w-6 h-6', isDark ? 'text-white' : 'text-theme-primary')} />
               </div>
-              <h4 className="font-semibold mb-1">{labels.emailLabel || 'Email'}</h4>
+              <span className="block font-semibold mb-1">{labels.emailLabel || 'Email'}</span>
               <p className={isDark ? 'text-white/60' : 'text-theme-text-muted'}>{businessInfo?.email}</p>
             </a>
           )}
@@ -255,7 +254,7 @@ export function ContactBlock({
               <div className={cn('w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4', isDark ? 'bg-white/10' : 'bg-theme-primary/10')}>
                 <LocationIcon className={cn('w-6 h-6', isDark ? 'text-white' : 'text-theme-primary')} />
               </div>
-              <h4 className="font-semibold mb-1">{labels.addressLabel || 'Adresa'}</h4>
+              <span className="block font-semibold mb-1">{labels.addressLabel || 'Adresa'}</span>
               <p className={isDark ? 'text-white/60' : 'text-theme-text-muted'}>{getAddressString()}</p>
             </div>
           )}
@@ -269,7 +268,7 @@ export function ContactBlock({
               <div className={cn('w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4', isDark ? 'bg-white/10' : 'bg-theme-primary/10')}>
                 <ClockIcon className={cn('w-6 h-6', isDark ? 'text-white' : 'text-theme-primary')} />
               </div>
-              <h4 className="font-semibold mb-2">{labels.scheduleLabel || 'Program'}</h4>
+              <span className="block font-semibold mb-2">{labels.scheduleLabel || 'Program'}</span>
               <div className={cn('text-sm space-y-1', isDark ? 'text-white/60' : 'text-theme-text-muted')}>
                 {businessInfo?.workingHours?.filter(s => s.days && s.hours).map((schedule, index) => (
                   <div key={schedule.id || index}>
@@ -300,7 +299,7 @@ export function ContactBlock({
               <LocationIcon className={cn('w-5 h-5', isDark ? 'text-white' : 'text-theme-primary')} />
             </div>
             <div>
-              <h4 className="font-semibold mb-1">{labels.addressLabel || 'Adresa'}</h4>
+              <span className="block font-semibold mb-1">{labels.addressLabel || 'Adresa'}</span>
               <p className={cn('text-sm', isDark ? 'text-white/60' : 'text-theme-text-muted')}>
                 {businessInfo?.address?.street && <>{businessInfo.address.street}<br /></>}
                 {businessInfo?.address?.city}{businessInfo?.address?.county && `, ${businessInfo.address.county}`}
@@ -316,7 +315,7 @@ export function ContactBlock({
               <PhoneIcon className={cn('w-5 h-5', isDark ? 'text-white' : 'text-theme-primary')} />
             </div>
             <div>
-              <h4 className="font-semibold mb-1">{labels.phoneLabel || 'Telefon'}</h4>
+              <span className="block font-semibold mb-1">{labels.phoneLabel || 'Telefon'}</span>
               <a href={`tel:${businessInfo?.phone}`} className={cn('text-sm hover:underline', isDark ? 'text-white/60' : 'text-theme-text-muted')}>
                 {businessInfo?.phone}
               </a>
@@ -330,7 +329,7 @@ export function ContactBlock({
               <EmailIcon className={cn('w-5 h-5', isDark ? 'text-white' : 'text-theme-primary')} />
             </div>
             <div>
-              <h4 className="font-semibold mb-1">{labels.emailLabel || 'Email'}</h4>
+              <span className="block font-semibold mb-1">{labels.emailLabel || 'Email'}</span>
               <a href={`mailto:${businessInfo?.email}`} className={cn('text-sm hover:underline', isDark ? 'text-white/60' : 'text-theme-text-muted')}>
                 {businessInfo?.email}
               </a>
@@ -344,7 +343,7 @@ export function ContactBlock({
               <ClockIcon className={cn('w-5 h-5', isDark ? 'text-white' : 'text-theme-primary')} />
             </div>
             <div>
-              <h4 className="font-semibold mb-1">{labels.scheduleLabel || 'Program'}</h4>
+              <span className="block font-semibold mb-1">{labels.scheduleLabel || 'Program'}</span>
               <div className={cn('text-sm space-y-1', isDark ? 'text-white/60' : 'text-theme-text-muted')}>
                 {businessInfo?.workingHours?.filter(s => s.days && s.hours).map((schedule, index) => (
                   <div key={schedule.id || index} className="flex justify-between gap-4">
@@ -365,7 +364,7 @@ export function ContactBlock({
               </svg>
             </div>
             <div>
-              <h4 className="font-semibold mb-2">{labels.socialLabel || 'Social Media'}</h4>
+              <span className="block font-semibold mb-2">{labels.socialLabel || 'Social Media'}</span>
               <div className="flex gap-3">
                 {businessInfo.social.facebook && (
                   <a href={businessInfo.social.facebook} target="_blank" rel="noopener noreferrer" className={cn('hover:text-theme-primary transition-colors', isDark ? 'text-white/60' : 'text-theme-text-muted')}>

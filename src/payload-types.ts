@@ -1395,6 +1395,10 @@ export interface Product {
   };
   priceInRONEnabled?: boolean | null;
   priceInRON?: number | null;
+  /**
+   * Cota TVA aplicată acestui produs
+   */
+  taxCategory?: ('standard' | 'reduced' | 'zero') | null;
   brand?: string | null;
   /**
    * Nou, Promoție, Bestseller, etc.
@@ -5003,6 +5007,7 @@ export interface ProductsSelect<T extends boolean = true> {
   variants?: T;
   priceInRONEnabled?: T;
   priceInRON?: T;
+  taxCategory?: T;
   brand?: T;
   tags?: T;
   relatedProducts?: T;
@@ -5627,6 +5632,47 @@ export interface ShopSetting {
   currencySymbol?: string | null;
   pricePosition?: ('before' | 'after') | null;
   /**
+   * Activeaza calculul si afisarea TVA pe site
+   */
+  vatEnabled?: boolean | null;
+  /**
+   * RECOMANDAT pentru B2C Romania: ON. Preturile introduse in admin sunt preturile finale (cu TVA inclus) afisate clientilor.
+   */
+  pricesIncludeVat?: boolean | null;
+  /**
+   * Pentru B2C (clienti persoane fizice) este obligatoriu sa afisezi pretul final cu TVA
+   */
+  displayPricesWithVat?: boolean | null;
+  /**
+   * Cotele TVA aplicabile in Romania (din august 2025)
+   */
+  vatRates: {
+    /**
+     * TVA standard Romania: 21%
+     */
+    standard: number;
+    /**
+     * TVA redus Romania: 11%
+     */
+    reduced: number;
+    /**
+     * Pentru produse scutite
+     */
+    zero?: number | null;
+  };
+  /**
+   * Cota aplicata produselor fara categorie TVA specificata
+   */
+  defaultVatRate?: ('standard' | 'reduced' | 'zero') | null;
+  /**
+   * Afiseaza subtotal, TVA si total separat
+   */
+  showVatBreakdown?: boolean | null;
+  /**
+   * Codul fiscal al firmei pentru facturi
+   */
+  vatNumber?: string | null;
+  /**
    * Valoarea minima pentru a putea plasa comanda. Lasa gol pentru fara minim.
    */
   orderMinimum?: number | null;
@@ -6041,6 +6087,19 @@ export interface ShopSettingsSelect<T extends boolean = true> {
   currency?: T;
   currencySymbol?: T;
   pricePosition?: T;
+  vatEnabled?: T;
+  pricesIncludeVat?: T;
+  displayPricesWithVat?: T;
+  vatRates?:
+    | T
+    | {
+        standard?: T;
+        reduced?: T;
+        zero?: T;
+      };
+  defaultVatRate?: T;
+  showVatBreakdown?: T;
+  vatNumber?: T;
   orderMinimum?: T;
   freeShippingThreshold?: T;
   shippingCost?: T;

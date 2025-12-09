@@ -138,7 +138,7 @@ export function Footer({ data, businessInfo, logo }: FooterProps) {
           {data?.columns?.map((column, index) => (
             <div key={index}>
               {column.title && (
-                <h4 className={`font-semibold mb-4 ${textClass}`}>{column.title}</h4>
+                <span className={`block font-semibold mb-4 ${textClass}`}>{column.title}</span>
               )}
 
               {column.type === 'links' && column.links && (

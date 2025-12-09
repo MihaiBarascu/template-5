@@ -1,7 +1,7 @@
 import React from 'react'
-import Image from 'next/image'
 import { cn } from '@/utilities/cn'
-import type { MediaBlock as MediaBlockProps, Media } from '@/payload-types'
+import { Media } from '@/components/Media'
+import type { MediaBlock as MediaBlockProps, Media as MediaType } from '@/payload-types'
 
 type Props = MediaBlockProps & {
   className?: string
@@ -22,10 +22,10 @@ export const MediaBlockComponent: React.FC<Props> = (props) => {
   } = props
 
   // Type guard to check if media is an object (populated) vs string (ID only)
-  const mediaObj = media && typeof media === 'object' ? (media as Media) : null
+  const mediaObj = media && typeof media === 'object' ? (media as MediaType) : null
   const caption = mediaObj?.caption
 
-  if (!mediaObj?.url) return null
+  if (!mediaObj) return null
 
   return (
     <div
@@ -38,11 +38,11 @@ export const MediaBlockComponent: React.FC<Props> = (props) => {
       )}
     >
       <div className="relative w-full aspect-video overflow-hidden rounded-xl">
-        <Image
-          src={mediaObj.url}
-          alt={mediaObj.alt || ''}
+        <Media
+          resource={mediaObj}
           fill
-          className={cn('object-cover', imgClassName)}
+          size="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+          imgClassName={cn('object-cover', imgClassName)}
         />
       </div>
       {caption && (

@@ -384,3 +384,43 @@ export const buttonLetterSpacingPresets: Record<string, string> = {
   wider: '1px',
   'extra-wide': '2px',
 }
+
+// Animation presets
+export interface AnimationPreset {
+  duration: string
+  durationFast: string
+  durationSlow: string
+  timing: string
+  enabled: '1' | '0' // CSS doesn't support booleans, use string for calc()
+}
+
+export const animationPresets: Record<string, AnimationPreset> = {
+  none: {
+    duration: '0ms',
+    durationFast: '0ms',
+    durationSlow: '0ms',
+    timing: 'linear',
+    enabled: '0',
+  },
+  subtle: {
+    duration: '200ms',
+    durationFast: '100ms',
+    durationSlow: '300ms',
+    timing: 'ease-out',
+    enabled: '1',
+  },
+  moderate: {
+    duration: '300ms',
+    durationFast: '150ms',
+    durationSlow: '500ms',
+    timing: 'ease-in-out',
+    enabled: '1',
+  },
+  dynamic: {
+    duration: '400ms',
+    durationFast: '200ms',
+    durationSlow: '700ms',
+    timing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    enabled: '1',
+  },
+}

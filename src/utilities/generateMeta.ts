@@ -72,6 +72,35 @@ const getCanonicalURL = (doc: SEODocument, collectionSlug?: string): string => {
 }
 
 /**
+ * Extract plain text from Lexical rich text
+ */
+const extractTextFromRichText = (richText: unknown, maxLength = 160): string => {
+  if (!richText || typeof richText !== 'object') return ''
+
+  const root = (richText as { root?: { children?: unknown[] } })?.root
+  if (!root?.children) return ''
+
+  const extractText = (nodes: unknown[]): string => {
+    let text = ''
+    for (const node of nodes) {
+      if (typeof node !== 'object' || !node) continue
+      const n = node as { text?: string; children?: unknown[] }
+      if (n.text) {
+        text += n.text + ' '
+      }
+      if (n.children && Array.isArray(n.children)) {
+        text += extractText(n.children)
+      }
+    }
+    return text
+  }
+
+  const fullText = extractText(root.children).trim()
+  if (fullText.length <= maxLength) return fullText
+  return fullText.slice(0, maxLength - 3).trim() + '...'
+}
+
+/**
  * Get description from document
  */
 const getDescription = (doc: SEODocument): string => {
@@ -88,6 +117,35 @@ const getDescription = (doc: SEODocument): string => {
   // Try shortDescription (Products, Services)
   if ('shortDescription' in doc && doc.shortDescription) {
     return doc.shortDescription
+  }
+
+  // Try to extract from hero subheadline (Pages)
+  if ('hero' in doc && doc.hero) {
+    const hero = doc.hero as { subheadline?: string; headline?: string }
+    if (hero.subheadline && typeof hero.subheadline === 'string') {
+      return hero.subheadline.slice(0, 160)
+    }
+    // Fallback to headline if no subheadline
+    if (hero.headline && typeof hero.headline === 'string') {
+      return hero.headline.slice(0, 160)
+    }
+  }
+
+  // Try to extract from first Content block (columns[].richText)
+  if ('layout' in doc && Array.isArray(doc.layout)) {
+    for (const block of doc.layout) {
+      if (block.blockType === 'content') {
+        const contentBlock = block as { columns?: Array<{ richText?: unknown }> }
+        if (contentBlock.columns) {
+          for (const col of contentBlock.columns) {
+            if (col.richText) {
+              const extracted = extractTextFromRichText(col.richText)
+              if (extracted) return extracted
+            }
+          }
+        }
+      }
+    }
   }
 
   return ''
@@ -238,13 +296,22 @@ export const generatePostMeta = async (args: {
     collectionSlug: 'posts',
   })
 
+  // Get author name if available
+  const author = post.author
+  const authorName = author && typeof author === 'object' && 'name' in author
+    ? author.name
+    : undefined
+
   // Add article-specific meta via openGraph
   return {
     ...baseMeta,
     openGraph: {
       ...baseMeta.openGraph,
       type: 'article',
-      // Article dates are handled via JSON-LD structured data
+      // Article-specific OG tags
+      publishedTime: post.publishedAt || post.createdAt,
+      modifiedTime: post.updatedAt,
+      authors: authorName ? [authorName] : undefined,
     },
   }
 }

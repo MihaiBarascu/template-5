@@ -10,7 +10,8 @@ export default defineConfig({
   testDir: './tests/e2e',
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  // Use 1 worker to avoid parallel seed conflicts (tests modify shared database)
+  workers: 1,
   reporter: 'html',
   timeout: 90000, // 90 seconds per test (increased for seeding)
   expect: {

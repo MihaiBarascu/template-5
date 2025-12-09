@@ -206,7 +206,7 @@ export function GalleryBlock({
             alt={image.alt || image.filename || `Gallery image ${index + 1}`}
             {...(variant === 'masonry'
               ? { width: 600, height: 400, className: 'w-full h-auto' }
-              : { fill: true, className: 'object-cover' }
+              : { fill: true, sizes: '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw', className: 'object-cover' }
             )}
             className={cn(
               variant === 'masonry' ? 'w-full h-auto' : 'object-cover',
@@ -338,6 +338,7 @@ export function GalleryBlock({
                   src={image.url}
                   alt={image.alt || ''}
                   fill
+                  sizes="(max-width: 768px) 33vw, 16vw"
                   className="object-cover transition-transform duration-500 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">

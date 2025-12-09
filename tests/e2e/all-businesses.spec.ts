@@ -12,7 +12,9 @@ import { execSync } from 'child_process'
 import * as fs from 'fs'
 import * as path from 'path'
 
-const BASE_URL = 'http://localhost:3000'
+// Use TEST_PORT from playwright.config.ts for consistency
+const TEST_PORT = process.env.TEST_PORT || '3100'
+const BASE_URL = process.env.BASE_URL || `http://localhost:${TEST_PORT}`
 
 // Configuratii pentru toate tipurile de business
 const BUSINESS_TYPES = [

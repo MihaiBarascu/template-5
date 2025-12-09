@@ -167,9 +167,13 @@ function HeroCarousel({ slides, ctaButtons, height, overlayConfig }: {
           <div
             key={index}
             className={cn(
-              'absolute inset-0 transition-all duration-700 ease-in-out',
+              'absolute inset-0 transition-all',
               isActive ? 'opacity-100 z-10' : 'opacity-0 z-0'
             )}
+            style={{
+              transitionDuration: 'var(--animation-duration-slow, 500ms)',
+              transitionTimingFunction: 'var(--animation-timing, ease-in-out)',
+            }}
           >
             {/* Background Image */}
             {slideImage && (
@@ -180,9 +184,13 @@ function HeroCarousel({ slides, ctaButtons, height, overlayConfig }: {
                   fill
                   sizes="100vw"
                   className={cn(
-                    'object-cover transition-transform duration-[8000ms] ease-out',
+                    'object-cover transition-transform',
                     isActive ? 'scale-105' : 'scale-100'
                   )}
+                  style={{
+                    transitionDuration: 'calc(var(--animation-duration-slow, 500ms) * 16)',
+                    transitionTimingFunction: 'var(--animation-timing, ease-out)',
+                  }}
                   priority={index === 0}
                 />
                 {/* Overlay */}
@@ -198,10 +206,14 @@ function HeroCarousel({ slides, ctaButtons, height, overlayConfig }: {
                 {slide.headline && (
                   <h1
                     className={cn(
-                      'text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-6 leading-tight text-white drop-shadow-lg transition-all duration-700',
+                      'text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-6 leading-tight text-white drop-shadow-lg transition-all',
                       isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
                     )}
-                    style={{ transitionDelay: isActive ? '200ms' : '0ms' }}
+                    style={{
+                      transitionDuration: 'var(--animation-duration-slow, 500ms)',
+                      transitionTimingFunction: 'var(--animation-timing, ease-out)',
+                      transitionDelay: isActive ? 'calc(var(--animation-duration-fast, 150ms) * 1.33)' : '0ms',
+                    }}
                   >
                     {slide.headline}
                   </h1>
@@ -209,10 +221,14 @@ function HeroCarousel({ slides, ctaButtons, height, overlayConfig }: {
                 {slide.subheadline && (
                   <p
                     className={cn(
-                      'text-lg md:text-xl lg:text-2xl mb-8 max-w-3xl mx-auto text-white/90 drop-shadow-md transition-all duration-700',
+                      'text-lg md:text-xl lg:text-2xl mb-8 max-w-3xl mx-auto text-white/90 drop-shadow-md transition-all',
                       isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
                     )}
-                    style={{ transitionDelay: isActive ? '400ms' : '0ms' }}
+                    style={{
+                      transitionDuration: 'var(--animation-duration-slow, 500ms)',
+                      transitionTimingFunction: 'var(--animation-timing, ease-out)',
+                      transitionDelay: isActive ? 'calc(var(--animation-duration, 300ms) * 1.33)' : '0ms',
+                    }}
                   >
                     {slide.subheadline}
                   </p>
@@ -220,10 +236,14 @@ function HeroCarousel({ slides, ctaButtons, height, overlayConfig }: {
                 {ctaButtons && ctaButtons.length > 0 && (
                   <div
                     className={cn(
-                      'flex flex-col sm:flex-row gap-4 justify-center transition-all duration-700',
+                      'flex flex-col sm:flex-row gap-4 justify-center transition-all',
                       isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
                     )}
-                    style={{ transitionDelay: isActive ? '600ms' : '0ms' }}
+                    style={{
+                      transitionDuration: 'var(--animation-duration-slow, 500ms)',
+                      transitionTimingFunction: 'var(--animation-timing, ease-out)',
+                      transitionDelay: isActive ? 'calc(var(--animation-duration-slow, 500ms) * 1.2)' : '0ms',
+                    }}
                   >
                     {ctaButtons.map((button, btnIndex) => (
                       <Link

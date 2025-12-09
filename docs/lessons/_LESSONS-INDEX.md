@@ -2,7 +2,7 @@
 status: ACTIVE
 type: lesson
 created: 2025-12-08
-updated: 2025-12-08
+updated: 2025-12-09
 tags: [lessons, bugs, fixes, tips]
 ---
 
@@ -77,8 +77,30 @@ tags: [lessons, bugs, fixes, tips]
 
 | Data | Problema | Solutie |
 |------|----------|---------|
+| 2025-12-10 | `networkidle` timeout in Playwright | Foloseste `waitUntil: 'domcontentloaded'` + `waitForTimeout(3000)` |
+| 2025-12-10 | Verific imagini incarcate corect | `toHaveJSProperty('complete', true)` + `not.toHaveJSProperty('naturalWidth', 0)` |
+| 2025-12-10 | Lazy loading nu trigereaza in teste | Scroll prin pagina cu `window.scrollTo()` in loop |
+| 2025-12-09 | Cum verific ca testele sunt fresh | Vezi timestamps, verifica assertions reale, output variabil per test |
 | 2025-12-08 | Playwright nu gaseste elemente | Foloseste `mcp__playwright__browser_snapshot` pentru accessibility tree |
 | 2025-12-05 | Server nu raspunde in teste | Asteapta cu `mcp__playwright__browser_wait_for` |
+
+---
+
+## WHITE-LABEL
+
+| Data | Problema | Solutie |
+|------|----------|---------|
+| 2025-12-09 | Logo Payload in admin panel | Creeaza `graphics.Logo` si `graphics.Icon` in payload.config.ts |
+
+---
+
+## SEO/PERFORMANCE
+
+| Data | Problema | Solutie |
+|------|----------|---------|
+| 2025-12-09 | Next.js Image fara sizes afecteaza LCP | Adauga `sizes` attribute la toate imaginile (ex: `sizes="(max-width: 768px) 100vw, 33vw"`) |
+| 2025-12-09 | Imagini fara blur placeholder cauzeaza CLS | Foloseste Media component cu `placeholder="blur"` |
+| 2025-12-09 | Imagini cached dupa update | Media component adauga `?updatedAt=timestamp` pentru cache busting |
 
 ---
 

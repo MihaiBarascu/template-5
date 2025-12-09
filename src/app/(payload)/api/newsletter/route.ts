@@ -65,12 +65,14 @@ export async function POST(request: Request) {
     const normalizedEmail = email.toLowerCase().trim()
 
     // Check if already subscribed
+    // overrideAccess: true - trusted server operation for public lookup
     const existing = await payload.find({
       collection: 'newsletter-subscribers',
       where: {
         email: { equals: normalizedEmail },
       },
       limit: 1,
+      overrideAccess: true,
     })
 
     if (existing.docs.length > 0) {
@@ -167,12 +169,14 @@ export async function DELETE(request: Request) {
     const normalizedEmail = email.toLowerCase().trim()
 
     // Find subscriber
+    // overrideAccess: true - trusted server operation for public lookup
     const existing = await payload.find({
       collection: 'newsletter-subscribers',
       where: {
         email: { equals: normalizedEmail },
       },
       limit: 1,
+      overrideAccess: true,
     })
 
     if (existing.docs.length === 0) {

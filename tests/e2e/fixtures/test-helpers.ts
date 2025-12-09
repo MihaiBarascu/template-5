@@ -6,7 +6,9 @@ import { Page, expect } from '@playwright/test'
 import { execSync } from 'child_process'
 import { BusinessType, DesignVariant } from './business-types'
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
+// Use TEST_PORT from playwright.config.ts for consistency
+const TEST_PORT = process.env.TEST_PORT || '3100'
+const BASE_URL = process.env.BASE_URL || `http://localhost:${TEST_PORT}`
 
 /**
  * Seeds the database with a specific business type and variant

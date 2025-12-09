@@ -543,7 +543,7 @@ export function CheckoutBlock({
                       <div key={item.id} className="flex items-center gap-3">
                         <div className="w-12 h-12 relative rounded overflow-hidden flex-shrink-0">
                           {item.image ? (
-                            <Image src={item.image} alt={item.title} fill className="object-cover" />
+                            <Image src={item.image} alt={item.title} fill sizes="48px" className="object-cover" />
                           ) : (
                             <div className="w-full h-full bg-theme-light flex items-center justify-center">
                               <span>📦</span>

@@ -1,4 +1,4 @@
-import type { Payload } from 'payload'
+import type { Payload, PayloadRequest } from 'payload'
 import { escapeHtml, escapeHtmlWithLineBreaks } from './escapeHtml'
 
 interface NotificationEmailOptions {
@@ -43,11 +43,13 @@ export async function sendNotificationEmail(
 
 /**
  * Get business owner email from BusinessInfo global
+ * Pass `req` for transaction safety when called from hooks (Payload best practice)
  */
-export async function getBusinessEmail(payload: Payload): Promise<string | null> {
+export async function getBusinessEmail(payload: Payload, req?: PayloadRequest): Promise<string | null> {
   try {
     const businessInfo = await payload.findGlobal({
       slug: 'business-info',
+      req, // Threading req for transaction safety (Payload best practice)
     })
     return businessInfo?.email || null
   } catch (error) {

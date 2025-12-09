@@ -154,6 +154,7 @@ export function VideoEmbedBlock({
           src={thumbnailUrl}
           alt={heading || 'Video thumbnail'}
           fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
           className="object-cover transition-transform duration-300 group-hover:scale-105"
         />
       )}

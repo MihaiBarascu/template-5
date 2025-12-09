@@ -12,6 +12,7 @@ export type BusinessType =
   | 'avocat'
   | 'constructii'
   | 'magazin'
+  | 'fitness'
 
 export interface BusinessConfig {
   type: BusinessType
@@ -83,6 +84,13 @@ export const BUSINESS_CONFIGS: BusinessConfig[] = [
     hasProducts: true,
     hasEcommerce: true, // Full checkout flow with payment
     sections: ['produse', 'testimoniale', 'faq', 'contact'],
+  },
+  {
+    type: 'fitness',
+    name: 'Sala Fitness',
+    brandName: 'FitZone',
+    heroText: /fitness|sala|antrenament|sport/i,
+    sections: ['servicii', 'echipa', 'galerie', 'testimoniale', 'faq', 'contact'],
   },
 ]
 

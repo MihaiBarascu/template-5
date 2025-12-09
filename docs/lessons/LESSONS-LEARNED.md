@@ -2147,5 +2147,801 @@ pnpm dev
 
 ---
 
+---
+
+## 36. TVA/VAT pentru E-commerce România
+
+### 36.1 Cerințe Legale B2C România
+
+**OBLIGATORIU:** Prețurile afișate consumatorilor TREBUIE să includă TVA (preț final).
+
+| Cotă | Rată | Aplicare |
+|------|------|----------|
+| **Standard** | 21% | Majoritatea produselor |
+| **Redusă** | 11% | Alimente, cărți, medicamente |
+| **Scutit** | 0% | Produse exceptate |
+
+> **Notă:** Ratele s-au modificat în august 2025 (de la 19%/9%)
+
+### 36.2 Configurare în Admin
+
+**Locație:** Shop Settings > TVA
+
+| Setare | Descriere | Recomandat B2C |
+|--------|-----------|----------------|
+| `vatEnabled` | Activează calculul TVA | ✅ ON |
+| `pricesIncludeVat` | Prețurile introduse includ TVA | ✅ ON |
+| `displayPricesWithVat` | Afișează cu TVA pe site | ✅ ON (obligatoriu legal) |
+| `vatRates.standard` | Cota standard | 21 |
+| `vatRates.reduced` | Cota redusă | 11 |
+| `showVatBreakdown` | Arată detalii în checkout | ✅ ON |
+
+### 36.3 Flux Prețuri (Recomandat pentru B2C)
+
+```
+Admin introduce: 100 lei (cu TVA)
+       ↓
+DB salvează: 100 lei
+       ↓
+Client vede: 100 lei
+```
+
+**Avantaj:** Ce introduci = ce se salvează = ce vede clientul. Simplu și fără erori.
+
+### 36.4 Flux Alternativ (Pentru B2B sau Flexibilitate)
+
+Dacă preferi să lucrezi cu prețuri nete (fără TVA):
+
+1. Debifează `pricesIncludeVat` în admin
+2. Introdu prețuri fără TVA (ex: 82.64 lei)
+3. Sistemul calculează automat: 82.64 + 21% = 100 lei afișat
+
+### 36.5 taxCategory per Produs
+
+Fiecare produs are câmpul **"Categorie TVA"** în sidebar:
+
+```typescript
+// Opțiuni disponibile
+'standard' → 21%  (default)
+'reduced'  → 11%
+'zero'     → 0%
+```
+
+### 36.6 Fișiere Relevante
+
+| Fișier | Conține |
+|--------|---------|
+| `src/globals/ShopSettings.ts` | Tab TVA cu toate setările |
+| `src/utilities/tax.ts` | Funcții calcul: `getDisplayPrice()`, `addVat()`, `removeVat()` |
+| `src/blocks/RenderBlocks.tsx` | `getProducts()` aplică TVA la afișare |
+| `src/payload.config.ts` | `taxCategory` field în products override |
+
+### 36.7 Funcții Helper Disponibile
+
+```typescript
+import { getDisplayPrice, addVat, removeVat, calculateCartTotals } from '@/utilities/tax'
+
+// Calculează preț de afișat
+const displayPrice = getDisplayPrice(priceFromDb, 'standard', taxSettings)
+
+// Adaugă TVA manual
+const priceWithVat = addVat(100, 21)  // 121
+
+// Elimină TVA
+const priceNet = removeVat(121, 21)  // 100
+
+// Calculează totaluri coș
+const totals = calculateCartTotals(cartItems, taxSettings)
+// { subtotal: 100, vatAmount: 21, total: 121, vatBreakdown: [...] }
+```
+
+### 36.8 Debugging TVA
+
+```bash
+# Verifică setările în DB
+curl http://localhost:3010/api/globals/shop-settings | jq '.vatEnabled, .vatRates'
+
+# Verifică prețul unui produs
+curl http://localhost:3010/api/products?limit=1 | jq '.docs[0].priceInRON, .docs[0].taxCategory'
+```
+
+### 36.9 ⚠️ e-Factura (Obligatoriu din 2025)
+
+**IMPORTANT:** România obligă e-facturare B2C prin sistemul RO e-Factura.
+
+Această funcționalitate NU este implementată în template. Pentru producție, integrează cu:
+- SmartBill
+- Factura Online
+- ObexPro
+
+### 36.10 Checklist Pre-Lansare TVA
+
+- [ ] `vatEnabled: true` în Shop Settings
+- [ ] `displayPricesWithVat: true` (obligatoriu legal B2C)
+- [ ] Rate TVA actualizate: 21% standard, 11% redus
+- [ ] Toate produsele au `taxCategory` setat (default: standard)
+- [ ] Checkout afișează breakdown TVA
+- [ ] Testat calcule cu produse mixed (standard + redus)
+
+---
+
+## 37. SEO și JSON-LD Structured Data
+
+### 37.1 Schema-uri Implementate
+
+Template-ul include schema-uri JSON-LD pentru Google Rich Results:
+
+| Schema | Locație | Descriere |
+|--------|---------|-----------|
+| **LocalBusiness** | `layout.tsx` | Pe toate paginile, din BusinessInfo global |
+| **Product** | `produse/[slug]/page.tsx` | Pe paginile de produs |
+| **Article** | `blog/[slug]/page.tsx` | Pe paginile de blog |
+| **BreadcrumbList** | `produse/[slug]/page.tsx`, `blog/[slug]/page.tsx` | Navigare ierarhică |
+| **FAQPage** | `RenderBlocks.tsx` (case 'faq') | Automat pe orice pagină cu FAQ block |
+
+### 37.2 Pattern pentru JSON-LD în Next.js + Payload
+
+**IMPORTANT:** JSON-LD se implementează în **Server Components** (`page.tsx`), NU în componente client.
+
+```tsx
+// ✅ CORECT - În page.tsx (Server Component)
+export default async function ProductPage({ params }) {
+  const payload = await getPayload({ config: configPromise })
+  const product = await payload.find({ collection: 'products', ... })
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.title,
+    // ... alte câmpuri
+  }
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <ProductDetails product={product} />
+    </>
+  )
+}
+
+// ❌ GREȘIT - În componentă 'use client'
+// JSON-LD nu va fi indexat corect de Google
+```
+
+### 37.3 LocalBusiness Schema (Automat)
+
+Schema LocalBusiness e adăugată automat în `layout.tsx` și include:
+- name, description, url
+- telephone, email
+- address (PostalAddress)
+- geo (GeoCoordinates) - dacă există coordinates
+- openingHours - din workingHours array
+- sameAs - link-uri social media
+
+**Date preluate din:** Global `business-info`
+
+### 37.4 BreadcrumbList Schema
+
+Pattern pentru breadcrumbs cu categorie opțională:
+
+```tsx
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Acasă',
+      item: serverUrl,
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Produse',
+      item: `${serverUrl}/produse`,
+    },
+    // Categorie opțională (dacă există)
+    ...(category ? [{
+      '@type': 'ListItem',
+      position: 3,
+      name: category.title,
+      item: `${serverUrl}/produse?categorie=${category.slug}`,
+    }] : []),
+    // Pagina curentă (fără item URL)
+    {
+      '@type': 'ListItem',
+      position: category ? 4 : 3,
+      name: productData.title,
+    },
+  ],
+}
+```
+
+### 37.5 FAQPage Schema (Automat în RenderBlocks)
+
+Schema FAQPage se generează automat când o pagină conține un FAQ block:
+
+```tsx
+// În RenderBlocks.tsx, case 'faq':
+const faqJsonLd = faqs.length > 0 ? {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((faq) => ({
+    '@type': 'Question',
+    name: faq.question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: extractTextFromLexical(faq.answer),  // Helper pentru Lexical rich text
+    },
+  })),
+} : null
+```
+
+### 37.6 Open Graph Tags
+
+OG tags sunt gestionate de `generateMeta.ts` și `mergeOpenGraph.ts`:
+
+| Tag | Valoare | Sursa |
+|-----|---------|-------|
+| `og:locale` | `ro_RO` | Default |
+| `og:site_name` | `Site Business` | Default |
+| `og:type` | `article` / `website` | Bazat pe colecție |
+| `og:image` | OG-sized image | Din meta.image |
+| `og:title`, `og:description` | Din document | SEO plugin |
+| `article:published_time` | Post publishedAt | Pentru articole |
+| `article:modified_time` | Post updatedAt | Pentru articole |
+| `article:author` | Author name | Pentru articole |
+
+### 37.7 Testare SEO
+
+```bash
+# Verifică schema-urile cu Google Rich Results Test
+https://search.google.com/test/rich-results?url=https://site.ro/produse/nume-produs
+
+# Verifică meta tags în terminal
+curl -s http://localhost:3010/produse/produs-1 | grep -E '<script type="application/ld\+json">|og:|<title>'
+```
+
+### 37.8 Checklist SEO Pre-Lansare
+
+- [ ] LocalBusiness schema conține date corecte (verifică în BusinessInfo)
+- [ ] Toate produsele au shortDescription (pentru schema Product)
+- [ ] Toate articolele au excerpt și author
+- [ ] FAQ collection are întrebări și răspunsuri
+- [ ] Testat cu Google Rich Results Test
+- [ ] Open Graph images sunt 1200x630px
+- [ ] Canonical URLs setate corect
+
+### 37.9 Note Importante
+
+1. **Payload nu are opinie despre JSON-LD** - e responsabilitatea frontend-ului (Next.js)
+2. **Schema-urile se generează server-side** - pentru ca Google să le poată indexa
+3. **Multiple schema-uri pe pagină** - e OK și recomandat (Product + BreadcrumbList)
+4. **Extragere text din Lexical** - folosește helper `extractTextFromLexical()` din RenderBlocks
+
+---
+
+## 38. White-Label Admin Panel (Payload CMS)
+
+### 38.1 Problema
+
+Payload CMS afișează logo-ul propriu în admin panel (`/admin`). Pentru soluții white-label, trebuie înlocuit cu branding-ul clientului.
+
+### 38.2 Soluția - Custom Logo și Icon Components
+
+**Pas 1:** Creează componentele custom în `src/components/admin/`
+
+```typescript
+// src/components/admin/Logo.tsx
+'use client'
+
+import React from 'react'
+
+export const Logo: React.FC = () => {
+  return (
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: '0.5rem',
+      padding: '0.5rem 0',
+    }}>
+      {/* Icon cu gradient */}
+      <div style={{
+        width: '32px',
+        height: '32px',
+        borderRadius: '8px',
+        background: 'linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: 'white',
+        fontWeight: 700,
+        fontSize: '12px',
+      }}>
+        MW
+      </div>
+      {/* Text logo */}
+      <span style={{
+        fontSize: '1.125rem',
+        fontWeight: 600,
+        background: 'linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%)',
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
+      }}>
+        MultiWebsite
+      </span>
+    </div>
+  )
+}
+
+export default Logo
+```
+
+```typescript
+// src/components/admin/Icon.tsx
+'use client'
+
+import React from 'react'
+
+export const Icon: React.FC = () => {
+  return (
+    <div style={{
+      width: '24px',
+      height: '24px',
+      borderRadius: '6px',
+      background: 'linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: 'white',
+      fontWeight: 700,
+      fontSize: '10px',
+    }}>
+      MW
+    </div>
+  )
+}
+
+export default Icon
+```
+
+**Pas 2:** Configurează în `payload.config.ts`
+
+```typescript
+admin: {
+  components: {
+    beforeLogin: ['@/components/BeforeLogin'],
+    beforeDashboard: ['@/components/BeforeDashboard'],
+    graphics: {
+      // Înlocuiește logo-ul Payload pentru white-label
+      Logo: '@/components/admin/Logo',
+      Icon: '@/components/admin/Icon',
+    },
+  },
+  // ... restul configurației
+},
+```
+
+### 38.3 Ce face fiecare componentă
+
+| Componentă | Locație în Admin | Dimensiune |
+|------------|------------------|------------|
+| **Logo** | Sidebar, Login page | ~32x32px icon + text |
+| **Icon** | Navbar (favicon area) | ~24x24px |
+
+### 38.4 Stilizare
+
+**Recomandări:**
+- Folosește `style={{}}` inline pentru simplitate (nu e nevoie de CSS extern)
+- `'use client'` e OBLIGATORIU (componentele admin sunt client-side)
+- Gradient CSS pentru look modern: `background: linear-gradient(135deg, #color1, #color2)`
+- Pentru text cu gradient: `WebkitBackgroundClip: 'text'` + `WebkitTextFillColor: 'transparent'`
+
+### 38.5 Verificare
+
+După modificări:
+```bash
+pnpm build  # Verifică că nu sunt erori TypeScript
+pnpm dev
+# Navighează la http://localhost:3000/admin
+```
+
+### 38.6 Note
+
+- Frontend-ul site-ului (nu admin) este deja white-label by default
+- Payload nu afișează "Powered by Payload" pe site-ul public
+- Doar admin panel-ul necesită această configurare
+
+---
+
+## 39. Verificarea Testelor E2E (Sunt Fresh sau Cached?)
+
+### 39.1 Problema
+
+Cum verifici că testele E2E rulează efectiv și nu sunt cached/vechi?
+
+### 39.2 Metode de Verificare
+
+**1. Verifică timestamp-urile fișierelor de test:**
+```bash
+ls -la tests/e2e/*.spec.ts
+# Arată modificare recentă? Testele au fost editate recent
+
+stat tests/e2e/payload-api.spec.ts
+# Access/Modify time recente = testat recent
+```
+
+**2. Verifică conținutul testelor (sunt aserții reale):**
+```bash
+grep -A5 "expect(" tests/e2e/payload-api.spec.ts
+# Trebuie să vezi aserții ca:
+# expect(response.ok()).toBeTruthy()
+# expect(data.docs).toBeDefined()
+```
+
+**3. Verifică dacă testează date reale:**
+```bash
+grep -E "toBeDefined|toBeTruthy|toContain|toHaveLength" tests/e2e/*.spec.ts | wc -l
+# Număr mare = teste cu verificări reale
+```
+
+**4. Rulează un test specific cu verbose:**
+```bash
+pnpm test:e2e tests/e2e/smoke.spec.ts --reporter=line
+# Vezi output detaliat pentru fiecare test
+```
+
+### 39.3 Anatomia unui Test Real vs Fake
+
+**Test REAL (bun):**
+```typescript
+test('API returns products', async ({ request }) => {
+  const response = await request.get('/api/products')
+  expect(response.ok()).toBeTruthy()  // ✅ Verifică status
+
+  const data = await response.json()
+  expect(data.docs).toBeDefined()      // ✅ Verifică structură
+  expect(data.docs.length).toBeGreaterThan(0)  // ✅ Verifică date
+})
+```
+
+**Test FAKE (de evitat):**
+```typescript
+test('API works', async () => {
+  expect(true).toBe(true)  // ❌ Nu testează nimic real
+})
+```
+
+### 39.4 Output Playwright - Ce să cauți
+
+```
+Running 199 tests using 4 workers
+
+  ✓ payload-api.spec.ts:15:5 › API tests › GET /api/pages returns pages (234ms)
+  ✓ payload-api.spec.ts:25:5 › API tests › GET /api/products returns products (156ms)
+  ...
+
+  199 passed (15.9m)
+```
+
+**Semne că testele sunt reale:**
+- Timp de execuție variabil per test (234ms, 156ms) - nu toate instant
+- Timp total semnificativ (15.9m pentru 199 teste)
+- Workers multipli (4 workers)
+
+### 39.5 Debugging Failed Tests
+
+```bash
+# Vezi doar testele failed
+pnpm test:e2e --reporter=list 2>&1 | grep -E "✓|✗|failed"
+
+# Rulează cu screenshots pentru debugging
+pnpm test:e2e --screenshot=on
+
+# HTML report
+pnpm test:e2e --reporter=html
+npx playwright show-report
+```
+
+---
+
+## 40. Optimizarea Imaginilor pentru SEO (sizes attribute + Media Component)
+
+### 40.1 Problema
+
+Next.js Image component fără `sizes` attribute generează avertismente și afectează LCP (Largest Contentful Paint):
+
+```
+Image with src "/media/hero.jpg" was detected as the Largest Contentful Paint (LCP).
+Please add the "priority" property if this image is above the fold.
+```
+
+Mai mult, fără `sizes`, browser-ul nu știe ce dimensiune de imagine să descarce pentru fiecare viewport.
+
+### 40.2 Soluția: Atributul `sizes`
+
+**Ce face `sizes`:**
+- Spune browser-ului ce lățime va avea imaginea pe diferite viewports
+- Browser-ul alege automat cea mai potrivită imagine din srcset
+- Reduce bandwidth și îmbunătățește LCP
+
+**Exemple de sizes pentru cazuri comune:**
+
+```typescript
+// Imagine full-width
+sizes="100vw"
+
+// Card într-un grid de 4 coloane
+sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 280px"
+
+// Thumbnail fix
+sizes="80px"
+
+// Hero cu container
+sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+
+// Grid responsive 3 coloane
+sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+```
+
+### 40.3 Pattern Media Component (din Payload Template Oficial)
+
+Template-ul oficial Payload folosește un Media component centralizat care:
+1. Auto-generează `sizes` bazat pe breakpoints
+2. Suportă override pentru cazuri speciale
+3. Adaugă blur placeholder pentru CLS
+4. Include cache busting cu `updatedAt`
+
+**Structură fișiere:**
+
+```
+src/components/Media/
+├── index.tsx        # Wrapper (detectează video vs image)
+├── ImageMedia/
+│   └── index.tsx    # Logica pentru imagini
+├── VideoMedia/
+│   └── index.tsx    # Logica pentru video
+└── types.ts         # Props interface
+```
+
+**Props interface cu size override:**
+
+```typescript
+// types.ts
+export interface Props {
+  resource?: MediaType | string | number | null
+  size?: string  // ← Override pentru sizes custom
+  fill?: boolean
+  priority?: boolean
+  imgClassName?: string
+  // ...
+}
+```
+
+**Auto-generated sizes cu override:**
+
+```typescript
+// ImageMedia/index.tsx
+const sizes = sizeFromProps    // dacă e dat explicit
+  ? sizeFromProps
+  : Object.entries(breakpoints)
+      .map(([, value]) => `(max-width: ${value}px) ${value * 2}w`)
+      .join(', ')
+```
+
+### 40.4 Când să folosești Media vs Image
+
+| Situație | Folosește | De ce |
+|----------|-----------|-------|
+| Obiect Media complet din Payload | `<Media resource={image} />` | Are width/height/updatedAt |
+| URL string simplu | `<Image src={url} sizes="..." />` | Nu are metadata |
+| Imagine externă | `<Image src={url} sizes="..." />` | Nu e în Payload |
+
+**Exemplu conversie la Media:**
+
+```typescript
+// ÎNAINTE (Image cu metadata manuală)
+<Image
+  src={image?.url || ''}
+  alt={image?.alt || ''}
+  width={image?.width || 400}
+  height={image?.height || 300}
+  className="object-cover"
+/>
+
+// DUPĂ (Media cu metadata automată)
+<Media
+  resource={image}
+  fill
+  size="(max-width: 768px) 100vw, 33vw"
+  imgClassName="object-cover"
+/>
+```
+
+### 40.5 Componente Actualizate
+
+**Convertite la Media component:**
+- `ServiceDetail` - hero, compact variant, team avatar, related services
+- `TeamMemberDetail` - profile image
+- `SubscriptionCards` - card images, overlay variant
+- `Services` - service card images
+
+**Cu sizes attribute adăugat:**
+- `Cart` - `sizes="80px"` (thumbnails)
+- `Checkout` - `sizes="48px"` (mini thumbnails)
+- `Content` - `sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"`
+- `Products` - `sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 280px"`
+- `Gallery` - varies by variant (grid vs instagram)
+- `Testimonials` - `sizes="64px"` (avatars)
+- `VideoEmbed` - `sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"`
+
+### 40.6 Beneficii Implementate
+
+1. **LCP îmbunătățit** - Browser descarcă exact dimensiunea necesară
+2. **Blur placeholder** - Reduce CLS (Cumulative Layout Shift)
+3. **Cache busting** - Via `?updatedAt=timestamp` în URL
+4. **Type safety** - Props tipizate corect
+5. **Override capability** - Auto sizes + override pentru cazuri speciale
+
+### 40.7 Breakpoints Configuration
+
+```typescript
+// src/cssVariables.ts
+export const cssVariables = {
+  breakpoints: {
+    '3xl': 1920,
+    '2xl': 1536,
+    xl: 1280,
+    lg: 1024,
+    md: 768,
+    sm: 640,
+  },
+}
+```
+
+Aceste breakpoints se aliniază cu Tailwind pentru consistență.
+
+---
+
+## 41. Testare E2E pentru Imagini cu Playwright (Best Practices)
+
+### 41.1 Problema
+
+Cum verifici că imaginile se încarcă corect în teste E2E? `img.complete === true` NU e suficient - imaginile broken (404) tot returnează `complete = true`.
+
+### 41.2 Soluția Oficială Playwright
+
+**Metoda recomandată** (din GitHub Playwright Issues):
+
+```typescript
+// Pentru o singură imagine
+await expect(page.locator('img')).toHaveJSProperty('complete', true);
+await expect(page.locator('img')).not.toHaveJSProperty('naturalWidth', 0);
+
+// Pentru multiple imagini
+for (const img of await page.getByRole('img').all()) {
+  await expect(img).toHaveJSProperty('complete', true, { timeout: 5000 });
+  await expect(img).not.toHaveJSProperty('naturalWidth', 0, { timeout: 5000 });
+}
+```
+
+**De ce ambele verificări:**
+- `complete === true` - imaginea a terminat încărcarea (dar poate fi broken)
+- `naturalWidth !== 0` - imaginea are dimensiuni reale (confirmă că s-a încărcat corect)
+
+### 41.3 Tratarea Lazy Loading
+
+Next.js Image folosește lazy loading by default. Imaginile sub fold nu se încarcă până nu sunt în viewport.
+
+**Soluție: Scroll prin pagină înainte de verificare:**
+
+```typescript
+// Scroll slow pentru a triggera lazy loading
+await page.evaluate(async () => {
+  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+  for (let i = 0; i < document.body.scrollHeight; i += 300) {
+    window.scrollTo(0, i);
+    await delay(200); // Delay între scroll-uri
+  }
+  // Scroll înapoi pentru a triggera imagini în ambele direcții
+  for (let i = document.body.scrollHeight; i >= 0; i -= 500) {
+    window.scrollTo(0, i);
+    await delay(100);
+  }
+});
+
+// Așteaptă încărcarea imaginilor
+await page.waitForTimeout(5000);
+```
+
+### 41.4 Evitarea Timeout-urilor cu networkidle
+
+**Problema:** `waitUntil: 'networkidle'` poate cauza timeout dacă există:
+- Long-polling connections
+- WebSocket connections
+- Analytics scripts
+
+**Soluție:** Folosește `domcontentloaded` + wait manual:
+
+```typescript
+// ❌ Poate cauza timeout
+await page.goto(url, { waitUntil: 'networkidle', timeout: 30000 });
+
+// ✅ Mai sigur
+await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+await page.waitForTimeout(3000); // Așteaptă render inițial
+```
+
+### 41.5 Detectarea Imaginilor Broken (404)
+
+```typescript
+const brokenImages: string[] = [];
+
+page.on('response', (response) => {
+  const url = response.url();
+  if (
+    (url.includes('/media/') || url.includes('/_next/image')) &&
+    response.status() >= 400
+  ) {
+    brokenImages.push(`${response.status()}: ${url}`);
+  }
+});
+
+// După navigare
+expect(brokenImages).toHaveLength(0);
+```
+
+### 41.6 Verificarea Next.js Image Optimization
+
+```typescript
+const nextImages = await page.evaluate(() => {
+  const images = Array.from(document.querySelectorAll('img'));
+  return images.filter(
+    (img) =>
+      img.src.includes('/_next/image') ||
+      img.hasAttribute('data-nimg') ||
+      img.srcset?.includes('/_next/image')
+  ).length;
+});
+
+expect(nextImages).toBeGreaterThan(0);
+```
+
+### 41.7 Verificarea Atributului sizes (SEO)
+
+```typescript
+const imagesWithSizes = await page.evaluate(() => {
+  const images = Array.from(document.querySelectorAll('img'));
+  return images.filter((img) => img.sizes && img.sizes.length > 0).length;
+});
+
+expect(imagesWithSizes).toBeGreaterThan(0);
+```
+
+### 41.8 Comenzi Teste Imagini
+
+```bash
+# Verificare rapidă (fără reseed) - ~40s
+pnpm test:images:quick
+
+# Teste complete (reseed automat cu --with-images) - ~10min
+pnpm test:images
+
+# Rulează un singur test
+pnpm exec playwright test tests/e2e/images-loaded.spec.ts -g "Playwright official method"
+```
+
+### 41.9 Surse
+
+- [Playwright Issue #6046 - Wait for image to load](https://github.com/microsoft/playwright/issues/6046)
+- [karlhorky/playwright-image-loading-tests-with-next-js](https://github.com/karlhorky/playwright-image-loading-tests-with-next-js)
+- [Payload CMS Testing Best Practices](https://github.com/payloadcms/payload/discussions/2644)
+
+---
+
 *Documentație actualizată: December 2025*
 *Pentru Universal Business Website Template - Payload CMS 3.x + Next.js 15*

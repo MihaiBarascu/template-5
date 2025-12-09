@@ -292,7 +292,7 @@ export function HowItWorksBlock({
             <div className="flex-1 w-full max-w-md">
               {imageUrl ? (
                 <div className="relative aspect-video rounded-[var(--radius-card)] overflow-hidden">
-                  <Image src={imageUrl} alt={step.title} fill className="object-cover" />
+                  <Image src={imageUrl} alt={step.title} fill sizes="(max-width: 768px) 100vw, 448px" className="object-cover" />
                 </div>
               ) : (
                 <div

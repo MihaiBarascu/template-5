@@ -172,7 +172,7 @@ export function CartBlock({
                   {/* Image */}
                   <div className="w-20 h-20 relative rounded-md overflow-hidden flex-shrink-0">
                     {item.image ? (
-                      <Image src={item.image} alt={item.title} fill className="object-cover" />
+                      <Image src={item.image} alt={item.title} fill sizes="80px" className="object-cover" />
                     ) : (
                       <div className="w-full h-full bg-theme-light flex items-center justify-center">
                         <span className="text-2xl">📦</span>
