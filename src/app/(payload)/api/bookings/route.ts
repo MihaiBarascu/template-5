@@ -124,7 +124,7 @@ export async function POST(request: Request) {
         })
       }
     } catch (emailError) {
-      console.warn('Could not send booking notification email:', emailError)
+      payload.logger.warn({ err: emailError, msg: 'Could not send booking notification email' })
     }
 
     return NextResponse.json(
@@ -132,7 +132,9 @@ export async function POST(request: Request) {
       { status: 200 }
     )
   } catch (error) {
-    console.error('Booking error:', error)
+    // Note: payload instance is scoped inside try block, not available here
+    // console.error is acceptable for API route error logging
+    console.error('Booking API error:', error)
     return NextResponse.json(
       { error: 'A aparut o eroare la trimiterea cererii.' },
       { status: 500 }

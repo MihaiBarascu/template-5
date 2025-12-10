@@ -1,5 +1,5 @@
-import type { BusinessInfo } from '@/payload-types';
-import type { CollectionAfterChangeHook, Payload } from 'payload';
+import type { BusinessInfo } from '@/payload-types'
+import type { CollectionAfterChangeHook, PayloadRequest } from 'payload'
 
 /**
  * Form Submission Processing Hook (Simplified)
@@ -10,26 +10,23 @@ import type { CollectionAfterChangeHook, Payload } from 'payload';
  * - Adding to newsletter subscribers (only for newsletter type)
  *
  * The formType determines what additional actions to take.
+ *
+ * IMPORTANT: All Payload operations pass `req` for transaction atomicity.
+ * @see https://payloadcms.com/docs/hooks/overview#transactions
  */
 
-type FormType =
-  | 'contact'
-  | 'newsletter'
-  | 'booking'
-  | 'order'
-  | 'feedback'
-  | 'other';
+type FormType = 'contact' | 'newsletter' | 'booking' | 'order' | 'feedback' | 'other'
 
 interface FormSubmissionData {
   form: {
-    id: string;
-    title?: string;
-    formType?: FormType;
-  };
+    id: string
+    title?: string
+    formType?: FormType
+  }
   submissionData: Array<{
-    field: string;
-    value: string;
-  }>;
+    field: string
+    value: string
+  }>
 }
 
 // Helper to extract field value from submission data
@@ -38,75 +35,67 @@ const getFieldValue = (
   fieldName: string,
 ): string | undefined => {
   const field = submissionData.find(
-    f =>
-      f.field.toLowerCase() === fieldName.toLowerCase() ||
-      f.field === fieldName,
-  );
-  return field?.value;
-};
+    (f) => f.field.toLowerCase() === fieldName.toLowerCase() || f.field === fieldName,
+  )
+  return field?.value
+}
 
 // Get display name from submission (tries multiple field names)
-const getDisplayName = (
-  submissionData: Array<{ field: string; value: string }>,
-): string => {
-  const lastName =
-    getFieldValue(submissionData, 'lastName') ||
-    getFieldValue(submissionData, 'nume');
+const getDisplayName = (submissionData: Array<{ field: string; value: string }>): string => {
+  const lastName = getFieldValue(submissionData, 'lastName') || getFieldValue(submissionData, 'nume')
   const firstName =
-    getFieldValue(submissionData, 'firstName') ||
-    getFieldValue(submissionData, 'prenume');
-  const name = getFieldValue(submissionData, 'name');
+    getFieldValue(submissionData, 'firstName') || getFieldValue(submissionData, 'prenume')
+  const name = getFieldValue(submissionData, 'name')
 
-  if (lastName && firstName) return `${lastName} ${firstName}`;
-  if (name) return name;
-  if (lastName) return lastName;
-  if (firstName) return firstName;
-  return 'vizitator';
-};
+  if (lastName && firstName) return `${lastName} ${firstName}`
+  if (name) return name
+  if (lastName) return lastName
+  if (firstName) return firstName
+  return 'vizitator'
+}
 
 // Send notification email (used for all form types except newsletter)
 const sendNotificationEmail = async (
   doc: FormSubmissionData,
-  payload: Payload,
+  req: PayloadRequest,
   businessInfo: BusinessInfo | null,
 ): Promise<void> => {
-  const { submissionData, form } = doc;
-  const businessName = businessInfo?.name || 'Website';
-  const businessEmail = businessInfo?.email;
+  const { submissionData, form } = doc
+  const businessName = businessInfo?.name || 'Website'
+  const businessEmail = businessInfo?.email
 
-  const name = getDisplayName(submissionData);
-  const email = getFieldValue(submissionData, 'email');
+  const name = getDisplayName(submissionData)
+  const email = getFieldValue(submissionData, 'email')
   const subject =
-    getFieldValue(submissionData, 'subject') ||
-    getFieldValue(submissionData, 'subiect');
+    getFieldValue(submissionData, 'subject') || getFieldValue(submissionData, 'subiect')
 
   // Build submission details HTML
   const submissionDetails = submissionData
     .map(
-      field =>
+      (field) =>
         `<tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>${field.field}</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${field.value}</td></tr>`,
     )
-    .join('');
+    .join('')
 
   // Use business email as recipient
   if (!businessEmail) {
-    console.warn('No business email configured - skipping notification');
-    return;
+    req.payload.logger.warn('No business email configured - skipping notification')
+    return
   }
 
   // Customize subject based on form type
-  const formType = form.formType || 'contact';
+  const formType = form.formType || 'contact'
   const emailSubjects: Record<string, string> = {
     contact: `Mesaj nou de contact de la ${name}${subject ? `: ${subject}` : ''}`,
     booking: `Cerere de programare de la ${name}`,
     order: `Comanda noua de la ${name}`,
     feedback: `Feedback nou de la ${name}`,
     other: `Formular nou: ${form.title}`,
-  };
+  }
 
-  const emailSubject = `[${businessName}] ${emailSubjects[formType] || emailSubjects.other}`;
+  const emailSubject = `[${businessName}] ${emailSubjects[formType] || emailSubjects.other}`
 
-  await payload.sendEmail({
+  await req.payload.sendEmail({
     to: businessEmail,
     replyTo: email,
     subject: emailSubject,
@@ -135,16 +124,13 @@ const sendNotificationEmail = async (
       </body>
       </html>
     `,
-  });
+  })
 
-  console.log(`Email notification sent for form: ${form.title} (${formType})`);
+  req.payload.logger.info(`Email notification sent for form: ${form.title} (${formType})`)
 
   // Send confirmation email to client
   if (email) {
-    const confirmationMessages: Record<
-      string,
-      { subject: string; message: string }
-    > = {
+    const confirmationMessages: Record<string, { subject: string; message: string }> = {
       contact: {
         subject: `Am primit mesajul tau - ${businessName}`,
         message:
@@ -152,19 +138,17 @@ const sendNotificationEmail = async (
       },
       feedback: {
         subject: `Multumim pentru feedback - ${businessName}`,
-        message:
-          'Apreciem feedbackul tau! Ne ajuta sa ne imbunatatim serviciile.',
+        message: 'Apreciem feedbackul tau! Ne ajuta sa ne imbunatatim serviciile.',
       },
       other: {
         subject: `Confirmare - ${businessName}`,
         message: 'Am primit formularul tau si il vom procesa in curand.',
       },
-    };
+    }
 
-    const confirmation =
-      confirmationMessages[formType] || confirmationMessages.other;
+    const confirmation = confirmationMessages[formType] || confirmationMessages.other
 
-    await payload.sendEmail({
+    await req.payload.sendEmail({
       to: email,
       subject: confirmation.subject,
       html: `
@@ -195,56 +179,51 @@ const sendNotificationEmail = async (
         </body>
         </html>
       `,
-    });
+    })
 
-    console.log(`Confirmation email sent to client: ${email}`);
+    req.payload.logger.info(`Confirmation email sent to client: ${email}`)
   }
-};
+}
 
 // Handle booking submission - creates entry in Bookings collection
 const handleBookingSubmission = async (
   doc: FormSubmissionData,
-  payload: Payload,
+  req: PayloadRequest,
 ): Promise<void> => {
-  const { submissionData } = doc;
+  const { submissionData } = doc
 
-  const clientName = getDisplayName(submissionData);
-  const clientEmail = getFieldValue(submissionData, 'email');
+  const clientName = getDisplayName(submissionData)
+  const clientEmail = getFieldValue(submissionData, 'email')
   const clientPhone =
-    getFieldValue(submissionData, 'phone') ||
-    getFieldValue(submissionData, 'telefon');
+    getFieldValue(submissionData, 'phone') || getFieldValue(submissionData, 'telefon')
   const serviceName =
-    getFieldValue(submissionData, 'service') ||
-    getFieldValue(submissionData, 'serviciu');
-  const date =
-    getFieldValue(submissionData, 'date') ||
-    getFieldValue(submissionData, 'data');
-  const time =
-    getFieldValue(submissionData, 'time') ||
-    getFieldValue(submissionData, 'ora');
+    getFieldValue(submissionData, 'service') || getFieldValue(submissionData, 'serviciu')
+  const date = getFieldValue(submissionData, 'date') || getFieldValue(submissionData, 'data')
+  const time = getFieldValue(submissionData, 'time') || getFieldValue(submissionData, 'ora')
   const notes =
-    getFieldValue(submissionData, 'notes') ||
-    getFieldValue(submissionData, 'observatii');
+    getFieldValue(submissionData, 'notes') || getFieldValue(submissionData, 'observatii')
   const teamMemberName =
-    getFieldValue(submissionData, 'teamMember') ||
-    getFieldValue(submissionData, 'specialist');
+    getFieldValue(submissionData, 'teamMember') || getFieldValue(submissionData, 'specialist')
 
   if (!clientEmail || !date) {
-    console.warn('Booking form missing required fields (email or date)');
-    return;
+    req.payload.logger.warn('Booking form missing required fields (email or date)')
+    return
   }
 
   // Try to find the service by title
-  let serviceId: string | undefined;
+  // Threading req for transaction safety (Payload best practice)
+  let serviceId: string | undefined
   if (serviceName && serviceName !== 'none') {
     try {
-      const services = await payload.find({
+      const services = await req.payload.find({
         collection: 'services',
         where: { title: { contains: serviceName } },
         limit: 1,
-      });
+        depth: 0,
+        req, // Transaction safety
+      })
       if (services.docs.length > 0) {
-        serviceId = services.docs[0].id;
+        serviceId = services.docs[0].id
       }
     } catch {
       // Service not found, continue without linking
@@ -252,16 +231,19 @@ const handleBookingSubmission = async (
   }
 
   // Try to find team member by name
-  let teamMemberId: string | undefined;
+  // Threading req for transaction safety (Payload best practice)
+  let teamMemberId: string | undefined
   if (teamMemberName && teamMemberName !== 'none') {
     try {
-      const members = await payload.find({
+      const members = await req.payload.find({
         collection: 'team',
         where: { name: { contains: teamMemberName } },
         limit: 1,
-      });
+        depth: 0,
+        req, // Transaction safety
+      })
       if (members.docs.length > 0) {
-        teamMemberId = members.docs[0].id;
+        teamMemberId = members.docs[0].id
       }
     } catch {
       // Team member not found, continue without linking
@@ -269,7 +251,8 @@ const handleBookingSubmission = async (
   }
 
   // Create the booking (this will trigger the Bookings collection hook for emails)
-  await payload.create({
+  // Threading req for transaction safety (Payload best practice)
+  await req.payload.create({
     collection: 'bookings',
     data: {
       clientName,
@@ -285,48 +268,49 @@ const handleBookingSubmission = async (
       source: 'website',
     },
     overrideAccess: true,
-  });
+    req, // Transaction safety
+  })
 
-  console.log(`Booking created for: ${clientName} on ${date} at ${time}`);
-};
+  req.payload.logger.info(`Booking created for: ${clientName} on ${date} at ${time}`)
+}
 
 // Handle subscription order - creates entry in SubscriptionOrders collection
 const handleOrderSubmission = async (
   doc: FormSubmissionData,
-  payload: Payload,
+  req: PayloadRequest,
 ): Promise<void> => {
-  const { submissionData } = doc;
+  const { submissionData } = doc
 
-  const clientName = getDisplayName(submissionData);
-  const clientEmail = getFieldValue(submissionData, 'email');
+  const clientName = getDisplayName(submissionData)
+  const clientEmail = getFieldValue(submissionData, 'email')
   const clientPhone =
-    getFieldValue(submissionData, 'phone') ||
-    getFieldValue(submissionData, 'telefon');
+    getFieldValue(submissionData, 'phone') || getFieldValue(submissionData, 'telefon')
   const subscriptionName =
-    getFieldValue(submissionData, 'subscription') ||
-    getFieldValue(submissionData, 'abonament');
+    getFieldValue(submissionData, 'subscription') || getFieldValue(submissionData, 'abonament')
   const notes =
-    getFieldValue(submissionData, 'notes') ||
-    getFieldValue(submissionData, 'observatii');
+    getFieldValue(submissionData, 'notes') || getFieldValue(submissionData, 'observatii')
 
   if (!clientEmail) {
-    console.warn('Subscription order form missing required email');
-    return;
+    req.payload.logger.warn('Subscription order form missing required email')
+    return
   }
 
   // Try to find the subscription by title
-  let subscriptionId: string | undefined;
-  let subscriptionPrice: number | undefined;
+  // Threading req for transaction safety (Payload best practice)
+  let subscriptionId: string | undefined
+  let subscriptionPrice: number | undefined
   if (subscriptionName) {
     try {
-      const subscriptions = await payload.find({
+      const subscriptions = await req.payload.find({
         collection: 'subscriptions',
         where: { title: { contains: subscriptionName } },
         limit: 1,
-      });
+        depth: 0,
+        req, // Transaction safety
+      })
       if (subscriptions.docs.length > 0) {
-        subscriptionId = subscriptions.docs[0].id;
-        subscriptionPrice = subscriptions.docs[0].pricing?.amount;
+        subscriptionId = subscriptions.docs[0].id
+        subscriptionPrice = subscriptions.docs[0].pricing?.amount
       }
     } catch {
       // Subscription not found, continue without linking
@@ -334,7 +318,8 @@ const handleOrderSubmission = async (
   }
 
   // Create the subscription order (this will trigger the SubscriptionOrders collection hook for emails)
-  await payload.create({
+  // Threading req for transaction safety (Payload best practice)
+  await req.payload.create({
     collection: 'subscription-orders',
     data: {
       clientName,
@@ -348,52 +333,56 @@ const handleOrderSubmission = async (
       source: 'website',
     },
     overrideAccess: true,
-  });
+    req, // Transaction safety
+  })
 
-  console.log(
-    `Subscription order created for: ${clientName} - ${subscriptionName}`,
-  );
-};
+  req.payload.logger.info(`Subscription order created for: ${clientName} - ${subscriptionName}`)
+}
 
 // Handle newsletter subscription - adds to newsletter-subscribers collection
 const handleNewsletterSubmission = async (
   doc: FormSubmissionData,
-  payload: Payload,
+  req: PayloadRequest,
 ): Promise<void> => {
-  const { submissionData } = doc;
-  const email = getFieldValue(submissionData, 'email');
+  const { submissionData } = doc
+  const email = getFieldValue(submissionData, 'email')
 
   if (!email) {
-    console.warn('Newsletter form submission without email');
-    return;
+    req.payload.logger.warn('Newsletter form submission without email')
+    return
   }
 
-  const normalizedEmail = email.toLowerCase().trim();
+  const normalizedEmail = email.toLowerCase().trim()
 
   // Check if already subscribed
-  const existing = await payload.find({
+  // Threading req for transaction safety (Payload best practice)
+  const existing = await req.payload.find({
     collection: 'newsletter-subscribers',
     where: { email: { equals: normalizedEmail } },
     limit: 1,
-  });
+    depth: 0,
+    req, // Transaction safety
+  })
 
   if (existing.docs.length > 0) {
-    const subscriber = existing.docs[0];
+    const subscriber = existing.docs[0]
     // Reactivate if previously unsubscribed
     if (subscriber.status === 'unsubscribed') {
-      await payload.update({
+      await req.payload.update({
         collection: 'newsletter-subscribers',
         id: subscriber.id,
         data: { status: 'active', source: 'website' },
         overrideAccess: true,
-      });
-      console.log(`Newsletter subscriber reactivated: ${normalizedEmail}`);
+        req, // Transaction safety
+      })
+      req.payload.logger.info(`Newsletter subscriber reactivated: ${normalizedEmail}`)
     }
-    return;
+    return
   }
 
   // Create new subscriber (this will trigger the welcome email hook)
-  await payload.create({
+  // Threading req for transaction safety (Payload best practice)
+  await req.payload.create({
     collection: 'newsletter-subscribers',
     data: {
       email: normalizedEmail,
@@ -401,40 +390,42 @@ const handleNewsletterSubmission = async (
       source: 'website',
     },
     overrideAccess: true,
-  });
+    req, // Transaction safety
+  })
 
-  console.log(`Newsletter subscriber added: ${normalizedEmail}`);
-};
+  req.payload.logger.info(`Newsletter subscriber added: ${normalizedEmail}`)
+}
 
 /**
  * Main hook that processes form submissions
  * This is added to form-submissions collection via formSubmissionOverrides
+ *
+ * All nested operations thread `req` for transaction atomicity.
  */
-export const processFormSubmission: CollectionAfterChangeHook = async ({
-  doc,
-  operation,
-  req,
-}) => {
+export const processFormSubmission: CollectionAfterChangeHook = async ({ doc, operation, req }) => {
   // Only process new submissions
-  if (operation !== 'create') return doc;
+  if (operation !== 'create') return doc
 
   try {
     // Populate the form relationship to get formType
+    // Threading req for transaction safety (Payload best practice)
     const submission = await req.payload.findByID({
       collection: 'form-submissions',
       id: doc.id,
       depth: 1, // Populate form relationship
       req,
-    });
+    })
 
-    const form = submission.form as FormSubmissionData['form'];
-    const formType = (form?.formType || 'contact') as FormType;
+    const form = submission.form as FormSubmissionData['form']
+    const formType = (form?.formType || 'contact') as FormType
 
     // Get business info for emails
+    // Threading req for transaction safety (Payload best practice)
     const businessInfo = await req.payload.findGlobal({
       slug: 'business-info',
+      depth: 0, // No need to populate relationships
       req,
-    });
+    })
 
     // Prepare data structure
     const formData: FormSubmissionData = {
@@ -444,37 +435,37 @@ export const processFormSubmission: CollectionAfterChangeHook = async ({
         formType: typeof form === 'object' ? form.formType : undefined,
       },
       submissionData: doc.submissionData || [],
-    };
+    }
 
-    console.log(
+    req.payload.logger.info(
       `Processing form submission - Type: ${formType}, Form: ${formData.form.title}`,
-    );
+    )
 
-    // Handle based on formType
+    // Handle based on formType - pass req to all handlers
     switch (formType) {
       case 'newsletter':
         // Newsletter: add to subscribers list (no email to business)
-        await handleNewsletterSubmission(formData, req.payload);
-        break;
+        await handleNewsletterSubmission(formData, req)
+        break
 
       case 'booking':
         // Booking: create in Bookings collection (this triggers its own email hook)
-        await handleBookingSubmission(formData, req.payload);
-        break;
+        await handleBookingSubmission(formData, req)
+        break
 
       case 'order':
         // Order: create in SubscriptionOrders collection (this triggers its own email hook)
-        await handleOrderSubmission(formData, req.payload);
-        break;
+        await handleOrderSubmission(formData, req)
+        break
 
       default:
         // Contact, feedback, other: just send email notification
-        await sendNotificationEmail(formData, req.payload, businessInfo);
+        await sendNotificationEmail(formData, req, businessInfo)
     }
   } catch (error) {
     // Log but don't fail the submission
-    console.error('Form submission processing error:', error);
+    req.payload.logger.error({ err: error, msg: 'Form submission processing error' })
   }
 
-  return doc;
-};
+  return doc
+}

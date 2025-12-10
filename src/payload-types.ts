@@ -5409,46 +5409,6 @@ export interface SiteTheme {
     textOnLight?: string | null;
     textOnSurface?: string | null;
   };
-  useCustomFonts?: boolean | null;
-  fonts?: {
-    headingFont?:
-      | (
-          | 'Inter'
-          | 'Montserrat'
-          | 'Poppins'
-          | 'Roboto'
-          | 'Oswald'
-          | 'Raleway'
-          | 'Nunito'
-          | 'Work Sans'
-          | 'Playfair Display'
-          | 'Lora'
-          | 'Merriweather'
-          | 'Cormorant Garamond'
-          | 'Libre Baskerville'
-          | 'DM Serif Display'
-          | 'Abril Fatface'
-        )
-      | null;
-    bodyFont?:
-      | (
-          | 'Inter'
-          | 'Open Sans'
-          | 'Roboto'
-          | 'Lato'
-          | 'Source Sans 3'
-          | 'Poppins'
-          | 'Nunito Sans'
-          | 'Work Sans'
-          | 'DM Sans'
-          | 'Outfit'
-          | 'Lora'
-          | 'Merriweather'
-          | 'Source Serif 4'
-          | 'Crimson Text'
-        )
-      | null;
-  };
   /**
    * Permite controlul fin asupra letter-spacing si line-height
    */
@@ -5937,13 +5897,6 @@ export interface SiteThemeSelect<T extends boolean = true> {
         textOnDark?: T;
         textOnLight?: T;
         textOnSurface?: T;
-      };
-  useCustomFonts?: T;
-  fonts?:
-    | T
-    | {
-        headingFont?: T;
-        bodyFont?: T;
       };
   useAdvancedTypography?: T;
   letterSpacing?: T;

@@ -282,8 +282,6 @@ export async function seedSiteTheme(
     sectionSpacing?: SiteTheme['sectionSpacing'];
     useCustomColors?: boolean;
     colors?: SiteTheme['colors'];
-    useCustomFonts?: boolean;
-    fonts?: SiteTheme['fonts'];
   },
 ) {
   await payload.updateGlobal({
@@ -297,8 +295,6 @@ export async function seedSiteTheme(
       sectionSpacing: options.sectionSpacing,
       useCustomColors: options.useCustomColors || false,
       colors: options.colors,
-      useCustomFonts: options.useCustomFonts || false,
-      fonts: options.fonts,
     },
   });
   console.log(`   Site theme configured: ${options.variant}`);

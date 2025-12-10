@@ -1,9 +1,10 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { cn } from '@/utilities/cn'
+import { Media } from '@/components/Media'
+import type { Media as MediaType } from '@/payload-types'
 import { ChevronLeft, ChevronRight, Calendar, User, Tag, ArrowRight } from 'lucide-react'
 
 interface PostImage {
@@ -54,17 +55,9 @@ interface LatestPostsBlockProps {
   posts?: Post[]
 }
 
-// Helper function to get image URL
-function getImageUrl(image: PostImage | string | null | undefined): string | null {
-  if (!image) return null
-  if (typeof image === 'string') return null
-  return image.url || null
-}
-
-// Helper function to get image alt
-function getImageAlt(image: PostImage | string | null | undefined, fallback: string): string {
-  if (!image || typeof image === 'string') return fallback
-  return image.alt || fallback
+// Helper to check if image is valid Media object
+function isValidMedia(image: unknown): image is MediaType {
+  return typeof image === 'object' && image !== null && 'url' in image
 }
 
 // Helper function to get category
@@ -158,7 +151,7 @@ export function LatestPostsBlock({
 
   // Post card component
   const PostCard = ({ post, featured = false }: { post: Post; featured?: boolean }) => {
-    const imageUrl = getImageUrl(post.featuredImage)
+    const hasImage = isValidMedia(post.featuredImage)
     const category = getCategoryData(post.category)
     const author = getAuthorData(post.author)
 
@@ -171,7 +164,7 @@ export function LatestPostsBlock({
         )}
       >
         {/* Image */}
-        {showImage && imageUrl && (
+        {showImage && hasImage && (
           <Link
             href={`/blog/${post.slug}`}
             className={cn(
@@ -179,12 +172,11 @@ export function LatestPostsBlock({
               featured ? 'md:w-1/2 aspect-[16/10] md:aspect-auto' : 'aspect-[16/10]',
             )}
           >
-            <Image
-              src={imageUrl}
-              alt={getImageAlt(post.featuredImage, post.title)}
+            <Media
+              resource={post.featuredImage as MediaType}
               fill
-              sizes={featured ? '(max-width: 768px) 100vw, 50vw' : '(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw'}
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              size={featured ? '(max-width: 768px) 100vw, 50vw' : '(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw'}
+              imgClassName="object-cover transition-transform duration-500 group-hover:scale-105"
             />
             {showCategory && category && (
               <span className="absolute top-4 left-4 px-3 py-1 bg-theme-primary text-white text-xs font-medium rounded-full">

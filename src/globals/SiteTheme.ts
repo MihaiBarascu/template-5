@@ -387,89 +387,7 @@ export const SiteTheme: GlobalConfig = {
         },
 
         // =========================================================================
-        // TAB 4: FONTURI (OPTIONAL)
-        // =========================================================================
-        {
-          label: 'Fonturi',
-          description: 'Suprascrie fonturile din varianta selectata (optional)',
-          fields: [
-            {
-              name: 'useCustomFonts',
-              type: 'checkbox',
-              label: 'Foloseste fonturi personalizate',
-              defaultValue: false,
-            },
-            {
-              name: 'fonts',
-              type: 'group',
-              admin: {
-                condition: (_, siblingData) => siblingData?.useCustomFonts,
-              },
-              fields: [
-                {
-                  type: 'row',
-                  fields: [
-                    {
-                      name: 'headingFont',
-                      type: 'select',
-                      label: 'Font titluri',
-                      defaultValue: 'Inter',
-                      options: [
-                        // Sans-serif moderne
-                        { label: 'Inter (Modern)', value: 'Inter' },
-                        { label: 'Montserrat (Elegant)', value: 'Montserrat' },
-                        { label: 'Poppins (Geometric)', value: 'Poppins' },
-                        { label: 'Roboto (Clean)', value: 'Roboto' },
-                        { label: 'Oswald (Bold)', value: 'Oswald' },
-                        { label: 'Raleway (Light)', value: 'Raleway' },
-                        { label: 'Nunito (Rounded)', value: 'Nunito' },
-                        { label: 'Work Sans (Professional)', value: 'Work Sans' },
-                        // Serif elegante
-                        { label: 'Playfair Display (Luxury)', value: 'Playfair Display' },
-                        { label: 'Lora (Classic)', value: 'Lora' },
-                        { label: 'Merriweather (Readable)', value: 'Merriweather' },
-                        { label: 'Cormorant Garamond (Elegant)', value: 'Cormorant Garamond' },
-                        { label: 'Libre Baskerville (Traditional)', value: 'Libre Baskerville' },
-                        // Display
-                        { label: 'DM Serif Display (Bold)', value: 'DM Serif Display' },
-                        { label: 'Abril Fatface (Statement)', value: 'Abril Fatface' },
-                      ],
-                      admin: { width: '50%' },
-                    },
-                    {
-                      name: 'bodyFont',
-                      type: 'select',
-                      label: 'Font text',
-                      defaultValue: 'Inter',
-                      options: [
-                        // Sans-serif pentru citire
-                        { label: 'Inter (Modern)', value: 'Inter' },
-                        { label: 'Open Sans (Clear)', value: 'Open Sans' },
-                        { label: 'Roboto (Versatile)', value: 'Roboto' },
-                        { label: 'Lato (Warm)', value: 'Lato' },
-                        { label: 'Source Sans 3 (Professional)', value: 'Source Sans 3' },
-                        { label: 'Poppins (Geometric)', value: 'Poppins' },
-                        { label: 'Nunito Sans (Friendly)', value: 'Nunito Sans' },
-                        { label: 'Work Sans (Clean)', value: 'Work Sans' },
-                        { label: 'DM Sans (Modern)', value: 'DM Sans' },
-                        { label: 'Outfit (Contemporary)', value: 'Outfit' },
-                        // Serif pentru citire
-                        { label: 'Lora (Elegant)', value: 'Lora' },
-                        { label: 'Merriweather (Comfortable)', value: 'Merriweather' },
-                        { label: 'Source Serif 4 (Editorial)', value: 'Source Serif 4' },
-                        { label: 'Crimson Text (Classic)', value: 'Crimson Text' },
-                      ],
-                      admin: { width: '50%' },
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-
-        // =========================================================================
-        // TAB 5: TIPOGRAFIE AVANSATA (OPTIONAL)
+        // TAB 4: TIPOGRAFIE AVANSATA (OPTIONAL)
         // =========================================================================
         {
           label: 'Tipografie Avansata',
@@ -531,7 +449,7 @@ export const SiteTheme: GlobalConfig = {
         },
 
         // =========================================================================
-        // TAB 6: STIL BUTOANE (OPTIONAL)
+        // TAB 5: STIL BUTOANE (OPTIONAL)
         // =========================================================================
         {
           label: 'Stil Butoane',

@@ -112,7 +112,7 @@ export function AnnouncementBarBlock({
       green: 'bg-green-600',
       blue: 'bg-blue-600',
       black: 'bg-theme-dark',
-      gradient: 'bg-gradient-to-r from-theme-primary to-purple-600',
+      gradient: 'bg-gradient-to-r from-theme-primary to-theme-accent',
     }[backgroundColor] || 'bg-theme-primary'
 
   const currentMessage = messageList[currentIndex] || messageList[0]

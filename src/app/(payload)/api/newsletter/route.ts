@@ -129,6 +129,8 @@ export async function POST(request: Request) {
       message: 'Multumim! Te-ai abonat cu succes la newsletter.',
     })
   } catch (error) {
+    // Note: payload instance is scoped inside try block, not available here
+    // console.error is acceptable for API route error logging
     console.error('Newsletter subscription error:', error)
 
     // Handle duplicate email error (unique constraint)
@@ -202,6 +204,8 @@ export async function DELETE(request: Request) {
       message: 'Te-ai dezabonat cu succes de la newsletter.',
     })
   } catch (error) {
+    // Note: payload instance is scoped inside try block, not available here
+    // console.error is acceptable for API route error logging
     console.error('Newsletter unsubscribe error:', error)
     return NextResponse.json(
       {

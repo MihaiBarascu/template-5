@@ -1,8 +1,9 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
-import Image from 'next/image'
 import { cn } from '@/utilities/cn'
+import { Media } from '@/components/Media'
+import type { Media as MediaType } from '@/payload-types'
 
 interface Testimonial {
   id: string
@@ -36,17 +37,9 @@ interface TestimonialsBlockProps {
   testimonials?: Testimonial[]
 }
 
-// Helper function to get avatar URL
-function getAvatarUrl(avatar: Testimonial['avatar']): string | null {
-  if (!avatar) return null
-  if (typeof avatar === 'string') return null
-  return avatar.url || null
-}
-
-// Helper function to get avatar alt
-function getAvatarAlt(avatar: Testimonial['avatar'], fallback: string): string {
-  if (!avatar || typeof avatar === 'string') return fallback
-  return avatar.alt || fallback
+// Helper to check if avatar is valid Media object
+function isValidMedia(image: unknown): image is MediaType {
+  return typeof image === 'object' && image !== null && 'url' in image
 }
 
 // Star Rating Component
@@ -220,13 +213,12 @@ export function TestimonialsBlock({
             isDark ? 'ring-white/20' : 'ring-theme-primary/20',
             featured ? 'w-16 h-16' : 'w-12 h-12'
           )}>
-            {getAvatarUrl(testimonial.avatar) ? (
-              <Image
-                src={getAvatarUrl(testimonial.avatar)!}
-                alt={getAvatarAlt(testimonial.avatar, testimonial.name)}
+            {isValidMedia(testimonial.avatar) ? (
+              <Media
+                resource={testimonial.avatar as MediaType}
                 fill
-                sizes="64px"
-                className="object-cover"
+                size="64px"
+                imgClassName="object-cover"
               />
             ) : (
               <div className={cn(

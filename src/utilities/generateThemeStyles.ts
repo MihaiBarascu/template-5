@@ -70,15 +70,9 @@ export function generateThemeStyles(siteTheme: SiteTheme | null): string {
   const spacingKey = siteTheme?.sectionSpacing || 'normal'
   const spacing = spacingPresets[spacingKey as keyof typeof spacingPresets] || spacingPresets.normal
 
-  // Apply fonts - use custom if enabled, otherwise use variant
-  const headingFont =
-    siteTheme?.useCustomFonts && siteTheme.fonts?.headingFont
-      ? siteTheme.fonts.headingFont
-      : variant.fonts.heading
-  const bodyFont =
-    siteTheme?.useCustomFonts && siteTheme.fonts?.bodyFont
-      ? siteTheme.fonts.bodyFont
-      : variant.fonts.body
+  // Fonts are now configured via .env and loaded via next/font (self-hosted)
+  const headingFont = process.env.NEXT_PUBLIC_HEADING_FONT || 'Playfair Display'
+  const bodyFont = process.env.NEXT_PUBLIC_BODY_FONT || 'Inter'
 
   // Container width
   const containerWidth = siteTheme?.containerWidth ? `${siteTheme.containerWidth}px` : '1280px'

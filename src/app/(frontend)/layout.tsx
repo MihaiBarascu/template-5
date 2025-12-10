@@ -19,6 +19,7 @@ import { CookieConsent } from '@/components/CookieConsent'
 import { AnnouncementBar } from '@/components/AnnouncementBar'
 import { generateThemeStyles } from '@/utilities/generateThemeStyles'
 import { getServerSideURL } from '@/utilities/getURL'
+import { getFontVariables } from '@/fonts'
 
 import './globals.css'
 
@@ -48,6 +49,9 @@ export default async function RootLayout({
 
   // Generate inline CSS for theme to prevent FOUC
   const themeStyles = generateThemeStyles(siteThemeData)
+
+  // Get font CSS variables from next/font (self-hosted, no external requests)
+  const fontVariables = getFontVariables()
 
   // Extract widget settings from businessInfo
   const announcementBar = businessInfoData?.announcementBar as {
@@ -134,23 +138,9 @@ export default async function RootLayout({
             }),
           }}
         />
-        {/* Google Fonts for theme typography */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/*
-          Google Fonts - All available fonts for theme customization
-          Heading fonts: Inter, Montserrat, Poppins, Roboto, Oswald, Raleway, Nunito, Work Sans,
-                        Playfair Display, Lora, Merriweather, Cormorant Garamond, Libre Baskerville,
-                        DM Serif Display, Abril Fatface
-          Body fonts: Inter, Open Sans, Roboto, Lato, Source Sans 3, Poppins, Nunito Sans,
-                     Work Sans, DM Sans, Outfit, Lora, Merriweather, Source Serif 4, Crimson Text
-        */}
-        <link
-          href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Cormorant+Garamond:wght@400;500;600;700&family=Crimson+Text:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&family=Inter:wght@400;500;600;700&family=Lato:wght@400;700&family=Libre+Baskerville:wght@400;700&family=Lora:wght@400;500;600;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;500;600;700&family=Nunito:wght@400;500;600;700&family=Nunito+Sans:wght@400;500;600;700&family=Open+Sans:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Raleway:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:wght@400;500;600;700&family=Work+Sans:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
+        {/* Fonts are now self-hosted via next/font - no external requests needed */}
       </head>
-      <body className={`${GeistSans.variable} ${GeistMono.variable} antialiased`}>
+      <body className={`${GeistSans.variable} ${GeistMono.variable} ${fontVariables} antialiased`}>
         <ThemeProvider siteTheme={siteThemeData}>
           <AuthProvider>
           <EcommerceProviderWrapper>

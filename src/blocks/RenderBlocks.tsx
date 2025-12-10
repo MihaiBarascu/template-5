@@ -1,7 +1,7 @@
 import React from 'react'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
-import type { Page, Portfolio, Service } from '@/payload-types'
+import type { Page, Portfolio, Service, Media as MediaType } from '@/payload-types'
 import type { Where } from 'payload'
 import { getDisplayPrice, type TaxCategory, type TaxSettings } from '@/utilities/tax'
 // getServerSideURL not needed here - JSON-LD schemas don't need absolute URLs in RenderBlocks
@@ -588,8 +588,15 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
             }
 
             case 'gallery': {
-              // Transform images into a consistent format
-              type GalleryImage = { id: string; url: string; alt?: string }
+              // Transform images into a consistent format with full Media objects for high-quality rendering
+              type GalleryImage = {
+                id: string
+                url?: string
+                alt?: string
+                caption?: string
+                category?: string
+                media?: MediaType | null
+              }
               let images: GalleryImage[] = []
 
               if (block.source === 'portfolio') {
@@ -597,11 +604,12 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                 images = (portfolio as Portfolio[])
                   .filter((item) => (item.featuredImage as { url?: string } | null)?.url)
                   .map((item) => {
-                    const featuredImage = item.featuredImage as { url?: string; alt?: string } | null
+                    const featuredImage = item.featuredImage as MediaType | null
                     return {
                       id: item.id,
                       url: featuredImage?.url ?? '',
                       alt: featuredImage?.alt || item.title,
+                      media: featuredImage,
                     }
                   })
               } else if (block.images) {
@@ -611,11 +619,14 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                     return imgData && typeof imgData !== 'string' && imgData.url
                   })
                   .map((img) => {
-                    const imgData = img.image as { url?: string; alt?: string; id?: string } | null
+                    const imgData = img.image as MediaType | null
                     return {
                       id: img.id || imgData?.id || '',
                       url: imgData?.url ?? '',
                       alt: imgData?.alt || img.caption || '',
+                      caption: img.caption || '',
+                      category: img.category || '',
+                      media: imgData,
                     }
                   })
               }

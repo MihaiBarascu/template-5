@@ -2,8 +2,9 @@
 
 import React from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { cn } from '@/utilities/cn'
+import { Media } from '@/components/Media'
+import type { Media as MediaType } from '@/payload-types'
 import {
   Search,
   MousePointerClick,
@@ -27,7 +28,6 @@ import {
   ClipboardCheck,
   type LucideIcon,
 } from 'lucide-react'
-import type { Media } from '@/payload-types'
 
 // Icon mapping
 const iconMap: Record<string, LucideIcon> = {
@@ -57,7 +57,7 @@ interface Step {
   title: string
   description?: string | null
   icon?: string | null
-  image?: Media | string | null
+  image?: MediaType | string | null
 }
 
 interface CTAButton {
@@ -257,8 +257,7 @@ export function HowItWorksBlock({
     <div className="space-y-12 md:space-y-16">
       {steps.map((step, index) => {
         const isEven = index % 2 === 0
-        const imageUrl =
-          typeof step.image === 'object' && step.image?.url ? step.image.url : undefined
+        const hasImage = typeof step.image === 'object' && step.image !== null && 'url' in step.image
 
         return (
           <div
@@ -290,9 +289,9 @@ export function HowItWorksBlock({
 
             {/* Image placeholder or actual image */}
             <div className="flex-1 w-full max-w-md">
-              {imageUrl ? (
+              {hasImage ? (
                 <div className="relative aspect-video rounded-[var(--radius-card)] overflow-hidden">
-                  <Image src={imageUrl} alt={step.title} fill sizes="(max-width: 768px) 100vw, 448px" className="object-cover" />
+                  <Media resource={step.image as MediaType} fill size="(max-width: 768px) 100vw, 448px" imgClassName="object-cover" />
                 </div>
               ) : (
                 <div

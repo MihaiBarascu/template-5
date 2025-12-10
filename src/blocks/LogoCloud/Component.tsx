@@ -1,13 +1,13 @@
 'use client'
 
 import React from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { cn } from '@/utilities/cn'
-import type { Media } from '@/payload-types'
+import { Media } from '@/components/Media'
+import type { Media as MediaType } from '@/payload-types'
 
 interface Logo {
-  logo: Media | string
+  logo: MediaType | string
   name: string
   url?: string | null
 }
@@ -60,8 +60,8 @@ export function LogoCloudBlock({
 
   // Render a single logo
   const renderLogo = (item: Logo, index: number) => {
-    const logoUrl = typeof item.logo === 'object' && item.logo?.url ? item.logo.url : undefined
-    if (!logoUrl) return null
+    const hasLogo = typeof item.logo === 'object' && item.logo !== null && 'url' in item.logo
+    if (!hasLogo) return null
 
     const logoElement = (
       <div
@@ -75,12 +75,9 @@ export function LogoCloudBlock({
             'grayscale opacity-60 hover:grayscale-0 hover:opacity-100',
         )}
       >
-        <Image
-          src={logoUrl}
-          alt={item.name}
-          width={160}
-          height={80}
-          className={cn('object-contain w-auto', logoSizes[logoSize])}
+        <Media
+          resource={item.logo as MediaType}
+          imgClassName={cn('object-contain w-auto', logoSizes[logoSize])}
         />
       </div>
     )

@@ -42,6 +42,7 @@ export function Logo({ data, businessName, variant = 'default' }: LogoProps) {
         alt={businessName || 'Logo'}
         width={height * 3}
         height={height}
+        priority
         style={{ height: `${height}px`, width: 'auto' }}
         className="object-contain"
       />
@@ -56,6 +57,7 @@ export function Logo({ data, businessName, variant = 'default' }: LogoProps) {
           alt={businessName || 'Logo'}
           width={height}
           height={height}
+          priority
           style={{ height: `${height}px`, width: 'auto' }}
           className="object-contain"
         />

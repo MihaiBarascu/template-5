@@ -3,14 +3,18 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import Image from 'next/image'
 import { cn } from '@/utilities/cn'
+import { Media } from '@/components/Media'
+import type { Media as MediaType } from '@/payload-types'
 
 interface GalleryImage {
   id: string
-  url: string
+  url?: string
   alt?: string
   filename?: string
   caption?: string
   category?: string
+  // Full Media object for high-quality rendering
+  media?: MediaType | null
 }
 
 interface GalleryLabels {
@@ -201,19 +205,32 @@ export function GalleryBlock({
           'relative w-full h-full',
           variant === 'masonry' ? 'aspect-auto' : ''
         )}>
-          <Image
-            src={image.url}
-            alt={image.alt || image.filename || `Gallery image ${index + 1}`}
-            {...(variant === 'masonry'
-              ? { width: 600, height: 400, className: 'w-full h-auto' }
-              : { fill: true, sizes: '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw', className: 'object-cover' }
-            )}
-            className={cn(
-              variant === 'masonry' ? 'w-full h-auto' : 'object-cover',
-              'transition-all duration-700 ease-out',
-              'group-hover:scale-110'
-            )}
-          />
+          {image.media ? (
+            <Media
+              resource={image.media}
+              fill={variant !== 'masonry'}
+              size={variant === 'masonry' ? undefined : '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'}
+              imgClassName={cn(
+                variant === 'masonry' ? 'w-full h-auto' : 'object-cover',
+                'transition-all duration-700 ease-out',
+                'group-hover:scale-110'
+              )}
+            />
+          ) : image.url ? (
+            <Image
+              src={image.url}
+              alt={image.alt || image.filename || `Gallery image ${index + 1}`}
+              fill={variant !== 'masonry'}
+              width={variant === 'masonry' ? 800 : undefined}
+              height={variant === 'masonry' ? 600 : undefined}
+              sizes={variant === 'masonry' ? undefined : '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'}
+              className={cn(
+                variant === 'masonry' ? 'w-full h-auto' : 'object-cover',
+                'transition-all duration-700 ease-out',
+                'group-hover:scale-110'
+              )}
+            />
+          ) : null}
         </div>
 
         {/* Overlay - gradient from bottom */}
@@ -334,13 +351,22 @@ export function GalleryBlock({
                 className="aspect-square relative group overflow-hidden cursor-pointer"
                 onClick={() => openLightbox(index)}
               >
-                <Image
-                  src={image.url}
-                  alt={image.alt || ''}
-                  fill
-                  sizes="(max-width: 768px) 33vw, 16vw"
-                  className="object-cover transition-transform duration-500 group-hover:scale-110"
-                />
+                {image.media ? (
+                  <Media
+                    resource={image.media}
+                    fill
+                    size="(max-width: 768px) 33vw, 16vw"
+                    imgClassName="object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                ) : image.url ? (
+                  <Image
+                    src={image.url}
+                    alt={image.alt || ''}
+                    fill
+                    sizes="(max-width: 768px) 33vw, 16vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                ) : null}
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">
                   <div className="opacity-0 group-hover:opacity-100 transition-opacity">
                     <ZoomIcon />
@@ -437,14 +463,24 @@ export function GalleryBlock({
             className="relative w-full h-full max-w-[85vw] max-h-[85vh] flex items-center justify-center z-10"
             onClick={(e) => e.stopPropagation()}
           >
-            <Image
-              src={filteredImages[lightboxIndex].url}
-              alt={filteredImages[lightboxIndex].alt || `Gallery image ${lightboxIndex + 1}`}
-              fill
-              sizes="85vw"
-              className="object-contain"
-              priority
-            />
+            {filteredImages[lightboxIndex].media ? (
+              <Media
+                resource={filteredImages[lightboxIndex].media}
+                fill
+                size="100vw"
+                imgClassName="object-contain"
+                priority
+              />
+            ) : filteredImages[lightboxIndex].url ? (
+              <Image
+                src={filteredImages[lightboxIndex].url}
+                alt={filteredImages[lightboxIndex].alt || `Gallery image ${lightboxIndex + 1}`}
+                fill
+                sizes="100vw"
+                className="object-contain"
+                priority
+              />
+            ) : null}
           </div>
 
           {/* Bottom Info Bar */}
@@ -491,7 +527,7 @@ export function GalleryBlock({
                   setLightboxIndex(index)
                 }}
                 className={cn(
-                  'flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden',
+                  'flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden relative',
                   'transition-all duration-200',
                   'focus:outline-none',
                   index === lightboxIndex
@@ -499,13 +535,22 @@ export function GalleryBlock({
                     : 'opacity-50 hover:opacity-80'
                 )}
               >
-                <Image
-                  src={image.url}
-                  alt=""
-                  width={64}
-                  height={64}
-                  className="w-full h-full object-cover"
-                />
+                {image.media ? (
+                  <Media
+                    resource={image.media}
+                    fill
+                    size="80px"
+                    imgClassName="object-cover"
+                  />
+                ) : image.url ? (
+                  <Image
+                    src={image.url}
+                    alt=""
+                    fill
+                    sizes="80px"
+                    className="object-cover"
+                  />
+                ) : null}
               </button>
             ))}
           </div>
