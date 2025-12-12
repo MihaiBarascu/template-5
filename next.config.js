@@ -10,7 +10,7 @@ const NEXT_PUBLIC_SERVER_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // output: 'standalone', // Disabled for Nixpacks - enable for Docker
+  output: 'standalone', // Disabled for Nixpacks - enable for Docker
   images: {
     // Local patterns for images with query strings (cache tags)
     localPatterns: [
