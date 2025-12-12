@@ -487,7 +487,6 @@ const ecommerceConfig: Parameters<typeof ecommercePlugin>[0] = {
 };
 
 export default buildConfig({
-  serverURL: getServerSideURL(), // <-- AICI
   admin: {
     components: {
       beforeLogin: ['@/components/BeforeLogin'],
