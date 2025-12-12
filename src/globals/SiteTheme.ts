@@ -230,12 +230,24 @@ export const SiteTheme: GlobalConfig = {
               },
             },
             {
+              name: 'autoGeneratePalette',
+              type: 'checkbox',
+              label: '🎨 Genereaza paleta automat din culoarea primara',
+              defaultValue: false,
+              admin: {
+                condition: (_, siblingData) => siblingData?.useCustomColors,
+                description:
+                  'Activeaza pentru a genera automat toate culorile din culoarea primara folosind algoritmul OKLCH.',
+              },
+            },
+            {
               name: 'colors',
               type: 'group',
               admin: {
                 condition: (_, siblingData) => siblingData?.useCustomColors,
               },
               fields: [
+                // Primary color - always visible when using custom colors
                 {
                   type: 'row',
                   fields: [
@@ -244,26 +256,38 @@ export const SiteTheme: GlobalConfig = {
                       type: 'text',
                       label: 'Culoare primara',
                       defaultValue: '#000000',
-                      admin: { width: '33%' },
+                      admin: {
+                        width: '33%',
+                        description: 'Culoarea principala a brandului',
+                      },
                     },
                     {
                       name: 'secondary',
                       type: 'text',
                       label: 'Culoare secundara',
                       defaultValue: '#666666',
-                      admin: { width: '33%' },
+                      admin: {
+                        width: '33%',
+                        condition: (data) => !data?.autoGeneratePalette,
+                      },
                     },
                     {
                       name: 'accent',
                       type: 'text',
                       label: 'Culoare accent',
                       defaultValue: '#c9a962',
-                      admin: { width: '33%' },
+                      admin: {
+                        width: '33%',
+                        condition: (data) => !data?.autoGeneratePalette,
+                      },
                     },
                   ],
                 },
                 {
                   type: 'row',
+                  admin: {
+                    condition: (data) => !data?.autoGeneratePalette,
+                  },
                   fields: [
                     {
                       name: 'dark',
@@ -290,6 +314,9 @@ export const SiteTheme: GlobalConfig = {
                 },
                 {
                   type: 'row',
+                  admin: {
+                    condition: (data) => !data?.autoGeneratePalette,
+                  },
                   fields: [
                     {
                       name: 'text',
@@ -315,11 +342,13 @@ export const SiteTheme: GlobalConfig = {
                   ],
                 },
                 // Contrast colors - for text on colored backgrounds
+                // Hidden when autoGeneratePalette is enabled (they will be auto-calculated)
                 {
                   type: 'collapsible',
                   label: 'Culori Contrast (pentru text pe fundal colorat)',
                   admin: {
                     initCollapsed: true,
+                    condition: (data) => !data?.autoGeneratePalette,
                     description:
                       'Culorile pentru text cand este afisat pe fundal colorat (ex: text pe buton primar)',
                   },

@@ -9,10 +9,77 @@ import {
   buttonLetterSpacingPresets,
   animationPresets,
 } from '@/theme/variants'
+import {
+  hexToOklchCss,
+  generatePalette,
+  generateContrastColors,
+  oklchToCss,
+  oklchToHex,
+} from '@/utilities/colors'
 
 // Re-export for backward compatibility
 export { THEME_VARIANTS }
 export type { ThemeVariant, ThemeColors } from '@/theme/variants'
+
+/**
+ * Convert a color to OKLCH CSS format
+ * Handles both HEX colors and already-converted OKLCH strings
+ */
+function toOklch(color: string): string {
+  // If already in oklch format, return as-is
+  if (color.startsWith('oklch(')) {
+    return color
+  }
+  // Convert HEX to OKLCH
+  if (color.startsWith('#')) {
+    return hexToOklchCss(color)
+  }
+  // Fallback: return original (for rgb, hsl, etc.)
+  return color
+}
+
+/**
+ * Generate a complete color palette from a primary color
+ * Returns colors in HEX format for compatibility with existing system
+ */
+function generateColorsFromPrimary(primaryHex: string): {
+  primary: string
+  secondary: string
+  accent: string
+  dark: string
+  light: string
+  surface: string
+  text: string
+  textLight: string
+  border: string
+  textOnPrimary: string
+  textOnSecondary: string
+  textOnAccent: string
+  textOnDark: string
+  textOnLight: string
+  textOnSurface: string
+} {
+  const palette = generatePalette(primaryHex)
+  const contrastColors = generateContrastColors(palette)
+
+  return {
+    primary: oklchToCss(palette.primary),
+    secondary: oklchToCss(palette.secondary),
+    accent: oklchToCss(palette.accent),
+    dark: oklchToCss(palette.dark),
+    light: oklchToCss(palette.light),
+    surface: oklchToCss(palette.surface),
+    text: oklchToCss(palette.text),
+    textLight: oklchToCss(palette.textLight),
+    border: oklchToCss(palette.border),
+    textOnPrimary: oklchToCss(contrastColors.textOnPrimary),
+    textOnSecondary: oklchToCss(contrastColors.textOnSecondary),
+    textOnAccent: oklchToCss(contrastColors.textOnAccent),
+    textOnDark: oklchToCss(contrastColors.textOnDark),
+    textOnLight: oklchToCss(contrastColors.textOnLight),
+    textOnSurface: oklchToCss(contrastColors.textOnSurface),
+  }
+}
 
 /**
  * Generates inline CSS styles for the theme to prevent FOUC
@@ -23,40 +90,89 @@ export function generateThemeStyles(siteTheme: SiteTheme | null): string {
   const variantKey = siteTheme?.variant || 'dark-gold'
   const variant = THEME_VARIANTS[variantKey] || THEME_VARIANTS['dark-gold']
 
-  // Apply colors - use custom if enabled, otherwise use variant
-  const colors =
-    siteTheme?.useCustomColors && siteTheme.colors
-      ? {
-          primary: siteTheme.colors.primary || variant.colors.primary,
-          secondary: siteTheme.colors.secondary || variant.colors.secondary,
-          accent: siteTheme.colors.accent || variant.colors.accent,
-          dark: siteTheme.colors.dark || variant.colors.dark,
-          light: siteTheme.colors.light || variant.colors.light,
-          surface: siteTheme.colors.surface || variant.colors.surface,
-          text: siteTheme.colors.text || variant.colors.text,
-          textLight: siteTheme.colors.textLight || variant.colors.textLight,
-          border: siteTheme.colors.border || variant.colors.border,
-          // Contrast colors - use custom if set, otherwise use variant defaults
-          textOnPrimary:
-            (siteTheme.colors as Record<string, string | undefined>).textOnPrimary ||
-            variant.colors.textOnPrimary,
-          textOnSecondary:
-            (siteTheme.colors as Record<string, string | undefined>).textOnSecondary ||
-            variant.colors.textOnSecondary,
-          textOnAccent:
-            (siteTheme.colors as Record<string, string | undefined>).textOnAccent ||
-            variant.colors.textOnAccent,
-          textOnDark:
-            (siteTheme.colors as Record<string, string | undefined>).textOnDark ||
-            variant.colors.textOnDark,
-          textOnLight:
-            (siteTheme.colors as Record<string, string | undefined>).textOnLight ||
-            variant.colors.textOnLight,
-          textOnSurface:
-            (siteTheme.colors as Record<string, string | undefined>).textOnSurface ||
-            variant.colors.textOnSurface,
-        }
-      : variant.colors
+  // Determine colors based on settings:
+  // 1. If autoGeneratePalette is enabled, generate all colors from primary
+  // 2. If useCustomColors is enabled (without auto-generate), use custom colors
+  // 3. Otherwise, use variant colors
+  let colors: {
+    primary: string
+    secondary: string
+    accent: string
+    dark: string
+    light: string
+    surface: string
+    text: string
+    textLight: string
+    border: string
+    textOnPrimary: string
+    textOnSecondary: string
+    textOnAccent: string
+    textOnDark: string
+    textOnLight: string
+    textOnSurface: string
+  }
+
+  // Check if we should auto-generate palette from primary color
+  const shouldAutoGenerate =
+    siteTheme?.useCustomColors &&
+    (siteTheme as Record<string, unknown>)?.autoGeneratePalette &&
+    siteTheme.colors?.primary
+
+  if (shouldAutoGenerate) {
+    // Auto-generate entire palette from primary color using OKLCH
+    colors = generateColorsFromPrimary(siteTheme.colors!.primary!)
+  } else if (siteTheme?.useCustomColors && siteTheme.colors) {
+    // Use manually specified custom colors
+    colors = {
+      primary: siteTheme.colors.primary || variant.colors.primary,
+      secondary: siteTheme.colors.secondary || variant.colors.secondary,
+      accent: siteTheme.colors.accent || variant.colors.accent,
+      dark: siteTheme.colors.dark || variant.colors.dark,
+      light: siteTheme.colors.light || variant.colors.light,
+      surface: siteTheme.colors.surface || variant.colors.surface,
+      text: siteTheme.colors.text || variant.colors.text,
+      textLight: siteTheme.colors.textLight || variant.colors.textLight,
+      border: siteTheme.colors.border || variant.colors.border,
+      // Contrast colors - use custom if set, otherwise use variant defaults
+      textOnPrimary:
+        (siteTheme.colors as Record<string, string | undefined>).textOnPrimary ||
+        variant.colors.textOnPrimary,
+      textOnSecondary:
+        (siteTheme.colors as Record<string, string | undefined>).textOnSecondary ||
+        variant.colors.textOnSecondary,
+      textOnAccent:
+        (siteTheme.colors as Record<string, string | undefined>).textOnAccent ||
+        variant.colors.textOnAccent,
+      textOnDark:
+        (siteTheme.colors as Record<string, string | undefined>).textOnDark ||
+        variant.colors.textOnDark,
+      textOnLight:
+        (siteTheme.colors as Record<string, string | undefined>).textOnLight ||
+        variant.colors.textOnLight,
+      textOnSurface:
+        (siteTheme.colors as Record<string, string | undefined>).textOnSurface ||
+        variant.colors.textOnSurface,
+    }
+  } else {
+    // Use variant colors (convert to OKLCH on output)
+    colors = {
+      primary: variant.colors.primary,
+      secondary: variant.colors.secondary,
+      accent: variant.colors.accent,
+      dark: variant.colors.dark,
+      light: variant.colors.light,
+      surface: variant.colors.surface,
+      text: variant.colors.text,
+      textLight: variant.colors.textLight,
+      border: variant.colors.border,
+      textOnPrimary: variant.colors.textOnPrimary,
+      textOnSecondary: variant.colors.textOnSecondary,
+      textOnAccent: variant.colors.textOnAccent,
+      textOnDark: variant.colors.textOnDark,
+      textOnLight: variant.colors.textOnLight,
+      textOnSurface: variant.colors.textOnSurface,
+    }
+  }
 
   // Apply border radius - use override if set, otherwise use variant
   const borderRadiusKey = siteTheme?.borderRadius || variant.borderRadius
@@ -137,24 +253,24 @@ export function generateThemeStyles(siteTheme: SiteTheme | null): string {
   // Derive play state from enabled flag (for decorative infinite animations)
   const animationPlayState = animations.enabled === '1' ? 'running' : 'paused'
 
-  // Base CSS variables
+  // Base CSS variables - all colors converted to OKLCH for perceptual uniformity
   const baseStyles = `
     :root {
-      --theme-primary: ${colors.primary};
-      --theme-secondary: ${colors.secondary};
-      --theme-accent: ${colors.accent};
-      --theme-dark: ${colors.dark};
-      --theme-light: ${colors.light};
-      --theme-surface: ${colors.surface};
-      --theme-text: ${colors.text};
-      --theme-text-light: ${colors.textLight};
-      --theme-border: ${colors.border};
-      --theme-text-on-primary: ${colors.textOnPrimary};
-      --theme-text-on-secondary: ${colors.textOnSecondary};
-      --theme-text-on-accent: ${colors.textOnAccent};
-      --theme-text-on-dark: ${colors.textOnDark};
-      --theme-text-on-light: ${colors.textOnLight};
-      --theme-text-on-surface: ${colors.textOnSurface};
+      --theme-primary: ${toOklch(colors.primary)};
+      --theme-secondary: ${toOklch(colors.secondary)};
+      --theme-accent: ${toOklch(colors.accent)};
+      --theme-dark: ${toOklch(colors.dark)};
+      --theme-light: ${toOklch(colors.light)};
+      --theme-surface: ${toOklch(colors.surface)};
+      --theme-text: ${toOklch(colors.text)};
+      --theme-text-light: ${toOklch(colors.textLight)};
+      --theme-border: ${toOklch(colors.border)};
+      --theme-text-on-primary: ${toOklch(colors.textOnPrimary)};
+      --theme-text-on-secondary: ${toOklch(colors.textOnSecondary)};
+      --theme-text-on-accent: ${toOklch(colors.textOnAccent)};
+      --theme-text-on-dark: ${toOklch(colors.textOnDark)};
+      --theme-text-on-light: ${toOklch(colors.textOnLight)};
+      --theme-text-on-surface: ${toOklch(colors.textOnSurface)};
       --radius-sm: ${radius.sm};
       --radius-md: ${radius.md};
       --radius-lg: ${radius.lg};
