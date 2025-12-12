@@ -31,7 +31,8 @@ ENV PAYLOAD_SECRET=$PAYLOAD_SECRET
 ENV DATABASE_URI=$DATABASE_URI
 # Use placeholder for NEXT_PUBLIC_SERVER_URL - will be replaced at runtime by entrypoint.sh
 # This fixes Next.js 15.3+/16 bug where NEXT_PUBLIC_* vars don't work in client components
-ENV NEXT_PUBLIC_SERVER_URL=__NEXT_PUBLIC_SERVER_URL__
+# Using a valid URL as placeholder so next.config.js doesn't fail on new URL()
+ENV NEXT_PUBLIC_SERVER_URL=http://PLACEHOLDER_URL_REPLACE_AT_RUNTIME.local
 
 # Build with detected package manager
 # Using --webpack because Next.js 16 defaults to Turbopack but Payload CMS requires webpack for production builds
