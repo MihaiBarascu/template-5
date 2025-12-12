@@ -487,6 +487,7 @@ const ecommerceConfig: Parameters<typeof ecommercePlugin>[0] = {
 };
 
 export default buildConfig({
+  serverURL: getServerSideURL(),
   admin: {
     components: {
       beforeLogin: ['@/components/BeforeLogin'],
@@ -593,7 +594,8 @@ export default buildConfig({
   // Email configuration (Resend) - pentru notificari booking, contact, comenzi
   // IMPORTANT: Set RESEND_FROM_EMAIL and RESEND_FROM_NAME in .env for production
   email: resendAdapter({
-    defaultFromAddress: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
+    defaultFromAddress:
+      process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
     defaultFromName: process.env.RESEND_FROM_NAME || 'Business Website',
     apiKey: process.env.RESEND_API_KEY || '',
   }),
