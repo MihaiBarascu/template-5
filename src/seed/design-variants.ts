@@ -15,6 +15,33 @@
 // TIPURI
 // =============================================================================
 
+// Available fonts - must match SiteTheme schema from Payload
+// HeadingFont allows serif fonts like Playfair_Display
+export type HeadingFontName =
+  | 'Playfair_Display'
+  | 'Lora'
+  | 'Inter'
+  | 'Montserrat'
+  | 'Poppins'
+  | 'Work_Sans'
+  | 'Open_Sans'
+  | 'Lato'
+  | 'Source_Sans_3'
+
+// BodyFont excludes display serif fonts (no Playfair_Display)
+export type BodyFontName =
+  | 'Inter'
+  | 'Open_Sans'
+  | 'Lato'
+  | 'Poppins'
+  | 'Source_Sans_3'
+  | 'Montserrat'
+  | 'Work_Sans'
+  | 'Lora'
+
+// Combined type for backwards compatibility
+export type FontName = HeadingFontName | BodyFontName
+
 export interface DesignVariant {
   id: string
   name: string
@@ -39,6 +66,9 @@ export interface DesignVariant {
       textOnLight?: string
       textOnSurface?: string
     }
+    // Fonts for admin SiteTheme global
+    headingFont: HeadingFontName
+    bodyFont: BodyFontName
     fontPreset: 'modern' | 'elegant' | 'bold' | 'minimalist' | 'classic'
     stylePreset: 'modern' | 'classic' | 'bold' | 'minimal'
     borderRadius: 'none' | 'small' | 'medium' | 'large' | 'full'
@@ -89,6 +119,8 @@ export const barbershopVariants: DesignVariant[] = [
         textOnLight: '#1a1a1a',      // Dark on light
         textOnSurface: '#1a1a1a',    // Dark on white
       },
+      headingFont: 'Playfair_Display',  // Elegant serif pentru barbershop premium
+      bodyFont: 'Inter',                 // Modern sans pentru lizibilitate
       fontPreset: 'bold',
       stylePreset: 'bold',
       borderRadius: 'small',
@@ -134,6 +166,8 @@ export const barbershopVariants: DesignVariant[] = [
         textOnLight: '#0f172a',      // Dark on light
         textOnSurface: '#0f172a',    // Dark on white
       },
+      headingFont: 'Montserrat',  // Bold modern pentru energie
+      bodyFont: 'Open_Sans',      // Friendly si lizibil
       fontPreset: 'modern',
       stylePreset: 'modern',
       borderRadius: 'medium',
@@ -179,6 +213,8 @@ export const barbershopVariants: DesignVariant[] = [
         textOnLight: '#3d2914',      // Dark on light
         textOnSurface: '#3d2914',    // Dark on cream
       },
+      headingFont: 'Lora',
+      bodyFont: 'Source_Sans_3',
       fontPreset: 'classic',
       stylePreset: 'classic',
       borderRadius: 'none',
@@ -224,6 +260,8 @@ export const barbershopVariants: DesignVariant[] = [
         textOnLight: '#171717',      // Dark on light
         textOnSurface: '#171717',    // Dark on white
       },
+      headingFont: 'Work_Sans',
+      bodyFont: 'Inter',
       fontPreset: 'minimalist',
       stylePreset: 'minimal',
       borderRadius: 'none',
@@ -262,6 +300,8 @@ export const barbershopVariants: DesignVariant[] = [
         textLight: '#6b7280',
         border: '#d1d5db',
       },
+      headingFont: 'Poppins',
+      bodyFont: 'Inter',
       fontPreset: 'modern',
       stylePreset: 'modern',
       borderRadius: 'large',
@@ -306,6 +346,8 @@ export const dentistVariants: DesignVariant[] = [
         textLight: '#64748b',
         border: '#e0f2fe',
       },
+      headingFont: 'Poppins',
+      bodyFont: 'Inter',
       fontPreset: 'modern',
       stylePreset: 'modern',
       borderRadius: 'medium',
@@ -344,6 +386,8 @@ export const dentistVariants: DesignVariant[] = [
         textLight: '#5eead4',
         border: '#ccfbf1',
       },
+      headingFont: 'Playfair_Display',
+      bodyFont: 'Lato',
       fontPreset: 'elegant',
       stylePreset: 'modern',
       borderRadius: 'large',
@@ -382,6 +426,8 @@ export const dentistVariants: DesignVariant[] = [
         textLight: '#7c3aed',
         border: '#ede9fe',
       },
+      headingFont: 'Playfair_Display',
+      bodyFont: 'Lato',
       fontPreset: 'elegant',
       stylePreset: 'modern',
       borderRadius: 'medium',
@@ -420,6 +466,8 @@ export const dentistVariants: DesignVariant[] = [
         textLight: '#166534',
         border: '#dcfce7',
       },
+      headingFont: 'Poppins',
+      bodyFont: 'Inter',
       fontPreset: 'modern',
       stylePreset: 'modern',
       borderRadius: 'full',
@@ -458,6 +506,8 @@ export const dentistVariants: DesignVariant[] = [
         textLight: '#6b7280',
         border: '#e5e7eb',
       },
+      headingFont: 'Work_Sans',
+      bodyFont: 'Inter',
       fontPreset: 'minimalist',
       stylePreset: 'minimal',
       borderRadius: 'small',
@@ -502,6 +552,8 @@ export const restaurantVariants: DesignVariant[] = [
         textLight: '#c2410c',
         border: '#fed7aa',
       },
+      headingFont: 'Lora',
+      bodyFont: 'Source_Sans_3',
       fontPreset: 'classic',
       stylePreset: 'classic',
       borderRadius: 'medium',
@@ -540,6 +592,8 @@ export const restaurantVariants: DesignVariant[] = [
         textLight: '#78716c',
         border: '#e7e5e4',
       },
+      headingFont: 'Playfair_Display',
+      bodyFont: 'Lato',
       fontPreset: 'elegant',
       stylePreset: 'classic',
       borderRadius: 'none',
@@ -578,6 +632,8 @@ export const restaurantVariants: DesignVariant[] = [
         textLight: '#4d7c0f',
         border: '#d9f99d',
       },
+      headingFont: 'Poppins',
+      bodyFont: 'Inter',
       fontPreset: 'modern',
       stylePreset: 'modern',
       borderRadius: 'large',
@@ -616,6 +672,8 @@ export const restaurantVariants: DesignVariant[] = [
         textLight: '#991b1b',
         border: '#fecaca',
       },
+      headingFont: 'Lora',
+      bodyFont: 'Source_Sans_3',
       fontPreset: 'classic',
       stylePreset: 'classic',
       borderRadius: 'small',
@@ -654,6 +712,8 @@ export const restaurantVariants: DesignVariant[] = [
         textLight: '#3b82f6',
         border: '#bfdbfe',
       },
+      headingFont: 'Poppins',
+      bodyFont: 'Inter',
       fontPreset: 'modern',
       stylePreset: 'modern',
       borderRadius: 'full',
@@ -698,6 +758,8 @@ export const salonVariants: DesignVariant[] = [
         textLight: '#be185d',
         border: '#fbcfe8',
       },
+      headingFont: 'Playfair_Display',
+      bodyFont: 'Lato',
       fontPreset: 'elegant',
       stylePreset: 'modern',
       borderRadius: 'full',
@@ -736,6 +798,8 @@ export const salonVariants: DesignVariant[] = [
         textLight: '#7e22ce',
         border: '#e9d5ff',
       },
+      headingFont: 'Playfair_Display',
+      bodyFont: 'Lato',
       fontPreset: 'elegant',
       stylePreset: 'classic',
       borderRadius: 'medium',
@@ -774,6 +838,8 @@ export const salonVariants: DesignVariant[] = [
         textLight: '#78716c',
         border: '#e7e5e4',
       },
+      headingFont: 'Work_Sans',
+      bodyFont: 'Inter',
       fontPreset: 'minimalist',
       stylePreset: 'minimal',
       borderRadius: 'none',
@@ -812,6 +878,8 @@ export const salonVariants: DesignVariant[] = [
         textLight: '#0f766e',
         border: '#ccfbf1',
       },
+      headingFont: 'Playfair_Display',
+      bodyFont: 'Lato',
       fontPreset: 'elegant',
       stylePreset: 'modern',
       borderRadius: 'large',
@@ -850,6 +918,8 @@ export const salonVariants: DesignVariant[] = [
         textLight: '#52525b',
         border: '#e4e4e7',
       },
+      headingFont: 'Montserrat',
+      bodyFont: 'Work_Sans',
       fontPreset: 'bold',
       stylePreset: 'bold',
       borderRadius: 'none',
@@ -894,6 +964,8 @@ export const autoServiceVariants: DesignVariant[] = [
         textLight: '#6b7280',
         border: '#e5e7eb',
       },
+      headingFont: 'Montserrat',
+      bodyFont: 'Work_Sans',
       fontPreset: 'bold',
       stylePreset: 'bold',
       borderRadius: 'small',
@@ -932,6 +1004,8 @@ export const autoServiceVariants: DesignVariant[] = [
         textLight: '#6b7280',
         border: '#fed7aa',
       },
+      headingFont: 'Poppins',
+      bodyFont: 'Inter',
       fontPreset: 'modern',
       stylePreset: 'modern',
       borderRadius: 'medium',
@@ -970,6 +1044,8 @@ export const autoServiceVariants: DesignVariant[] = [
         textLight: '#3b82f6',
         border: '#bfdbfe',
       },
+      headingFont: 'Poppins',
+      bodyFont: 'Inter',
       fontPreset: 'modern',
       stylePreset: 'modern',
       borderRadius: 'medium',
@@ -1008,6 +1084,8 @@ export const autoServiceVariants: DesignVariant[] = [
         textLight: '#52525b',
         border: '#fef08a',
       },
+      headingFont: 'Montserrat',
+      bodyFont: 'Work_Sans',
       fontPreset: 'bold',
       stylePreset: 'bold',
       borderRadius: 'none',
@@ -1046,6 +1124,8 @@ export const autoServiceVariants: DesignVariant[] = [
         textLight: '#166534',
         border: '#bbf7d0',
       },
+      headingFont: 'Poppins',
+      bodyFont: 'Inter',
       fontPreset: 'modern',
       stylePreset: 'modern',
       borderRadius: 'large',
@@ -1090,6 +1170,8 @@ export const avocatVariants: DesignVariant[] = [
         textLight: '#475569',
         border: '#e2e8f0',
       },
+      headingFont: 'Playfair_Display',
+      bodyFont: 'Lato',
       fontPreset: 'elegant',
       stylePreset: 'classic',
       borderRadius: 'none',
@@ -1128,6 +1210,8 @@ export const avocatVariants: DesignVariant[] = [
         textLight: '#64748b',
         border: '#e2e8f0',
       },
+      headingFont: 'Poppins',
+      bodyFont: 'Inter',
       fontPreset: 'modern',
       stylePreset: 'modern',
       borderRadius: 'medium',
@@ -1166,6 +1250,8 @@ export const avocatVariants: DesignVariant[] = [
         textLight: '#166534',
         border: '#dcfce7',
       },
+      headingFont: 'Lora',
+      bodyFont: 'Source_Sans_3',
       fontPreset: 'classic',
       stylePreset: 'classic',
       borderRadius: 'small',
@@ -1204,6 +1290,8 @@ export const avocatVariants: DesignVariant[] = [
         textLight: '#7f1d1d',
         border: '#fecaca',
       },
+      headingFont: 'Playfair_Display',
+      bodyFont: 'Lato',
       fontPreset: 'elegant',
       stylePreset: 'classic',
       borderRadius: 'none',
@@ -1242,6 +1330,8 @@ export const avocatVariants: DesignVariant[] = [
         textLight: '#737373',
         border: '#e5e5e5',
       },
+      headingFont: 'Work_Sans',
+      bodyFont: 'Inter',
       fontPreset: 'minimalist',
       stylePreset: 'minimal',
       borderRadius: 'none',
@@ -1286,6 +1376,8 @@ export const constructiiVariants: DesignVariant[] = [
         textLight: '#6b7280',
         border: '#fed7aa',
       },
+      headingFont: 'Montserrat',
+      bodyFont: 'Work_Sans',
       fontPreset: 'bold',
       stylePreset: 'bold',
       borderRadius: 'small',
@@ -1324,6 +1416,8 @@ export const constructiiVariants: DesignVariant[] = [
         textLight: '#52525b',
         border: '#fef08a',
       },
+      headingFont: 'Montserrat',
+      bodyFont: 'Work_Sans',
       fontPreset: 'bold',
       stylePreset: 'bold',
       borderRadius: 'none',
@@ -1362,6 +1456,8 @@ export const constructiiVariants: DesignVariant[] = [
         textLight: '#3b82f6',
         border: '#bfdbfe',
       },
+      headingFont: 'Poppins',
+      bodyFont: 'Inter',
       fontPreset: 'modern',
       stylePreset: 'modern',
       borderRadius: 'medium',
@@ -1400,6 +1496,8 @@ export const constructiiVariants: DesignVariant[] = [
         textLight: '#166534',
         border: '#bbf7d0',
       },
+      headingFont: 'Poppins',
+      bodyFont: 'Inter',
       fontPreset: 'modern',
       stylePreset: 'modern',
       borderRadius: 'large',
@@ -1438,6 +1536,8 @@ export const constructiiVariants: DesignVariant[] = [
         textLight: '#6b7280',
         border: '#e5e7eb',
       },
+      headingFont: 'Work_Sans',
+      bodyFont: 'Inter',
       fontPreset: 'minimalist',
       stylePreset: 'minimal',
       borderRadius: 'small',
@@ -1482,6 +1582,8 @@ export const magazinVariants: DesignVariant[] = [
         textLight: '#166534',
         border: '#bbf7d0',
       },
+      headingFont: 'Poppins',
+      bodyFont: 'Inter',
       fontPreset: 'modern',
       stylePreset: 'modern',
       borderRadius: 'medium',
@@ -1520,6 +1622,8 @@ export const magazinVariants: DesignVariant[] = [
         textLight: '#9a3412',
         border: '#fed7aa',
       },
+      headingFont: 'Poppins',
+      bodyFont: 'Inter',
       fontPreset: 'modern',
       stylePreset: 'modern',
       borderRadius: 'large',
@@ -1558,6 +1662,8 @@ export const magazinVariants: DesignVariant[] = [
         textLight: '#7c3aed',
         border: '#ede9fe',
       },
+      headingFont: 'Playfair_Display',
+      bodyFont: 'Lato',
       fontPreset: 'elegant',
       stylePreset: 'modern',
       borderRadius: 'medium',
@@ -1596,6 +1702,8 @@ export const magazinVariants: DesignVariant[] = [
         textLight: '#3b82f6',
         border: '#bfdbfe',
       },
+      headingFont: 'Poppins',
+      bodyFont: 'Inter',
       fontPreset: 'modern',
       stylePreset: 'modern',
       borderRadius: 'medium',
@@ -1634,6 +1742,8 @@ export const magazinVariants: DesignVariant[] = [
         textLight: '#52525b',
         border: '#e4e4e7',
       },
+      headingFont: 'Work_Sans',
+      bodyFont: 'Inter',
       fontPreset: 'minimalist',
       stylePreset: 'minimal',
       borderRadius: 'none',
@@ -1678,6 +1788,8 @@ export const fitnessVariants: DesignVariant[] = [
         textLight: '#666262',
         border: '#e5e5e5',
       },
+      headingFont: 'Montserrat',
+      bodyFont: 'Work_Sans',
       fontPreset: 'bold',
       stylePreset: 'bold',
       borderRadius: 'small',
@@ -1716,6 +1828,8 @@ export const fitnessVariants: DesignVariant[] = [
         textLight: '#525252',
         border: '#e5e5e5',
       },
+      headingFont: 'Playfair_Display',
+      bodyFont: 'Lato',
       fontPreset: 'elegant',
       stylePreset: 'bold',
       borderRadius: 'none',
@@ -1754,6 +1868,8 @@ export const fitnessVariants: DesignVariant[] = [
         textLight: '#166534',
         border: '#dcfce7',
       },
+      headingFont: 'Poppins',
+      bodyFont: 'Inter',
       fontPreset: 'modern',
       stylePreset: 'modern',
       borderRadius: 'large',
@@ -1792,6 +1908,8 @@ export const fitnessVariants: DesignVariant[] = [
         textLight: '#3b82f6',
         border: '#bfdbfe',
       },
+      headingFont: 'Poppins',
+      bodyFont: 'Inter',
       fontPreset: 'modern',
       stylePreset: 'modern',
       borderRadius: 'medium',
@@ -1830,6 +1948,8 @@ export const fitnessVariants: DesignVariant[] = [
         textLight: '#6b7280',
         border: '#fecaca',
       },
+      headingFont: 'Montserrat',
+      bodyFont: 'Work_Sans',
       fontPreset: 'bold',
       stylePreset: 'bold',
       borderRadius: 'small',

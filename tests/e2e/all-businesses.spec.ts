@@ -1,10 +1,16 @@
 /**
- * Teste complete pentru toate tipurile de business
+ * All Business Types Tests
  *
- * Ruleaza cu: pnpm test:e2e tests/e2e/all-businesses.spec.ts
+ * DOES run seed - this is the comprehensive CI/CD test suite.
+ * Tests ALL business types with automatic seeding.
  *
- * Screenshots sunt salvate in: tests/e2e/screenshots/
- * Dupa rulare, deschide folderul screenshots pentru a vedea rezultatele vizual.
+ * Usage:
+ *   pnpm test:e2e tests/e2e/all-businesses.spec.ts
+ *
+ * NOTE: This suite takes significant time as it seeds each business type.
+ * Use individual test files without seed for faster development testing.
+ *
+ * Screenshots are saved to: tests/e2e/screenshots/
  */
 
 import { test, expect } from '@playwright/test'

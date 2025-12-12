@@ -126,7 +126,7 @@ export function VideoEmbedBlock({
     '21-9': 'aspect-[21/9]',
   }[aspectRatio || '16-9']
 
-  // Get thumbnail URL
+  // Get thumbnail URL - prefer custom thumbnail, fallback to YouTube auto-thumbnail
   const thumbnailUrl = useMemo(() => {
     if (thumbnail && typeof thumbnail !== 'string' && thumbnail.url) {
       return thumbnail.url
@@ -136,6 +136,9 @@ export function VideoEmbedBlock({
     }
     return null
   }, [thumbnail, platform, videoId])
+
+  // Check if thumbnail is from YouTube (external)
+  const isYoutubeThumbnail = thumbnailUrl?.includes('img.youtube.com') || thumbnailUrl?.includes('ytimg.com')
 
   // Render video player
   const renderPlayer = (inLightbox = false) => (
@@ -157,13 +160,24 @@ export function VideoEmbedBlock({
       onClick={onClick}
     >
       {thumbnailUrl && (
-        <Image
-          src={thumbnailUrl}
-          alt={heading || 'Video thumbnail'}
-          fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
-        />
+        isYoutubeThumbnail ? (
+          // Use native img for YouTube thumbnails to avoid next/image config issues
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={thumbnailUrl}
+            alt={heading || 'Video thumbnail'}
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            loading="lazy"
+          />
+        ) : (
+          <Image
+            src={thumbnailUrl}
+            alt={heading || 'Video thumbnail'}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        )
       )}
       {/* Play button overlay */}
       <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors">

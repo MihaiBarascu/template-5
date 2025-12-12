@@ -1,38 +1,17 @@
 /**
  * E-commerce Checkout Tests
  *
- * Testează fluxul complet de checkout pentru business-uri cu ecommerce:
- * - Adăugare produse în coș
- * - Completare formular checkout
- * - Plasare comandă
- * - Verificare confirmare
+ * Tests the complete checkout flow for e-commerce sites.
+ * Does NOT run seed - tests whatever is currently in the database.
  *
- * Run: pnpm test:e2e tests/e2e/ecommerce-checkout.spec.ts
+ * Usage:
+ *   1. First seed the database: pnpm seed:magazin
+ *   2. Then run tests: pnpm test:e2e tests/e2e/ecommerce-checkout.spec.ts
  *
- * PREREQUISITES: Run `pnpm seed:magazin` before running these tests!
- * The tests assume the magazin seed has been applied.
+ * NOTE: These tests require the 'magazin' business type to be seeded!
  */
 
 import { test, expect, Page } from '@playwright/test'
-import { execSync } from 'child_process'
-
-// Seed magazin business type
-async function seedMagazin(): Promise<void> {
-  console.log('🌱 Seeding magazin...')
-  try {
-    execSync('pnpm seed:magazin', {
-      cwd: process.cwd(),
-      stdio: 'pipe',
-      timeout: 120000,
-    })
-    console.log('✅ Seeded magazin')
-    // Wait for ISR to update
-    await new Promise((resolve) => setTimeout(resolve, 3000))
-  } catch (error) {
-    console.error('❌ Failed to seed magazin:', error)
-    throw error
-  }
-}
 
 // Test data
 const TEST_CUSTOMER = {
@@ -119,10 +98,7 @@ async function verifyOrderSuccess(page: Page): Promise<void> {
 
 test.describe('E-commerce Checkout Flow', () => {
   test.describe.configure({ mode: 'serial', timeout: 90000 })
-
-  test.beforeAll(async () => {
-    await seedMagazin()
-  })
+  // No seed - requires pnpm seed:magazin to be run beforehand
 
   test('complete checkout flow', async ({ page }) => {
     // 1. Add product to cart

@@ -32,6 +32,10 @@ export interface ThemeVariant {
 }
 
 export const THEME_VARIANTS: Record<string, ThemeVariant> = {
+  // =============================================================================
+  // 1. DARK & GOLD - Barbershop, Salon premium, Bijuterii, Avocatura
+  // Elegant, luxos, masculin
+  // =============================================================================
   'dark-gold': {
     colors: {
       primary: '#1a1a1a',
@@ -43,18 +47,21 @@ export const THEME_VARIANTS: Record<string, ThemeVariant> = {
       text: '#1a1a1a',
       textLight: '#666666',
       border: '#e5e5e5',
-      // Contrast colors
-      textOnPrimary: '#c9a227', // Gold on black - elegant
-      textOnSecondary: '#ffffff', // White on gold - more elegant
-      textOnAccent: '#0d0d0d', // Black on gold
-      textOnDark: '#f5f5f5', // Light on dark
-      textOnLight: '#1a1a1a', // Dark on light
-      textOnSurface: '#1a1a1a', // Dark on white
+      textOnPrimary: '#c9a227',
+      textOnSecondary: '#ffffff',
+      textOnAccent: '#0d0d0d',
+      textOnDark: '#f5f5f5',
+      textOnLight: '#1a1a1a',
+      textOnSurface: '#1a1a1a',
     },
-    fonts: { heading: 'Playfair Display', body: 'Inter' },
+    fonts: { heading: 'Playfair_Display', body: 'Inter' },
     borderRadius: 'small',
     shadows: 'moderate',
   },
+  // =============================================================================
+  // 2. MODERN RED - Restaurant, Fast-food, Auto service, Sport
+  // Bold, energic, puternic
+  // =============================================================================
   'modern-red': {
     colors: {
       primary: '#dc2626',
@@ -66,18 +73,21 @@ export const THEME_VARIANTS: Record<string, ThemeVariant> = {
       text: '#0f172a',
       textLight: '#64748b',
       border: '#e2e8f0',
-      // Contrast colors
-      textOnPrimary: '#ffffff', // White on red
-      textOnSecondary: '#ffffff', // White on navy
-      textOnAccent: '#ffffff', // White on red
-      textOnDark: '#f8fafc', // Light on dark
-      textOnLight: '#0f172a', // Dark on light
-      textOnSurface: '#0f172a', // Dark on white
+      textOnPrimary: '#ffffff',
+      textOnSecondary: '#ffffff',
+      textOnAccent: '#ffffff',
+      textOnDark: '#f8fafc',
+      textOnLight: '#0f172a',
+      textOnSurface: '#0f172a',
     },
-    fonts: { heading: 'Montserrat', body: 'Open Sans' },
+    fonts: { heading: 'Montserrat', body: 'Open_Sans' },
     borderRadius: 'medium',
     shadows: 'subtle',
   },
+  // =============================================================================
+  // 3. CLASSIC BLUE - Corporate, Consulting, IT, Finante, Medical
+  // Profesional, de incredere, serios
+  // =============================================================================
   'classic-blue': {
     colors: {
       primary: '#2563eb',
@@ -89,18 +99,21 @@ export const THEME_VARIANTS: Record<string, ThemeVariant> = {
       text: '#1e3a8a',
       textLight: '#64748b',
       border: '#bfdbfe',
-      // Contrast colors
-      textOnPrimary: '#ffffff', // White on blue
-      textOnSecondary: '#ffffff', // White on dark blue
-      textOnAccent: '#ffffff', // White on blue
-      textOnDark: '#eff6ff', // Light blue on dark
-      textOnLight: '#1e3a8a', // Dark blue on light
-      textOnSurface: '#1e3a8a', // Dark blue on white
+      textOnPrimary: '#ffffff',
+      textOnSecondary: '#ffffff',
+      textOnAccent: '#ffffff',
+      textOnDark: '#eff6ff',
+      textOnLight: '#1e3a8a',
+      textOnSurface: '#1e3a8a',
     },
     fonts: { heading: 'Inter', body: 'Inter' },
     borderRadius: 'medium',
     shadows: 'subtle',
   },
+  // =============================================================================
+  // 4. FRESH GREEN - Eco, Bio, Nutritie, Farmacie, Wellness
+  // Natural, sanatos, fresh
+  // =============================================================================
   'fresh-green': {
     colors: {
       primary: '#16a34a',
@@ -112,18 +125,21 @@ export const THEME_VARIANTS: Record<string, ThemeVariant> = {
       text: '#14532d',
       textLight: '#166534',
       border: '#bbf7d0',
-      // Contrast colors
-      textOnPrimary: '#ffffff', // White on green
-      textOnSecondary: '#ffffff', // White on dark green
-      textOnAccent: '#14532d', // Dark on light green
-      textOnDark: '#f0fdf4', // Light on dark
-      textOnLight: '#14532d', // Dark on light
-      textOnSurface: '#14532d', // Dark on white
+      textOnPrimary: '#ffffff',
+      textOnSecondary: '#ffffff',
+      textOnAccent: '#14532d',
+      textOnDark: '#f0fdf4',
+      textOnLight: '#14532d',
+      textOnSurface: '#14532d',
     },
-    fonts: { heading: 'Poppins', body: 'Open Sans' },
+    fonts: { heading: 'Poppins', body: 'Open_Sans' },
     borderRadius: 'large',
     shadows: 'subtle',
   },
+  // =============================================================================
+  // 5. MINIMAL BLACK - Arhitectura, Design, Fotografie, Agentie creativa
+  // Clean, modern, minimalist
+  // =============================================================================
   'minimal-black': {
     colors: {
       primary: '#000000',
@@ -135,18 +151,21 @@ export const THEME_VARIANTS: Record<string, ThemeVariant> = {
       text: '#171717',
       textLight: '#737373',
       border: '#e5e5e5',
-      // Contrast colors
-      textOnPrimary: '#ffffff', // White on black
-      textOnSecondary: '#ffffff', // White on gray
-      textOnAccent: '#ffffff', // White on dark
-      textOnDark: '#fafafa', // Light on dark
-      textOnLight: '#171717', // Dark on light
-      textOnSurface: '#171717', // Dark on white
+      textOnPrimary: '#ffffff',
+      textOnSecondary: '#ffffff',
+      textOnAccent: '#ffffff',
+      textOnDark: '#fafafa',
+      textOnLight: '#171717',
+      textOnSurface: '#171717',
     },
-    fonts: { heading: 'Inter', body: 'Inter' },
+    fonts: { heading: 'Work_Sans', body: 'Inter' },
     borderRadius: 'none',
     shadows: 'none',
   },
+  // =============================================================================
+  // 6. PURPLE PREMIUM - Spa, Salon beauty, Coaching, Evenimente
+  // Luxos, sofisticat, premium
+  // =============================================================================
   'purple-premium': {
     colors: {
       primary: '#7c3aed',
@@ -158,18 +177,21 @@ export const THEME_VARIANTS: Record<string, ThemeVariant> = {
       text: '#4c1d95',
       textLight: '#7c3aed',
       border: '#ede9fe',
-      // Contrast colors
-      textOnPrimary: '#ffffff', // White on purple
-      textOnSecondary: '#ffffff', // White on dark purple
-      textOnAccent: '#4c1d95', // Dark purple on light purple
-      textOnDark: '#f5f3ff', // Light on dark
-      textOnLight: '#4c1d95', // Dark on light
-      textOnSurface: '#4c1d95', // Dark on white
+      textOnPrimary: '#ffffff',
+      textOnSecondary: '#ffffff',
+      textOnAccent: '#4c1d95',
+      textOnDark: '#f5f3ff',
+      textOnLight: '#4c1d95',
+      textOnSurface: '#4c1d95',
     },
-    fonts: { heading: 'Playfair Display', body: 'Lato' },
+    fonts: { heading: 'Playfair_Display', body: 'Lato' },
     borderRadius: 'medium',
     shadows: 'moderate',
   },
+  // =============================================================================
+  // 7. WARM ORANGE - Cafenea, Brutarie, Restaurant casual, HoReCa
+  // Prietenos, cald, primitor
+  // =============================================================================
   'warm-orange': {
     colors: {
       primary: '#ea580c',
@@ -181,18 +203,21 @@ export const THEME_VARIANTS: Record<string, ThemeVariant> = {
       text: '#7c2d12',
       textLight: '#c2410c',
       border: '#fed7aa',
-      // Contrast colors
-      textOnPrimary: '#ffffff', // White on orange
-      textOnSecondary: '#ffffff', // White on dark brown
-      textOnAccent: '#7c2d12', // Dark on light orange
-      textOnDark: '#fff7ed', // Light on dark
-      textOnLight: '#7c2d12', // Dark on light
-      textOnSurface: '#7c2d12', // Dark on white
+      textOnPrimary: '#ffffff',
+      textOnSecondary: '#ffffff',
+      textOnAccent: '#7c2d12',
+      textOnDark: '#fff7ed',
+      textOnLight: '#7c2d12',
+      textOnSurface: '#7c2d12',
     },
-    fonts: { heading: 'Poppins', body: 'Open Sans' },
+    fonts: { heading: 'Poppins', body: 'Open_Sans' },
     borderRadius: 'medium',
     shadows: 'moderate',
   },
+  // =============================================================================
+  // 8. TEAL MODERN - Tech startup, SaaS, App, Clinica moderna
+  // Fresh, cool, inovator
+  // =============================================================================
   'teal-modern': {
     colors: {
       primary: '#0d9488',
@@ -204,18 +229,21 @@ export const THEME_VARIANTS: Record<string, ThemeVariant> = {
       text: '#134e4a',
       textLight: '#0f766e',
       border: '#ccfbf1',
-      // Contrast colors
-      textOnPrimary: '#ffffff', // White on teal
-      textOnSecondary: '#ffffff', // White on dark teal
-      textOnAccent: '#134e4a', // Dark on light teal
-      textOnDark: '#f0fdfa', // Light on dark
-      textOnLight: '#134e4a', // Dark on light
-      textOnSurface: '#134e4a', // Dark on white
+      textOnPrimary: '#ffffff',
+      textOnSecondary: '#ffffff',
+      textOnAccent: '#134e4a',
+      textOnDark: '#f0fdfa',
+      textOnLight: '#134e4a',
+      textOnSurface: '#134e4a',
     },
     fonts: { heading: 'Montserrat', body: 'Inter' },
     borderRadius: 'large',
     shadows: 'subtle',
   },
+  // =============================================================================
+  // 9. BROWN VINTAGE - Anticariat, Vinarie, Cafenea traditionala, Pub
+  // Clasic, traditional, autentic
+  // =============================================================================
   'brown-vintage': {
     colors: {
       primary: '#8b4513',
@@ -227,18 +255,21 @@ export const THEME_VARIANTS: Record<string, ThemeVariant> = {
       text: '#3d2914',
       textLight: '#8b7355',
       border: '#e8e0d5',
-      // Contrast colors
-      textOnPrimary: '#faf8f5', // Cream on brown
-      textOnSecondary: '#3d2914', // Dark on tan
-      textOnAccent: '#3d2914', // Dark on gold
-      textOnDark: '#faf8f5', // Light on dark
-      textOnLight: '#3d2914', // Dark on light
-      textOnSurface: '#3d2914', // Dark on cream
+      textOnPrimary: '#faf8f5',
+      textOnSecondary: '#3d2914',
+      textOnAccent: '#3d2914',
+      textOnDark: '#faf8f5',
+      textOnLight: '#3d2914',
+      textOnSurface: '#3d2914',
     },
-    fonts: { heading: 'Lora', body: 'Source Sans Pro' },
+    fonts: { heading: 'Lora', body: 'Source_Sans_3' },
     borderRadius: 'none',
     shadows: 'none',
   },
+  // =============================================================================
+  // 10. PINK SOFT - Salon infrumusetare, Florarie, Patiserie, Copii
+  // Feminin, delicat, romantic
+  // =============================================================================
   'pink-soft': {
     colors: {
       primary: '#ec4899',
@@ -250,19 +281,21 @@ export const THEME_VARIANTS: Record<string, ThemeVariant> = {
       text: '#831843',
       textLight: '#be185d',
       border: '#fbcfe8',
-      // Contrast colors
-      textOnPrimary: '#ffffff', // White on pink
-      textOnSecondary: '#ffffff', // White on dark pink
-      textOnAccent: '#831843', // Dark on light pink
-      textOnDark: '#fdf2f8', // Light on dark
-      textOnLight: '#831843', // Dark on light
-      textOnSurface: '#831843', // Dark on white
+      textOnPrimary: '#ffffff',
+      textOnSecondary: '#ffffff',
+      textOnAccent: '#831843',
+      textOnDark: '#fdf2f8',
+      textOnLight: '#831843',
+      textOnSurface: '#831843',
     },
-    fonts: { heading: 'Playfair Display', body: 'Lato' },
+    fonts: { heading: 'Playfair_Display', body: 'Lato' },
     borderRadius: 'full',
     shadows: 'subtle',
   },
-  // Fitness / Gym variant - based on Template-2
+  // =============================================================================
+  // 11. FITNESS ORANGE - Sala fitness, CrossFit, Sport, Personal trainer
+  // Energic, sport, dinamic
+  // =============================================================================
   'fitness-orange': {
     colors: {
       primary: '#f13a11',
@@ -274,19 +307,21 @@ export const THEME_VARIANTS: Record<string, ThemeVariant> = {
       text: '#171819',
       textLight: '#666262',
       border: '#e5e5e5',
-      // Contrast colors
-      textOnPrimary: '#ffffff', // White on orange
-      textOnSecondary: '#ffffff', // White on black
-      textOnAccent: '#ffffff', // White on orange
-      textOnDark: '#ffffff', // White on dark
-      textOnLight: '#171819', // Dark on white
-      textOnSurface: '#171819', // Dark on light gray
+      textOnPrimary: '#ffffff',
+      textOnSecondary: '#ffffff',
+      textOnAccent: '#ffffff',
+      textOnDark: '#ffffff',
+      textOnLight: '#171819',
+      textOnSurface: '#171819',
     },
-    fonts: { heading: 'Work Sans', body: 'Work Sans' },
+    fonts: { heading: 'Montserrat', body: 'Work_Sans' },
     borderRadius: 'small',
     shadows: 'subtle',
   },
-  // Fitness Dark - Dark theme with red accent
+  // =============================================================================
+  // 12. FITNESS DARK - Gym hardcore, MMA, Bodybuilding
+  // Dark cu accent rosu, stil gym modern
+  // =============================================================================
   'fitness-dark': {
     colors: {
       primary: '#ef4444',
@@ -298,13 +333,12 @@ export const THEME_VARIANTS: Record<string, ThemeVariant> = {
       text: '#ffffff',
       textLight: '#a1a1aa',
       border: '#2d2d2d',
-      // Contrast colors
-      textOnPrimary: '#ffffff', // White on red
-      textOnSecondary: '#ffffff', // White on dark red
-      textOnAccent: '#0f0f0f', // Dark on light red
-      textOnDark: '#ffffff', // White on dark
-      textOnLight: '#ffffff', // White on dark (light is dark in this theme)
-      textOnSurface: '#ffffff', // White on dark surface
+      textOnPrimary: '#ffffff',
+      textOnSecondary: '#ffffff',
+      textOnAccent: '#0f0f0f',
+      textOnDark: '#ffffff',
+      textOnLight: '#ffffff',
+      textOnSurface: '#ffffff',
     },
     fonts: { heading: 'Montserrat', body: 'Inter' },
     borderRadius: 'small',

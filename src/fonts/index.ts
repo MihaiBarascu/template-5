@@ -127,6 +127,22 @@ export function getFontVariables(): string {
   return `${fonts.heading.variable} ${fonts.body.variable}`
 }
 
+// Get ALL font variables (needed for admin font switching to work)
+// All fonts must be loaded so any combination can be selected from admin
+export function getAllFontVariables(): string {
+  return [
+    inter.variable,
+    playfairDisplay.variable,
+    montserrat.variable,
+    openSans.variable,
+    poppins.variable,
+    lato.variable,
+    lora.variable,
+    sourceSans3.variable,
+    workSans.variable,
+  ].join(' ')
+}
+
 // Export individual fonts for direct use
 export {
   inter,

@@ -34,9 +34,8 @@
 
   /* -----------------------------
      TYPOGRAPHY
+     (--font-heading and --font-body are set dynamically from .env via generateThemeStyles.ts)
      ----------------------------- */
-  --font-heading: 'Inter', sans-serif;
-  --font-body: 'Inter', sans-serif;
   --font-size-h1: 3rem;
   --font-size-h2: 2.25rem;
   --font-size-h3: 1.875rem;

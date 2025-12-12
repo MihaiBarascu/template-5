@@ -3,8 +3,7 @@ import React from 'react'
 import { GeistMono } from 'geist/font/mono'
 import { GeistSans } from 'geist/font/sans'
 
-import { getPayload } from 'payload'
-import configPromise from '@payload-config'
+import { getCachedGlobal } from '@/utilities/getGlobals'
 
 import { ThemeProvider } from '@/providers/ThemeProvider'
 import { EcommerceProviderWrapper } from '@/providers/EcommerceProvider'
@@ -19,7 +18,7 @@ import { CookieConsent } from '@/components/CookieConsent'
 import { AnnouncementBar } from '@/components/AnnouncementBar'
 import { generateThemeStyles } from '@/utilities/generateThemeStyles'
 import { getServerSideURL } from '@/utilities/getURL'
-import { getFontVariables } from '@/fonts'
+import { getAllFontVariables } from '@/fonts'
 
 import './globals.css'
 
@@ -36,22 +35,20 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const payload = await getPayload({ config: configPromise })
-
-  // Fetch globals directly - Payload handles caching via hooks
+  // Fetch globals with cache tags for proper revalidation
   const [siteThemeData, headerData, footerData, businessInfoData, logoData] = await Promise.all([
-    payload.findGlobal({ slug: 'site-theme' }),
-    payload.findGlobal({ slug: 'header' }),
-    payload.findGlobal({ slug: 'footer' }),
-    payload.findGlobal({ slug: 'business-info' }),
-    payload.findGlobal({ slug: 'logo' }),
+    getCachedGlobal('site-theme'),
+    getCachedGlobal('header'),
+    getCachedGlobal('footer'),
+    getCachedGlobal('business-info'),
+    getCachedGlobal('logo'),
   ])
 
   // Generate inline CSS for theme to prevent FOUC
   const themeStyles = generateThemeStyles(siteThemeData)
 
-  // Get font CSS variables from next/font (self-hosted, no external requests)
-  const fontVariables = getFontVariables()
+  // Load ALL font CSS variables so any can be selected via theme
+  const fontVariables = getAllFontVariables()
 
   // Extract widget settings from businessInfo
   const announcementBar = businessInfoData?.announcementBar as {
@@ -74,7 +71,7 @@ export default async function RootLayout({
   } | undefined
 
   return (
-    <html lang="ro" suppressHydrationWarning>
+    <html lang="ro" suppressHydrationWarning className={`${GeistSans.variable} ${GeistMono.variable} ${fontVariables}`}>
       <head>
         {/* Inline theme styles to prevent FOUC */}
         <style dangerouslySetInnerHTML={{ __html: themeStyles }} />
@@ -140,7 +137,7 @@ export default async function RootLayout({
         />
         {/* Fonts are now self-hosted via next/font - no external requests needed */}
       </head>
-      <body className={`${GeistSans.variable} ${GeistMono.variable} ${fontVariables} antialiased`}>
+      <body className="antialiased">
         <ThemeProvider siteTheme={siteThemeData}>
           <AuthProvider>
           <EcommerceProviderWrapper>

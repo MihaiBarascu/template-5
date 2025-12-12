@@ -4,7 +4,7 @@ import redirects from './redirects.js'
 
 const NEXT_PUBLIC_SERVER_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
   ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-  : undefined || process.env.__NEXT_PRIVATE_ORIGIN || 'http://localhost:3000'
+  : process.env.NEXT_PUBLIC_SERVER_URL || process.env.__NEXT_PRIVATE_ORIGIN || 'http://localhost:3010'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -19,6 +19,32 @@ const nextConfig = {
           protocol: url.protocol.replace(':', ''),
         }
       }),
+      // YouTube thumbnails for video embeds
+      // NOTE: Use specific hostnames instead of wildcards due to Next.js 15 validation bugs
+      {
+        protocol: 'https',
+        hostname: 'img.youtube.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.ytimg.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'i1.ytimg.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'i2.ytimg.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'i3.ytimg.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'i4.ytimg.com',
+      },
     ],
     // Performance optimizations
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],

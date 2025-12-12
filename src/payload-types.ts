@@ -5410,6 +5410,28 @@ export interface SiteTheme {
     textOnSurface?: string | null;
   };
   /**
+   * Fontul folosit pentru titluri (H1-H6)
+   */
+  headingFont?:
+    | (
+        | 'Playfair_Display'
+        | 'Lora'
+        | 'Inter'
+        | 'Montserrat'
+        | 'Poppins'
+        | 'Work_Sans'
+        | 'Open_Sans'
+        | 'Lato'
+        | 'Source_Sans_3'
+      )
+    | null;
+  /**
+   * Fontul folosit pentru text si paragrafe
+   */
+  bodyFont?:
+    | ('Inter' | 'Open_Sans' | 'Lato' | 'Poppins' | 'Source_Sans_3' | 'Montserrat' | 'Work_Sans' | 'Lora')
+    | null;
+  /**
    * Permite controlul fin asupra letter-spacing si line-height
    */
   useAdvancedTypography?: boolean | null;
@@ -5898,6 +5920,8 @@ export interface SiteThemeSelect<T extends boolean = true> {
         textOnLight?: T;
         textOnSurface?: T;
       };
+  headingFont?: T;
+  bodyFont?: T;
   useAdvancedTypography?: T;
   letterSpacing?: T;
   headingLineHeight?: T;

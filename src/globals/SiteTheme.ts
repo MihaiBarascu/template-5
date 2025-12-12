@@ -387,12 +387,72 @@ export const SiteTheme: GlobalConfig = {
         },
 
         // =========================================================================
-        // TAB 4: TIPOGRAFIE AVANSATA (OPTIONAL)
+        // TAB 4: TIPOGRAFIE (FONTURI + SETARI AVANSATE)
         // =========================================================================
         {
-          label: 'Tipografie Avansata',
-          description: 'Configurari detaliate pentru tipografie (optional)',
+          label: 'Tipografie',
+          description: 'Configurari pentru fonturi si tipografie',
           fields: [
+            // Font Selection
+            {
+              type: 'row',
+              fields: [
+                {
+                  name: 'headingFont',
+                  type: 'select',
+                  label: 'Font Titluri',
+                  defaultValue: 'Playfair_Display',
+                  admin: {
+                    width: '50%',
+                    description: 'Fontul folosit pentru titluri (H1-H6)',
+                  },
+                  options: [
+                    { label: 'Playfair Display (Elegant, Serif)', value: 'Playfair_Display' },
+                    { label: 'Lora (Clasic, Serif)', value: 'Lora' },
+                    { label: 'Inter (Modern, Sans-serif)', value: 'Inter' },
+                    { label: 'Montserrat (Bold, Sans-serif)', value: 'Montserrat' },
+                    { label: 'Poppins (Geometric, Sans-serif)', value: 'Poppins' },
+                    { label: 'Work Sans (Clean, Sans-serif)', value: 'Work_Sans' },
+                    { label: 'Open Sans (Friendly, Sans-serif)', value: 'Open_Sans' },
+                    { label: 'Lato (Professional, Sans-serif)', value: 'Lato' },
+                    { label: 'Source Sans 3 (Readable, Sans-serif)', value: 'Source_Sans_3' },
+                  ],
+                },
+                {
+                  name: 'bodyFont',
+                  type: 'select',
+                  label: 'Font Text',
+                  defaultValue: 'Inter',
+                  admin: {
+                    width: '50%',
+                    description: 'Fontul folosit pentru text si paragrafe',
+                  },
+                  options: [
+                    { label: 'Inter (Modern, Clar)', value: 'Inter' },
+                    { label: 'Open Sans (Friendly, Lizibil)', value: 'Open_Sans' },
+                    { label: 'Lato (Professional)', value: 'Lato' },
+                    { label: 'Poppins (Geometric)', value: 'Poppins' },
+                    { label: 'Source Sans 3 (Readable)', value: 'Source_Sans_3' },
+                    { label: 'Montserrat (Modern)', value: 'Montserrat' },
+                    { label: 'Work Sans (Clean)', value: 'Work_Sans' },
+                    { label: 'Lora (Serif, Elegant)', value: 'Lora' },
+                  ],
+                },
+              ],
+            },
+            // Combinatii recomandate info
+            {
+              type: 'ui',
+              name: 'fontCombinationsInfo',
+              admin: {
+                components: {
+                  Field: {
+                    path: '@/components/admin/FontCombinationsInfo',
+                  },
+                },
+              },
+            },
+            // Advanced Typography Settings
             {
               name: 'useAdvancedTypography',
               type: 'checkbox',

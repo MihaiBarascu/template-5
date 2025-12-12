@@ -1,6 +1,15 @@
 /**
- * Smoke tests - Quick verification that each business type works
- * Run with: pnpm test:e2e tests/e2e/smoke.spec.ts
+ * Smoke Tests - All Business Types
+ *
+ * DOES run seed - quick verification that each business type works.
+ * Seeds each business type and verifies basic functionality.
+ *
+ * Usage:
+ *   pnpm test:e2e tests/e2e/smoke.spec.ts
+ *
+ * NOTE: This suite seeds each business type, so it takes time.
+ * For faster development testing, use individual test files
+ * that don't seed (homepage.spec.ts, seo.spec.ts, etc.)
  */
 
 import { test, expect } from '@playwright/test'

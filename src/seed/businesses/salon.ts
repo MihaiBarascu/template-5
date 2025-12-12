@@ -48,6 +48,9 @@ export async function seedSalon(payload: Payload) {
     borderRadius: variant.theme.borderRadius,
     shadows: variant.theme.shadows,
     sectionSpacing: 'normal',
+    // Typography - use fonts from design variant
+    headingFont: variant.theme.headingFont,
+    bodyFont: variant.theme.bodyFont,
   })
 
   console.log('\n🏪 Setting up business info...')

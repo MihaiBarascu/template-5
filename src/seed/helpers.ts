@@ -282,6 +282,9 @@ export async function seedSiteTheme(
     sectionSpacing?: SiteTheme['sectionSpacing'];
     useCustomColors?: boolean;
     colors?: SiteTheme['colors'];
+    // Typography
+    headingFont?: SiteTheme['headingFont'];
+    bodyFont?: SiteTheme['bodyFont'];
   },
 ) {
   await payload.updateGlobal({
@@ -295,9 +298,12 @@ export async function seedSiteTheme(
       sectionSpacing: options.sectionSpacing,
       useCustomColors: options.useCustomColors || false,
       colors: options.colors,
+      // Typography - if not provided, uses variant defaults from generateThemeStyles
+      headingFont: options.headingFont,
+      bodyFont: options.bodyFont,
     },
   });
-  console.log(`   Site theme configured: ${options.variant}`);
+  console.log(`   Site theme configured: ${options.variant}${options.headingFont ? ` (fonts: ${options.headingFont}/${options.bodyFont})` : ''}`);
 }
 
 // Alias for backwards compatibility

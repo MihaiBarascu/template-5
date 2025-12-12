@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState, useMemo } from 'react'
-import Image from 'next/image'
 import { cn } from '@/utilities/cn'
 
 interface LazyVideoProps {
@@ -86,14 +85,14 @@ export function LazyVideo({ videoUrl, title = 'Video', className }: LazyVideoPro
       aria-label={`Play ${title}`}
       type="button"
     >
-      {/* Thumbnail */}
+      {/* Thumbnail - use native img for external YouTube thumbnails */}
       {videoInfo.thumbnailUrl ? (
-        <Image
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
           src={videoInfo.thumbnailUrl}
           alt={title}
-          fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          loading="lazy"
         />
       ) : (
         <div className="absolute inset-0 bg-gray-900" />

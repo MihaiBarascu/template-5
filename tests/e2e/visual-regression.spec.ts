@@ -1,6 +1,14 @@
 /**
- * Visual regression tests
- * Captures screenshots for each business type and variant
+ * Visual Regression Tests
+ *
+ * Captures screenshots for each business type and variant.
+ * DOES run seed - this file tests ALL business types and variants.
+ *
+ * Usage:
+ *   pnpm test:e2e tests/e2e/visual-regression.spec.ts
+ *
+ * NOTE: This test suite runs seed for each business type to capture
+ * screenshots across all variants. It will take significant time.
  */
 
 import { test, expect } from '@playwright/test'

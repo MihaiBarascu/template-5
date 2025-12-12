@@ -1,54 +1,24 @@
 /**
  * Production Ready Tests
  *
- * Teste complete pentru verificarea că un site e gata de producție.
- * Aceste teste verifică TOATE funcționalitățile critice pentru clienți.
+ * Comprehensive tests to verify the site is production-ready.
+ * Does NOT run seed - tests whatever is currently in the database.
  *
- * Rulează cu: pnpm test:e2e tests/e2e/production-ready.spec.ts
+ * Usage:
+ *   1. First seed the database: pnpm seed:frizerie (or any business type)
+ *   2. Then run tests: pnpm test:e2e tests/e2e/production-ready.spec.ts
  *
- * Sau pentru un business specific:
- * SEED_TYPE=frizerie pnpm test:e2e tests/e2e/production-ready.spec.ts
+ * For testing ALL business types with automatic seeding, use:
+ *   pnpm test:e2e tests/e2e/all-businesses.spec.ts
  */
 
 import { test, expect, Page } from '@playwright/test'
-import { execSync } from 'child_process'
 
-// Use TEST_PORT from playwright.config.ts for consistency
 const TEST_PORT = process.env.TEST_PORT || '3100'
 const BASE_URL = process.env.BASE_URL || `http://localhost:${TEST_PORT}`
-const SEED_TYPE = process.env.SEED_TYPE || 'frizerie'
 
-// Pages to test based on business type
+// Pages to test
 const COMMON_PAGES = ['/', '/servicii', '/echipa', '/contact', '/blog']
-const BUSINESS_SPECIFIC_PAGES: Record<string, string[]> = {
-  frizerie: ['/programare', '/preturi', '/galerie'],
-  dentist: ['/programare', '/preturi'],
-  avocat: ['/preturi'],
-  restaurant: ['/meniu', '/rezervare', '/galerie', '/despre'],
-  'auto-service': ['/preturi', '/galerie'],
-  constructii: ['/portofoliu', '/proiecte'],
-  salon: ['/programare', '/preturi', '/galerie'],
-  magazin: ['/produse', '/cos', '/checkout'],
-  fitness: ['/programare', '/preturi', '/galerie', '/abonamente'],
-}
-
-/**
- * Helper: Seed database
- */
-function seedBusiness(type: string): void {
-  console.log(`\n🌱 Seeding ${type}...`)
-  try {
-    execSync(`pnpm seed:${type}`, {
-      cwd: process.cwd(),
-      stdio: 'pipe',
-      timeout: 120000,
-    })
-    console.log(`✅ Seeded ${type}`)
-  } catch (error) {
-    console.error(`❌ Failed to seed ${type}:`, error)
-    throw error
-  }
-}
 
 /**
  * Helper: Check for console errors
@@ -143,13 +113,7 @@ async function fillForm(
 // =============================================================================
 
 test.describe('Production Ready Tests', () => {
-  test.describe.configure({ mode: 'serial' })
-
-  test.beforeAll(async () => {
-    seedBusiness(SEED_TYPE)
-    // Wait for ISR to update
-    await new Promise((resolve) => setTimeout(resolve, 5000))
-  })
+  // No seed - tests current database state
 
   // ---------------------------------------------------------------------------
   // 1. BASIC PAGE LOADING
@@ -184,20 +148,21 @@ test.describe('Production Ready Tests', () => {
       }
     })
 
-    test('Business-specific pages load', async ({ page }) => {
-      const specificPages = BUSINESS_SPECIFIC_PAGES[SEED_TYPE] || []
+    test('Additional pages load (if they exist)', async ({ page }) => {
+      // Common additional pages across business types
+      const additionalPages = ['/programare', '/preturi', '/galerie', '/produse', '/portofoliu']
 
-      for (const path of specificPages) {
+      for (const path of additionalPages) {
         const url = `${BASE_URL}${path}`
-        console.log(`  Testing: ${url}`)
-
         const response = await page.goto(url, { waitUntil: 'domcontentloaded' })
         const status = response?.status() || 0
 
+        // 200 = exists, 404 = doesn't exist for this business type (OK)
         expect([200, 404]).toContain(status)
 
         if (status === 200) {
           await expect(page.locator('body')).toBeVisible()
+          console.log(`  ✅ ${path}`)
         }
       }
     })
@@ -570,67 +535,28 @@ test.describe('Production Ready Tests', () => {
   })
 
   // ---------------------------------------------------------------------------
-  // 8. E-COMMERCE (for magazin type)
+  // 8. E-COMMERCE (tests run only if e-commerce pages exist)
   // ---------------------------------------------------------------------------
-  if (SEED_TYPE === 'magazin') {
-    test.describe('8. E-Commerce', () => {
-      test('Products page loads', async ({ page }) => {
-        // Try /produse first (main products page), then /categorii
-        let response = await page.goto(`${BASE_URL}/produse`, {
-          waitUntil: 'networkidle',
-        })
+  test.describe('8. E-Commerce (if available)', () => {
+    test('Products/Cart/Checkout pages load if they exist', async ({ page }) => {
+      const ecommercePages = ['/produse', '/cos', '/checkout']
 
-        if (response?.status() === 404) {
-          response = await page.goto(`${BASE_URL}/categorii`, {
-            waitUntil: 'networkidle',
-          })
+      for (const path of ecommercePages) {
+        const response = await page.goto(`${BASE_URL}${path}`, {
+          waitUntil: 'domcontentloaded',
+        })
+        const status = response?.status() || 0
+
+        // 200 = exists, 404 = not an e-commerce site (OK)
+        expect([200, 404]).toContain(status)
+
+        if (status === 200) {
+          await expect(page.locator('body')).toBeVisible()
+          console.log(`  ✅ ${path}`)
         }
-
-        expect(response?.status()).toBe(200)
-
-        // Should have product cards or add-to-cart buttons
-        const products = page.locator('[class*="product"], [class*="card"], article, button:has-text("adauga")')
-        const count = await products.count()
-
-        if (count === 0) {
-          console.log('  ⏭️  No products found with standard selectors - checking for any visible content')
-          // Fallback: just verify page has content
-          const bodyText = await page.textContent('body')
-          expect(bodyText!.length).toBeGreaterThan(100)
-        } else {
-          expect(count).toBeGreaterThan(0)
-          console.log(`  ✅ Found ${count} product elements`)
-        }
-      })
-
-      test('Cart page exists', async ({ page }) => {
-        const response = await page.goto(`${BASE_URL}/cos`, {
-          waitUntil: 'networkidle',
-        })
-
-        expect(response?.status()).toBe(200)
-      })
-
-      test('Checkout page exists', async ({ page }) => {
-        const response = await page.goto(`${BASE_URL}/checkout`, {
-          waitUntil: 'networkidle',
-        })
-
-        expect(response?.status()).toBe(200)
-      })
-
-      test('Add to cart buttons exist', async ({ page }) => {
-        await page.goto(BASE_URL, { waitUntil: 'networkidle' })
-
-        const addToCartBtns = page.locator(
-          'button:has-text("adauga"), button:has-text("cos"), [class*="add-to-cart"]'
-        )
-        const count = await addToCartBtns.count()
-
-        expect(count).toBeGreaterThan(0)
-      })
+      }
     })
-  }
+  })
 })
 
 // =============================================================================
@@ -638,7 +564,7 @@ test.describe('Production Ready Tests', () => {
 // =============================================================================
 test('Summary: Site is production ready', async ({ page }) => {
   console.log('\n' + '='.repeat(60))
-  console.log(`📋 PRODUCTION READINESS CHECK: ${SEED_TYPE.toUpperCase()}`)
+  console.log('📋 PRODUCTION READINESS CHECK')
   console.log('='.repeat(60))
 
   const checks: Record<string, boolean> = {}

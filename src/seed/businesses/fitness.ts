@@ -57,6 +57,9 @@ export async function seedFitness(payload: Payload) {
     borderRadius: variant.theme.borderRadius,
     shadows: variant.theme.shadows,
     sectionSpacing: 'normal',
+    // Typography - use fonts from design variant
+    headingFont: variant.theme.headingFont,
+    bodyFont: variant.theme.bodyFont,
   })
 
   // Update advanced typography and button styles

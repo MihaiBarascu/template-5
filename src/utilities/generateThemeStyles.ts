@@ -71,8 +71,35 @@ export function generateThemeStyles(siteTheme: SiteTheme | null): string {
   const spacing = spacingPresets[spacingKey as keyof typeof spacingPresets] || spacingPresets.normal
 
   // Fonts are now configured via .env and loaded via next/font (self-hosted)
-  const headingFont = process.env.NEXT_PUBLIC_HEADING_FONT || 'Playfair Display'
-  const bodyFont = process.env.NEXT_PUBLIC_BODY_FONT || 'Inter'
+  // Map font names to their CSS variable names
+  const fontToCssVar: Record<string, string> = {
+    'Inter': 'var(--font-inter)',
+    'Playfair Display': 'var(--font-playfair-display)',
+    'Playfair_Display': 'var(--font-playfair-display)',
+    'Montserrat': 'var(--font-montserrat)',
+    'Open Sans': 'var(--font-open-sans)',
+    'Open_Sans': 'var(--font-open-sans)',
+    'Poppins': 'var(--font-poppins)',
+    'Lato': 'var(--font-lato)',
+    'Lora': 'var(--font-lora)',
+    'Source Sans Pro': 'var(--font-source-sans)',
+    'Source_Sans_3': 'var(--font-source-sans)',
+    'Work Sans': 'var(--font-work-sans)',
+    'Work_Sans': 'var(--font-work-sans)',
+  }
+
+  // Font fallbacks based on font type (serif vs sans-serif)
+  const serifFonts = ['Playfair Display', 'Playfair_Display', 'Lora']
+
+  // Get fonts from admin settings, fallback to variant fonts, then defaults
+  const headingFontName = siteTheme?.headingFont || variant.fonts.heading || 'Playfair_Display'
+  const bodyFontName = siteTheme?.bodyFont || variant.fonts.body || 'Inter'
+
+  const headingFont = fontToCssVar[headingFontName] || 'var(--font-inter)'
+  const bodyFont = fontToCssVar[bodyFontName] || 'var(--font-inter)'
+
+  const headingFallback = serifFonts.includes(headingFontName) ? 'serif' : 'sans-serif'
+  const bodyFallback = serifFonts.includes(bodyFontName) ? 'serif' : 'sans-serif'
 
   // Container width
   const containerWidth = siteTheme?.containerWidth ? `${siteTheme.containerWidth}px` : '1280px'
@@ -143,8 +170,8 @@ export function generateThemeStyles(siteTheme: SiteTheme | null): string {
       --spacing-section: ${spacing.section};
       --spacing-section-mobile: ${spacing.sectionMobile};
       --container-max: ${containerWidth};
-      --font-heading: '${headingFont}', sans-serif;
-      --font-body: '${bodyFont}', sans-serif;
+      --font-heading: ${headingFont}, ${headingFallback};
+      --font-body: ${bodyFont}, ${bodyFallback};
       --letter-spacing: ${letterSpacing};
       --heading-line-height: ${headingLineHeight};
       --body-line-height: ${bodyLineHeight};

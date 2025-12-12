@@ -1,16 +1,21 @@
 /**
- * Contact form tests
- * Tests that the contact form works across different business types
+ * Contact Form Tests
+ *
+ * Tests contact form functionality on the current site.
+ * Does NOT run seed - tests whatever is currently in the database.
+ *
+ * Usage:
+ *   1. First seed the database: pnpm seed:frizerie (or any business type)
+ *   2. Then run tests: pnpm test:e2e tests/e2e/contact-form.spec.ts
+ *
+ * For CI/CD with automatic seeding, use: tests/e2e/all-businesses.spec.ts
  */
 
 import { test, expect } from '@playwright/test'
-import { seedBusiness, goToHomepage } from './fixtures/test-helpers'
+import { goToHomepage } from './fixtures/test-helpers'
 
 test.describe('Contact Form', () => {
-  test.beforeAll(async () => {
-    // Use frizerie as default for contact form tests
-    await seedBusiness('frizerie', 0)
-  })
+  // No seed - tests current database state
 
   test('should find contact section or form', async ({ page }) => {
     await goToHomepage(page)
