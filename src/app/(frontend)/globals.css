@@ -1,6 +1,174 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/* =============================================================================
+   TAILWIND V4 THEME CONFIGURATION
+   Replaces tailwind.config.mjs
+   ============================================================================= */
+@theme {
+  /* -----------------------------
+     COLORS - Theme (from CSS variables)
+     ----------------------------- */
+  --color-theme-primary: var(--theme-primary);
+  --color-theme-primary-light: var(--theme-primary-light);
+  --color-theme-primary-dark: var(--theme-primary-dark);
+  --color-theme-secondary: var(--theme-secondary);
+  --color-theme-accent: var(--theme-accent);
+  --color-theme-dark: var(--theme-dark);
+  --color-theme-light: var(--theme-light);
+  --color-theme-text: var(--theme-text);
+  --color-theme-text-light: var(--theme-text-light);
+  --color-theme-text-muted: var(--theme-text-muted);
+  --color-theme-text-on-primary: var(--theme-text-on-primary);
+  --color-theme-text-on-secondary: var(--theme-text-on-secondary);
+  --color-theme-text-on-accent: var(--theme-text-on-accent);
+  --color-theme-text-on-dark: var(--theme-text-on-dark);
+  --color-theme-text-on-light: var(--theme-text-on-light);
+  --color-theme-text-on-surface: var(--theme-text-on-surface);
+  --color-theme-surface: var(--theme-surface);
+  --color-theme-surface-secondary: var(--theme-surface-secondary);
+  --color-theme-border: var(--theme-border);
+  --color-theme-border-light: var(--theme-border-light);
+
+  /* ShadCN colors */
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-success: hsl(var(--success));
+  --color-warning: hsl(var(--warning));
+  --color-error: hsl(var(--error));
+
+  /* -----------------------------
+     FONTS
+     ----------------------------- */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-heading: var(--font-heading), sans-serif;
+  --font-body: var(--font-body), sans-serif;
+
+  /* -----------------------------
+     FONT SIZES
+     ----------------------------- */
+  --text-theme-h1: var(--font-size-h1);
+  --text-theme-h2: var(--font-size-h2);
+  --text-theme-h3: var(--font-size-h3);
+  --text-theme-h4: var(--font-size-h4);
+  --text-theme-h5: var(--font-size-h5);
+  --text-theme-h6: var(--font-size-h6);
+  --text-theme-body: var(--font-size-body);
+  --text-theme-small: var(--font-size-small);
+
+  /* -----------------------------
+     SPACING
+     ----------------------------- */
+  --spacing-section: var(--spacing-section);
+  --spacing-section-mobile: var(--spacing-section-mobile);
+  --spacing-card-gap: var(--spacing-card-gap);
+
+  /* -----------------------------
+     BORDER RADIUS
+     ----------------------------- */
+  --radius-theme: var(--radius);
+  --radius-theme-sm: var(--radius-sm);
+  --radius-theme-md: var(--radius-md);
+  --radius-theme-lg: var(--radius-lg);
+  --radius-theme-xl: var(--radius-xl);
+  --radius-theme-button: var(--radius-button);
+  --radius-theme-card: var(--radius-card);
+  --radius-theme-input: var(--radius-input);
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  /* -----------------------------
+     SHADOWS
+     ----------------------------- */
+  --shadow-theme-sm: var(--shadow-sm);
+  --shadow-theme-md: var(--shadow-md);
+  --shadow-theme-lg: var(--shadow-lg);
+  --shadow-theme-xl: var(--shadow-xl);
+  --shadow-theme-card: var(--shadow-card);
+  --shadow-theme-card-hover: var(--shadow-card-hover);
+  --shadow-theme-button: var(--shadow-button);
+
+  /* -----------------------------
+     CONTAINER
+     ----------------------------- */
+  --container-7xl: 1400px;
+  --container-8xl: 1600px;
+
+  /* -----------------------------
+     ANIMATIONS
+     ----------------------------- */
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-fade-in: fade-in 0.5s ease-out;
+  --animate-fade-in-up: fade-in-up 0.5s ease-out both;
+  --animate-fade-in-down: fade-in-down 0.5s ease-out both;
+  --animate-slide-in-left: slide-in-left 0.5s ease-out;
+  --animate-slide-in-right: slide-in-right 0.5s ease-out;
+  --animate-scale-in: scale-in 0.3s ease-out;
+  --animate-spin-slow: spin 3s linear infinite;
+
+  /* -----------------------------
+     TRANSITION DURATION
+     ----------------------------- */
+  --duration-theme: var(--animation-duration, 300ms);
+  --duration-theme-fast: var(--animation-duration-fast, 150ms);
+  --duration-theme-slow: var(--animation-duration-slow, 500ms);
+
+  /* -----------------------------
+     KEYFRAMES
+     ----------------------------- */
+  @keyframes accordion-down {
+    from { height: 0; }
+    to { height: var(--radix-accordion-content-height); }
+  }
+  @keyframes accordion-up {
+    from { height: var(--radix-accordion-content-height); }
+    to { height: 0; }
+  }
+  @keyframes fade-in {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+  @keyframes fade-in-up {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fade-in-down {
+    0% { opacity: 0; transform: translateY(-20px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slide-in-left {
+    0% { opacity: 0; transform: translateX(-20px); }
+    100% { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes slide-in-right {
+    0% { opacity: 0; transform: translateX(20px); }
+    100% { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes scale-in {
+    0% { opacity: 0; transform: scale(0.95); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+}
 
 /* =============================================================================
    CSS VARIABLES - Defaults (overridden by ThemeProvider from admin settings)
@@ -34,7 +202,6 @@
 
   /* -----------------------------
      TYPOGRAPHY
-     (--font-heading and --font-body are set dynamically from .env via generateThemeStyles.ts)
      ----------------------------- */
   --font-size-h1: 3rem;
   --font-size-h2: 2.25rem;
@@ -89,15 +256,14 @@
   --btn-letter-spacing: 0;
 
   /* -----------------------------
-     ANIMATIONS (controlled by admin: SiteTheme > Layout & Stil > Animatii)
-     Values: none (0ms) | subtle (200ms) | moderate (300ms) | dynamic (400ms)
+     ANIMATIONS
      ----------------------------- */
   --animation-duration: 300ms;
   --animation-duration-fast: 150ms;
   --animation-duration-slow: 500ms;
   --animation-timing: ease-in-out;
-  --animation-enabled: 1; /* 0 = disabled, 1 = enabled */
-  --animation-play-state: running; /* running | paused */
+  --animation-enabled: 1;
+  --animation-play-state: running;
 
   /* -----------------------------
      SHADCN UI VARIABLES
@@ -131,11 +297,12 @@
    ============================================================================= */
 @layer base {
   * {
-    @apply border-border;
+    border-color: var(--theme-border);
   }
 
   body {
-    @apply bg-theme-surface text-theme-text;
+    background-color: var(--theme-surface);
+    color: var(--theme-text);
     font-family: var(--font-body);
     line-height: var(--body-line-height);
   }
@@ -145,22 +312,22 @@
     font-family: var(--font-heading);
     line-height: var(--heading-line-height);
     letter-spacing: var(--letter-spacing);
-    @apply font-bold;
+    font-weight: bold;
   }
 
-  h1 { font-size: var(--font-size-h1); @apply leading-tight; }
-  h2 { font-size: var(--font-size-h2); @apply leading-tight; }
+  h1 { font-size: var(--font-size-h1); line-height: 1.25; }
+  h2 { font-size: var(--font-size-h2); line-height: 1.25; }
   h3 { font-size: var(--font-size-h3); }
   h4 { font-size: var(--font-size-h4); }
   h5 { font-size: var(--font-size-h5); }
   h6 { font-size: var(--font-size-h6); }
 
   a {
-    @apply text-theme-primary;
+    color: var(--theme-primary);
     transition: opacity var(--animation-duration) var(--animation-timing);
   }
   a:hover {
-    @apply opacity-80;
+    opacity: 0.8;
   }
 
   /* Accessibility */
@@ -190,7 +357,7 @@
    COMPONENTS
    ============================================================================= */
 @layer components {
-  /* Container - higher specificity instead of !important */
+  /* Container */
   .container,
   div.container,
   section.container {
@@ -198,24 +365,45 @@
   }
 
   /* Sections */
-  .section { @apply py-section; }
-  .section-sm { @apply py-12 md:py-16; }
-  .section-lg { @apply py-20 md:py-28; }
+  .section {
+    padding-top: var(--spacing-section);
+    padding-bottom: var(--spacing-section);
+  }
+  .section-sm {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+  @media (min-width: 768px) {
+    .section-sm {
+      padding-top: 4rem;
+      padding-bottom: 4rem;
+    }
+  }
+  .section-lg {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+  }
+  @media (min-width: 768px) {
+    .section-lg {
+      padding-top: 7rem;
+      padding-bottom: 7rem;
+    }
+  }
 
   .section-bg-light {
-    @apply bg-theme-light;
+    background-color: var(--theme-light);
     color: var(--theme-text-on-light);
   }
   .section-bg-dark {
-    @apply bg-theme-dark;
+    background-color: var(--theme-dark);
     color: var(--theme-text-on-dark);
   }
   .section-bg-primary {
-    @apply bg-theme-primary;
+    background-color: var(--theme-primary);
     color: var(--theme-text-on-primary);
   }
   .section-bg-surface {
-    @apply bg-theme-surface;
+    background-color: var(--theme-surface);
     color: var(--theme-text-on-surface);
   }
 }
@@ -295,8 +483,6 @@
   /* -----------------------------
      ANIMATIONS - Controlled by admin
      ----------------------------- */
-
-  /* Entry animations - duration controlled by admin */
   .animate-fade-in {
     animation: fadeIn var(--animation-duration-slow) var(--animation-timing) forwards;
   }
@@ -316,8 +502,7 @@
     animation: slideInRight var(--animation-duration) var(--animation-timing) forwards;
   }
 
-  /* Decorative infinite animations - controlled by --animation-enabled
-     When admin selects "Fara animatii", --animation-enabled becomes 0 and these stop */
+  /* Decorative infinite animations */
   .animate-bounce-subtle {
     animation: bounceSoft 2s ease-in-out infinite;
     animation-play-state: var(--animation-play-state, running);
@@ -344,15 +529,14 @@
   }
   .animate-progress-bar { animation: progressBar 6s linear forwards; }
 
-  /* Animation delays - scaled by admin setting
-     Uses calc() to create proportional delays based on theme duration */
+  /* Animation delays */
   .animation-delay-100 { animation-delay: calc(var(--animation-duration-fast) * 0.67); }
   .animation-delay-200 { animation-delay: var(--animation-duration-fast); }
   .animation-delay-300 { animation-delay: var(--animation-duration); }
   .animation-delay-400 { animation-delay: var(--animation-duration-slow); }
 
   /* -----------------------------
-     TRANSITIONS - Use theme variables
+     TRANSITIONS
      ----------------------------- */
   .theme-transition {
     transition-duration: var(--animation-duration);
@@ -360,10 +544,14 @@
   }
 
   /* -----------------------------
-     BUTTONS - Controlled by admin
+     BUTTONS
      ----------------------------- */
   .btn-primary {
-    @apply inline-flex items-center justify-center bg-theme-primary rounded-[var(--radius-button)] active:scale-95;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--theme-primary);
+    border-radius: var(--radius-button);
     color: var(--theme-text-on-primary);
     padding: var(--btn-padding-y) var(--btn-padding-x);
     font-weight: var(--btn-font-weight);
@@ -372,12 +560,22 @@
     transition: all var(--animation-duration) var(--animation-timing);
   }
   .btn-primary:hover {
-    @apply bg-theme-secondary shadow-md;
+    background-color: var(--theme-secondary);
     color: var(--theme-text-on-secondary);
+    box-shadow: var(--shadow-md);
+  }
+  .btn-primary:active {
+    transform: scale(0.95);
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center text-theme-primary bg-transparent border-2 border-theme-primary rounded-[var(--radius-button)] active:scale-95;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--theme-primary);
+    background-color: transparent;
+    border: 2px solid var(--theme-primary);
+    border-radius: var(--radius-button);
     padding: var(--btn-padding-y) var(--btn-padding-x);
     font-weight: var(--btn-font-weight);
     text-transform: var(--btn-text-transform);
@@ -385,12 +583,19 @@
     transition: all var(--animation-duration) var(--animation-timing);
   }
   .btn-secondary:hover {
-    @apply bg-theme-primary;
+    background-color: var(--theme-primary);
     color: var(--theme-text-on-primary);
+  }
+  .btn-secondary:active {
+    transform: scale(0.95);
   }
 
   .btn-accent {
-    @apply inline-flex items-center justify-center bg-theme-accent rounded-[var(--radius-button)] active:scale-95;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--theme-accent);
+    border-radius: var(--radius-button);
     color: var(--theme-text-on-accent);
     padding: var(--btn-padding-y) var(--btn-padding-x);
     font-weight: var(--btn-font-weight);
@@ -399,7 +604,11 @@
     transition: all var(--animation-duration) var(--animation-timing);
   }
   .btn-accent:hover {
-    @apply opacity-90 shadow-md;
+    opacity: 0.9;
+    box-shadow: var(--shadow-md);
+  }
+  .btn-accent:active {
+    transform: scale(0.95);
   }
 
   /* -----------------------------
@@ -409,12 +618,10 @@
     transition: all var(--animation-duration) var(--animation-timing);
   }
   .card-hover:hover {
-    @apply -translate-y-2;
+    transform: translateY(-0.5rem);
     box-shadow: var(--shadow-card-hover);
   }
 
-  /* Card entry animations - controlled by admin
-     Uses CSS custom properties for duration and can be disabled */
   .card-animate {
     opacity: 0;
     transform: translateY(2rem);
@@ -426,15 +633,7 @@
     transform: translateY(0);
   }
 
-  /* When animations are disabled (--animation-enabled: 0), show immediately */
-  @supports (opacity: calc(1 - var(--animation-enabled))) {
-    .card-animate {
-      opacity: calc(1 - var(--animation-enabled));
-      transform: translateY(calc(2rem * var(--animation-enabled)));
-    }
-  }
-
-  /* Card animation delays - scaled by admin setting */
+  /* Card animation delays */
   .card-delay-1 { transition-delay: calc(var(--animation-duration-fast) * 0.5); }
   .card-delay-2 { transition-delay: var(--animation-duration-fast); }
   .card-delay-3 { transition-delay: calc(var(--animation-duration-fast) * 1.5); }
@@ -444,7 +643,6 @@
   .card-delay-7 { transition-delay: calc(var(--animation-duration) * 1.75); }
   .card-delay-8 { transition-delay: calc(var(--animation-duration) * 2); }
 
-  /* Alternative: slide from left */
   .card-animate-left {
     opacity: 0;
     transform: translateX(-2rem);
@@ -459,11 +657,20 @@
   /* -----------------------------
      EFFECTS
      ----------------------------- */
-  .glass { @apply bg-white/80 backdrop-blur-md; }
-  .glass-dark { @apply bg-black/60 backdrop-blur-md; }
+  .glass {
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+  }
+  .glass-dark {
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(12px);
+  }
 
   .gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-theme-primary to-theme-accent;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    background-image: linear-gradient(to right, var(--theme-primary), var(--theme-accent));
   }
 
   /* -----------------------------
@@ -504,6 +711,14 @@
 
   .overlay-gradient-primary {
     background: linear-gradient(to bottom, transparent 0%, var(--theme-primary) 100%);
+  }
+
+  /* -----------------------------
+     SPACING UTILITIES
+     ----------------------------- */
+  .py-section {
+    padding-top: var(--spacing-section);
+    padding-bottom: var(--spacing-section);
   }
 }
 
