@@ -17,6 +17,7 @@ import {
   seedForms,
   formTemplates,
   createContactPageLayout,
+  buildHeroData,
 } from '../helpers'
 import { fitnessImages, fitnessData } from '../fitness-data'
 import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
@@ -57,6 +58,9 @@ export async function seedFitness(payload: Payload) {
     borderRadius: variant.theme.borderRadius,
     shadows: variant.theme.shadows,
     sectionSpacing: 'normal',
+    // Typography - use fonts from design variant
+    headingFont: variant.theme.headingFont,
+    bodyFont: variant.theme.bodyFont,
   })
 
   // Update advanced typography and button styles
@@ -202,19 +206,38 @@ export async function seedFitness(payload: Payload) {
 
   // 14. Homepage with dynamic layout based on variant
   console.log('\n🏠 Creating homepage...')
-  const heroImageId = getImageId(fitnessImages.hero[0]?.filename)
   const homepageLayout = buildHomepageLayout(variant)
-
   const overlaySettings = getHeroOverlaySettings(variant)
-  await seedHomePage(payload, {
-    heroType: variant.hero.type,
-    hero: {
+
+  // Build hero data using helper (supports carousel/slider/split)
+  // Extract years from stats (e.g. "10+" -> 10)
+  const yearsStatValue = fitnessData.business.stats?.find((s) => s.label.toLowerCase().includes('ani'))?.value
+  const yearsExperience = yearsStatValue ? parseInt(yearsStatValue.replace(/\D/g, ''), 10) : 10
+
+  // Pentru video hero, utilizatorul trebuie să încarce un video MP4 din admin
+  // Seed-ul va folosi imaginea hero ca fallback până când se încarcă video-ul
+
+  const heroData = buildHeroData(
+    variant.hero.type,
+    {
       headline: fitnessData.hero.headline,
       subheadline: fitnessData.hero.subheadline,
       ctaButtons: fitnessData.hero.ctaButtons,
-      imageId: heroImageId,
-      ...overlaySettings,
     },
+    overlaySettings,
+    {
+      heroImages: fitnessImages.hero,
+      galleryImages: fitnessImages.gallery,
+      getImageId,
+    },
+    {
+      yearsExperience,
+    }
+  )
+
+  await seedHomePage(payload, {
+    heroType: variant.hero.type,
+    hero: heroData,
     layout: homepageLayout,
   })
 

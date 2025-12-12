@@ -1,9 +1,9 @@
 'use client'
 
 import React from 'react'
-import Image from 'next/image'
 import { cn } from '@/utilities/cn'
-import type { Media } from '@/payload-types'
+import { Media } from '@/components/Media'
+import type { Media as MediaType } from '@/payload-types'
 
 interface ScheduleItem {
   days?: string | null
@@ -17,7 +17,7 @@ interface OpeningHoursBlockProps {
   heading?: string | null
   subheading?: string | null
   schedule?: ScheduleItem[] | null
-  image?: string | Media | null
+  image?: string | MediaType | null
   showCurrentStatus?: boolean | null
   ctaButton?: {
     label?: string | null
@@ -98,11 +98,9 @@ function isCurrentlyOpen(schedule: ScheduleItem[]): { isOpen: boolean; message: 
   return { isOpen: false, message: 'Inchis acum' }
 }
 
-// Helper to extract image URL from Payload Media
-function getImageUrl(image: string | Media | null | undefined): string | null {
-  if (!image) return null
-  if (typeof image === 'string') return image
-  return image.url || null
+// Helper to check if image is valid Media object
+function isValidMedia(image: unknown): image is MediaType {
+  return typeof image === 'object' && image !== null && 'url' in image
 }
 
 export function OpeningHoursBlock({
@@ -116,7 +114,7 @@ export function OpeningHoursBlock({
   backgroundColor = 'default',
 }: OpeningHoursBlockProps) {
   const schedule = scheduleData || []
-  const imageUrl = getImageUrl(image)
+  const hasImage = isValidMedia(image)
 
   const bgClass =
     {
@@ -242,14 +240,13 @@ export function OpeningHoursBlock({
       <section className={cn('py-16', bgClass)}>
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-12 items-center">
-            {imageUrl && (
+            {hasImage && (
               <div className="relative h-80 md:h-96 rounded-xl overflow-hidden">
-                <Image
-                  src={imageUrl}
-                  alt={heading || 'Program'}
+                <Media
+                  resource={image as MediaType}
                   fill
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  className="object-cover"
+                  size="(max-width: 768px) 100vw, 50vw"
+                  imgClassName="object-cover"
                 />
               </div>
             )}

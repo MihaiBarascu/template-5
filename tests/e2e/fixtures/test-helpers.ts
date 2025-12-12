@@ -1,28 +1,30 @@
 /**
  * Shared test helpers and utilities
+ *
+ * NOTE: DESIGN_VARIANT system has been removed.
+ * Configuration is now defined directly in src/seed/seeder-config.ts
  */
 
 import { Page, expect } from '@playwright/test'
 import { execSync } from 'child_process'
-import { BusinessType, DesignVariant } from './business-types'
+import { BusinessType } from './business-types'
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
+// Use TEST_PORT from playwright.config.ts for consistency
+const TEST_PORT = process.env.TEST_PORT || '3100'
+const BASE_URL = process.env.BASE_URL || `http://localhost:${TEST_PORT}`
 
 /**
- * Seeds the database with a specific business type and variant
+ * Seeds the database with a specific business type
+ * Configuration is taken from src/seed/seeder-config.ts
  */
-export async function seedBusiness(
-  businessType: BusinessType,
-  variant: DesignVariant = 0,
-): Promise<void> {
-  console.log(`Seeding ${businessType} with variant ${variant}...`)
-  execSync(`SEED_TYPE=${businessType} DESIGN_VARIANT=${variant} pnpm seed`, {
+export async function seedBusiness(businessType: BusinessType): Promise<void> {
+  console.log(`Seeding ${businessType}...`)
+  execSync(`SEED_TYPE=${businessType} pnpm seed`, {
     cwd: process.cwd(),
     stdio: 'inherit',
     env: {
       ...process.env,
       SEED_TYPE: businessType,
-      DESIGN_VARIANT: String(variant),
     },
   })
   // Wait for ISR to update

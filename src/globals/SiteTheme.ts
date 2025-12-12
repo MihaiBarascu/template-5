@@ -116,6 +116,15 @@ export const SiteTheme: GlobalConfig = {
                 },
               },
             },
+            {
+              name: 'livePreview',
+              type: 'ui',
+              admin: {
+                components: {
+                  Field: '@/components/admin/ThemeLivePreview',
+                },
+              },
+            },
           ],
         },
 
@@ -227,6 +236,17 @@ export const SiteTheme: GlobalConfig = {
               admin: {
                 description:
                   'Bifat = culorile de mai jos suprascriu varianta. Nebifat = culorile din varianta.',
+              },
+            },
+            {
+              name: 'autoGeneratePalette',
+              type: 'checkbox',
+              label: '🎨 Genereaza paleta automat din culoarea primara',
+              defaultValue: false,
+              admin: {
+                condition: (_, siblingData) => siblingData?.useCustomColors,
+                description:
+                  'Activeaza pentru a genera automat toate culorile din culoarea primara folosind algoritmul OKLCH.',
               },
             },
             {
@@ -387,94 +407,72 @@ export const SiteTheme: GlobalConfig = {
         },
 
         // =========================================================================
-        // TAB 4: FONTURI (OPTIONAL)
+        // TAB 4: TIPOGRAFIE (FONTURI + SETARI AVANSATE)
         // =========================================================================
         {
-          label: 'Fonturi',
-          description: 'Suprascrie fonturile din varianta selectata (optional)',
+          label: 'Tipografie',
+          description: 'Configurari pentru fonturi si tipografie',
           fields: [
+            // Font Selection
             {
-              name: 'useCustomFonts',
-              type: 'checkbox',
-              label: 'Foloseste fonturi personalizate',
-              defaultValue: false,
-            },
-            {
-              name: 'fonts',
-              type: 'group',
-              admin: {
-                condition: (_, siblingData) => siblingData?.useCustomFonts,
-              },
+              type: 'row',
               fields: [
                 {
-                  type: 'row',
-                  fields: [
-                    {
-                      name: 'headingFont',
-                      type: 'select',
-                      label: 'Font titluri',
-                      defaultValue: 'Inter',
-                      options: [
-                        // Sans-serif moderne
-                        { label: 'Inter (Modern)', value: 'Inter' },
-                        { label: 'Montserrat (Elegant)', value: 'Montserrat' },
-                        { label: 'Poppins (Geometric)', value: 'Poppins' },
-                        { label: 'Roboto (Clean)', value: 'Roboto' },
-                        { label: 'Oswald (Bold)', value: 'Oswald' },
-                        { label: 'Raleway (Light)', value: 'Raleway' },
-                        { label: 'Nunito (Rounded)', value: 'Nunito' },
-                        { label: 'Work Sans (Professional)', value: 'Work Sans' },
-                        // Serif elegante
-                        { label: 'Playfair Display (Luxury)', value: 'Playfair Display' },
-                        { label: 'Lora (Classic)', value: 'Lora' },
-                        { label: 'Merriweather (Readable)', value: 'Merriweather' },
-                        { label: 'Cormorant Garamond (Elegant)', value: 'Cormorant Garamond' },
-                        { label: 'Libre Baskerville (Traditional)', value: 'Libre Baskerville' },
-                        // Display
-                        { label: 'DM Serif Display (Bold)', value: 'DM Serif Display' },
-                        { label: 'Abril Fatface (Statement)', value: 'Abril Fatface' },
-                      ],
-                      admin: { width: '50%' },
-                    },
-                    {
-                      name: 'bodyFont',
-                      type: 'select',
-                      label: 'Font text',
-                      defaultValue: 'Inter',
-                      options: [
-                        // Sans-serif pentru citire
-                        { label: 'Inter (Modern)', value: 'Inter' },
-                        { label: 'Open Sans (Clear)', value: 'Open Sans' },
-                        { label: 'Roboto (Versatile)', value: 'Roboto' },
-                        { label: 'Lato (Warm)', value: 'Lato' },
-                        { label: 'Source Sans 3 (Professional)', value: 'Source Sans 3' },
-                        { label: 'Poppins (Geometric)', value: 'Poppins' },
-                        { label: 'Nunito Sans (Friendly)', value: 'Nunito Sans' },
-                        { label: 'Work Sans (Clean)', value: 'Work Sans' },
-                        { label: 'DM Sans (Modern)', value: 'DM Sans' },
-                        { label: 'Outfit (Contemporary)', value: 'Outfit' },
-                        // Serif pentru citire
-                        { label: 'Lora (Elegant)', value: 'Lora' },
-                        { label: 'Merriweather (Comfortable)', value: 'Merriweather' },
-                        { label: 'Source Serif 4 (Editorial)', value: 'Source Serif 4' },
-                        { label: 'Crimson Text (Classic)', value: 'Crimson Text' },
-                      ],
-                      admin: { width: '50%' },
-                    },
+                  name: 'headingFont',
+                  type: 'select',
+                  label: 'Font Titluri',
+                  defaultValue: 'Playfair_Display',
+                  admin: {
+                    width: '50%',
+                    description: 'Fontul folosit pentru titluri (H1-H6)',
+                  },
+                  options: [
+                    { label: 'Playfair Display (Elegant, Serif)', value: 'Playfair_Display' },
+                    { label: 'Lora (Clasic, Serif)', value: 'Lora' },
+                    { label: 'Inter (Modern, Sans-serif)', value: 'Inter' },
+                    { label: 'Montserrat (Bold, Sans-serif)', value: 'Montserrat' },
+                    { label: 'Poppins (Geometric, Sans-serif)', value: 'Poppins' },
+                    { label: 'Work Sans (Clean, Sans-serif)', value: 'Work_Sans' },
+                    { label: 'Open Sans (Friendly, Sans-serif)', value: 'Open_Sans' },
+                    { label: 'Lato (Professional, Sans-serif)', value: 'Lato' },
+                    { label: 'Source Sans 3 (Readable, Sans-serif)', value: 'Source_Sans_3' },
+                  ],
+                },
+                {
+                  name: 'bodyFont',
+                  type: 'select',
+                  label: 'Font Text',
+                  defaultValue: 'Inter',
+                  admin: {
+                    width: '50%',
+                    description: 'Fontul folosit pentru text si paragrafe',
+                  },
+                  options: [
+                    { label: 'Inter (Modern, Clar)', value: 'Inter' },
+                    { label: 'Open Sans (Friendly, Lizibil)', value: 'Open_Sans' },
+                    { label: 'Lato (Professional)', value: 'Lato' },
+                    { label: 'Poppins (Geometric)', value: 'Poppins' },
+                    { label: 'Source Sans 3 (Readable)', value: 'Source_Sans_3' },
+                    { label: 'Montserrat (Modern)', value: 'Montserrat' },
+                    { label: 'Work Sans (Clean)', value: 'Work_Sans' },
+                    { label: 'Lora (Serif, Elegant)', value: 'Lora' },
                   ],
                 },
               ],
             },
-          ],
-        },
-
-        // =========================================================================
-        // TAB 5: TIPOGRAFIE AVANSATA (OPTIONAL)
-        // =========================================================================
-        {
-          label: 'Tipografie Avansata',
-          description: 'Configurari detaliate pentru tipografie (optional)',
-          fields: [
+            // Combinatii recomandate info
+            {
+              type: 'ui',
+              name: 'fontCombinationsInfo',
+              admin: {
+                components: {
+                  Field: {
+                    path: '@/components/admin/FontCombinationsInfo',
+                  },
+                },
+              },
+            },
+            // Advanced Typography Settings
             {
               name: 'useAdvancedTypography',
               type: 'checkbox',
@@ -531,7 +529,7 @@ export const SiteTheme: GlobalConfig = {
         },
 
         // =========================================================================
-        // TAB 6: STIL BUTOANE (OPTIONAL)
+        // TAB 5: STIL BUTOANE (OPTIONAL)
         // =========================================================================
         {
           label: 'Stil Butoane',
@@ -608,6 +606,25 @@ export const SiteTheme: GlobalConfig = {
                   defaultValue: 'normal',
                 },
               ],
+            },
+          ],
+        },
+
+        // =========================================================================
+        // TAB 6: EXPORT / IMPORT
+        // =========================================================================
+        {
+          label: 'Export / Import',
+          description: 'Salveaza sau incarca configuratii de tema',
+          fields: [
+            {
+              name: 'exportImportUI',
+              type: 'ui',
+              admin: {
+                components: {
+                  Field: '@/components/admin/ThemeExportImport',
+                },
+              },
             },
           ],
         },

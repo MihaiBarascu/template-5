@@ -2,7 +2,6 @@
 
 import React from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import {
   Award,
   Calendar,
@@ -15,7 +14,8 @@ import {
   Target,
   Twitter,
 } from 'lucide-react'
-import type { Team as TeamMember, Media } from '@/payload-types'
+import type { Team as TeamMember, Media as MediaType } from '@/payload-types'
+import { Media } from '@/components/Media'
 import RichText from '@/components/RichText'
 
 interface LabelsConfig {
@@ -118,7 +118,7 @@ export function TeamMemberDetailBlock({
     dark: 'bg-theme-dark text-white',
   }
 
-  const image = memberData.image as Media | null
+  const image = memberData.image as MediaType | null
   const firstName = memberData.name?.split(' ')[0] || ''
   const ctaTitleFormatted = l.ctaTitle.replace('{name}', firstName)
 
@@ -164,11 +164,11 @@ export function TeamMemberDetailBlock({
             <div className="bg-white rounded-xl shadow-lg overflow-hidden sticky top-8">
               {image?.url ? (
                 <div className="relative h-96 lg:h-[450px]">
-                  <Image
-                    src={image.url}
-                    alt={image.alt || memberData.name}
+                  <Media
+                    resource={image}
                     fill
-                    className="object-cover"
+                    size="(max-width: 1024px) 100vw, 33vw"
+                    imgClassName="object-cover"
                     priority
                   />
                 </div>
@@ -371,7 +371,7 @@ export function TeamMemberDetailBlock({
             <h2 className="text-3xl font-bold text-theme-dark mb-8">{relatedMembersTitle}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {relatedMembers.map((member) => {
-                const memberImage = member.image as Media | null
+                const memberImage = member.image as MediaType | null
 
                 return (
                   <div
@@ -381,11 +381,11 @@ export function TeamMemberDetailBlock({
                     <Link href={`${paths.teamBasePath}/${member.slug}`}>
                       <div className="relative h-64">
                         {memberImage?.url ? (
-                          <Image
-                            src={memberImage.url}
-                            alt={memberImage.alt || member.name}
+                          <Media
+                            resource={memberImage}
                             fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                            size="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            imgClassName="object-cover group-hover:scale-105 transition-transform duration-300"
                           />
                         ) : (
                           <div className="h-full bg-gradient-to-br from-theme-primary/20 to-theme-dark/20 flex items-center justify-center">

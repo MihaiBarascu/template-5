@@ -1,10 +1,16 @@
 /**
- * Teste complete pentru toate tipurile de business
+ * All Business Types Tests
  *
- * Ruleaza cu: pnpm test:e2e tests/e2e/all-businesses.spec.ts
+ * DOES run seed - this is the comprehensive CI/CD test suite.
+ * Tests ALL business types with automatic seeding.
  *
- * Screenshots sunt salvate in: tests/e2e/screenshots/
- * Dupa rulare, deschide folderul screenshots pentru a vedea rezultatele vizual.
+ * Usage:
+ *   pnpm test:e2e tests/e2e/all-businesses.spec.ts
+ *
+ * NOTE: This suite takes significant time as it seeds each business type.
+ * Use individual test files without seed for faster development testing.
+ *
+ * Screenshots are saved to: tests/e2e/screenshots/
  */
 
 import { test, expect } from '@playwright/test'
@@ -12,7 +18,9 @@ import { execSync } from 'child_process'
 import * as fs from 'fs'
 import * as path from 'path'
 
-const BASE_URL = 'http://localhost:3000'
+// Use TEST_PORT from playwright.config.ts for consistency
+const TEST_PORT = process.env.TEST_PORT || '3100'
+const BASE_URL = process.env.BASE_URL || `http://localhost:${TEST_PORT}`
 
 // Configuratii pentru toate tipurile de business
 const BUSINESS_TYPES = [
@@ -76,10 +84,13 @@ if (!fs.existsSync(SCREENSHOTS_DIR)) {
 
 /**
  * Seed database cu un tip de business
+ *
+ * NOTE: DESIGN_VARIANT system has been removed.
+ * Configuration is now defined directly in src/seed/seeder-config.ts
  */
 function seedBusiness(type: string): void {
   console.log(`\n🌱 Seeding ${type}...`)
-  execSync(`SEED_TYPE=${type} DESIGN_VARIANT=0 pnpm seed`, {
+  execSync(`SEED_TYPE=${type} pnpm seed`, {
     cwd: process.cwd(),
     stdio: 'inherit',
   })

@@ -2,9 +2,9 @@
 
 import React from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { Check, X, ArrowRight, Star } from 'lucide-react'
-import type { Subscription, Media } from '@/payload-types'
+import type { Subscription, Media as MediaType } from '@/payload-types'
+import { Media } from '@/components/Media'
 
 interface SubscriptionCardsBlockProps {
   variant?: 'cards-3' | 'cards-4' | 'cards-overlay' | 'list-compact' | 'table-compare'
@@ -137,7 +137,7 @@ export function SubscriptionCardsBlock({
         {/* Grid */}
         <div className={`grid ${gridClasses[variant]} gap-6 items-stretch`}>
           {subscriptions.map((subscription) => {
-            const image = subscription.image as Media | null
+            const image = subscription.image as MediaType | null
             const isHighlighted = subscription.highlighted
 
             if (variant === 'cards-overlay' && showImage) {
@@ -148,11 +148,11 @@ export function SubscriptionCardsBlock({
                 >
                   {image?.url && (
                     <div className="relative aspect-[4/3]">
-                      <Image
-                        src={image.url}
-                        alt={image.alt || subscription.title}
+                      <Media
+                        resource={image}
                         fill
-                        className="object-cover"
+                        size="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        imgClassName="object-cover"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
                     </div>
@@ -230,11 +230,11 @@ export function SubscriptionCardsBlock({
 
                 {showImage && image?.url && (
                   <div className="relative aspect-video">
-                    <Image
-                      src={image.url}
-                      alt={image.alt || subscription.title}
+                    <Media
+                      resource={image}
                       fill
-                      className="object-cover"
+                      size="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      imgClassName="object-cover"
                     />
                   </div>
                 )}

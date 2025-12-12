@@ -18,6 +18,7 @@ import {
   seedForms,
   formTemplates,
   createContactPageLayout,
+  buildHeroData,
 } from '../helpers'
 import { dentistImages, dentistData } from '../seed-data'
 import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
@@ -59,6 +60,9 @@ export async function seedDentist(payload: Payload) {
     borderRadius: variant.theme.borderRadius,
     shadows: variant.theme.shadows,
     sectionSpacing: 'normal',
+    // Typography - use fonts from design variant
+    headingFont: variant.theme.headingFont,
+    bodyFont: variant.theme.bodyFont,
   })
 
   // 4. Business info
@@ -174,19 +178,35 @@ export async function seedDentist(payload: Payload) {
 
   // 13. Homepage with dynamic layout based on variant
   console.log('\n🏠 Creating homepage...')
-  const heroImageId = getImageId(dentistImages.hero[0]?.filename)
   const homepageLayout = buildHomepageLayout(variant, dentistData)
-
   const overlaySettings = getHeroOverlaySettings(variant)
-  await seedHomePage(payload, {
-    heroType: variant.hero.type,
-    hero: {
+
+  // Build hero data using helper (supports carousel/slider/split)
+  // Extract years from stats (e.g. "8+" -> 8)
+  const yearsStatValue = dentistData.business.stats?.find((s) => s.label.toLowerCase().includes('ani'))?.value
+  const yearsExperience = yearsStatValue ? parseInt(yearsStatValue.replace(/\D/g, ''), 10) : 15
+
+  const heroData = buildHeroData(
+    variant.hero.type,
+    {
       headline: dentistData.hero.headline,
       subheadline: dentistData.hero.subheadline,
       ctaButtons: dentistData.hero.ctaButtons,
-      imageId: heroImageId,
-      ...overlaySettings,
     },
+    overlaySettings,
+    {
+      heroImages: dentistImages.hero,
+      galleryImages: dentistImages.gallery,
+      getImageId,
+    },
+    {
+      yearsExperience,
+    }
+  )
+
+  await seedHomePage(payload, {
+    heroType: variant.hero.type,
+    hero: heroData,
     layout: homepageLayout,
   })
 

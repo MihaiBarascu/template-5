@@ -1,12 +1,12 @@
 'use client'
 
 import React from 'react'
-import Image from 'next/image'
 import { cn } from '@/utilities/cn'
-import type { Media } from '@/payload-types'
+import { Media } from '@/components/Media'
+import type { Media as MediaType } from '@/payload-types'
 
 interface Logo {
-  image: string | Media
+  image: string | MediaType
   name?: string | null
   link?: string | null
   id?: string | null
@@ -31,11 +31,9 @@ interface BrandLogosBlockProps {
   backgroundColor?: string | null
 }
 
-// Helper to extract image URL from Payload Media
-function getImageUrl(image: string | Media | null | undefined): string | null {
-  if (!image) return null
-  if (typeof image === 'string') return image
-  return image.url || null
+// Helper to check if image is valid Media object
+function isValidMedia(image: unknown): image is MediaType {
+  return typeof image === 'object' && image !== null && 'url' in image
 }
 
 export function BrandLogosBlock({
@@ -71,8 +69,7 @@ export function BrandLogosBlock({
     }[size] || 'h-12'
 
   const LogoItem = ({ logo }: { logo: Logo }) => {
-    const logoUrl = getImageUrl(logo.image)
-    const logoAlt = logo.name || (typeof logo.image !== 'string' ? logo.image?.alt : null) || 'Brand logo'
+    const hasLogo = isValidMedia(logo.image)
     const content = (
       <div
         className={cn(
@@ -80,14 +77,13 @@ export function BrandLogosBlock({
           grayscale && 'grayscale hover:grayscale-0 opacity-60 hover:opacity-100'
         )}
       >
-        {logoUrl && (
+        {hasLogo && (
           <div className={cn('relative w-24', sizeClass)}>
-            <Image
-              src={logoUrl}
-              alt={logoAlt}
+            <Media
+              resource={logo.image as MediaType}
               fill
-              sizes="96px"
-              className="object-contain"
+              size="96px"
+              imgClassName="object-contain"
             />
           </div>
         )}

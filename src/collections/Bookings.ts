@@ -32,10 +32,10 @@ export const Bookings: CollectionConfig = {
         if (operation !== 'create') return doc
 
         try {
-          const businessEmail = await getBusinessEmail(req.payload)
+          const businessEmail = await getBusinessEmail(req.payload, req)
 
           if (!businessEmail) {
-            console.log('⚠️ No business email configured - skipping booking notification')
+            req.payload.logger.warn('No business email configured - skipping booking notification')
             return doc
           }
 
@@ -80,7 +80,7 @@ export const Bookings: CollectionConfig = {
             replyTo: populatedDoc.clientEmail,
           })
 
-          console.log(`✅ Booking notification sent to ${businessEmail}`)
+          req.payload.logger.info(`Booking notification sent to ${businessEmail}`)
 
           // Email 2: Către CLIENT - confirmare programare
           if (populatedDoc.clientEmail) {
@@ -116,10 +116,10 @@ export const Bookings: CollectionConfig = {
               html: clientEmailHtml,
             })
 
-            console.log(`✅ Booking confirmation sent to client: ${populatedDoc.clientEmail}`)
+            req.payload.logger.info(`Booking confirmation sent to client: ${populatedDoc.clientEmail}`)
           }
         } catch (error) {
-          console.error('❌ Failed to send booking notification:', error)
+          req.payload.logger.error({ err: error, msg: 'Failed to send booking notification' })
         }
 
         return doc
@@ -143,6 +143,7 @@ export const Bookings: CollectionConfig = {
       type: 'email',
       label: 'Email',
       required: true,
+      index: true, // Index for faster email lookups
     },
     {
       name: 'clientPhone',
@@ -180,6 +181,7 @@ export const Bookings: CollectionConfig = {
           type: 'date',
           label: 'Data',
           required: true,
+          index: true, // Index for faster date-based queries
           admin: {
             width: '50%',
             date: {
@@ -223,6 +225,7 @@ export const Bookings: CollectionConfig = {
       type: 'select',
       label: 'Status',
       defaultValue: 'pending',
+      index: true, // Index for faster status filtering
       options: [
         { label: 'In asteptare', value: 'pending' },
         { label: 'Confirmat', value: 'confirmed' },

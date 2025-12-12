@@ -1,9 +1,9 @@
 'use client'
 
 import React from 'react'
-import Image from 'next/image'
 import { cn } from '@/utilities/cn'
-import type { Media } from '@/payload-types'
+import { Media } from '@/components/Media'
+import type { Media as MediaType } from '@/payload-types'
 
 interface Schedule {
   days?: string | null
@@ -17,7 +17,7 @@ interface Location {
   city?: string | null
   phone?: string | null
   email?: string | null
-  image?: string | Media | null
+  image?: string | MediaType | null
   schedule?: Schedule[] | null
   googleMapsEmbed?: string | null
   googleMapsLink?: string | null
@@ -41,11 +41,9 @@ interface LocationsBlockProps {
   backgroundColor?: string | null
 }
 
-// Helper to extract image URL from Payload Media
-function getImageUrl(image: string | Media | null | undefined): string | null {
-  if (!image) return null
-  if (typeof image === 'string') return image
-  return image.url || null
+// Helper to check if image is valid Media object
+function isValidMedia(image: unknown): image is MediaType {
+  return typeof image === 'object' && image !== null && 'url' in image
 }
 
 function StarRating({ rating }: { rating: number }) {
@@ -91,17 +89,16 @@ export function LocationsBlock({
   const textMuted = backgroundColor === 'dark' ? 'text-white/60' : 'text-theme-text-light'
 
   const LocationCard = ({ location }: { location: Location }) => {
-    const imageUrl = getImageUrl(location.image)
+    const hasImage = isValidMedia(location.image)
     return (
     <div className={cn('rounded-xl overflow-hidden shadow-lg', cardBg)}>
-      {imageUrl && (
+      {hasImage && (
         <div className="relative h-48 overflow-hidden">
-          <Image
-            src={imageUrl}
-            alt={location.name}
+          <Media
+            resource={location.image as MediaType}
             fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="object-cover"
+            size="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            imgClassName="object-cover"
           />
         </div>
       )}
@@ -268,19 +265,18 @@ export function LocationsBlock({
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {locationList.map((location, idx) => {
-              const locImageUrl = getImageUrl(location.image)
+              const hasImage = isValidMedia(location.image)
               return (
               <div
                 key={location.id || idx}
                 className="group relative h-64 rounded-xl overflow-hidden"
               >
-                {locImageUrl && (
-                  <Image
-                    src={locImageUrl}
-                    alt={location.name}
+                {hasImage && (
+                  <Media
+                    resource={location.image as MediaType}
                     fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className="object-cover transition-transform duration-300 group-hover:scale-110"
+                    size="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    imgClassName="object-cover transition-transform duration-300 group-hover:scale-110"
                   />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />

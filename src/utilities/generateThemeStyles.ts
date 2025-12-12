@@ -7,7 +7,14 @@ import {
   letterSpacingPresets,
   buttonPaddingPresets,
   buttonLetterSpacingPresets,
+  animationPresets,
 } from '@/theme/variants'
+import {
+  generatePalette,
+  generateContrastColors,
+  hexToOklchCss,
+  oklchToHex,
+} from '@/utilities/colors'
 
 // Re-export for backward compatibility
 export { THEME_VARIANTS }
@@ -22,40 +29,76 @@ export function generateThemeStyles(siteTheme: SiteTheme | null): string {
   const variantKey = siteTheme?.variant || 'dark-gold'
   const variant = THEME_VARIANTS[variantKey] || THEME_VARIANTS['dark-gold']
 
-  // Apply colors - use custom if enabled, otherwise use variant
-  const colors =
-    siteTheme?.useCustomColors && siteTheme.colors
-      ? {
-          primary: siteTheme.colors.primary || variant.colors.primary,
-          secondary: siteTheme.colors.secondary || variant.colors.secondary,
-          accent: siteTheme.colors.accent || variant.colors.accent,
-          dark: siteTheme.colors.dark || variant.colors.dark,
-          light: siteTheme.colors.light || variant.colors.light,
-          surface: siteTheme.colors.surface || variant.colors.surface,
-          text: siteTheme.colors.text || variant.colors.text,
-          textLight: siteTheme.colors.textLight || variant.colors.textLight,
-          border: siteTheme.colors.border || variant.colors.border,
-          // Contrast colors - use custom if set, otherwise use variant defaults
-          textOnPrimary:
-            (siteTheme.colors as Record<string, string | undefined>).textOnPrimary ||
-            variant.colors.textOnPrimary,
-          textOnSecondary:
-            (siteTheme.colors as Record<string, string | undefined>).textOnSecondary ||
-            variant.colors.textOnSecondary,
-          textOnAccent:
-            (siteTheme.colors as Record<string, string | undefined>).textOnAccent ||
-            variant.colors.textOnAccent,
-          textOnDark:
-            (siteTheme.colors as Record<string, string | undefined>).textOnDark ||
-            variant.colors.textOnDark,
-          textOnLight:
-            (siteTheme.colors as Record<string, string | undefined>).textOnLight ||
-            variant.colors.textOnLight,
-          textOnSurface:
-            (siteTheme.colors as Record<string, string | undefined>).textOnSurface ||
-            variant.colors.textOnSurface,
-        }
-      : variant.colors
+  // Apply colors - auto-generate from primary, use custom if enabled, otherwise use variant
+  let colors = variant.colors
+
+  if (siteTheme?.useCustomColors && siteTheme.colors) {
+    const primaryColor = siteTheme.colors.primary || variant.colors.primary
+
+    // If auto-generate palette is enabled, generate all colors from primary
+    if (siteTheme.autoGeneratePalette && primaryColor) {
+      const generatedPalette = generatePalette(primaryColor)
+      // generateContrastColors expects OklchColor objects, returns OklchColor objects
+      const contrastColorsOklch = generateContrastColors({
+        primary: generatedPalette.primary,
+        secondary: generatedPalette.secondary,
+        accent: generatedPalette.accent,
+        dark: generatedPalette.dark,
+        light: generatedPalette.light,
+        surface: generatedPalette.surface,
+      })
+
+      colors = {
+        primary: primaryColor, // Keep the original primary as HEX
+        secondary: oklchToHex(generatedPalette.secondary),
+        accent: oklchToHex(generatedPalette.accent),
+        dark: oklchToHex(generatedPalette.dark),
+        light: oklchToHex(generatedPalette.light),
+        surface: oklchToHex(generatedPalette.surface),
+        text: oklchToHex(generatedPalette.text),
+        textLight: oklchToHex(generatedPalette.textLight),
+        border: oklchToHex(generatedPalette.border),
+        textOnPrimary: oklchToHex(contrastColorsOklch.textOnPrimary),
+        textOnSecondary: oklchToHex(contrastColorsOklch.textOnSecondary),
+        textOnAccent: oklchToHex(contrastColorsOklch.textOnAccent),
+        textOnDark: oklchToHex(contrastColorsOklch.textOnDark),
+        textOnLight: oklchToHex(contrastColorsOklch.textOnLight),
+        textOnSurface: oklchToHex(contrastColorsOklch.textOnSurface),
+      }
+    } else {
+      // Use manual custom colors
+      colors = {
+        primary: primaryColor,
+        secondary: siteTheme.colors.secondary || variant.colors.secondary,
+        accent: siteTheme.colors.accent || variant.colors.accent,
+        dark: siteTheme.colors.dark || variant.colors.dark,
+        light: siteTheme.colors.light || variant.colors.light,
+        surface: siteTheme.colors.surface || variant.colors.surface,
+        text: siteTheme.colors.text || variant.colors.text,
+        textLight: siteTheme.colors.textLight || variant.colors.textLight,
+        border: siteTheme.colors.border || variant.colors.border,
+        // Contrast colors - use custom if set, otherwise use variant defaults
+        textOnPrimary:
+          (siteTheme.colors as Record<string, string | undefined>).textOnPrimary ||
+          variant.colors.textOnPrimary,
+        textOnSecondary:
+          (siteTheme.colors as Record<string, string | undefined>).textOnSecondary ||
+          variant.colors.textOnSecondary,
+        textOnAccent:
+          (siteTheme.colors as Record<string, string | undefined>).textOnAccent ||
+          variant.colors.textOnAccent,
+        textOnDark:
+          (siteTheme.colors as Record<string, string | undefined>).textOnDark ||
+          variant.colors.textOnDark,
+        textOnLight:
+          (siteTheme.colors as Record<string, string | undefined>).textOnLight ||
+          variant.colors.textOnLight,
+        textOnSurface:
+          (siteTheme.colors as Record<string, string | undefined>).textOnSurface ||
+          variant.colors.textOnSurface,
+      }
+    }
+  }
 
   // Apply border radius - use override if set, otherwise use variant
   const borderRadiusKey = siteTheme?.borderRadius || variant.borderRadius
@@ -69,15 +112,36 @@ export function generateThemeStyles(siteTheme: SiteTheme | null): string {
   const spacingKey = siteTheme?.sectionSpacing || 'normal'
   const spacing = spacingPresets[spacingKey as keyof typeof spacingPresets] || spacingPresets.normal
 
-  // Apply fonts - use custom if enabled, otherwise use variant
-  const headingFont =
-    siteTheme?.useCustomFonts && siteTheme.fonts?.headingFont
-      ? siteTheme.fonts.headingFont
-      : variant.fonts.heading
-  const bodyFont =
-    siteTheme?.useCustomFonts && siteTheme.fonts?.bodyFont
-      ? siteTheme.fonts.bodyFont
-      : variant.fonts.body
+  // Fonts are now configured via .env and loaded via next/font (self-hosted)
+  // Map font names to their CSS variable names
+  const fontToCssVar: Record<string, string> = {
+    'Inter': 'var(--font-inter)',
+    'Playfair Display': 'var(--font-playfair-display)',
+    'Playfair_Display': 'var(--font-playfair-display)',
+    'Montserrat': 'var(--font-montserrat)',
+    'Open Sans': 'var(--font-open-sans)',
+    'Open_Sans': 'var(--font-open-sans)',
+    'Poppins': 'var(--font-poppins)',
+    'Lato': 'var(--font-lato)',
+    'Lora': 'var(--font-lora)',
+    'Source Sans Pro': 'var(--font-source-sans)',
+    'Source_Sans_3': 'var(--font-source-sans)',
+    'Work Sans': 'var(--font-work-sans)',
+    'Work_Sans': 'var(--font-work-sans)',
+  }
+
+  // Font fallbacks based on font type (serif vs sans-serif)
+  const serifFonts = ['Playfair Display', 'Playfair_Display', 'Lora']
+
+  // Get fonts from admin settings, fallback to variant fonts, then defaults
+  const headingFontName = siteTheme?.headingFont || variant.fonts.heading || 'Playfair_Display'
+  const bodyFontName = siteTheme?.bodyFont || variant.fonts.body || 'Inter'
+
+  const headingFont = fontToCssVar[headingFontName] || 'var(--font-inter)'
+  const bodyFont = fontToCssVar[bodyFontName] || 'var(--font-inter)'
+
+  const headingFallback = serifFonts.includes(headingFontName) ? 'serif' : 'sans-serif'
+  const bodyFallback = serifFonts.includes(bodyFontName) ? 'serif' : 'sans-serif'
 
   // Container width
   const containerWidth = siteTheme?.containerWidth ? `${siteTheme.containerWidth}px` : '1280px'
@@ -107,7 +171,25 @@ export function generateThemeStyles(siteTheme: SiteTheme | null): string {
     ? buttonLetterSpacingPresets[siteTheme?.buttonLetterSpacing || 'normal'] || '0'
     : '0'
 
-  return `
+  // Apply animations - use override if set, otherwise use moderate as default
+  const animationsKey = siteTheme?.animations || 'moderate'
+  const animations =
+    animationPresets[animationsKey as keyof typeof animationPresets] || animationPresets.moderate
+
+  // Derive play state from enabled flag (for decorative infinite animations)
+  const animationPlayState = animations.enabled === '1' ? 'running' : 'paused'
+
+  // Generate OKLCH values for colors (for advanced color manipulation in CSS)
+  const toOklch = (hex: string): string => {
+    try {
+      return hexToOklchCss(hex)
+    } catch {
+      return hex // Fallback to hex if conversion fails
+    }
+  }
+
+  // Base CSS variables
+  const baseStyles = `
     :root {
       --theme-primary: ${colors.primary};
       --theme-secondary: ${colors.secondary};
@@ -124,6 +206,9 @@ export function generateThemeStyles(siteTheme: SiteTheme | null): string {
       --theme-text-on-dark: ${colors.textOnDark};
       --theme-text-on-light: ${colors.textOnLight};
       --theme-text-on-surface: ${colors.textOnSurface};
+      --theme-primary-oklch: ${toOklch(colors.primary)};
+      --theme-secondary-oklch: ${toOklch(colors.secondary)};
+      --theme-accent-oklch: ${toOklch(colors.accent)};
       --radius-sm: ${radius.sm};
       --radius-md: ${radius.md};
       --radius-lg: ${radius.lg};
@@ -139,8 +224,8 @@ export function generateThemeStyles(siteTheme: SiteTheme | null): string {
       --spacing-section: ${spacing.section};
       --spacing-section-mobile: ${spacing.sectionMobile};
       --container-max: ${containerWidth};
-      --font-heading: '${headingFont}', sans-serif;
-      --font-body: '${bodyFont}', sans-serif;
+      --font-heading: ${headingFont}, ${headingFallback};
+      --font-body: ${bodyFont}, ${bodyFallback};
       --letter-spacing: ${letterSpacing};
       --heading-line-height: ${headingLineHeight};
       --body-line-height: ${bodyLineHeight};
@@ -149,6 +234,14 @@ export function generateThemeStyles(siteTheme: SiteTheme | null): string {
       --btn-text-transform: ${buttonTextTransform};
       --btn-font-weight: ${buttonFontWeight};
       --btn-letter-spacing: ${buttonLetterSpacing};
+      --animation-duration: ${animations.duration};
+      --animation-duration-fast: ${animations.durationFast};
+      --animation-duration-slow: ${animations.durationSlow};
+      --animation-timing: ${animations.timing};
+      --animation-enabled: ${animations.enabled};
+      --animation-play-state: ${animationPlayState};
     }
-  `.trim()
+  `
+
+  return baseStyles.trim()
 }

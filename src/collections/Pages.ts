@@ -89,6 +89,17 @@ export const Pages: CollectionConfig = {
           label: 'URL Video (YouTube/Vimeo)',
           admin: {
             condition: (data) => data?.heroType === 'video',
+            description: 'URL YouTube sau Vimeo pentru embed video',
+          },
+        },
+        {
+          name: 'videoFile',
+          type: 'upload',
+          relationTo: 'media',
+          label: 'Fisier Video (MP4)',
+          admin: {
+            condition: (data) => data?.heroType === 'video',
+            description: 'Video MP4 local pentru background video autoplay',
           },
         },
         {
@@ -173,6 +184,37 @@ export const Pages: CollectionConfig = {
           type: 'checkbox',
           label: 'Afiseaza indicator scroll',
           defaultValue: false,
+        },
+        // Slides for slider/carousel hero
+        {
+          name: 'slides',
+          type: 'array',
+          label: 'Slide-uri Hero',
+          minRows: 2,
+          maxRows: 6,
+          admin: {
+            description: 'Adauga 2-6 slide-uri pentru carousel hero',
+            condition: (data) => data?.heroType === 'slider',
+          },
+          fields: [
+            {
+              name: 'image',
+              type: 'upload',
+              relationTo: 'media',
+              label: 'Imagine',
+              required: true,
+            },
+            {
+              name: 'headline',
+              type: 'text',
+              label: 'Titlu slide',
+            },
+            {
+              name: 'subheadline',
+              type: 'text',
+              label: 'Subtitlu slide',
+            },
+          ],
         },
         // Stats badge for split hero
         {

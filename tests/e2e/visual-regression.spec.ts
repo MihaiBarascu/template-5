@@ -1,10 +1,21 @@
 /**
- * Visual regression tests
- * Captures screenshots for each business type and variant
+ * Visual Regression Tests
+ *
+ * Captures screenshots for each business type.
+ * DOES run seed - this file tests ALL business types.
+ *
+ * Usage:
+ *   pnpm test:e2e tests/e2e/visual-regression.spec.ts
+ *
+ * NOTE: This test suite runs seed for each business type to capture
+ * screenshots. It will take significant time.
+ *
+ * DESIGN_VARIANT system has been removed.
+ * Configuration is now defined directly in src/seed/seeder-config.ts
  */
 
 import { test, expect } from '@playwright/test'
-import { BUSINESS_CONFIGS, DESIGN_VARIANTS, BusinessType, DesignVariant } from './fixtures/business-types'
+import { BUSINESS_CONFIGS, BusinessType } from './fixtures/business-types'
 import { seedBusiness, goToHomepage } from './fixtures/test-helpers'
 import * as fs from 'fs'
 import * as path from 'path'
@@ -18,10 +29,10 @@ if (!fs.existsSync(screenshotsDir)) {
 test.describe('Visual Regression - Screenshots', () => {
   test.describe.configure({ mode: 'serial' })
 
-  // Test each business type with variant 0 (main variant)
+  // Test each business type
   for (const config of BUSINESS_CONFIGS) {
-    test(`screenshot ${config.type} variant 0`, async ({ page }) => {
-      await seedBusiness(config.type, 0)
+    test(`screenshot ${config.type}`, async ({ page }) => {
+      await seedBusiness(config.type)
       await goToHomepage(page)
 
       // Wait for animations and images to load
@@ -30,12 +41,12 @@ test.describe('Visual Regression - Screenshots', () => {
       // Take full page screenshot
       await page.screenshot({
         fullPage: true,
-        path: path.join(screenshotsDir, `${config.type}-v0-desktop.png`),
+        path: path.join(screenshotsDir, `${config.type}-desktop.png`),
       })
 
       // Also take viewport screenshot
       await page.screenshot({
-        path: path.join(screenshotsDir, `${config.type}-v0-viewport.png`),
+        path: path.join(screenshotsDir, `${config.type}-viewport.png`),
       })
 
       // Basic visual assertion - page should have content
@@ -52,7 +63,7 @@ test.describe('Visual Regression - Mobile', () => {
   // Test mobile view for each business type
   for (const config of BUSINESS_CONFIGS) {
     test(`mobile screenshot ${config.type}`, async ({ page }) => {
-      await seedBusiness(config.type, 0)
+      await seedBusiness(config.type)
       await goToHomepage(page)
 
       // Wait for animations
@@ -61,48 +72,12 @@ test.describe('Visual Regression - Mobile', () => {
       // Take mobile screenshot
       await page.screenshot({
         fullPage: true,
-        path: path.join(screenshotsDir, `${config.type}-v0-mobile.png`),
+        path: path.join(screenshotsDir, `${config.type}-mobile.png`),
       })
 
       // Check responsive header (should have hamburger menu or similar)
       const header = page.locator('header').first()
       await expect(header).toBeVisible()
     })
-  }
-})
-
-// Separate test file for all variants (optional, can be run with --grep)
-test.describe('Visual Regression - All Variants', () => {
-  test.describe.configure({ mode: 'serial' })
-
-  // This test group can be skipped for faster CI runs
-  // Run with: pnpm test:e2e --grep "All Variants"
-
-  const businessTypes: BusinessType[] = ['frizerie', 'dentist', 'magazin']
-  const variants: DesignVariant[] = [0, 1, 2, 3, 4]
-
-  for (const businessType of businessTypes) {
-    for (const variant of variants) {
-      test(`${businessType} variant ${variant}`, async ({ page }) => {
-        try {
-          await seedBusiness(businessType, variant)
-          await goToHomepage(page)
-
-          await page.waitForTimeout(2000)
-
-          await page.screenshot({
-            fullPage: true,
-            path: path.join(screenshotsDir, `${businessType}-v${variant}-full.png`),
-          })
-
-          // Assert page loaded
-          const body = page.locator('body')
-          await expect(body).toBeVisible()
-        } catch (error) {
-          // Some variants might not be implemented yet
-          console.warn(`Variant ${variant} for ${businessType} failed:`, error)
-        }
-      })
-    }
   }
 })

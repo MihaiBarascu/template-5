@@ -201,9 +201,11 @@ export function FAQBlock({
                 </button>
                 <div
                   className={cn(
-                    'overflow-hidden transition-all duration-300',
+                    'overflow-hidden',
+                    'transition-all',
                     openItems.has(index) ? 'max-h-96 mt-4' : 'max-h-0'
                   )}
+                  style={{ transitionDuration: 'var(--animation-duration)', transitionTimingFunction: 'var(--animation-timing)' }}
                 >
                   <div className={cn('text-sm', isDark ? 'text-white/70' : 'text-theme-text-light')}>
                     <RichTextContent content={faq.answer} />

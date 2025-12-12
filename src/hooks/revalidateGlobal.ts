@@ -18,13 +18,16 @@ export const revalidateGlobal: GlobalAfterChangeHook = ({ doc, req, global }) =>
     // Globals that affect the entire layout need full path revalidation
     const layoutGlobals = ['site-theme', 'header', 'footer', 'logo', 'business-info', 'shop-settings']
 
+    // Always revalidate the cache tag for this global (matches getCachedGlobal tags)
+    const cacheTag = `global_${global.slug}`
+    // Next.js 16 requires a second argument for cacheLife profile - using 'max' for SWR behavior
+    revalidateTag(cacheTag, 'max')
+    req.payload.logger.info(`Revalidated cache tag: ${cacheTag}`)
+
     if (layoutGlobals.includes(global.slug)) {
       // Revalidate entire layout - all pages will re-render with new global data
       revalidatePath('/', 'layout')
       req.payload.logger.info(`Revalidated entire layout for global: ${global.slug}`)
-    } else {
-      // For other globals, just revalidate the tag
-      revalidateTag(global.slug)
     }
   } catch (_e) {
     // Ignore revalidation errors during seeding or generate:types

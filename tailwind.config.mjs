@@ -178,6 +178,15 @@ const config = {
         'theme-card-hover': 'var(--shadow-card-hover)',
         'theme-button': 'var(--shadow-button)',
       },
+      // Theme-controlled animation durations (use duration-theme for admin control)
+      transitionDuration: {
+        'theme': 'var(--animation-duration, 300ms)',
+        'theme-fast': 'var(--animation-duration-fast, 150ms)',
+        'theme-slow': 'var(--animation-duration-slow, 500ms)',
+      },
+      transitionTimingFunction: {
+        'theme': 'var(--animation-timing, ease-in-out)',
+      },
       keyframes: {
         'accordion-down': {
           from: { height: '0' },

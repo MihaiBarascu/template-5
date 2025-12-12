@@ -1,10 +1,10 @@
 'use client'
 
 import React from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { cn } from '@/utilities/cn'
-import type { Media, Service } from '@/payload-types'
+import { Media } from '@/components/Media'
+import type { Media as MediaType, Service } from '@/payload-types'
 
 interface PriceItem {
   id?: string | null
@@ -12,7 +12,7 @@ interface PriceItem {
   price: string
   duration?: string | null
   description?: string | null
-  image?: Media | string | null
+  image?: MediaType | string | null
   featured?: boolean | null
 }
 
@@ -77,13 +77,13 @@ function PriceItem({
     >
 
       {/* Image (if with-images variant) */}
-      {withImage && image && typeof image !== 'string' && image.url && (
+      {withImage && image && typeof image !== 'string' && 'url' in image && (
         <div className="relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden">
-          <Image
-            src={image.url}
-            alt={name}
+          <Media
+            resource={image as MediaType}
             fill
-            className="object-cover"
+            size="64px"
+            imgClassName="object-cover"
           />
         </div>
       )}

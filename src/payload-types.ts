@@ -239,7 +239,14 @@ export interface Page {
     headline?: string | null;
     subheadline?: string | null;
     image?: (string | null) | Media;
+    /**
+     * URL YouTube sau Vimeo pentru embed video
+     */
     videoUrl?: string | null;
+    /**
+     * Video MP4 local pentru background video autoplay
+     */
+    videoFile?: (string | null) | Media;
     ctaButtons?:
       | {
           label: string;
@@ -256,6 +263,17 @@ export interface Page {
      */
     badge?: string | null;
     showScrollIndicator?: boolean | null;
+    /**
+     * Adauga 2-6 slide-uri pentru carousel hero
+     */
+    slides?:
+      | {
+          image: string | Media;
+          headline?: string | null;
+          subheadline?: string | null;
+          id?: string | null;
+        }[]
+      | null;
     /**
      * Badge-ul cu statistici afisat pe imaginea hero
      */
@@ -1395,6 +1413,10 @@ export interface Product {
   };
   priceInRONEnabled?: boolean | null;
   priceInRON?: number | null;
+  /**
+   * Cota TVA aplicată acestui produs
+   */
+  taxCategory?: ('standard' | 'reduced' | 'zero') | null;
   brand?: string | null;
   /**
    * Nou, Promoție, Bestseller, etc.
@@ -3136,6 +3158,7 @@ export interface PagesSelect<T extends boolean = true> {
         subheadline?: T;
         image?: T;
         videoUrl?: T;
+        videoFile?: T;
         ctaButtons?:
           | T
           | {
@@ -3149,6 +3172,14 @@ export interface PagesSelect<T extends boolean = true> {
         height?: T;
         badge?: T;
         showScrollIndicator?: T;
+        slides?:
+          | T
+          | {
+              image?: T;
+              headline?: T;
+              subheadline?: T;
+              id?: T;
+            };
         statsBadge?:
           | T
           | {
@@ -5003,6 +5034,7 @@ export interface ProductsSelect<T extends boolean = true> {
   variants?: T;
   priceInRONEnabled?: T;
   priceInRON?: T;
+  taxCategory?: T;
   brand?: T;
   tags?: T;
   relatedProducts?: T;
@@ -5384,6 +5416,10 @@ export interface SiteTheme {
    * Bifat = culorile de mai jos suprascriu varianta. Nebifat = culorile din varianta.
    */
   useCustomColors?: boolean | null;
+  /**
+   * Activeaza pentru a genera automat toate culorile din culoarea primara folosind algoritmul OKLCH.
+   */
+  autoGeneratePalette?: boolean | null;
   colors?: {
     primary?: string | null;
     secondary?: string | null;
@@ -5404,46 +5440,28 @@ export interface SiteTheme {
     textOnLight?: string | null;
     textOnSurface?: string | null;
   };
-  useCustomFonts?: boolean | null;
-  fonts?: {
-    headingFont?:
-      | (
-          | 'Inter'
-          | 'Montserrat'
-          | 'Poppins'
-          | 'Roboto'
-          | 'Oswald'
-          | 'Raleway'
-          | 'Nunito'
-          | 'Work Sans'
-          | 'Playfair Display'
-          | 'Lora'
-          | 'Merriweather'
-          | 'Cormorant Garamond'
-          | 'Libre Baskerville'
-          | 'DM Serif Display'
-          | 'Abril Fatface'
-        )
-      | null;
-    bodyFont?:
-      | (
-          | 'Inter'
-          | 'Open Sans'
-          | 'Roboto'
-          | 'Lato'
-          | 'Source Sans 3'
-          | 'Poppins'
-          | 'Nunito Sans'
-          | 'Work Sans'
-          | 'DM Sans'
-          | 'Outfit'
-          | 'Lora'
-          | 'Merriweather'
-          | 'Source Serif 4'
-          | 'Crimson Text'
-        )
-      | null;
-  };
+  /**
+   * Fontul folosit pentru titluri (H1-H6)
+   */
+  headingFont?:
+    | (
+        | 'Playfair_Display'
+        | 'Lora'
+        | 'Inter'
+        | 'Montserrat'
+        | 'Poppins'
+        | 'Work_Sans'
+        | 'Open_Sans'
+        | 'Lato'
+        | 'Source_Sans_3'
+      )
+    | null;
+  /**
+   * Fontul folosit pentru text si paragrafe
+   */
+  bodyFont?:
+    | ('Inter' | 'Open_Sans' | 'Lato' | 'Poppins' | 'Source_Sans_3' | 'Montserrat' | 'Work_Sans' | 'Lora')
+    | null;
   /**
    * Permite controlul fin asupra letter-spacing si line-height
    */
@@ -5591,15 +5609,54 @@ export interface BusinessInfo {
     dismissible?: boolean | null;
   };
   /**
-   * Banner pentru consimtamant cookies conform GDPR
+   * Configurare banner cookie conform GDPR și Legea 506/2004 România
    */
   cookieConsent?: {
     enabled?: boolean | null;
-    message?: string | null;
-    position?: ('bottom' | 'bottom-left' | 'bottom-right') | null;
-    variant?: ('bar' | 'popup' | 'minimal') | null;
+    title?: string | null;
+    description?: string | null;
+    privacyPolicyUrl?: string | null;
     acceptButtonText?: string | null;
-    showDeclineButton?: boolean | null;
+    rejectButtonText?: string | null;
+    customizeButtonText?: string | null;
+    saveButtonText?: string | null;
+    necessaryTitle?: string | null;
+    necessaryDescription?: string | null;
+    analyticsTitle?: string | null;
+    analyticsDescription?: string | null;
+    marketingTitle?: string | null;
+    marketingDescription?: string | null;
+    preferencesTitle?: string | null;
+    preferencesDescription?: string | null;
+    /**
+     * Format: G-XXXXXXXXXX
+     */
+    googleAnalyticsId?: string | null;
+    /**
+     * Format: GTM-XXXXXXX
+     */
+    googleTagManagerId?: string | null;
+    /**
+     * ID numeric Facebook Pixel
+     */
+    facebookPixelId?: string | null;
+    /**
+     * ID TikTok Pixel pentru tracking conversii
+     */
+    tiktokPixelId?: string | null;
+    /**
+     * ID numeric Hotjar pentru heatmaps și session recordings
+     */
+    hotjarId?: string | null;
+    /**
+     * Număr de zile până când utilizatorul va fi întrebat din nou
+     */
+    consentExpiry?: number | null;
+    /**
+     * Buton discret în colț pentru a permite utilizatorilor să-și schimbe preferințele
+     */
+    showFloatingButton?: boolean | null;
+    position?: ('bottom' | 'bottom-left' | 'bottom-right') | null;
   };
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -5626,6 +5683,47 @@ export interface ShopSetting {
    */
   currencySymbol?: string | null;
   pricePosition?: ('before' | 'after') | null;
+  /**
+   * Activeaza calculul si afisarea TVA pe site
+   */
+  vatEnabled?: boolean | null;
+  /**
+   * RECOMANDAT pentru B2C Romania: ON. Preturile introduse in admin sunt preturile finale (cu TVA inclus) afisate clientilor.
+   */
+  pricesIncludeVat?: boolean | null;
+  /**
+   * Pentru B2C (clienti persoane fizice) este obligatoriu sa afisezi pretul final cu TVA
+   */
+  displayPricesWithVat?: boolean | null;
+  /**
+   * Cotele TVA aplicabile in Romania (din august 2025)
+   */
+  vatRates: {
+    /**
+     * TVA standard Romania: 21%
+     */
+    standard: number;
+    /**
+     * TVA redus Romania: 11%
+     */
+    reduced: number;
+    /**
+     * Pentru produse scutite
+     */
+    zero?: number | null;
+  };
+  /**
+   * Cota aplicata produselor fara categorie TVA specificata
+   */
+  defaultVatRate?: ('standard' | 'reduced' | 'zero') | null;
+  /**
+   * Afiseaza subtotal, TVA si total separat
+   */
+  showVatBreakdown?: boolean | null;
+  /**
+   * Codul fiscal al firmei pentru facturi
+   */
+  vatNumber?: string | null;
   /**
    * Valoarea minima pentru a putea plasa comanda. Lasa gol pentru fara minim.
    */
@@ -5873,6 +5971,7 @@ export interface SiteThemeSelect<T extends boolean = true> {
   containerWidth?: T;
   sectionSpacing?: T;
   useCustomColors?: T;
+  autoGeneratePalette?: T;
   colors?:
     | T
     | {
@@ -5892,13 +5991,8 @@ export interface SiteThemeSelect<T extends boolean = true> {
         textOnLight?: T;
         textOnSurface?: T;
       };
-  useCustomFonts?: T;
-  fonts?:
-    | T
-    | {
-        headingFont?: T;
-        bodyFont?: T;
-      };
+  headingFont?: T;
+  bodyFont?: T;
   useAdvancedTypography?: T;
   letterSpacing?: T;
   headingLineHeight?: T;
@@ -6021,11 +6115,29 @@ export interface BusinessInfoSelect<T extends boolean = true> {
     | T
     | {
         enabled?: T;
-        message?: T;
-        position?: T;
-        variant?: T;
+        title?: T;
+        description?: T;
+        privacyPolicyUrl?: T;
         acceptButtonText?: T;
-        showDeclineButton?: T;
+        rejectButtonText?: T;
+        customizeButtonText?: T;
+        saveButtonText?: T;
+        necessaryTitle?: T;
+        necessaryDescription?: T;
+        analyticsTitle?: T;
+        analyticsDescription?: T;
+        marketingTitle?: T;
+        marketingDescription?: T;
+        preferencesTitle?: T;
+        preferencesDescription?: T;
+        googleAnalyticsId?: T;
+        googleTagManagerId?: T;
+        facebookPixelId?: T;
+        tiktokPixelId?: T;
+        hotjarId?: T;
+        consentExpiry?: T;
+        showFloatingButton?: T;
+        position?: T;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -6041,6 +6153,19 @@ export interface ShopSettingsSelect<T extends boolean = true> {
   currency?: T;
   currencySymbol?: T;
   pricePosition?: T;
+  vatEnabled?: T;
+  pricesIncludeVat?: T;
+  displayPricesWithVat?: T;
+  vatRates?:
+    | T
+    | {
+        standard?: T;
+        reduced?: T;
+        zero?: T;
+      };
+  defaultVatRate?: T;
+  showVatBreakdown?: T;
+  vatNumber?: T;
   orderMinimum?: T;
   freeShippingThreshold?: T;
   shippingCost?: T;

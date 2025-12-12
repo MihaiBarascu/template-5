@@ -1,89 +1,101 @@
 /**
- * Homepage tests for all business types
- * Tests that each business type renders correctly
+ * Homepage Tests
+ *
+ * Tests homepage functionality on the current site.
+ * Does NOT run seed - tests whatever is currently in the database.
+ *
+ * Usage:
+ *   1. First seed the database: pnpm seed:frizerie (or any business type)
+ *   2. Then run tests: pnpm test:e2e tests/e2e/homepage.spec.ts
+ *
+ * For testing ALL business types with automatic seeding, use:
+ *   pnpm test:e2e tests/e2e/all-businesses.spec.ts
  */
 
 import { test, expect } from '@playwright/test'
-import { BUSINESS_CONFIGS, BusinessConfig } from './fixtures/business-types'
 import {
-  seedBusiness,
   goToHomepage,
   assertNoPageErrors,
   assertHeaderExists,
   assertFooterExists,
-  assertHeroExists,
   assertCSSLoaded,
 } from './fixtures/test-helpers'
 
-test.describe('Homepage - All Business Types', () => {
-  // Run tests sequentially since we're changing the database
-  test.describe.configure({ mode: 'serial' })
+test.describe('Homepage', () => {
+  // No seed - tests current database state
 
-  for (const config of BUSINESS_CONFIGS) {
-    test.describe(`${config.name} (${config.type})`, () => {
-      test.beforeAll(async () => {
-        await seedBusiness(config.type, 0)
-      })
+  test('should load homepage without errors', async ({ page }) => {
+    await goToHomepage(page)
+    await assertNoPageErrors(page)
+  })
 
-      test('should load homepage without errors', async ({ page }) => {
-        await goToHomepage(page)
-        await assertNoPageErrors(page)
-      })
+  test('should have CSS loaded correctly', async ({ page }) => {
+    await goToHomepage(page)
+    await assertCSSLoaded(page)
+  })
 
-      test('should have CSS loaded correctly', async ({ page }) => {
-        await goToHomepage(page)
-        await assertCSSLoaded(page)
-      })
+  test('should have header with navigation', async ({ page }) => {
+    await goToHomepage(page)
+    await assertHeaderExists(page)
+  })
 
-      test('should have header with navigation', async ({ page }) => {
-        await goToHomepage(page)
-        await assertHeaderExists(page)
-      })
+  test('should have hero section', async ({ page }) => {
+    await goToHomepage(page)
 
-      test('should have hero section', async ({ page }) => {
-        await goToHomepage(page)
-        await assertHeroExists(page)
-      })
+    // Look for hero - could be section, div with hero class, or first major section
+    const heroSelectors = [
+      'section:first-of-type',
+      '[class*="hero"]',
+      '[class*="Hero"]',
+      'main > section:first-child',
+      'main > div:first-child',
+    ]
 
-      test('should have footer', async ({ page }) => {
-        await goToHomepage(page)
-        await assertFooterExists(page)
-      })
-
-      test('should display brand name or business content', async ({ page }) => {
-        await goToHomepage(page)
-
-        // Check page has relevant content
-        const pageText = await page.textContent('body')
-        expect(pageText).toBeTruthy()
-        expect(pageText!.length).toBeGreaterThan(100)
-      })
-
-      // Products test only for magazin
-      if (config.hasProducts) {
-        test('should display products section', async ({ page }) => {
-          await goToHomepage(page)
-
-          // Look for products grid or list
-          const productsSection = page.locator('section').filter({
-            hasText: /produse|popular|catalog/i,
-          })
-          await expect(productsSection.first()).toBeVisible()
-        })
+    let heroFound = false
+    for (const selector of heroSelectors) {
+      const hero = page.locator(selector).first()
+      if (await hero.isVisible().catch(() => false)) {
+        heroFound = true
+        break
       }
+    }
 
-      // Portfolio test only for constructii
-      if (config.hasPortfolio) {
-        test('should display portfolio section', async ({ page }) => {
-          await goToHomepage(page)
+    expect(heroFound).toBeTruthy()
+  })
 
-          // Look for portfolio/projects section
-          const portfolioSection = page.locator('section').filter({
-            hasText: /portofoliu|proiecte/i,
-          })
-          await expect(portfolioSection.first()).toBeVisible()
-        })
-      }
-    })
-  }
+  test('should have footer', async ({ page }) => {
+    await goToHomepage(page)
+    await assertFooterExists(page)
+  })
+
+  test('should display meaningful content', async ({ page }) => {
+    await goToHomepage(page)
+
+    const pageText = await page.textContent('body')
+    expect(pageText).toBeTruthy()
+    expect(pageText!.length).toBeGreaterThan(100)
+  })
+
+  test('should have navigation links', async ({ page }) => {
+    await goToHomepage(page)
+
+    const navLinks = page.locator('header a[href^="/"], nav a[href^="/"]')
+    const count = await navLinks.count()
+
+    expect(count).toBeGreaterThan(0)
+    console.log(`  ✅ Found ${count} navigation links`)
+  })
+
+  test('should be responsive on mobile', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 })
+    await goToHomepage(page)
+
+    // Header should still be visible
+    await assertHeaderExists(page)
+
+    // No horizontal scroll
+    const scrollWidth = await page.evaluate(() => document.body.scrollWidth)
+    const clientWidth = await page.evaluate(() => document.body.clientWidth)
+    expect(scrollWidth).toBeLessThanOrEqual(clientWidth + 10)
+  })
 })

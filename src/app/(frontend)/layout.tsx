@@ -3,8 +3,7 @@ import React from 'react'
 import { GeistMono } from 'geist/font/mono'
 import { GeistSans } from 'geist/font/sans'
 
-import { getPayload } from 'payload'
-import configPromise from '@payload-config'
+import { getCachedGlobal } from '@/utilities/getGlobals'
 
 import { ThemeProvider } from '@/providers/ThemeProvider'
 import { EcommerceProviderWrapper } from '@/providers/EcommerceProvider'
@@ -16,9 +15,11 @@ import { AdminBar } from '@/components/AdminBar'
 import { WhatsAppFloat } from '@/components/WhatsAppFloat'
 import { BackToTop } from '@/components/BackToTop'
 import { CookieConsent } from '@/components/CookieConsent'
+import { ScriptLoader } from '@/components/ScriptLoader'
 import { AnnouncementBar } from '@/components/AnnouncementBar'
 import { generateThemeStyles } from '@/utilities/generateThemeStyles'
 import { getServerSideURL } from '@/utilities/getURL'
+import { getAllFontVariables } from '@/fonts'
 
 import './globals.css'
 
@@ -35,19 +36,20 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const payload = await getPayload({ config: configPromise })
-
-  // Fetch globals directly - Payload handles caching via hooks
+  // Fetch globals with cache tags for proper revalidation
   const [siteThemeData, headerData, footerData, businessInfoData, logoData] = await Promise.all([
-    payload.findGlobal({ slug: 'site-theme' }),
-    payload.findGlobal({ slug: 'header' }),
-    payload.findGlobal({ slug: 'footer' }),
-    payload.findGlobal({ slug: 'business-info' }),
-    payload.findGlobal({ slug: 'logo' }),
+    getCachedGlobal('site-theme'),
+    getCachedGlobal('header'),
+    getCachedGlobal('footer'),
+    getCachedGlobal('business-info'),
+    getCachedGlobal('logo'),
   ])
 
   // Generate inline CSS for theme to prevent FOUC
   const themeStyles = generateThemeStyles(siteThemeData)
+
+  // Load ALL font CSS variables so any can be selected via theme
+  const fontVariables = getAllFontVariables()
 
   // Extract widget settings from businessInfo
   const announcementBar = businessInfoData?.announcementBar as {
@@ -62,15 +64,33 @@ export default async function RootLayout({
 
   const cookieConsent = businessInfoData?.cookieConsent as {
     enabled?: boolean
-    message?: string
-    position?: 'bottom' | 'bottom-left' | 'bottom-right'
-    variant?: 'bar' | 'popup' | 'minimal'
+    title?: string
+    description?: string
+    privacyPolicyUrl?: string
     acceptButtonText?: string
-    showDeclineButton?: boolean
+    rejectButtonText?: string
+    customizeButtonText?: string
+    saveButtonText?: string
+    necessaryTitle?: string
+    necessaryDescription?: string
+    analyticsTitle?: string
+    analyticsDescription?: string
+    marketingTitle?: string
+    marketingDescription?: string
+    preferencesTitle?: string
+    preferencesDescription?: string
+    googleAnalyticsId?: string
+    googleTagManagerId?: string
+    facebookPixelId?: string
+    tiktokPixelId?: string
+    hotjarId?: string
+    consentExpiry?: number
+    showFloatingButton?: boolean
+    position?: 'bottom' | 'bottom-left' | 'bottom-right'
   } | undefined
 
   return (
-    <html lang="ro" suppressHydrationWarning>
+    <html lang="ro" suppressHydrationWarning className={`${GeistSans.variable} ${GeistMono.variable} ${fontVariables}`}>
       <head>
         {/* Inline theme styles to prevent FOUC */}
         <style dangerouslySetInnerHTML={{ __html: themeStyles }} />
@@ -114,23 +134,29 @@ export default async function RootLayout({
             }}
           />
         )}
-        {/* Google Fonts for theme typography */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/*
-          Google Fonts - All available fonts for theme customization
-          Heading fonts: Inter, Montserrat, Poppins, Roboto, Oswald, Raleway, Nunito, Work Sans,
-                        Playfair Display, Lora, Merriweather, Cormorant Garamond, Libre Baskerville,
-                        DM Serif Display, Abril Fatface
-          Body fonts: Inter, Open Sans, Roboto, Lato, Source Sans 3, Poppins, Nunito Sans,
-                     Work Sans, DM Sans, Outfit, Lora, Merriweather, Source Serif 4, Crimson Text
-        */}
-        <link
-          href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Cormorant+Garamond:wght@400;500;600;700&family=Crimson+Text:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&family=Inter:wght@400;500;600;700&family=Lato:wght@400;700&family=Libre+Baskerville:wght@400;700&family=Lora:wght@400;500;600;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;500;600;700&family=Nunito:wght@400;500;600;700&family=Nunito+Sans:wght@400;500;600;700&family=Open+Sans:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Raleway:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:wght@400;500;600;700&family=Work+Sans:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
+        {/* JSON-LD WebSite Schema for Google Sitelinks Search Box */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'WebSite',
+              name: businessInfoData?.name || 'Business Website',
+              url: getServerSideURL(),
+              potentialAction: {
+                '@type': 'SearchAction',
+                target: {
+                  '@type': 'EntryPoint',
+                  urlTemplate: `${getServerSideURL()}/cautare?q={search_term_string}`,
+                },
+                'query-input': 'required name=search_term_string',
+              },
+            }),
+          }}
         />
+        {/* Fonts are now self-hosted via next/font - no external requests needed */}
       </head>
-      <body className={`${GeistSans.variable} ${GeistMono.variable} antialiased`}>
+      <body className="antialiased">
         <ThemeProvider siteTheme={siteThemeData}>
           <AuthProvider>
           <EcommerceProviderWrapper>
@@ -173,15 +199,43 @@ export default async function RootLayout({
             />
             <BackToTop position="bottom-left" />
 
-            {/* Cookie Consent Banner */}
-            <CookieConsent
-              enabled={cookieConsent?.enabled ?? true}
-              message={cookieConsent?.message}
-              position={cookieConsent?.position}
-              variant={cookieConsent?.variant}
-              acceptButtonText={cookieConsent?.acceptButtonText}
-              showDeclineButton={cookieConsent?.showDeclineButton}
-            />
+            {/* Cookie Consent Banner - GDPR Romania compliant */}
+            {cookieConsent?.enabled !== false && (
+              <CookieConsent
+                enabled={cookieConsent?.enabled ?? true}
+                title={cookieConsent?.title}
+                description={cookieConsent?.description}
+                privacyPolicyUrl={cookieConsent?.privacyPolicyUrl}
+                acceptButtonText={cookieConsent?.acceptButtonText}
+                rejectButtonText={cookieConsent?.rejectButtonText}
+                customizeButtonText={cookieConsent?.customizeButtonText}
+                saveButtonText={cookieConsent?.saveButtonText}
+                necessaryTitle={cookieConsent?.necessaryTitle}
+                necessaryDescription={cookieConsent?.necessaryDescription}
+                analyticsTitle={cookieConsent?.analyticsTitle}
+                analyticsDescription={cookieConsent?.analyticsDescription}
+                marketingTitle={cookieConsent?.marketingTitle}
+                marketingDescription={cookieConsent?.marketingDescription}
+                preferencesTitle={cookieConsent?.preferencesTitle}
+                preferencesDescription={cookieConsent?.preferencesDescription}
+              />
+            )}
+
+            {/* Script Loader - Loads tracking scripts based on cookie consent */}
+            {/* Only render if at least one tracking ID is configured */}
+            {(cookieConsent?.googleAnalyticsId ||
+              cookieConsent?.googleTagManagerId ||
+              cookieConsent?.facebookPixelId ||
+              cookieConsent?.tiktokPixelId ||
+              cookieConsent?.hotjarId) && (
+              <ScriptLoader
+                googleAnalyticsId={cookieConsent?.googleAnalyticsId}
+                googleTagManagerId={cookieConsent?.googleTagManagerId}
+                facebookPixelId={cookieConsent?.facebookPixelId}
+                tiktokPixelId={cookieConsent?.tiktokPixelId}
+                hotjarId={cookieConsent?.hotjarId}
+              />
+            )}
           </ToastProvider>
           </EcommerceProviderWrapper>
           </AuthProvider>

@@ -2,7 +2,23 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { NextResponse } from 'next/server'
 import { checkRateLimit, getClientIP } from '@/utilities/rateLimit'
+import { escapeHtml } from '@/utilities/escapeHtml'
 
+/**
+ * Bookings API Endpoint - Public endpoint for creating bookings
+ *
+ * Following Payload CMS best practices:
+ * - Using getPayload() to get the Payload instance
+ * - Using Local API with overrideAccess: true for trusted server operations
+ * - Rate limiting to prevent spam
+ * - Input validation
+ *
+ * Note: The Bookings collection has `create: () => true` for public access,
+ * but we use overrideAccess: true explicitly for clarity and to ensure
+ * all fields can be set (including status and source).
+ *
+ * @see https://payloadcms.com/docs/local-api/overview
+ */
 export async function POST(request: Request) {
   // Rate limiting: 5 bookings per minute per IP
   const clientIP = getClientIP(request)
@@ -36,12 +52,14 @@ export async function POST(request: Request) {
     const payload = await getPayload({ config: configPromise })
 
     // Find service by title if provided
+    // overrideAccess: true - trusted server operation for public lookup
     let serviceId: string | undefined
     if (service) {
       const services = await payload.find({
         collection: 'services',
         where: { title: { contains: service.split(' - ')[0] } },
         limit: 1,
+        overrideAccess: true,
       })
       if (services.docs.length > 0) {
         serviceId = services.docs[0].id
@@ -49,12 +67,14 @@ export async function POST(request: Request) {
     }
 
     // Find team member by name if provided
+    // overrideAccess: true - trusted server operation for public lookup
     let teamMemberId: string | undefined
     if (staff && staff !== 'Fara preferinta') {
       const teamMembers = await payload.find({
         collection: 'team',
         where: { name: { contains: staff.split(' - ')[0] } },
         limit: 1,
+        overrideAccess: true,
       })
       if (teamMembers.docs.length > 0) {
         teamMemberId = teamMembers.docs[0].id
@@ -62,6 +82,7 @@ export async function POST(request: Request) {
     }
 
     // Save to bookings collection
+    // overrideAccess: true - trusted server operation to set all fields including status/source
     await payload.create({
       collection: 'bookings',
       data: {
@@ -76,6 +97,7 @@ export async function POST(request: Request) {
         status: 'pending',
         source: 'website',
       },
+      overrideAccess: true,
     })
 
     // Optionally send email notification
@@ -85,24 +107,24 @@ export async function POST(request: Request) {
       if (businessInfo?.email) {
         await payload.sendEmail({
           to: businessInfo.email,
-          subject: `Cerere noua de programare - ${name}`,
+          subject: `Cerere noua de programare - ${escapeHtml(name)}`,
           html: `
             <h2>Cerere noua de programare</h2>
-            <p><strong>Client:</strong> ${name}</p>
-            <p><strong>Telefon:</strong> ${phone}</p>
-            ${email ? `<p><strong>Email:</strong> ${email}</p>` : ''}
-            ${service ? `<p><strong>Serviciu:</strong> ${service}</p>` : ''}
-            ${staff ? `<p><strong>Specialist preferat:</strong> ${staff}</p>` : ''}
-            ${date ? `<p><strong>Data preferata:</strong> ${date}</p>` : ''}
-            ${time ? `<p><strong>Ora preferata:</strong> ${time}</p>` : ''}
-            ${notes ? `<p><strong>Mentiuni:</strong> ${notes}</p>` : ''}
+            <p><strong>Client:</strong> ${escapeHtml(name)}</p>
+            <p><strong>Telefon:</strong> ${escapeHtml(phone)}</p>
+            ${email ? `<p><strong>Email:</strong> ${escapeHtml(email)}</p>` : ''}
+            ${service ? `<p><strong>Serviciu:</strong> ${escapeHtml(service)}</p>` : ''}
+            ${staff ? `<p><strong>Specialist preferat:</strong> ${escapeHtml(staff)}</p>` : ''}
+            ${date ? `<p><strong>Data preferata:</strong> ${escapeHtml(date)}</p>` : ''}
+            ${time ? `<p><strong>Ora preferata:</strong> ${escapeHtml(time)}</p>` : ''}
+            ${notes ? `<p><strong>Mentiuni:</strong> ${escapeHtml(notes)}</p>` : ''}
             <hr>
             <p><em>Te rugam sa contactezi clientul pentru confirmare.</em></p>
           `,
         })
       }
     } catch (emailError) {
-      console.warn('Could not send booking notification email:', emailError)
+      payload.logger.warn({ err: emailError, msg: 'Could not send booking notification email' })
     }
 
     return NextResponse.json(
@@ -110,7 +132,9 @@ export async function POST(request: Request) {
       { status: 200 }
     )
   } catch (error) {
-    console.error('Booking error:', error)
+    // Note: payload instance is scoped inside try block, not available here
+    // console.error is acceptable for API route error logging
+    console.error('Booking API error:', error)
     return NextResponse.json(
       { error: 'A aparut o eroare la trimiterea cererii.' },
       { status: 500 }

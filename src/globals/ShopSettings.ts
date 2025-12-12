@@ -73,6 +73,121 @@ export const ShopSettings: GlobalConfig = {
           ],
         },
         {
+          label: 'TVA',
+          fields: [
+            {
+              name: 'vatEnabled',
+              type: 'checkbox',
+              label: 'Activare TVA',
+              defaultValue: true,
+              admin: {
+                description: 'Activeaza calculul si afisarea TVA pe site',
+              },
+            },
+            {
+              name: 'pricesIncludeVat',
+              type: 'checkbox',
+              label: 'Preturile introduse includ TVA',
+              defaultValue: true,
+              admin: {
+                description: 'RECOMANDAT pentru B2C Romania: ON. Preturile introduse in admin sunt preturile finale (cu TVA inclus) afisate clientilor.',
+              },
+            },
+            {
+              name: 'displayPricesWithVat',
+              type: 'checkbox',
+              label: 'Afiseaza preturi cu TVA inclus',
+              defaultValue: true,
+              admin: {
+                description: 'Pentru B2C (clienti persoane fizice) este obligatoriu sa afisezi pretul final cu TVA',
+              },
+            },
+            {
+              name: 'vatRates',
+              type: 'group',
+              label: 'Cote TVA',
+              admin: {
+                description: 'Cotele TVA aplicabile in Romania (din august 2025)',
+              },
+              fields: [
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'standard',
+                      type: 'number',
+                      label: 'Cota standard (%)',
+                      defaultValue: 21,
+                      required: true,
+                      min: 0,
+                      max: 100,
+                      admin: {
+                        width: '33%',
+                        description: 'TVA standard Romania: 21%',
+                      },
+                    },
+                    {
+                      name: 'reduced',
+                      type: 'number',
+                      label: 'Cota redusa (%)',
+                      defaultValue: 11,
+                      required: true,
+                      min: 0,
+                      max: 100,
+                      admin: {
+                        width: '33%',
+                        description: 'TVA redus Romania: 11%',
+                      },
+                    },
+                    {
+                      name: 'zero',
+                      type: 'number',
+                      label: 'Scutit TVA (%)',
+                      defaultValue: 0,
+                      admin: {
+                        width: '33%',
+                        description: 'Pentru produse scutite',
+                        readOnly: true,
+                      },
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              name: 'defaultVatRate',
+              type: 'select',
+              label: 'Cota TVA implicita',
+              defaultValue: 'standard',
+              options: [
+                { label: 'Standard (21%)', value: 'standard' },
+                { label: 'Redusa (11%)', value: 'reduced' },
+                { label: 'Scutit (0%)', value: 'zero' },
+              ],
+              admin: {
+                description: 'Cota aplicata produselor fara categorie TVA specificata',
+              },
+            },
+            {
+              name: 'showVatBreakdown',
+              type: 'checkbox',
+              label: 'Afiseaza detalii TVA in cos/checkout',
+              defaultValue: true,
+              admin: {
+                description: 'Afiseaza subtotal, TVA si total separat',
+              },
+            },
+            {
+              name: 'vatNumber',
+              type: 'text',
+              label: 'Cod fiscal (CUI/CIF)',
+              admin: {
+                description: 'Codul fiscal al firmei pentru facturi',
+              },
+            },
+          ],
+        },
+        {
           label: 'Comanda',
           fields: [
             {

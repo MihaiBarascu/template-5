@@ -1,9 +1,9 @@
 'use client'
 
 import React, { useState, useCallback } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
-import { Media } from '@/payload-types'
+import { Media as MediaType } from '@/payload-types'
+import { Media } from '@/components/Media'
 import { useToast } from '@/components/Toast'
 import { useCart } from '@payloadcms/plugin-ecommerce/client/react'
 
@@ -14,7 +14,7 @@ interface Product {
   priceInRON?: number | null
   badge?: string | null
   featured?: boolean | null
-  images?: Array<{ image: Media | string }> | null
+  images?: Array<{ image: MediaType | string }> | null
   category?: { title: string; slug: string } | string | null
   inventory?: number | null
 }
@@ -62,11 +62,11 @@ export function ProductsBlock({
     featured: 'grid-cols-1 lg:grid-cols-2',
   }
 
-  const getImageUrl = (product: Product): string | null => {
+  const getFirstImage = (product: Product): MediaType | null => {
     if (!product.images || product.images.length === 0) return null
     const firstImage = product.images[0]?.image
-    if (typeof firstImage === 'string') return firstImage
-    return firstImage?.url || null
+    if (typeof firstImage === 'string') return null
+    return firstImage || null
   }
 
   const handleAddToCart = useCallback(async (product: Product) => {
@@ -123,7 +123,7 @@ export function ProductsBlock({
         {/* Products Grid */}
         <div className={`grid gap-6 ${variant === 'carousel' ? '' : gridClasses[variant]}`}>
           {products.map((product, index) => {
-            const imageUrl = getImageUrl(product)
+            const productImage = getFirstImage(product)
             const isOutOfStock = (product.inventory ?? 0) <= 0
             const isAddingThis = addingProductId === product.id
 
@@ -143,12 +143,12 @@ export function ProductsBlock({
 
                 {/* Image */}
                 <Link href={`/produse/${product.slug}`} className="block aspect-square relative overflow-hidden">
-                  {imageUrl ? (
-                    <Image
-                      src={imageUrl}
-                      alt={product.title}
+                  {productImage ? (
+                    <Media
+                      resource={productImage}
                       fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      size="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 280px"
+                      imgClassName="object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   ) : (
                     <div className="w-full h-full bg-theme-light flex items-center justify-center">

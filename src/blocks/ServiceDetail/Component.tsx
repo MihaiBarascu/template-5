@@ -2,7 +2,6 @@
 
 import React from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import {
   Award,
   Calendar,
@@ -14,7 +13,8 @@ import {
   Users,
 } from 'lucide-react'
 import * as LucideIcons from 'lucide-react'
-import type { Service, Team as TeamMember, Media } from '@/payload-types'
+import type { Service, Team as TeamMember, Media as MediaType } from '@/payload-types'
+import { Media } from '@/components/Media'
 import RichText from '@/components/RichText'
 
 // Default labels (used as fallbacks when not configured)
@@ -194,9 +194,9 @@ export function ServiceDetailBlock({
     dark: 'bg-theme-dark text-white',
   }
 
-  const image = serviceData.image as Media | null
+  const image = serviceData.image as MediaType | null
   const assignedTeamMember = serviceData.assignedTeamMember as TeamMember | null
-  const teamMemberImage = assignedTeamMember?.image as Media | null
+  const teamMemberImage = assignedTeamMember?.image as MediaType | null
 
   // Get attributes for display
   const attributes = serviceData.attributes || []
@@ -241,11 +241,11 @@ export function ServiceDetailBlock({
             <div className="bg-white rounded-xl shadow-lg overflow-hidden">
               {image?.url && (
                 <div className="relative h-64 md:h-96">
-                  <Image
-                    src={image.url}
-                    alt={image.alt || serviceData.title}
+                  <Media
+                    resource={image}
                     fill
-                    className="object-cover"
+                    size="(max-width: 768px) 100vw, 896px"
+                    imgClassName="object-cover"
                   />
                 </div>
               )}
@@ -343,11 +343,11 @@ export function ServiceDetailBlock({
             <div className="bg-white rounded-xl shadow-lg overflow-hidden">
               {image?.url ? (
                 <div className="relative h-72 md:h-96 lg:h-[450px]">
-                  <Image
-                    src={image.url}
-                    alt={image.alt || serviceData.title}
+                  <Media
+                    resource={image}
                     fill
-                    className="object-cover"
+                    size="(max-width: 768px) 100vw, (max-width: 1024px) 66vw, 800px"
+                    imgClassName="object-cover"
                     priority
                   />
                 </div>
@@ -530,11 +530,11 @@ export function ServiceDetailBlock({
                   <div className="flex items-center gap-4">
                     {teamMemberImage?.url ? (
                       <div className="relative w-16 h-16 rounded-full overflow-hidden">
-                        <Image
-                          src={teamMemberImage.url}
-                          alt={teamMemberImage.alt || assignedTeamMember.name}
+                        <Media
+                          resource={teamMemberImage}
                           fill
-                          className="object-cover"
+                          size="64px"
+                          imgClassName="object-cover"
                         />
                       </div>
                     ) : (
@@ -565,7 +565,7 @@ export function ServiceDetailBlock({
             <h2 className="text-3xl font-bold text-theme-dark mb-8">{relatedServicesTitle}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {relatedServices.map((relatedService) => {
-                const relatedImage = relatedService.image as Media | null
+                const relatedImage = relatedService.image as MediaType | null
 
                 return (
                   <div
@@ -575,11 +575,11 @@ export function ServiceDetailBlock({
                     <Link href={`${paths.servicesBasePath}/${relatedService.slug}`}>
                       <div className="relative h-48">
                         {relatedImage?.url ? (
-                          <Image
-                            src={relatedImage.url}
-                            alt={relatedImage.alt || relatedService.title}
+                          <Media
+                            resource={relatedImage}
                             fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                            size="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            imgClassName="object-cover group-hover:scale-105 transition-transform duration-300"
                           />
                         ) : relatedService.icon ? (
                           <div className="h-full bg-gradient-to-br from-theme-primary/20 to-theme-dark/20 flex items-center justify-center">

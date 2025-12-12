@@ -1,8 +1,10 @@
 import React from 'react'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
-import type { Page, Portfolio, Service } from '@/payload-types'
+import type { Page, Portfolio, Service, Media as MediaType } from '@/payload-types'
 import type { Where } from 'payload'
+import { getDisplayPrice, type TaxCategory, type TaxSettings } from '@/utilities/tax'
+// getServerSideURL not needed here - JSON-LD schemas don't need absolute URLs in RenderBlocks
 
 // Import block components
 import { ServicesBlock } from './Services/Component'
@@ -45,6 +47,33 @@ import { FormBlockComponent } from './Form/Component'
 import { MapBlock } from './Map/Component'
 
 type LayoutBlock = NonNullable<Page['layout']>[number]
+
+// Helper to extract plain text from Lexical rich text format (for JSON-LD)
+interface LexicalNode {
+  type?: string
+  text?: string
+  children?: LexicalNode[]
+}
+
+interface LexicalContent {
+  root?: {
+    children?: LexicalNode[]
+  }
+}
+
+function extractTextFromLexical(content: LexicalContent): string {
+  if (!content?.root?.children) return ''
+
+  const extractText = (node: LexicalNode): string => {
+    if (node.text) return node.text
+    if (node.children) {
+      return node.children.map(extractText).join(' ')
+    }
+    return ''
+  }
+
+  return content.root.children.map(extractText).join(' ').trim()
+}
 
 interface BlockParams {
   limit?: number | null
@@ -160,6 +189,20 @@ async function getBusinessInfo() {
   return businessInfo
 }
 
+// Fetch shop settings (for TVA/VAT)
+async function getShopSettings() {
+  const payload = await getPayload({ config: configPromise })
+
+  try {
+    const shopSettings = await payload.findGlobal({
+      slug: 'shop-settings',
+    })
+    return shopSettings
+  } catch {
+    return null
+  }
+}
+
 // getPricePackages removed - use getSubscriptions instead
 
 // Fetch portfolio items
@@ -176,8 +219,8 @@ async function getPortfolioItems(block: BlockParams) {
   return portfolio.docs
 }
 
-// Fetch products
-async function getProducts(block: BlockParams) {
+// Fetch products with VAT calculation
+async function getProducts(block: BlockParams, taxSettings?: TaxSettings | null) {
   const payload = await getPayload({ config: configPromise })
 
   const where: Where = {}
@@ -198,7 +241,21 @@ async function getProducts(block: BlockParams) {
     depth: 2, // Populate images and category
   })
 
-  return products.docs
+  // Apply VAT calculation to display prices if needed
+  return products.docs.map((product) => {
+    const taxCategory = (product.taxCategory as TaxCategory) || 'standard'
+    const priceFromDb = product.priceInRON || 0
+
+    // Calculate display price based on VAT settings
+    const displayPrice = taxSettings
+      ? getDisplayPrice(priceFromDb, taxCategory, taxSettings)
+      : priceFromDb
+
+    return {
+      ...product,
+      priceInRON: displayPrice,
+    }
+  })
 }
 
 // Fetch services with class-like filters (for schedule and grid display)
@@ -337,8 +394,23 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
     return null
   }
 
-  // Pre-fetch business info
+  // Pre-fetch business info and shop settings
   const businessInfo = await getBusinessInfo()
+  const shopSettings = await getShopSettings()
+
+  // Transform shop settings to TaxSettings format
+  const taxSettings: TaxSettings | null = shopSettings ? {
+    vatEnabled: shopSettings.vatEnabled ?? true,
+    pricesIncludeVat: shopSettings.pricesIncludeVat ?? false,
+    displayPricesWithVat: shopSettings.displayPricesWithVat ?? true,
+    vatRates: {
+      standard: shopSettings.vatRates?.standard ?? 19,
+      reduced: shopSettings.vatRates?.reduced ?? 9,
+      zero: 0,
+    },
+    defaultVatRate: (shopSettings.defaultVatRate as TaxCategory) ?? 'standard',
+    showVatBreakdown: shopSettings.showVatBreakdown ?? true,
+  } : null
 
   return (
     <>
@@ -443,16 +515,38 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
               const faqs = await getFAQs({
                 limit: block.limit,
               })
+
+              // Generate FAQPage JSON-LD Schema for SEO
+              const faqJsonLd = faqs.length > 0 ? {
+                '@context': 'https://schema.org',
+                '@type': 'FAQPage',
+                mainEntity: faqs.map((faq) => ({
+                  '@type': 'Question',
+                  name: faq.question,
+                  acceptedAnswer: {
+                    '@type': 'Answer',
+                    text: extractTextFromLexical(faq.answer as LexicalContent),
+                  },
+                })),
+              } : null
+
               return (
-                <FAQBlock
-                  key={block.id || index}
-                  variant={block.variant ?? undefined}
-                  heading={block.heading ?? undefined}
-                  subheading={block.subheading ?? undefined}
-                  defaultOpen={block.defaultOpen ?? undefined}
-                  backgroundColor={block.backgroundColor ?? undefined}
-                  faqs={faqs}
-                />
+                <React.Fragment key={block.id || index}>
+                  {faqJsonLd && (
+                    <script
+                      type="application/ld+json"
+                      dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+                    />
+                  )}
+                  <FAQBlock
+                    variant={block.variant ?? undefined}
+                    heading={block.heading ?? undefined}
+                    subheading={block.subheading ?? undefined}
+                    defaultOpen={block.defaultOpen ?? undefined}
+                    backgroundColor={block.backgroundColor ?? undefined}
+                    faqs={faqs}
+                  />
+                </React.Fragment>
               )
             }
 
@@ -494,8 +588,15 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
             }
 
             case 'gallery': {
-              // Transform images into a consistent format
-              type GalleryImage = { id: string; url: string; alt?: string }
+              // Transform images into a consistent format with full Media objects for high-quality rendering
+              type GalleryImage = {
+                id: string
+                url?: string
+                alt?: string
+                caption?: string
+                category?: string
+                media?: MediaType | null
+              }
               let images: GalleryImage[] = []
 
               if (block.source === 'portfolio') {
@@ -503,11 +604,12 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                 images = (portfolio as Portfolio[])
                   .filter((item) => (item.featuredImage as { url?: string } | null)?.url)
                   .map((item) => {
-                    const featuredImage = item.featuredImage as { url?: string; alt?: string } | null
+                    const featuredImage = item.featuredImage as MediaType | null
                     return {
                       id: item.id,
                       url: featuredImage?.url ?? '',
                       alt: featuredImage?.alt || item.title,
+                      media: featuredImage,
                     }
                   })
               } else if (block.images) {
@@ -517,11 +619,14 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                     return imgData && typeof imgData !== 'string' && imgData.url
                   })
                   .map((img) => {
-                    const imgData = img.image as { url?: string; alt?: string; id?: string } | null
+                    const imgData = img.image as MediaType | null
                     return {
                       id: img.id || imgData?.id || '',
                       url: imgData?.url ?? '',
                       alt: imgData?.alt || img.caption || '',
+                      caption: img.caption || '',
+                      category: img.category || '',
+                      media: imgData,
                     }
                   })
               }
@@ -585,7 +690,7 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                 onlyFeatured: block.onlyFeatured,
                 onlySale: block.onlySale,
                 filterByCategory: typeof block.filterByCategory === 'string' ? block.filterByCategory : undefined,
-              })
+              }, taxSettings)
               return (
                 <ProductsBlock
                   key={block.id || index}

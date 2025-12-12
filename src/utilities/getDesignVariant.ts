@@ -266,13 +266,12 @@ export async function getResolvedTheme(): Promise<ThemeVariant> {
       }
     : baseVariant.colors
 
-  // Apply custom fonts if enabled
-  const fonts = siteTheme?.useCustomFonts && siteTheme.fonts
-    ? {
-        heading: siteTheme.fonts.headingFont || baseVariant.fonts.heading,
-        body: siteTheme.fonts.bodyFont || baseVariant.fonts.body,
-      }
-    : baseVariant.fonts
+  // Fonts are now configured via .env (NEXT_PUBLIC_HEADING_FONT, NEXT_PUBLIC_BODY_FONT)
+  // and loaded via next/font at build time (self-hosted)
+  const fonts = {
+    heading: process.env.NEXT_PUBLIC_HEADING_FONT || baseVariant.fonts.heading,
+    body: process.env.NEXT_PUBLIC_BODY_FONT || baseVariant.fonts.body,
+  }
 
   // Apply style overrides
   const borderRadius = (siteTheme?.borderRadius || baseVariant.borderRadius) as ThemeVariant['borderRadius']

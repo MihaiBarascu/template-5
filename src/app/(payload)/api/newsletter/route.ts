@@ -65,12 +65,14 @@ export async function POST(request: Request) {
     const normalizedEmail = email.toLowerCase().trim()
 
     // Check if already subscribed
+    // overrideAccess: true - trusted server operation for public lookup
     const existing = await payload.find({
       collection: 'newsletter-subscribers',
       where: {
         email: { equals: normalizedEmail },
       },
       limit: 1,
+      overrideAccess: true,
     })
 
     if (existing.docs.length > 0) {
@@ -127,6 +129,8 @@ export async function POST(request: Request) {
       message: 'Multumim! Te-ai abonat cu succes la newsletter.',
     })
   } catch (error) {
+    // Note: payload instance is scoped inside try block, not available here
+    // console.error is acceptable for API route error logging
     console.error('Newsletter subscription error:', error)
 
     // Handle duplicate email error (unique constraint)
@@ -167,12 +171,14 @@ export async function DELETE(request: Request) {
     const normalizedEmail = email.toLowerCase().trim()
 
     // Find subscriber
+    // overrideAccess: true - trusted server operation for public lookup
     const existing = await payload.find({
       collection: 'newsletter-subscribers',
       where: {
         email: { equals: normalizedEmail },
       },
       limit: 1,
+      overrideAccess: true,
     })
 
     if (existing.docs.length === 0) {
@@ -198,6 +204,8 @@ export async function DELETE(request: Request) {
       message: 'Te-ai dezabonat cu succes de la newsletter.',
     })
   } catch (error) {
+    // Note: payload instance is scoped inside try block, not available here
+    // console.error is acceptable for API route error logging
     console.error('Newsletter unsubscribe error:', error)
     return NextResponse.json(
       {

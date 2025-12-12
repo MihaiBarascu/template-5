@@ -208,6 +208,59 @@ export async function uploadLocalImage(
   }
 }
 
+// Helper to upload local video from filesystem
+export async function uploadLocalVideo(
+  payload: Payload,
+  filePath: string,
+  alt: string,
+): Promise<string | null> {
+  const filename = path.basename(filePath);
+  const cacheKey = `video_${filename}`;
+
+  // Check in-memory cache first
+  if (imageCache.has(cacheKey)) {
+    return imageCache.get(cacheKey) || null;
+  }
+
+  // If reusing existing media, search in DB by filename
+  if (reuseExistingImages) {
+    const existingId = await findExistingImage(payload, filename);
+    if (existingId) {
+      console.log(`   ♻️  Reusing video: ${filename}`);
+      imageCache.set(cacheKey, existingId);
+      return existingId;
+    }
+    console.log(`   ⚠️  Video not found: ${filename} (run with --with-images to upload)`);
+    return null;
+  }
+
+  // Fresh upload mode (--with-images)
+  try {
+    console.log(`   🎬 Uploading video: ${filename}...`);
+
+    if (!fs.existsSync(filePath)) {
+      console.error(`   Video file not found: ${filePath}`);
+      return null;
+    }
+
+    const media = await payload.create({
+      collection: 'media',
+      data: {
+        alt,
+      },
+      filePath: filePath,
+    });
+
+    imageCache.set(cacheKey, media.id);
+    console.log(`   ✅ Video uploaded: ${filename}`);
+
+    return media.id;
+  } catch (error) {
+    console.error(`   Error uploading video ${filePath}:`, error);
+    return null;
+  }
+}
+
 // Helper to upload local seed images from public/images folder
 export async function uploadLocalSeedImages(
   payload: Payload,
@@ -282,8 +335,9 @@ export async function seedSiteTheme(
     sectionSpacing?: SiteTheme['sectionSpacing'];
     useCustomColors?: boolean;
     colors?: SiteTheme['colors'];
-    useCustomFonts?: boolean;
-    fonts?: SiteTheme['fonts'];
+    // Typography
+    headingFont?: SiteTheme['headingFont'];
+    bodyFont?: SiteTheme['bodyFont'];
   },
 ) {
   await payload.updateGlobal({
@@ -297,11 +351,12 @@ export async function seedSiteTheme(
       sectionSpacing: options.sectionSpacing,
       useCustomColors: options.useCustomColors || false,
       colors: options.colors,
-      useCustomFonts: options.useCustomFonts || false,
-      fonts: options.fonts,
+      // Typography - if not provided, uses variant defaults from generateThemeStyles
+      headingFont: options.headingFont,
+      bodyFont: options.bodyFont,
     },
   });
-  console.log(`   Site theme configured: ${options.variant}`);
+  console.log(`   Site theme configured: ${options.variant}${options.headingFont ? ` (fonts: ${options.headingFont}/${options.bodyFont})` : ''}`);
 }
 
 // Alias for backwards compatibility
@@ -752,6 +807,96 @@ export async function seedPricePackages(
   await seedSubscriptions(payload, subscriptions);
 }
 
+// Hero data type for buildHeroData helper
+export interface HeroDataInput {
+  headline?: string
+  subheadline?: string
+  ctaButtons?: Array<{ label: string; link: string; variant?: string }>
+  overlayEnabled?: boolean
+  overlayOpacity?: string
+  overlayStyle?: string
+  imageId?: string
+  videoUrl?: string // YouTube/Vimeo URL for video hero
+  videoFileId?: string // Local MP4 upload ID for video hero
+  slides?: Array<{ imageId: string; headline?: string; subheadline?: string }>
+  statsBadge?: { enabled?: boolean; value?: string; label?: string }
+}
+
+// Helper to build hero data based on hero type from design variant
+export function buildHeroData(
+  heroType: string,
+  baseData: {
+    headline?: string
+    subheadline?: string
+    ctaButtons?: Array<{ label: string; link: string; variant?: string }>
+  },
+  overlaySettings: {
+    overlayEnabled?: boolean
+    overlayOpacity?: string
+    overlayStyle?: string
+  },
+  images: {
+    heroImages: Array<{ filename: string; alt: string }>
+    galleryImages: Array<{ filename: string; alt: string }>
+    getImageId: (filename: string) => string | undefined
+  },
+  stats?: {
+    yearsExperience?: number
+  },
+  videoFileId?: string // Local MP4 video ID from Payload Media
+): HeroDataInput {
+  const heroData: HeroDataInput = {
+    headline: baseData.headline,
+    subheadline: baseData.subheadline,
+    ctaButtons: baseData.ctaButtons,
+    ...overlaySettings,
+  }
+
+  // For video hero, add video file ID
+  if (heroType === 'video') {
+    if (videoFileId) {
+      heroData.videoFileId = videoFileId
+      console.log(`   🎬 Set video hero with uploaded video`)
+    }
+    // Also set a fallback image for when video doesn't load
+    heroData.imageId = images.getImageId(images.heroImages[0]?.filename)
+  }
+  // For carousel/slider hero, generate slides from hero and gallery images
+  else if (heroType === 'carousel' || heroType === 'slider') {
+    const slideImages = [
+      ...images.heroImages,
+      ...images.galleryImages.slice(0, 4), // Add first 4 gallery images
+    ]
+    const slides: Array<{ imageId: string; headline?: string; subheadline?: string }> = []
+    slideImages.forEach((img, index) => {
+      const imgId = images.getImageId(img.filename)
+      if (imgId) {
+        slides.push({
+          imageId: imgId,
+          headline: index === 0 ? baseData.headline : undefined,
+          subheadline: index === 0 ? baseData.subheadline : undefined,
+        })
+      }
+    })
+    heroData.slides = slides
+    console.log(`   📽️ Created ${slides.length} slides for carousel hero`)
+  } else {
+    // Standard hero with single image
+    heroData.imageId = images.getImageId(images.heroImages[0]?.filename)
+  }
+
+  // For split hero, add stats badge
+  if (heroType === 'split' && stats?.yearsExperience) {
+    heroData.statsBadge = {
+      enabled: true,
+      value: `${stats.yearsExperience}+`,
+      label: 'ani experienta',
+    }
+  }
+
+  return heroData
+}
+
 // Helper to create homepage with optional hero image
 type HeroType =
   | 'none'
@@ -776,6 +921,15 @@ export async function seedHomePage(
       subheadline?: string;
       ctaButtons?: Array<{ label: string; link: string; variant?: string }>;
       imageId?: string; // Optional hero background image
+      // Video for video hero
+      videoUrl?: string; // YouTube/Vimeo URL
+      videoFileId?: string; // Local MP4 upload ID
+      // Slides for carousel/slider hero
+      slides?: Array<{
+        imageId: string;
+        headline?: string;
+        subheadline?: string;
+      }>;
       // Overlay settings
       overlayEnabled?: boolean;
       overlayOpacity?: string;
@@ -784,6 +938,12 @@ export async function seedHomePage(
       height?: 'small' | 'medium' | 'large' | 'fullscreen';
       badge?: string;
       showScrollIndicator?: boolean;
+      // Stats badge for split hero
+      statsBadge?: {
+        enabled?: boolean;
+        value?: string;
+        label?: string;
+      };
     };
     layout?: Array<{
       blockType: string;
@@ -805,6 +965,15 @@ export async function seedHomePage(
           variant: (btn.variant || 'default') as ButtonVariant,
         })),
         image: data.hero?.imageId || undefined,
+        // Video for video hero
+        videoUrl: data.hero?.videoUrl,
+        videoFile: data.hero?.videoFileId || undefined,
+        // Slides for carousel/slider hero
+        slides: data.hero?.slides?.map(slide => ({
+          image: slide.imageId,
+          headline: slide.headline,
+          subheadline: slide.subheadline,
+        })),
         // Overlay settings - default to enabled with gradient style
         overlayEnabled: data.hero?.overlayEnabled ?? true,
         overlayOpacity: (data.hero?.overlayOpacity || '60') as OverlayOpacity,
@@ -813,6 +982,8 @@ export async function seedHomePage(
         height: data.hero?.height || 'large',
         badge: data.hero?.badge,
         showScrollIndicator: data.hero?.showScrollIndicator ?? false,
+        // Stats badge for split hero
+        statsBadge: data.hero?.statsBadge,
       },
       layout: (data.layout || []) as Page['layout'],
       _status: 'published',

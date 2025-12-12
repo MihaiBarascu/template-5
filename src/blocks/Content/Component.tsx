@@ -1,8 +1,9 @@
 import React from 'react'
-import Image from 'next/image'
 import { cn } from '@/utilities/cn'
 import RichText from '@/components/RichText'
-import type { Page } from '@/payload-types'
+import { LazyVideo } from '@/components/LazyVideo'
+import { Media } from '@/components/Media'
+import type { Page, Media as MediaType } from '@/payload-types'
 import { RenderBlocks } from '../RenderBlocks'
 
 // Extract ContentBlock type from Page layout
@@ -114,12 +115,12 @@ export const ContentBlock: React.FC<ContentBlockProps> = async ({
 
                 {column.contentType === 'image' && column.image && (
                   <div className="relative aspect-video rounded-lg overflow-hidden">
-                    {typeof column.image === 'object' && 'url' in column.image && column.image.url && (
-                      <Image
-                        src={column.image.url}
-                        alt={(column.image as { alt?: string }).alt || ''}
+                    {typeof column.image === 'object' && 'url' in column.image && (
+                      <Media
+                        resource={column.image as MediaType}
                         fill
-                        className="object-cover"
+                        size="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
+                        imgClassName="object-cover"
                       />
                     )}
                   </div>
@@ -127,27 +128,7 @@ export const ContentBlock: React.FC<ContentBlockProps> = async ({
 
                 {column.contentType === 'video' && column.videoUrl && (
                   <div className="relative aspect-video rounded-lg overflow-hidden">
-                    {column.videoUrl.includes('youtube') || column.videoUrl.includes('youtu.be') ? (
-                      <iframe
-                        src={getYouTubeEmbedUrl(column.videoUrl)}
-                        className="absolute inset-0 w-full h-full"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      />
-                    ) : column.videoUrl.includes('vimeo') ? (
-                      <iframe
-                        src={getVimeoEmbedUrl(column.videoUrl)}
-                        className="absolute inset-0 w-full h-full"
-                        allow="autoplay; fullscreen; picture-in-picture"
-                        allowFullScreen
-                      />
-                    ) : (
-                      <video
-                        src={column.videoUrl}
-                        className="absolute inset-0 w-full h-full object-cover"
-                        controls
-                      />
-                    )}
+                    <LazyVideo videoUrl={column.videoUrl} title="Video content" />
                   </div>
                 )}
 
@@ -163,17 +144,6 @@ export const ContentBlock: React.FC<ContentBlockProps> = async ({
       </div>
     </section>
   )
-}
-
-// Helper functions for video embeds
-function getYouTubeEmbedUrl(url: string): string {
-  const videoId = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1]
-  return videoId ? `https://www.youtube.com/embed/${videoId}` : url
-}
-
-function getVimeoEmbedUrl(url: string): string {
-  const videoId = url.match(/vimeo\.com\/(\d+)/)?.[1]
-  return videoId ? `https://player.vimeo.com/video/${videoId}` : url
 }
 
 export default ContentBlock

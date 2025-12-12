@@ -31,12 +31,14 @@ ENV PAYLOAD_SECRET=$PAYLOAD_SECRET
 ENV DATABASE_URI=$DATABASE_URI
 
 # Build with detected package manager
+# Using --webpack because Next.js 16 defaults to Turbopack but Payload CMS requires webpack for production builds
 # Using --experimental-build-mode compile to skip static generation during build
 # This allows building without a database connection (pages will be generated at runtime with ISR)
+# NOTE: When Next.js 16.1.0 stable is released, --webpack flag can be removed
 RUN \
-  if [ -f yarn.lock ]; then yarn cross-env NODE_OPTIONS=--no-deprecation next build --experimental-build-mode compile; \
-  elif [ -f package-lock.json ]; then npx cross-env NODE_OPTIONS=--no-deprecation next build --experimental-build-mode compile; \
-  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm exec cross-env NODE_OPTIONS=--no-deprecation next build --experimental-build-mode compile; \
+  if [ -f yarn.lock ]; then yarn cross-env NODE_OPTIONS=--no-deprecation next build --webpack --experimental-build-mode compile; \
+  elif [ -f package-lock.json ]; then npx cross-env NODE_OPTIONS=--no-deprecation next build --webpack --experimental-build-mode compile; \
+  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm exec cross-env NODE_OPTIONS=--no-deprecation next build --webpack --experimental-build-mode compile; \
   else echo "Lockfile not found." && exit 1; \
   fi
 

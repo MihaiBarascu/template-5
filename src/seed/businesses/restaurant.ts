@@ -13,12 +13,15 @@ import {
   seedHomePage,
   seedPortfolio,
   uploadLocalSeedImages,
+  uploadLocalVideo,
   seedPosts,
   seedNewsletterSubscribers,
   seedForms,
   formTemplates,
   createContactPageLayout,
+  buildHeroData,
 } from '../helpers'
+import path from 'path'
 import { restaurantImages, restaurantData } from '../seed-data'
 import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
 
@@ -59,6 +62,9 @@ export async function seedRestaurant(payload: Payload) {
     borderRadius: variant.theme.borderRadius,
     shadows: variant.theme.shadows,
     sectionSpacing: 'normal',
+    // Typography - use fonts from design variant
+    headingFont: variant.theme.headingFont,
+    bodyFont: variant.theme.bodyFont,
   })
 
   // 4. Business info
@@ -252,19 +258,45 @@ export async function seedRestaurant(payload: Payload) {
 
   // 13. Homepage with dynamic layout based on variant
   console.log('\n🏠 Creating homepage...')
-  const heroImageId = getImageId(restaurantImages.hero[0]?.filename)
   const homepageLayout = buildHomepageLayout(variant, restaurantData)
-
   const overlaySettings = getHeroOverlaySettings(variant)
-  await seedHomePage(payload, {
-    heroType: variant.hero.type,
-    hero: {
+
+  // Build hero data using helper (supports carousel/slider/split)
+  // Extract years from stats (e.g. "14+" -> 14)
+  const yearsStatValue = restaurantData.business.stats?.find((s) => s.label.toLowerCase().includes('ani'))?.value
+  const yearsExperience = yearsStatValue ? parseInt(yearsStatValue.replace(/\D/g, ''), 10) : 10
+
+  // Upload video for video hero (if variant uses video hero)
+  let videoFileId: string | undefined
+  if (variant.hero.type === 'video') {
+    console.log('\n🎬 Uploading hero video...')
+    const videoPath = path.join(process.cwd(), 'public', 'images', 'restaurant', 'videos', 'restaurant-hero.mp4')
+    const uploadedVideoId = await uploadLocalVideo(payload, videoPath, 'Restaurant hero video')
+    videoFileId = uploadedVideoId || undefined
+  }
+
+  const heroData = buildHeroData(
+    variant.hero.type,
+    {
       headline: restaurantData.hero.headline,
       subheadline: restaurantData.hero.subheadline,
       ctaButtons: restaurantData.hero.ctaButtons,
-      imageId: heroImageId,
-      ...overlaySettings,
     },
+    overlaySettings,
+    {
+      heroImages: restaurantImages.hero,
+      galleryImages: restaurantImages.gallery,
+      getImageId,
+    },
+    {
+      yearsExperience,
+    },
+    videoFileId
+  )
+
+  await seedHomePage(payload, {
+    heroType: variant.hero.type,
+    hero: heroData,
     layout: homepageLayout,
   })
 

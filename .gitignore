@@ -17,3 +17,4 @@ public/sitemap*.xml
 /blob-report/
 /playwright/.cache/
 .playwright-mcp
+/tests/e2e/screenshots/

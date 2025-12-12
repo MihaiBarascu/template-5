@@ -1,9 +1,10 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import Image from 'next/image'
+import React from 'react'
 import Link from 'next/link'
 import { cn } from '@/utilities/cn'
+import { Media } from '@/components/Media'
+import type { Media as MediaType } from '@/payload-types'
 
 interface RichText {
   root: {
@@ -83,17 +84,9 @@ const SocialIcons = {
   ),
 }
 
-// Helper function to get image URL from various image types
-function getImageUrl(image: TeamMember['image']): string | null {
-  if (!image) return null
-  if (typeof image === 'string') return null
-  return image.url || null
-}
-
-// Helper function to get image alt text
-function getImageAlt(image: TeamMember['image'], fallback: string): string {
-  if (!image || typeof image === 'string') return fallback
-  return image.alt || fallback
+// Helper to check if image is valid Media object
+function isValidMedia(image: unknown): image is MediaType {
+  return typeof image === 'object' && image !== null && 'url' in image
 }
 
 // Helper function to render bio as string
@@ -127,18 +120,12 @@ export function TeamBlock({
   members = [],
   detailBasePath,
 }: TeamBlockProps) {
-  const [isLoaded, setIsLoaded] = useState(false)
-
   // Helper to get member detail URL
   const getMemberHref = (member: TeamMember): string | null => {
     if (!detailBasePath || !member.slug) return null
     const basePath = detailBasePath.startsWith('/') ? detailBasePath : `/${detailBasePath}`
     return `${basePath}/${member.slug}`
   }
-
-  useEffect(() => {
-    setIsLoaded(true)
-  }, [])
 
   // Background classes
   const bgClasses: Record<string, string> = {
@@ -205,13 +192,12 @@ export function TeamBlock({
                 key={member.id}
                 className={cn(
                   'group flex flex-col md:flex-row items-center gap-6 p-6 rounded-[var(--radius-card)]',
-                  'transform transition-all duration-500',
-                  isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8',
+                  'animate-fade-in-up card-hover',
                   isDark
                     ? 'bg-white/5 hover:bg-white/10 border border-white/10'
-                    : 'bg-white hover:shadow-xl border border-theme-border'
+                    : 'bg-white hover:shadow-xl border border-theme-border',
+                  index < 8 && `animation-delay-${(index % 4) * 100 + 100}`
                 )}
-                style={{ transitionDelay: `${index * 100}ms` }}
               >
                 {/* Image */}
                 <div className={cn(
@@ -219,12 +205,12 @@ export function TeamBlock({
                   'ring-4 transition-all duration-300',
                   isDark ? 'ring-white/10 group-hover:ring-theme-accent/50' : 'ring-theme-primary/10 group-hover:ring-theme-primary/30'
                 )}>
-                  {getImageUrl(member.image) ? (
-                    <Image
-                      src={getImageUrl(member.image)!}
-                      alt={getImageAlt(member.image, member.name)}
+                  {isValidMedia(member.image) ? (
+                    <Media
+                      resource={member.image as MediaType}
                       fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      size="128px"
+                      imgClassName="object-cover transition-transform duration-500 group-hover:scale-110"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-theme-primary to-theme-secondary text-white text-3xl font-bold">
@@ -360,10 +346,9 @@ export function TeamBlock({
               key={member.id}
               className={cn(
                 'group relative text-center',
-                'transform transition-all duration-500',
-                isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                'animate-fade-in-up',
+                index < 8 && `animation-delay-${(index % 4) * 100 + 100}`
               )}
-              style={{ transitionDelay: `${index * 100}ms` }}
             >
               {/* Card */}
               <div className={cn(
@@ -404,12 +389,12 @@ export function TeamBlock({
                     'relative w-full h-full overflow-hidden',
                     variant === 'grid-centered' || variant === 'grid-round' ? 'rounded-full' : 'rounded-2xl'
                   )}>
-                    {getImageUrl(member.image) ? (
-                      <Image
-                        src={getImageUrl(member.image)!}
-                        alt={getImageAlt(member.image, member.name)}
+                    {isValidMedia(member.image) ? (
+                      <Media
+                        resource={member.image as MediaType}
                         fill
-                        className="object-cover transition-transform duration-700 group-hover:scale-110"
+                        size="128px"
+                        imgClassName="object-cover transition-transform duration-700 group-hover:scale-110"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-theme-primary to-theme-secondary text-white text-4xl font-bold">

@@ -9,14 +9,17 @@ import { redirectsPlugin } from '@payloadcms/plugin-redirects'
 import { searchPlugin } from '@payloadcms/plugin-search'
 import { seoPlugin } from '@payloadcms/plugin-seo'
 import { s3Storage } from '@payloadcms/storage-s3'
-import { GenerateTitle, GenerateURL, GenerateDescription } from '@payloadcms/plugin-seo/types'
+import { GenerateTitle, GenerateURL, GenerateDescription, GenerateImage } from '@payloadcms/plugin-seo/types'
 import { FixedToolbarFeature, HeadingFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import { Plugin } from 'payload'
 
-import type { Page, Post } from '@/payload-types'
+import type { Page as _Page, Post as _Post } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
 
 // S3/R2 Storage configuration (optional - for production)
+// Supports both Cloudflare R2 and standard S3-compatible storage
+// R2 requires: R2_BUCKET, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_ENDPOINT
+// Optional: R2_PUBLIC_URL for custom domain/CDN URL
 const s3StoragePlugin: Plugin | null =
   process.env.R2_BUCKET &&
   process.env.R2_ACCESS_KEY_ID &&
@@ -26,6 +29,14 @@ const s3StoragePlugin: Plugin | null =
         collections: {
           media: {
             prefix: 'media',
+            // Generate public URLs if R2_PUBLIC_URL is set (for CDN/custom domain)
+            // Otherwise uses the default S3 URL format
+            generateFileURL: process.env.R2_PUBLIC_URL
+              ? ({ filename, prefix }) => {
+                  const baseUrl = process.env.R2_PUBLIC_URL!.replace(/\/$/, '')
+                  return `${baseUrl}/${prefix ? prefix + '/' : ''}${filename}`
+                }
+              : undefined,
           },
         },
         bucket: process.env.R2_BUCKET,
@@ -38,6 +49,8 @@ const s3StoragePlugin: Plugin | null =
           endpoint: process.env.R2_ENDPOINT,
           forcePathStyle: true,
         },
+        // Enable ACL for public read access (required for public files)
+        acl: 'public-read',
       })
     : null
 
@@ -77,8 +90,30 @@ const generateDescription: GenerateDescription<SEODoc> = ({ doc }) => {
   return ''
 }
 
-// generateImage is optional - we'll let seoPlugin handle default behavior
-// by not providing it, the plugin will use the uploadsCollection setting
+const generateImage: GenerateImage<SEODoc> = ({ doc }) => {
+  if (!doc) return null
+
+  // Posts have featuredImage
+  if (doc.featuredImage && typeof doc.featuredImage === 'object') {
+    return doc.featuredImage
+  }
+
+  // Products have images array
+  if (doc.images && Array.isArray(doc.images) && doc.images.length > 0) {
+    const firstImage = doc.images[0]
+    if (typeof firstImage === 'object' && firstImage?.image) {
+      return typeof firstImage.image === 'object' ? firstImage.image : null
+    }
+  }
+
+  // Services may have a single image
+  if (doc.image && typeof doc.image === 'object') {
+    return doc.image
+  }
+
+  // Fallback: let plugin use uploadsCollection default
+  return null
+}
 
 const generateURL: GenerateURL<SEODoc> = ({ doc, collectionSlug }) => {
   const url = getServerSideURL()
@@ -138,6 +173,7 @@ export const plugins: Plugin[] = [
     generateTitle,
     generateDescription,
     generateURL,
+    generateImage,
     // Enable tabbed UI in admin for better UX
     tabbedUI: true,
   }),

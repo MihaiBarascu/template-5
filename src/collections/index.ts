@@ -4,7 +4,7 @@ export { Categories } from './Categories'
 export { Pages } from './Pages'
 export { Posts } from './Posts'
 export { Services } from './Services'
-export { Products } from './Products'
+// Products collection is created by ecommerce plugin - no separate file needed
 export { Team } from './Team'
 export { Portfolio } from './Portfolio'
 export { Testimonials } from './Testimonials'

@@ -80,7 +80,7 @@ export default async function ProductPage({ params }: PageProps) {
   const serverUrl = getServerSideURL()
 
   // JSON-LD Structured Data for Product (Schema.org)
-  const jsonLd = {
+  const productJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: productData.title,
@@ -103,12 +103,48 @@ export default async function ProductPage({ params }: PageProps) {
     },
   }
 
+  // JSON-LD Structured Data for BreadcrumbList (Schema.org)
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Acasă',
+        item: serverUrl,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Produse',
+        item: `${serverUrl}/produse`,
+      },
+      ...(category ? [{
+        '@type': 'ListItem',
+        position: 3,
+        name: category.title,
+        item: `${serverUrl}/produse?categorie=${category.slug}`,
+      }] : []),
+      {
+        '@type': 'ListItem',
+        position: category ? 4 : 3,
+        name: productData.title,
+      },
+    ],
+  }
+
   return (
     <>
-      {/* JSON-LD Structured Data */}
+      {/* JSON-LD Structured Data - Product */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
+      {/* JSON-LD Structured Data - Breadcrumbs */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       <ProductDetails
         product={productData}

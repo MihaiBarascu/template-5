@@ -101,7 +101,7 @@ const orderEmailHook: CollectionAfterChangeHook = async ({
   if (operation !== 'create') return doc;
 
   try {
-    const businessEmail = await getBusinessEmail(req.payload);
+    const businessEmail = await getBusinessEmail(req.payload, req);
 
     if (!businessEmail) {
       console.log('No business email configured - skipping order notification');
@@ -357,6 +357,22 @@ const ecommerceConfig: Parameters<typeof ecommercePlugin>[0] = {
         ...(Array.isArray(defaultCollection.fields)
           ? defaultCollection.fields.filter(Boolean)
           : []),
+        // TAX/VAT category for this product
+        {
+          name: 'taxCategory',
+          type: 'select',
+          label: 'Categorie TVA',
+          defaultValue: 'standard',
+          admin: {
+            position: 'sidebar',
+            description: 'Cota TVA aplicată acestui produs',
+          },
+          options: [
+            { label: 'Standard (21%)', value: 'standard' },
+            { label: 'Redusă (11%)', value: 'reduced' },
+            { label: 'Scutit (0%)', value: 'zero' },
+          ],
+        },
         // Custom fields for filtering and categorization AFTER plugin defaults
         {
           name: 'brand',
@@ -475,6 +491,11 @@ export default buildConfig({
     components: {
       beforeLogin: ['@/components/BeforeLogin'],
       beforeDashboard: ['@/components/BeforeDashboard'],
+      graphics: {
+        // Replace Payload logo with custom logo for white-label admin
+        Logo: '@/components/admin/Logo',
+        Icon: '@/components/admin/Icon',
+      },
     },
     importMap: {
       baseDir: path.resolve(dirname),
@@ -488,7 +509,16 @@ export default buildConfig({
       ],
     },
     meta: {
-      titleSuffix: ' | Admin Panel',
+      titleSuffix: ' | MultiWebsite Admin',
+      description: 'Panou de administrare MultiWebsite',
+      // Custom favicon și og:image pentru admin
+      icons: [
+        {
+          rel: 'icon',
+          type: 'image/svg+xml',
+          url: '/favicon.svg',
+        },
+      ],
     },
   },
   editor: defaultLexical,
@@ -561,9 +591,10 @@ export default buildConfig({
   ],
   secret: process.env.PAYLOAD_SECRET || '',
   // Email configuration (Resend) - pentru notificari booking, contact, comenzi
+  // IMPORTANT: Set RESEND_FROM_EMAIL and RESEND_FROM_NAME in .env for production
   email: resendAdapter({
-    defaultFromAddress: 'onboarding@resend.dev',
-    defaultFromName: 'Business Website',
+    defaultFromAddress: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
+    defaultFromName: process.env.RESEND_FROM_NAME || 'Business Website',
     apiKey: process.env.RESEND_API_KEY || '',
   }),
   sharp,

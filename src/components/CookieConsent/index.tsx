@@ -1,120 +1,140 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import Link from 'next/link'
-import { cn } from '@/utilities/cn'
+import { CookieBanner } from './CookieBanner'
+import { CookieModal } from './CookieModal'
+import { CookieButton } from './CookieButton'
+import { useCookieConsent } from '@/stores/cookieConsentStore'
 
-interface CookieConsentProps {
+/**
+ * GDPR-compliant Cookie Consent Component for Romania
+ *
+ * Implements:
+ * - GDPR (Regulamentul UE 2016/679)
+ * - Legea 506/2004 privind prelucrarea datelor cu caracter personal
+ * - Google Consent Mode v2
+ *
+ * Features:
+ * - Layer 1: Banner with equal-weight buttons (Accept All, Reject All, Customize)
+ * - Layer 2: Modal with granular category controls
+ * - Floating button for re-accessing preferences (GDPR requirement)
+ * - Persistent storage with expiration (365 days)
+ * - Automatic Google Tag Manager consent updates
+ */
+
+export interface CookieConsentProps {
+  // General settings
   enabled?: boolean
-  position?: 'bottom' | 'bottom-left' | 'bottom-right'
-  variant?: 'bar' | 'popup' | 'minimal'
-  privacyPolicyUrl?: string
-  message?: string
-  acceptButtonText?: string
-  declineButtonText?: string
-  showDeclineButton?: boolean
-}
 
-const COOKIE_CONSENT_KEY = 'cookie-consent-accepted'
+  // Banner texts
+  title?: string
+  description?: string
+  privacyPolicyUrl?: string
+  acceptButtonText?: string
+  rejectButtonText?: string
+  customizeButtonText?: string
+
+  // Modal texts
+  saveButtonText?: string
+
+  // Category texts
+  necessaryTitle?: string
+  necessaryDescription?: string
+  analyticsTitle?: string
+  analyticsDescription?: string
+  marketingTitle?: string
+  marketingDescription?: string
+  preferencesTitle?: string
+  preferencesDescription?: string
+}
 
 export function CookieConsent({
   enabled = true,
-  position = 'bottom',
-  variant = 'bar',
-  privacyPolicyUrl = '/politica-confidentialitate',
-  message = 'Acest site foloseste cookie-uri pentru a-ti oferi cea mai buna experienta. Continuand navigarea, esti de acord cu utilizarea cookie-urilor.',
-  acceptButtonText = 'Accept',
-  declineButtonText = 'Refuz',
-  showDeclineButton = false,
+
+  // Banner props
+  title = 'Acest site folosește cookie-uri',
+  description = 'Folosim cookie-uri pentru a-ți oferi cea mai bună experiență. Poți accepta toate cookie-urile, le poți refuza pe cele neesențiale sau le poți personaliza.',
+  privacyPolicyUrl = '/politica-cookies',
+  acceptButtonText = 'Acceptă toate',
+  rejectButtonText = 'Refuză toate',
+  customizeButtonText = 'Personalizează',
+
+  // Modal props
+  saveButtonText = 'Salvează preferințele',
+
+  // Category props
+  necessaryTitle = 'Cookie-uri necesare',
+  necessaryDescription = 'Aceste cookie-uri sunt esențiale pentru funcționarea site-ului și nu pot fi dezactivate. Ele includ funcționalități de bază precum navigarea și autentificarea.',
+  analyticsTitle = 'Cookie-uri de analiză',
+  analyticsDescription = 'Ne ajută să înțelegem cum folosești site-ul, ce pagini vizitezi și cum îmbunătățim experiența ta. Datele sunt anonimizate.',
+  marketingTitle = 'Cookie-uri de marketing',
+  marketingDescription = 'Folosite pentru a-ți afișa reclame relevante și pentru a măsura eficiența campaniilor noastre publicitare.',
+  preferencesTitle = 'Cookie-uri de preferințe',
+  preferencesDescription = 'Stochează preferințele tale (limba, tema, setări personalizate) pentru o experiență personalizată.',
 }: CookieConsentProps) {
-  const [isVisible, setIsVisible] = useState(false)
-  const [isClosing, setIsClosing] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const loadFromStorage = useCookieConsent((state) => state.loadFromStorage)
 
+  // Load consent from storage on mount
   useEffect(() => {
-    if (!enabled) return
-
-    // Check if user already consented
-    const hasConsented = localStorage.getItem(COOKIE_CONSENT_KEY)
-    if (!hasConsented) {
-      // Small delay for better UX
-      const timer = setTimeout(() => setIsVisible(true), 1000)
-      return () => clearTimeout(timer)
+    if (enabled && typeof window !== 'undefined') {
+      loadFromStorage()
     }
-  }, [enabled])
+  }, [enabled, loadFromStorage])
 
-  const handleAccept = () => {
-    localStorage.setItem(COOKIE_CONSENT_KEY, 'true')
-    setIsClosing(true)
-    setTimeout(() => setIsVisible(false), 300)
-  }
+  // Initialize Google Consent Mode v2 (default state)
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.gtag) {
+      window.gtag('consent', 'default', {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: 'denied',
+        functionality_storage: 'denied',
+        personalization_storage: 'denied',
+        security_storage: 'granted',
+      })
+    }
+  }, [])
 
-  const handleDecline = () => {
-    localStorage.setItem(COOKIE_CONSENT_KEY, 'false')
-    setIsClosing(true)
-    setTimeout(() => setIsVisible(false), 300)
-  }
-
-  if (!enabled || !isVisible) return null
-
-  const positionClasses = {
-    'bottom': 'bottom-0 left-0 right-0',
-    'bottom-left': 'bottom-4 left-4 max-w-md',
-    'bottom-right': 'bottom-4 right-4 max-w-md',
-  }
-
-  const variantClasses = {
-    'bar': 'w-full',
-    'popup': 'rounded-lg shadow-2xl mx-4 md:mx-0',
-    'minimal': 'rounded-lg shadow-lg mx-4 md:mx-0',
-  }
+  if (!enabled) return null
 
   return (
-    <div
-      className={cn(
-        'fixed z-50 p-4 md:p-6 bg-white border-t border-theme-border',
-        positionClasses[position],
-        variantClasses[variant],
-        isClosing ? 'animate-slide-down' : 'animate-slide-up',
-        variant !== 'bar' && 'border rounded-lg'
-      )}
-      role="dialog"
-      aria-label="Cookie consent"
-    >
-      <div className={cn(
-        'flex flex-col gap-4',
-        variant === 'bar' && 'container mx-auto md:flex-row md:items-center md:justify-between'
-      )}>
-        <div className="flex-1">
-          <p className="text-sm text-theme-text-light leading-relaxed">
-            {message}{' '}
-            <Link
-              href={privacyPolicyUrl}
-              className="text-theme-primary underline hover:no-underline font-medium"
-            >
-              Politica de confidentialitate
-            </Link>
-          </p>
-        </div>
+    <>
+      {/* Layer 1: Banner */}
+      <CookieBanner
+        title={title}
+        description={description}
+        privacyPolicyUrl={privacyPolicyUrl}
+        acceptButtonText={acceptButtonText}
+        rejectButtonText={rejectButtonText}
+        customizeButtonText={customizeButtonText}
+        onOpenModal={() => setIsModalOpen(true)}
+      />
 
-        <div className="flex items-center gap-3 shrink-0">
-          {showDeclineButton && (
-            <button
-              onClick={handleDecline}
-              className="px-4 py-2 text-sm font-medium text-theme-text-light hover:text-theme-text transition-colors"
-            >
-              {declineButtonText}
-            </button>
-          )}
-          <button
-            onClick={handleAccept}
-            className="px-6 py-2.5 text-sm font-semibold text-white bg-theme-primary hover:bg-theme-secondary rounded-[var(--radius-button)] transition-all duration-200 shadow-sm hover:shadow-md"
-          >
-            {acceptButtonText}
-          </button>
-        </div>
-      </div>
-    </div>
+      {/* Layer 2: Modal */}
+      <CookieModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        privacyPolicyUrl={privacyPolicyUrl}
+        saveButtonText={saveButtonText}
+        necessaryTitle={necessaryTitle}
+        necessaryDescription={necessaryDescription}
+        analyticsTitle={analyticsTitle}
+        analyticsDescription={analyticsDescription}
+        marketingTitle={marketingTitle}
+        marketingDescription={marketingDescription}
+        preferencesTitle={preferencesTitle}
+        preferencesDescription={preferencesDescription}
+      />
+
+      {/* Floating Button (shown after interaction) */}
+      <CookieButton />
+    </>
   )
 }
 
 export default CookieConsent
+
+// Export hooks for use in other components
+export { useCookieConsent } from '@/stores/cookieConsentStore'

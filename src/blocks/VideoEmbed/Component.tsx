@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { cn } from '@/utilities/cn'
@@ -79,6 +79,13 @@ export function VideoEmbedBlock({
 }: VideoEmbedBlockProps) {
   const [isPlaying, setIsPlaying] = useState(false)
   const [lightboxOpen, setLightboxOpen] = useState(false)
+  // PERFORMANCE: Track client-side mount to ensure iframe never renders in SSR
+  // This prevents 300KB+ YouTube JS from being loaded before user interaction
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   const { embedUrl, platform, videoId } = useMemo(() => parseVideoUrl(videoUrl), [videoUrl])
 
@@ -119,7 +126,7 @@ export function VideoEmbedBlock({
     '21-9': 'aspect-[21/9]',
   }[aspectRatio || '16-9']
 
-  // Get thumbnail URL
+  // Get thumbnail URL - prefer custom thumbnail, fallback to YouTube auto-thumbnail
   const thumbnailUrl = useMemo(() => {
     if (thumbnail && typeof thumbnail !== 'string' && thumbnail.url) {
       return thumbnail.url
@@ -129,6 +136,9 @@ export function VideoEmbedBlock({
     }
     return null
   }, [thumbnail, platform, videoId])
+
+  // Check if thumbnail is from YouTube (external)
+  const isYoutubeThumbnail = thumbnailUrl?.includes('img.youtube.com') || thumbnailUrl?.includes('ytimg.com')
 
   // Render video player
   const renderPlayer = (inLightbox = false) => (
@@ -150,12 +160,24 @@ export function VideoEmbedBlock({
       onClick={onClick}
     >
       {thumbnailUrl && (
-        <Image
-          src={thumbnailUrl}
-          alt={heading || 'Video thumbnail'}
-          fill
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
-        />
+        isYoutubeThumbnail ? (
+          // Use native img for YouTube thumbnails to avoid next/image config issues
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={thumbnailUrl}
+            alt={heading || 'Video thumbnail'}
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            loading="lazy"
+          />
+        ) : (
+          <Image
+            src={thumbnailUrl}
+            alt={heading || 'Video thumbnail'}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        )
       )}
       {/* Play button overlay */}
       <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors">
@@ -209,6 +231,7 @@ export function VideoEmbedBlock({
         )}
 
         {/* Video content based on variant */}
+        {/* PERFORMANCE: Always use lazy loading (thumbnail click) to avoid loading 300KB+ YouTube JS */}
         {variant === 'with-text' && sideContent ? (
           <div className={cn(
             'grid grid-cols-1 lg:grid-cols-2 gap-8 items-center',
@@ -242,18 +265,19 @@ export function VideoEmbedBlock({
 
             {/* Video */}
             <div className={sideContent.position === 'left' ? 'lg:order-2' : 'lg:order-1'}>
-              {isPlaying ? renderPlayer() : renderThumbnail(() => setIsPlaying(true))}
+              {isMounted && isPlaying ? renderPlayer() : renderThumbnail(() => setIsPlaying(true))}
             </div>
           </div>
         ) : variant === 'lightbox' ? (
           <>
             {renderThumbnail(() => setLightboxOpen(true))}
-            {lightboxOpen && renderLightbox()}
+            {isMounted && lightboxOpen && renderLightbox()}
           </>
-        ) : variant === 'custom-thumbnail' && !isPlaying ? (
-          renderThumbnail(() => setIsPlaying(true))
         ) : (
-          renderPlayer()
+          // Default: Always use lazy loading (thumbnail click) for all variants
+          // This saves ~300KB of YouTube JS and dramatically improves LCP
+          // CRITICAL: isMounted ensures iframe NEVER renders during SSR
+          isMounted && isPlaying ? renderPlayer() : renderThumbnail(() => setIsPlaying(true))
         )}
       </div>
     </section>

@@ -29,6 +29,7 @@ export const confirmOrder = (): ConfirmOrderFn => async ({
 
   try {
     // Find the transaction by ID
+    // Threading req for transaction safety (Payload best practice)
     const transactionsResults = await payload.find({
       collection: transactionsSlug as 'transactions',
       where: {
@@ -36,6 +37,7 @@ export const confirmOrder = (): ConfirmOrderFn => async ({
           equals: transactionID,
         },
       },
+      req,
     })
 
     const transaction = transactionsResults.docs[0] as Transaction | undefined
@@ -72,12 +74,15 @@ export const confirmOrder = (): ConfirmOrderFn => async ({
       transactions: [transaction.id],
     }
 
+    // Threading req for transaction safety (Payload best practice)
     const order = await payload.create({
       collection: ordersSlug as 'orders',
       data: orderData,
+      req,
     })
 
     // Mark cart as purchased
+    // Threading req for transaction safety (Payload best practice)
     const timestamp = new Date().toISOString()
     await payload.update({
       id: cartID,
@@ -85,9 +90,11 @@ export const confirmOrder = (): ConfirmOrderFn => async ({
       data: {
         purchasedAt: timestamp,
       },
+      req,
     })
 
     // Update transaction status and link to order
+    // Threading req for transaction safety (Payload best practice)
     await payload.update({
       id: transaction.id,
       collection: transactionsSlug as 'transactions',
@@ -95,6 +102,7 @@ export const confirmOrder = (): ConfirmOrderFn => async ({
         order: order.id,
         status: 'succeeded',
       },
+      req,
     })
 
     // NOTE: Inventory decrement is NOT done here - consistent with official Stripe adapter.

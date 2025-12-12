@@ -1,10 +1,10 @@
 'use client'
 
 import React, { useState } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { cn } from '@/utilities/cn'
-import type { Media } from '@/payload-types'
+import { Media } from '@/components/Media'
+import type { Media as MediaType } from '@/payload-types'
 
 interface Benefit {
   id?: string | null
@@ -18,7 +18,7 @@ interface NewsletterBlockProps {
   placeholder?: string | null
   buttonText?: string | null
   successMessage?: string | null
-  backgroundImage?: Media | string | null
+  backgroundImage?: MediaType | string | null
   privacyText?: string | null
   showPrivacyLink?: boolean | null
   benefits?: Benefit[] | null
@@ -80,10 +80,7 @@ export function NewsletterBlock({
     }
   }
 
-  const bgImageUrl =
-    backgroundImage && typeof backgroundImage !== 'string'
-      ? backgroundImage.url
-      : null
+  const hasBgImage = backgroundImage && typeof backgroundImage === 'object' && 'url' in backgroundImage
 
   const isDark = variant === 'dark' || variant === 'with-image'
 
@@ -181,13 +178,13 @@ export function NewsletterBlock({
   return (
     <section className={getContainerStyles()}>
       {/* Background image */}
-      {variant === 'with-image' && bgImageUrl && (
+      {variant === 'with-image' && hasBgImage && (
         <div className="absolute inset-0">
-          <Image
-            src={bgImageUrl}
-            alt=""
+          <Media
+            resource={backgroundImage as MediaType}
             fill
-            className="object-cover"
+            size="100vw"
+            imgClassName="object-cover"
           />
           <div className="absolute inset-0 bg-black/60" />
         </div>

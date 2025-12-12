@@ -1,15 +1,15 @@
 'use client'
 
 import React from 'react'
-import Image from 'next/image'
 import { cn } from '@/utilities/cn'
-import type { Media } from '@/payload-types'
+import { Media } from '@/components/Media'
+import type { Media as MediaType } from '@/payload-types'
 
 interface TimelineEvent {
   year: string
   title: string
   description?: string | null
-  image?: string | Media | null
+  image?: string | MediaType | null
   icon?: string | null
   id?: string | null
 }
@@ -23,11 +23,9 @@ interface TimelineBlockProps {
   backgroundColor?: string | null
 }
 
-// Helper to extract image URL from Payload Media
-function getImageUrl(image: string | Media | null | undefined): string | null {
-  if (!image) return null
-  if (typeof image === 'string') return image
-  return image.url || null
+// Helper to check if image is valid Media object
+function isValidMedia(image: unknown): image is MediaType {
+  return typeof image === 'object' && image !== null && 'url' in image
 }
 
 export function TimelineBlock({
@@ -146,19 +144,16 @@ export function TimelineBlock({
                     />
 
                     <div className="w-1/2">
-                      {(() => {
-                        const eventImageUrl = getImageUrl(event.image)
-                        return eventImageUrl && (
+                      {isValidMedia(event.image) && (
                         <div className={cn('relative h-48 rounded-lg overflow-hidden', isLeft ? 'ml-12' : 'mr-12')}>
-                          <Image
-                            src={eventImageUrl}
-                            alt={event.title}
+                          <Media
+                            resource={event.image as MediaType}
                             fill
-                            sizes="(max-width: 1024px) 50vw, 33vw"
-                            className="object-cover"
+                            size="(max-width: 1024px) 50vw, 33vw"
+                            imgClassName="object-cover"
                           />
                         </div>
-                      )})()}
+                      )}
                     </div>
                   </div>
                 )
@@ -240,19 +235,16 @@ export function TimelineBlock({
                   {event.description && (
                     <p className={cn('text-sm', textMuted)}>{event.description}</p>
                   )}
-                  {(() => {
-                    const eventImageUrl = getImageUrl(event.image)
-                    return eventImageUrl && (
+                  {isValidMedia(event.image) && (
                     <div className="relative mt-4 h-48 rounded-lg overflow-hidden">
-                      <Image
-                        src={eventImageUrl}
-                        alt={event.title}
+                      <Media
+                        resource={event.image as MediaType}
                         fill
-                        sizes="(max-width: 768px) 100vw, 50vw"
-                        className="object-cover"
+                        size="(max-width: 768px) 100vw, 50vw"
+                        imgClassName="object-cover"
                       />
                     </div>
-                  )})()}
+                  )}
                 </div>
               </div>
             ))}

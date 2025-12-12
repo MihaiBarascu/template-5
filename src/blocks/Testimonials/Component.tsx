@@ -1,8 +1,9 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
-import Image from 'next/image'
+import React, { useState, useCallback, useEffect } from 'react'
 import { cn } from '@/utilities/cn'
+import { Media } from '@/components/Media'
+import type { Media as MediaType } from '@/payload-types'
 
 interface Testimonial {
   id: string
@@ -36,17 +37,9 @@ interface TestimonialsBlockProps {
   testimonials?: Testimonial[]
 }
 
-// Helper function to get avatar URL
-function getAvatarUrl(avatar: Testimonial['avatar']): string | null {
-  if (!avatar) return null
-  if (typeof avatar === 'string') return null
-  return avatar.url || null
-}
-
-// Helper function to get avatar alt
-function getAvatarAlt(avatar: Testimonial['avatar'], fallback: string): string {
-  if (!avatar || typeof avatar === 'string') return fallback
-  return avatar.alt || fallback
+// Helper to check if avatar is valid Media object
+function isValidMedia(image: unknown): image is MediaType {
+  return typeof image === 'object' && image !== null && 'url' in image
 }
 
 // Star Rating Component
@@ -113,12 +106,7 @@ export function TestimonialsBlock({
   testimonials = [],
 }: TestimonialsBlockProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [isLoaded, setIsLoaded] = useState(false)
   const [isTransitioning, setIsTransitioning] = useState(false)
-
-  useEffect(() => {
-    setIsLoaded(true)
-  }, [])
 
   // Background classes
   const bgClasses: Record<string, string> = {
@@ -174,14 +162,13 @@ export function TestimonialsBlock({
     <div
       className={cn(
         'relative p-6 md:p-8 rounded-[var(--radius-card)]',
-        'transform transition-all duration-500',
-        isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8',
+        'animate-fade-in-up card-hover',
         featured ? 'text-center' : '',
         isDark
           ? 'bg-white/5 border border-white/10'
-          : 'bg-white shadow-lg hover:shadow-xl border border-theme-border/50'
+          : 'bg-white shadow-lg hover:shadow-xl border border-theme-border/50',
+        index < 8 && `animation-delay-${(index % 4) * 100 + 100}`
       )}
-      style={{ transitionDelay: `${index * 100}ms` }}
     >
       {/* Quote Icon - decorative, only for non-featured cards */}
       {!featured && (
@@ -220,12 +207,12 @@ export function TestimonialsBlock({
             isDark ? 'ring-white/20' : 'ring-theme-primary/20',
             featured ? 'w-16 h-16' : 'w-12 h-12'
           )}>
-            {getAvatarUrl(testimonial.avatar) ? (
-              <Image
-                src={getAvatarUrl(testimonial.avatar)!}
-                alt={getAvatarAlt(testimonial.avatar, testimonial.name)}
+            {isValidMedia(testimonial.avatar) ? (
+              <Media
+                resource={testimonial.avatar as MediaType}
                 fill
-                className="object-cover"
+                size="64px"
+                imgClassName="object-cover"
               />
             ) : (
               <div className={cn(
