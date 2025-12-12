@@ -27,21 +27,28 @@ COPY . .
 # Build-time arguments for Payload
 ARG PAYLOAD_SECRET
 ARG DATABASE_URI
+ARG NEXT_PUBLIC_SERVER_URL
 ENV PAYLOAD_SECRET=$PAYLOAD_SECRET
 ENV DATABASE_URI=$DATABASE_URI
-# Use placeholder for NEXT_PUBLIC_SERVER_URL - will be replaced at runtime by entrypoint.sh
-# This fixes Next.js 15.3+/16 bug where NEXT_PUBLIC_* vars don't work in client components
-# Using a valid URL as placeholder so next.config.js doesn't fail on new URL()
-ENV NEXT_PUBLIC_SERVER_URL=http://PLACEHOLDER_URL_REPLACE_AT_RUNTIME.local
+ENV NEXT_PUBLIC_SERVER_URL=$NEXT_PUBLIC_SERVER_URL
 
 # Build with detected package manager
 # Using --webpack because Next.js 16 defaults to Turbopack but Payload CMS requires webpack for production builds
-# Using --experimental-build-mode compile to skip static generation during build
-# (MongoDB not accessible during Docker build - pages generated at runtime with ISR)
+# Using TWO-STEP build to fix Next.js 15.3+/16 bug with NEXT_PUBLIC_* vars:
+# Step 1: --experimental-build-mode compile (compiles code, no DB needed)
+# Step 2: --experimental-build-mode generate-env (inlines NEXT_PUBLIC_* vars, no DB needed)
+# See: https://payloadcms.com/docs/production/building-without-a-db-connection
 RUN \
-  if [ -f yarn.lock ]; then yarn cross-env NODE_OPTIONS=--no-deprecation next build --webpack --experimental-build-mode compile; \
-  elif [ -f package-lock.json ]; then npx cross-env NODE_OPTIONS=--no-deprecation next build --webpack --experimental-build-mode compile; \
-  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm exec cross-env NODE_OPTIONS=--no-deprecation next build --webpack --experimental-build-mode compile; \
+  if [ -f yarn.lock ]; then \
+    yarn cross-env NODE_OPTIONS=--no-deprecation next build --webpack --experimental-build-mode compile && \
+    yarn cross-env NODE_OPTIONS=--no-deprecation next build --webpack --experimental-build-mode generate-env; \
+  elif [ -f package-lock.json ]; then \
+    npx cross-env NODE_OPTIONS=--no-deprecation next build --webpack --experimental-build-mode compile && \
+    npx cross-env NODE_OPTIONS=--no-deprecation next build --webpack --experimental-build-mode generate-env; \
+  elif [ -f pnpm-lock.yaml ]; then \
+    corepack enable pnpm && \
+    pnpm exec cross-env NODE_OPTIONS=--no-deprecation next build --webpack --experimental-build-mode compile && \
+    pnpm exec cross-env NODE_OPTIONS=--no-deprecation next build --webpack --experimental-build-mode generate-env; \
   else echo "Lockfile not found." && exit 1; \
   fi
 
