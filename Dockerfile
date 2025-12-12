@@ -34,10 +34,12 @@ ENV NEXT_PUBLIC_SERVER_URL=$NEXT_PUBLIC_SERVER_URL
 
 # Build with detected package manager
 # Using --webpack because Next.js 16 defaults to Turbopack but Payload CMS requires webpack for production builds
+# Using --experimental-build-mode compile to skip static generation during build
+# (MongoDB not accessible during Docker build - pages generated at runtime with ISR)
 RUN \
-  if [ -f yarn.lock ]; then yarn cross-env NODE_OPTIONS=--no-deprecation next build --webpack; \
-  elif [ -f package-lock.json ]; then npx cross-env NODE_OPTIONS=--no-deprecation next build --webpack; \
-  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm exec cross-env NODE_OPTIONS=--no-deprecation next build --webpack; \
+  if [ -f yarn.lock ]; then yarn cross-env NODE_OPTIONS=--no-deprecation next build --webpack --experimental-build-mode compile; \
+  elif [ -f package-lock.json ]; then npx cross-env NODE_OPTIONS=--no-deprecation next build --webpack --experimental-build-mode compile; \
+  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm exec cross-env NODE_OPTIONS=--no-deprecation next build --webpack --experimental-build-mode compile; \
   else echo "Lockfile not found." && exit 1; \
   fi
 
