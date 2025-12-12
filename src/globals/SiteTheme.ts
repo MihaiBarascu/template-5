@@ -116,6 +116,15 @@ export const SiteTheme: GlobalConfig = {
                 },
               },
             },
+            {
+              name: 'livePreview',
+              type: 'ui',
+              admin: {
+                components: {
+                  Field: '@/components/admin/ThemeLivePreview',
+                },
+              },
+            },
           ],
         },
 
@@ -227,6 +236,17 @@ export const SiteTheme: GlobalConfig = {
               admin: {
                 description:
                   'Bifat = culorile de mai jos suprascriu varianta. Nebifat = culorile din varianta.',
+              },
+            },
+            {
+              name: 'autoGeneratePalette',
+              type: 'checkbox',
+              label: '🎨 Genereaza paleta automat din culoarea primara',
+              defaultValue: false,
+              admin: {
+                condition: (_, siblingData) => siblingData?.useCustomColors,
+                description:
+                  'Activeaza pentru a genera automat toate culorile din culoarea primara folosind algoritmul OKLCH.',
               },
             },
             {
@@ -586,6 +606,25 @@ export const SiteTheme: GlobalConfig = {
                   defaultValue: 'normal',
                 },
               ],
+            },
+          ],
+        },
+
+        // =========================================================================
+        // TAB 6: EXPORT / IMPORT
+        // =========================================================================
+        {
+          label: 'Export / Import',
+          description: 'Salveaza sau incarca configuratii de tema',
+          fields: [
+            {
+              name: 'exportImportUI',
+              type: 'ui',
+              admin: {
+                components: {
+                  Field: '@/components/admin/ThemeExportImport',
+                },
+              },
             },
           ],
         },

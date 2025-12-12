@@ -1,6 +1,9 @@
 /**
  * Business types configuration for e2e tests
  * Single source of truth for all business type testing
+ *
+ * NOTE: DESIGN_VARIANT system has been removed.
+ * Configuration is now defined directly in src/seed/seeder-config.ts
  */
 
 export type BusinessType =
@@ -93,6 +96,3 @@ export const BUSINESS_CONFIGS: BusinessConfig[] = [
     sections: ['servicii', 'echipa', 'galerie', 'testimoniale', 'faq', 'contact'],
   },
 ]
-
-export const DESIGN_VARIANTS = [0, 1, 2, 3, 4] as const
-export type DesignVariant = (typeof DESIGN_VARIANTS)[number]

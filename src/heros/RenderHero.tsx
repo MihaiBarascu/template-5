@@ -5,13 +5,19 @@ import { SplitHero } from './SplitHero'
 import { MinimalHero } from './MinimalHero'
 import { DefaultHero } from './DefaultHero'
 import { HeroCarousel } from './HeroCarousel'
+import { VideoHero } from './VideoHero'
 
 export function RenderHero({ type, data, social }: RenderHeroProps) {
   if (!data) return null
 
-  // CAROUSEL HERO - Client Component (needs state for slide management)
-  if (type === 'carousel' && data.slides && data.slides.length > 0) {
+  // CAROUSEL / SLIDER HERO - Client Component (needs state for slide management)
+  if ((type === 'carousel' || type === 'slider') && data.slides && data.slides.length > 0) {
     return <HeroCarousel data={data} />
+  }
+
+  // VIDEO HERO - supports local MP4 and YouTube/Vimeo embeds
+  if (type === 'video') {
+    return <VideoHero data={data} social={social} />
   }
 
   // FULLSCREEN / WITH IMAGE HERO - Server Component

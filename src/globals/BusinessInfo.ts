@@ -484,26 +484,49 @@ export const BusinessInfo: GlobalConfig = {
             {
               name: 'cookieConsent',
               type: 'group',
-              label: 'Banner Cookie (GDPR)',
+              label: 'Cookie Consent (GDPR)',
               admin: {
-                description: 'Banner pentru consimtamant cookies conform GDPR',
+                description: 'Configurare banner cookie conform GDPR și Legea 506/2004 România',
               },
               fields: [
+                // General Settings
                 {
                   name: 'enabled',
                   type: 'checkbox',
-                  label: 'Activeaza banner cookies',
+                  label: 'Activează banner cookies',
                   defaultValue: true,
                 },
+
+                // Main Banner Texts
                 {
-                  name: 'message',
-                  type: 'textarea',
-                  label: 'Mesaj',
-                  defaultValue: 'Acest site foloseste cookie-uri pentru a-ti oferi cea mai buna experienta. Continuand navigarea, esti de acord cu utilizarea cookie-urilor.',
+                  name: 'title',
+                  type: 'text',
+                  label: 'Titlu banner',
+                  defaultValue: 'Respectăm confidențialitatea ta',
                   admin: {
                     condition: (_, siblingData) => siblingData?.enabled,
                   },
                 },
+                {
+                  name: 'description',
+                  type: 'textarea',
+                  label: 'Descriere',
+                  defaultValue: 'Folosim cookie-uri pentru a îmbunătăți experiența ta pe site, pentru a analiza traficul și pentru a personaliza conținutul. Poți alege ce categorii de cookie-uri să accepți.',
+                  admin: {
+                    condition: (_, siblingData) => siblingData?.enabled,
+                  },
+                },
+                {
+                  name: 'privacyPolicyUrl',
+                  type: 'text',
+                  label: 'Link politică confidențialitate',
+                  defaultValue: '/politica-confidentialitate',
+                  admin: {
+                    condition: (_, siblingData) => siblingData?.enabled,
+                  },
+                },
+
+                // Button Texts
                 {
                   type: 'row',
                   admin: {
@@ -511,27 +534,17 @@ export const BusinessInfo: GlobalConfig = {
                   },
                   fields: [
                     {
-                      name: 'position',
-                      type: 'select',
-                      label: 'Pozitie',
-                      defaultValue: 'bottom',
-                      options: [
-                        { label: 'Bottom (full width)', value: 'bottom' },
-                        { label: 'Bottom Left', value: 'bottom-left' },
-                        { label: 'Bottom Right', value: 'bottom-right' },
-                      ],
+                      name: 'acceptButtonText',
+                      type: 'text',
+                      label: 'Text buton acceptă toate',
+                      defaultValue: 'Acceptă toate',
                       admin: { width: '50%' },
                     },
                     {
-                      name: 'variant',
-                      type: 'select',
-                      label: 'Varianta',
-                      defaultValue: 'bar',
-                      options: [
-                        { label: 'Bara', value: 'bar' },
-                        { label: 'Popup', value: 'popup' },
-                        { label: 'Minimal', value: 'minimal' },
-                      ],
+                      name: 'rejectButtonText',
+                      type: 'text',
+                      label: 'Text buton respinge',
+                      defaultValue: 'Respinge opționale',
                       admin: { width: '50%' },
                     },
                   ],
@@ -543,18 +556,181 @@ export const BusinessInfo: GlobalConfig = {
                   },
                   fields: [
                     {
-                      name: 'acceptButtonText',
+                      name: 'customizeButtonText',
                       type: 'text',
-                      label: 'Text buton Accept',
-                      defaultValue: 'Accept',
+                      label: 'Text buton personalizează',
+                      defaultValue: 'Personalizează',
                       admin: { width: '50%' },
                     },
                     {
-                      name: 'showDeclineButton',
-                      type: 'checkbox',
-                      label: 'Afiseaza buton Refuz',
-                      defaultValue: false,
+                      name: 'saveButtonText',
+                      type: 'text',
+                      label: 'Text buton salvează',
+                      defaultValue: 'Salvează preferințe',
                       admin: { width: '50%' },
+                    },
+                  ],
+                },
+
+                // Cookie Categories
+                {
+                  type: 'collapsible',
+                  label: 'Texte categorii cookies',
+                  admin: {
+                    condition: (_, siblingData) => siblingData?.enabled,
+                  },
+                  fields: [
+                    // Necessary Cookies
+                    {
+                      name: 'necessaryTitle',
+                      type: 'text',
+                      label: 'Titlu cookies necesare',
+                      defaultValue: 'Cookie-uri necesare',
+                    },
+                    {
+                      name: 'necessaryDescription',
+                      type: 'textarea',
+                      label: 'Descriere cookies necesare',
+                      defaultValue: 'Aceste cookie-uri sunt esențiale pentru funcționarea corectă a site-ului și nu pot fi dezactivate. Ele sunt folosite pentru securitate, navigare și gestionarea sesiunilor.',
+                    },
+
+                    // Analytics Cookies
+                    {
+                      name: 'analyticsTitle',
+                      type: 'text',
+                      label: 'Titlu cookies analiză',
+                      defaultValue: 'Cookie-uri de analiză',
+                    },
+                    {
+                      name: 'analyticsDescription',
+                      type: 'textarea',
+                      label: 'Descriere cookies analiză',
+                      defaultValue: 'Ne ajută să înțelegem cum interacționezi cu site-ul nostru. Informațiile colectate sunt anonimizate și folosite pentru a îmbunătăți experiența utilizatorilor.',
+                    },
+
+                    // Marketing Cookies
+                    {
+                      name: 'marketingTitle',
+                      type: 'text',
+                      label: 'Titlu cookies marketing',
+                      defaultValue: 'Cookie-uri de marketing',
+                    },
+                    {
+                      name: 'marketingDescription',
+                      type: 'textarea',
+                      label: 'Descriere cookies marketing',
+                      defaultValue: 'Folosite pentru a afișa reclame relevante pentru tine. Ne ajută să măsurăm eficiența campaniilor publicitare și să personalizăm conținutul.',
+                    },
+
+                    // Preferences Cookies
+                    {
+                      name: 'preferencesTitle',
+                      type: 'text',
+                      label: 'Titlu cookies preferințe',
+                      defaultValue: 'Cookie-uri de preferințe',
+                    },
+                    {
+                      name: 'preferencesDescription',
+                      type: 'textarea',
+                      label: 'Descriere cookies preferințe',
+                      defaultValue: 'Permit site-ului să memoreze alegerile tale (limba, regiunea, etc.) pentru a-ți oferi o experiență personalizată și mai relevantă.',
+                    },
+                  ],
+                },
+
+                // Analytics Integrations
+                {
+                  type: 'collapsible',
+                  label: 'Integrări Analytics & Tracking',
+                  admin: {
+                    condition: (_, siblingData) => siblingData?.enabled,
+                    description: 'ID-uri pentru platformele de analytics și marketing. Completează doar pentru cele pe care le folosești.',
+                  },
+                  fields: [
+                    {
+                      name: 'googleAnalyticsId',
+                      type: 'text',
+                      label: 'Google Analytics 4 ID',
+                      admin: {
+                        description: 'Format: G-XXXXXXXXXX',
+                        placeholder: 'G-XXXXXXXXXX',
+                      },
+                    },
+                    {
+                      name: 'googleTagManagerId',
+                      type: 'text',
+                      label: 'Google Tag Manager ID',
+                      admin: {
+                        description: 'Format: GTM-XXXXXXX',
+                        placeholder: 'GTM-XXXXXXX',
+                      },
+                    },
+                    {
+                      name: 'facebookPixelId',
+                      type: 'text',
+                      label: 'Facebook Pixel ID',
+                      admin: {
+                        description: 'ID numeric Facebook Pixel',
+                        placeholder: '1234567890',
+                      },
+                    },
+                    {
+                      name: 'tiktokPixelId',
+                      type: 'text',
+                      label: 'TikTok Pixel ID',
+                      admin: {
+                        description: 'ID TikTok Pixel pentru tracking conversii',
+                        placeholder: 'XXXXXXXXXXXXX',
+                      },
+                    },
+                    {
+                      name: 'hotjarId',
+                      type: 'text',
+                      label: 'Hotjar Site ID',
+                      admin: {
+                        description: 'ID numeric Hotjar pentru heatmaps și session recordings',
+                        placeholder: '1234567',
+                      },
+                    },
+                  ],
+                },
+
+                // Advanced Settings
+                {
+                  type: 'collapsible',
+                  label: 'Setări avansate',
+                  admin: {
+                    condition: (_, siblingData) => siblingData?.enabled,
+                  },
+                  fields: [
+                    {
+                      name: 'consentExpiry',
+                      type: 'number',
+                      label: 'Expirare consimțământ (zile)',
+                      defaultValue: 365,
+                      admin: {
+                        description: 'Număr de zile până când utilizatorul va fi întrebat din nou',
+                      },
+                    },
+                    {
+                      name: 'showFloatingButton',
+                      type: 'checkbox',
+                      label: 'Afișează buton floating pentru modificare preferințe',
+                      defaultValue: true,
+                      admin: {
+                        description: 'Buton discret în colț pentru a permite utilizatorilor să-și schimbe preferințele',
+                      },
+                    },
+                    {
+                      name: 'position',
+                      type: 'select',
+                      label: 'Poziție banner',
+                      defaultValue: 'bottom',
+                      options: [
+                        { label: 'Jos (lățime completă)', value: 'bottom' },
+                        { label: 'Jos stânga', value: 'bottom-left' },
+                        { label: 'Jos dreapta', value: 'bottom-right' },
+                      ],
                     },
                   ],
                 },

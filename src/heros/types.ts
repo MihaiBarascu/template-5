@@ -1,4 +1,4 @@
-import type { Page } from '@/payload-types'
+import type { Page, Media } from '@/payload-types'
 
 export interface SocialLinks {
   facebook?: string | null
@@ -9,22 +9,20 @@ export interface SocialLinks {
   twitter?: string | null
 }
 
+// Extended hero data type that's compatible with Page['hero'] from Payload
 export type HeroData = NonNullable<Page['hero']> & {
   height?: 'small' | 'medium' | 'large' | 'fullscreen' | null
   overlayEnabled?: boolean | null
   overlayOpacity?: string | null
   overlayStyle?: 'gradient' | 'dark' | 'primary' | 'secondary' | 'radial' | null
   videoUrl?: string | null
+  videoFile?: Media | string | number | null
   parallax?: boolean | null
   showScrollIndicator?: boolean | null
   showSocialIcons?: boolean | null
   socialIconsPosition?: 'left' | 'right' | null
   badge?: string | null
-  slides?: Array<{
-    image?: { url?: string; alt?: string } | string | null
-    headline?: string
-    subheadline?: string
-  }> | null
+  // slides is inherited from Page['hero'] - no need to redefine
   statsBadge?: {
     enabled?: boolean | null
     value?: string | null

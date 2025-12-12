@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { cn } from '@/utilities/cn'
 import { Media } from '@/components/Media'
 import type { Media as MediaType } from '@/payload-types'
@@ -106,12 +106,7 @@ export function TestimonialsBlock({
   testimonials = [],
 }: TestimonialsBlockProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [isLoaded, setIsLoaded] = useState(false)
   const [isTransitioning, setIsTransitioning] = useState(false)
-
-  useEffect(() => {
-    setIsLoaded(true)
-  }, [])
 
   // Background classes
   const bgClasses: Record<string, string> = {
@@ -167,14 +162,13 @@ export function TestimonialsBlock({
     <div
       className={cn(
         'relative p-6 md:p-8 rounded-[var(--radius-card)]',
-        'transform transition-all duration-500',
-        isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8',
+        'animate-fade-in-up card-hover',
         featured ? 'text-center' : '',
         isDark
           ? 'bg-white/5 border border-white/10'
-          : 'bg-white shadow-lg hover:shadow-xl border border-theme-border/50'
+          : 'bg-white shadow-lg hover:shadow-xl border border-theme-border/50',
+        index < 8 && `animation-delay-${(index % 4) * 100 + 100}`
       )}
-      style={{ transitionDelay: `${index * 100}ms` }}
     >
       {/* Quote Icon - decorative, only for non-featured cards */}
       {!featured && (

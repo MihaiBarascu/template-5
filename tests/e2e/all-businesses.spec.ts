@@ -84,10 +84,13 @@ if (!fs.existsSync(SCREENSHOTS_DIR)) {
 
 /**
  * Seed database cu un tip de business
+ *
+ * NOTE: DESIGN_VARIANT system has been removed.
+ * Configuration is now defined directly in src/seed/seeder-config.ts
  */
 function seedBusiness(type: string): void {
   console.log(`\n🌱 Seeding ${type}...`)
-  execSync(`SEED_TYPE=${type} DESIGN_VARIANT=0 pnpm seed`, {
+  execSync(`SEED_TYPE=${type} pnpm seed`, {
     cwd: process.cwd(),
     stdio: 'inherit',
   })

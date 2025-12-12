@@ -19,6 +19,7 @@ import {
   seedForms,
   formTemplates,
   createContactPageLayout,
+  buildHeroData,
 } from '../helpers'
 import { barbershopImages, barbershopData } from '../seed-data'
 import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
@@ -169,19 +170,35 @@ export async function seedFrizerie(payload: Payload) {
 
   // 14. Homepage with dynamic layout based on variant
   console.log('\n🏠 Creating homepage...')
-  const heroImageId = getImageId(barbershopImages.hero[0]?.filename)
   const homepageLayout = buildHomepageLayout(variant, barbershopData)
-
   const overlaySettings = getHeroOverlaySettings(variant)
-  await seedHomePage(payload, {
-    heroType: variant.hero.type,
-    hero: {
+
+  // Build hero data using helper (supports carousel/slider/split)
+  // Extract years from stats (e.g. "6+" -> 6)
+  const yearsStatValue = barbershopData.business.stats?.find((s) => s.label.toLowerCase().includes('ani'))?.value
+  const yearsExperience = yearsStatValue ? parseInt(yearsStatValue.replace(/\D/g, ''), 10) : 6
+
+  const heroData = buildHeroData(
+    variant.hero.type,
+    {
       headline: barbershopData.hero.headline,
       subheadline: barbershopData.hero.subheadline,
       ctaButtons: barbershopData.hero.ctaButtons,
-      imageId: heroImageId,
-      ...overlaySettings,
     },
+    overlaySettings,
+    {
+      heroImages: barbershopImages.hero,
+      galleryImages: barbershopImages.gallery,
+      getImageId,
+    },
+    {
+      yearsExperience,
+    }
+  )
+
+  await seedHomePage(payload, {
+    heroType: variant.hero.type,
+    hero: heroData,
     layout: homepageLayout,
   })
 

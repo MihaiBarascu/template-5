@@ -10,6 +10,13 @@ const NEXT_PUBLIC_SERVER_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
 const nextConfig = {
   output: 'standalone', // Required for Docker deployment
   images: {
+    // Local patterns for images with query strings (cache tags)
+    localPatterns: [
+      {
+        pathname: '/api/media/**',
+        search: '', // Allow any query string
+      },
+    ],
     remotePatterns: [
       ...[NEXT_PUBLIC_SERVER_URL /* 'https://example.com' */].map((item) => {
         const url = new URL(item)
@@ -50,6 +57,7 @@ const nextConfig = {
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     formats: ['image/avif', 'image/webp'],
+    qualities: [75, 85], // Next.js 16 requires explicit quality values
     minimumCacheTTL: 31536000, // 1 year cache
   },
   webpack: (webpackConfig) => {

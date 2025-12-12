@@ -15,6 +15,7 @@ import { AdminBar } from '@/components/AdminBar'
 import { WhatsAppFloat } from '@/components/WhatsAppFloat'
 import { BackToTop } from '@/components/BackToTop'
 import { CookieConsent } from '@/components/CookieConsent'
+import { ScriptLoader } from '@/components/ScriptLoader'
 import { AnnouncementBar } from '@/components/AnnouncementBar'
 import { generateThemeStyles } from '@/utilities/generateThemeStyles'
 import { getServerSideURL } from '@/utilities/getURL'
@@ -63,11 +64,29 @@ export default async function RootLayout({
 
   const cookieConsent = businessInfoData?.cookieConsent as {
     enabled?: boolean
-    message?: string
-    position?: 'bottom' | 'bottom-left' | 'bottom-right'
-    variant?: 'bar' | 'popup' | 'minimal'
+    title?: string
+    description?: string
+    privacyPolicyUrl?: string
     acceptButtonText?: string
-    showDeclineButton?: boolean
+    rejectButtonText?: string
+    customizeButtonText?: string
+    saveButtonText?: string
+    necessaryTitle?: string
+    necessaryDescription?: string
+    analyticsTitle?: string
+    analyticsDescription?: string
+    marketingTitle?: string
+    marketingDescription?: string
+    preferencesTitle?: string
+    preferencesDescription?: string
+    googleAnalyticsId?: string
+    googleTagManagerId?: string
+    facebookPixelId?: string
+    tiktokPixelId?: string
+    hotjarId?: string
+    consentExpiry?: number
+    showFloatingButton?: boolean
+    position?: 'bottom' | 'bottom-left' | 'bottom-right'
   } | undefined
 
   return (
@@ -180,15 +199,43 @@ export default async function RootLayout({
             />
             <BackToTop position="bottom-left" />
 
-            {/* Cookie Consent Banner */}
-            <CookieConsent
-              enabled={cookieConsent?.enabled ?? true}
-              message={cookieConsent?.message}
-              position={cookieConsent?.position}
-              variant={cookieConsent?.variant}
-              acceptButtonText={cookieConsent?.acceptButtonText}
-              showDeclineButton={cookieConsent?.showDeclineButton}
-            />
+            {/* Cookie Consent Banner - GDPR Romania compliant */}
+            {cookieConsent?.enabled !== false && (
+              <CookieConsent
+                enabled={cookieConsent?.enabled ?? true}
+                title={cookieConsent?.title}
+                description={cookieConsent?.description}
+                privacyPolicyUrl={cookieConsent?.privacyPolicyUrl}
+                acceptButtonText={cookieConsent?.acceptButtonText}
+                rejectButtonText={cookieConsent?.rejectButtonText}
+                customizeButtonText={cookieConsent?.customizeButtonText}
+                saveButtonText={cookieConsent?.saveButtonText}
+                necessaryTitle={cookieConsent?.necessaryTitle}
+                necessaryDescription={cookieConsent?.necessaryDescription}
+                analyticsTitle={cookieConsent?.analyticsTitle}
+                analyticsDescription={cookieConsent?.analyticsDescription}
+                marketingTitle={cookieConsent?.marketingTitle}
+                marketingDescription={cookieConsent?.marketingDescription}
+                preferencesTitle={cookieConsent?.preferencesTitle}
+                preferencesDescription={cookieConsent?.preferencesDescription}
+              />
+            )}
+
+            {/* Script Loader - Loads tracking scripts based on cookie consent */}
+            {/* Only render if at least one tracking ID is configured */}
+            {(cookieConsent?.googleAnalyticsId ||
+              cookieConsent?.googleTagManagerId ||
+              cookieConsent?.facebookPixelId ||
+              cookieConsent?.tiktokPixelId ||
+              cookieConsent?.hotjarId) && (
+              <ScriptLoader
+                googleAnalyticsId={cookieConsent?.googleAnalyticsId}
+                googleTagManagerId={cookieConsent?.googleTagManagerId}
+                facebookPixelId={cookieConsent?.facebookPixelId}
+                tiktokPixelId={cookieConsent?.tiktokPixelId}
+                hotjarId={cookieConsent?.hotjarId}
+              />
+            )}
           </ToastProvider>
           </EcommerceProviderWrapper>
           </AuthProvider>

@@ -17,7 +17,7 @@ export const revalidatePostAfterChange: CollectionAfterChangeHook<Post> = ({
       // Only revalidate if we're in a Next.js context (not during seed)
       try {
         revalidatePath(path)
-        revalidateTag('posts-sitemap')
+        revalidateTag('posts-sitemap', 'max')
         // Also revalidate blog listing and homepage (for LatestPosts block)
         revalidatePath('/blog')
         revalidatePath('/')
@@ -34,7 +34,7 @@ export const revalidatePostAfterChange: CollectionAfterChangeHook<Post> = ({
 
       try {
         revalidatePath(oldPath)
-        revalidateTag('posts-sitemap')
+        revalidateTag('posts-sitemap', 'max')
         // Also revalidate blog listing and homepage
         revalidatePath('/blog')
         revalidatePath('/')
@@ -57,7 +57,7 @@ export const revalidatePostAfterDelete: CollectionAfterDeleteHook<Post> = ({
 
     try {
       revalidatePath(path)
-      revalidateTag('posts-sitemap')
+      revalidateTag('posts-sitemap', 'max')
       // Also revalidate blog listing and homepage
       revalidatePath('/blog')
       revalidatePath('/')

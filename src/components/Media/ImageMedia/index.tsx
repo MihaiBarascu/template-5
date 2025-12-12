@@ -9,7 +9,6 @@ import React from 'react'
 import type { Props as MediaProps } from '../types'
 
 import { cssVariables } from '@/cssVariables'
-import { getMediaUrl } from '@/utilities/getMediaUrl'
 
 const { breakpoints } = cssVariables
 
@@ -20,6 +19,17 @@ const { breakpoints } = cssVariables
  */
 const placeholderBlur =
   'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDQwIDQwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmM2Y0ZjYiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNlNWU3ZWIiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCBmaWxsPSJ1cmwoI2cpIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiLz48L3N2Zz4='
+
+/**
+ * Strips query strings from URL for Next.js 16 compatibility.
+ * Next.js 16 doesn't allow query strings on local images without explicit localPatterns config.
+ */
+function getCleanUrl(url: string | null | undefined): string {
+  if (!url) return ''
+  // Strip query string for Next.js 16 local image compatibility
+  const queryIndex = url.indexOf('?')
+  return queryIndex > -1 ? url.substring(0, queryIndex) : url
+}
 
 export const ImageMedia: React.FC<MediaProps> = (props) => {
   const {
@@ -46,9 +56,8 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
     height = fullHeight!
     alt = altFromResource || ''
 
-    const cacheTag = resource.updatedAt
-
-    src = getMediaUrl(url, cacheTag)
+    // Next.js 16 requires clean URLs without query strings for local images
+    src = getCleanUrl(url)
   }
 
   const loading = loadingFromProps || (!priority ? 'lazy' : undefined)
@@ -71,7 +80,7 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
         placeholder="blur"
         blurDataURL={placeholderBlur}
         priority={priority}
-        quality={85}
+        quality={75}
         loading={loading}
         sizes={sizes}
         src={src}

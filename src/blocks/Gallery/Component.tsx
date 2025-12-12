@@ -79,12 +79,6 @@ export function GalleryBlock({
 
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
   const [activeFilter, setActiveFilter] = useState<string>('all')
-  const [isLoaded, setIsLoaded] = useState(false)
-
-  // Mark as loaded after mount for CSS animations
-  useEffect(() => {
-    setIsLoaded(true)
-  }, [])
 
   // Extract unique categories from images
   const categories = ['all', ...Array.from(new Set(images.filter(img => img.category).map(img => img.category!)))]
@@ -191,13 +185,10 @@ export function GalleryBlock({
         key={image.id || index}
         className={cn(
           'group relative overflow-hidden rounded-[var(--radius-card)] cursor-pointer',
-          'transform transition-all duration-500',
-          isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8',
-          variant === 'masonry' ? 'break-inside-avoid mb-4' : getAspectRatio()
+          'animate-fade-in-up',
+          variant === 'masonry' ? 'break-inside-avoid mb-4' : getAspectRatio(),
+          index < 8 && `animation-delay-${(index % 4) * 100 + 100}`
         )}
-        style={{
-          transitionDelay: `${index * 50}ms`
-        }}
         onClick={() => openLightbox(actualIndex)}
       >
         {/* Image */}

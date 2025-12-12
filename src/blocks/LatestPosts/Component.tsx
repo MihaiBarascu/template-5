@@ -100,12 +100,7 @@ export function LatestPostsBlock({
   backgroundColor = 'default',
   posts = [],
 }: LatestPostsBlockProps) {
-  const [isLoaded, setIsLoaded] = useState(false)
   const [currentSlide, setCurrentSlide] = useState(0)
-
-  useEffect(() => {
-    setIsLoaded(true)
-  }, [])
 
   // Background classes
   const bgClasses: Record<string, string> = {
@@ -281,8 +276,12 @@ export function LatestPostsBlock({
           <div className="relative">
             <div className="overflow-hidden">
               <div
-                className="flex transition-transform duration-500"
-                style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+                className="flex transition-transform"
+                style={{
+                  transform: `translateX(-${currentSlide * 100}%)`,
+                  transitionDuration: 'var(--animation-duration-slow)',
+                  transitionTimingFunction: 'var(--animation-timing)'
+                }}
               >
                 {posts.map((post) => (
                   <div key={post.id} className="w-full flex-shrink-0 px-2">
@@ -373,9 +372,9 @@ export function LatestPostsBlock({
   return (
     <section
       className={cn(
-        'py-16 md:py-24 transition-opacity duration-500',
+        'py-16 md:py-24',
+        'animate-fade-in-up',
         bgClasses[backgroundColor] || bgClasses.default,
-        isLoaded ? 'opacity-100' : 'opacity-0',
       )}
     >
       <div className="container mx-auto px-4">

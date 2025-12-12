@@ -1,7 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { cn } from '@/utilities/cn'
-import { Media } from '@/components/Media'
 import { SocialFloat } from '@/components/SocialFloat'
 import type { HeroData, SocialLinks, CTAButton } from '../types'
 import type { Media as MediaType } from '@/payload-types'
@@ -10,6 +10,14 @@ import { getOverlayStyles, getHeightClass } from '../utils'
 // Helper to check if image is valid Media object
 function isValidMedia(image: unknown): image is MediaType {
   return typeof image === 'object' && image !== null && 'url' in image
+}
+
+// Helper to get clean image URL without query strings (Next.js 16 compatibility)
+function getCleanImageUrl(media: MediaType): string {
+  const url = media.url || ''
+  // Strip any query strings for Next.js 16 local image compatibility
+  const queryIndex = url.indexOf('?')
+  return queryIndex > -1 ? url.substring(0, queryIndex) : url
 }
 
 interface FullscreenHeroProps {
@@ -73,12 +81,14 @@ export function FullscreenHero({ data, social }: FullscreenHeroProps) {
       {/* Image Background - SERVER RENDERED for LCP */}
       {!videoUrl && hasImage && (
         <div className="absolute inset-0">
-          <Media
-            resource={image as MediaType}
+          <Image
+            src={getCleanImageUrl(image as MediaType)}
+            alt={(image as MediaType).alt || ''}
             fill
             priority
-            size="100vw"
-            imgClassName="object-cover"
+            quality={75}
+            sizes="100vw"
+            className="object-cover"
           />
           {overlayConfig && (
             <div className={overlayConfig.className} style={overlayConfig.style} />

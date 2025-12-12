@@ -9,6 +9,12 @@ import {
   buttonLetterSpacingPresets,
   animationPresets,
 } from '@/theme/variants'
+import {
+  generatePalette,
+  generateContrastColors,
+  hexToOklchCss,
+  oklchToHex,
+} from '@/utilities/colors'
 
 // Re-export for backward compatibility
 export { THEME_VARIANTS }
@@ -23,40 +29,76 @@ export function generateThemeStyles(siteTheme: SiteTheme | null): string {
   const variantKey = siteTheme?.variant || 'dark-gold'
   const variant = THEME_VARIANTS[variantKey] || THEME_VARIANTS['dark-gold']
 
-  // Apply colors - use custom if enabled, otherwise use variant
-  const colors =
-    siteTheme?.useCustomColors && siteTheme.colors
-      ? {
-          primary: siteTheme.colors.primary || variant.colors.primary,
-          secondary: siteTheme.colors.secondary || variant.colors.secondary,
-          accent: siteTheme.colors.accent || variant.colors.accent,
-          dark: siteTheme.colors.dark || variant.colors.dark,
-          light: siteTheme.colors.light || variant.colors.light,
-          surface: siteTheme.colors.surface || variant.colors.surface,
-          text: siteTheme.colors.text || variant.colors.text,
-          textLight: siteTheme.colors.textLight || variant.colors.textLight,
-          border: siteTheme.colors.border || variant.colors.border,
-          // Contrast colors - use custom if set, otherwise use variant defaults
-          textOnPrimary:
-            (siteTheme.colors as Record<string, string | undefined>).textOnPrimary ||
-            variant.colors.textOnPrimary,
-          textOnSecondary:
-            (siteTheme.colors as Record<string, string | undefined>).textOnSecondary ||
-            variant.colors.textOnSecondary,
-          textOnAccent:
-            (siteTheme.colors as Record<string, string | undefined>).textOnAccent ||
-            variant.colors.textOnAccent,
-          textOnDark:
-            (siteTheme.colors as Record<string, string | undefined>).textOnDark ||
-            variant.colors.textOnDark,
-          textOnLight:
-            (siteTheme.colors as Record<string, string | undefined>).textOnLight ||
-            variant.colors.textOnLight,
-          textOnSurface:
-            (siteTheme.colors as Record<string, string | undefined>).textOnSurface ||
-            variant.colors.textOnSurface,
-        }
-      : variant.colors
+  // Apply colors - auto-generate from primary, use custom if enabled, otherwise use variant
+  let colors = variant.colors
+
+  if (siteTheme?.useCustomColors && siteTheme.colors) {
+    const primaryColor = siteTheme.colors.primary || variant.colors.primary
+
+    // If auto-generate palette is enabled, generate all colors from primary
+    if (siteTheme.autoGeneratePalette && primaryColor) {
+      const generatedPalette = generatePalette(primaryColor)
+      // generateContrastColors expects OklchColor objects, returns OklchColor objects
+      const contrastColorsOklch = generateContrastColors({
+        primary: generatedPalette.primary,
+        secondary: generatedPalette.secondary,
+        accent: generatedPalette.accent,
+        dark: generatedPalette.dark,
+        light: generatedPalette.light,
+        surface: generatedPalette.surface,
+      })
+
+      colors = {
+        primary: primaryColor, // Keep the original primary as HEX
+        secondary: oklchToHex(generatedPalette.secondary),
+        accent: oklchToHex(generatedPalette.accent),
+        dark: oklchToHex(generatedPalette.dark),
+        light: oklchToHex(generatedPalette.light),
+        surface: oklchToHex(generatedPalette.surface),
+        text: oklchToHex(generatedPalette.text),
+        textLight: oklchToHex(generatedPalette.textLight),
+        border: oklchToHex(generatedPalette.border),
+        textOnPrimary: oklchToHex(contrastColorsOklch.textOnPrimary),
+        textOnSecondary: oklchToHex(contrastColorsOklch.textOnSecondary),
+        textOnAccent: oklchToHex(contrastColorsOklch.textOnAccent),
+        textOnDark: oklchToHex(contrastColorsOklch.textOnDark),
+        textOnLight: oklchToHex(contrastColorsOklch.textOnLight),
+        textOnSurface: oklchToHex(contrastColorsOklch.textOnSurface),
+      }
+    } else {
+      // Use manual custom colors
+      colors = {
+        primary: primaryColor,
+        secondary: siteTheme.colors.secondary || variant.colors.secondary,
+        accent: siteTheme.colors.accent || variant.colors.accent,
+        dark: siteTheme.colors.dark || variant.colors.dark,
+        light: siteTheme.colors.light || variant.colors.light,
+        surface: siteTheme.colors.surface || variant.colors.surface,
+        text: siteTheme.colors.text || variant.colors.text,
+        textLight: siteTheme.colors.textLight || variant.colors.textLight,
+        border: siteTheme.colors.border || variant.colors.border,
+        // Contrast colors - use custom if set, otherwise use variant defaults
+        textOnPrimary:
+          (siteTheme.colors as Record<string, string | undefined>).textOnPrimary ||
+          variant.colors.textOnPrimary,
+        textOnSecondary:
+          (siteTheme.colors as Record<string, string | undefined>).textOnSecondary ||
+          variant.colors.textOnSecondary,
+        textOnAccent:
+          (siteTheme.colors as Record<string, string | undefined>).textOnAccent ||
+          variant.colors.textOnAccent,
+        textOnDark:
+          (siteTheme.colors as Record<string, string | undefined>).textOnDark ||
+          variant.colors.textOnDark,
+        textOnLight:
+          (siteTheme.colors as Record<string, string | undefined>).textOnLight ||
+          variant.colors.textOnLight,
+        textOnSurface:
+          (siteTheme.colors as Record<string, string | undefined>).textOnSurface ||
+          variant.colors.textOnSurface,
+      }
+    }
+  }
 
   // Apply border radius - use override if set, otherwise use variant
   const borderRadiusKey = siteTheme?.borderRadius || variant.borderRadius
@@ -137,6 +179,15 @@ export function generateThemeStyles(siteTheme: SiteTheme | null): string {
   // Derive play state from enabled flag (for decorative infinite animations)
   const animationPlayState = animations.enabled === '1' ? 'running' : 'paused'
 
+  // Generate OKLCH values for colors (for advanced color manipulation in CSS)
+  const toOklch = (hex: string): string => {
+    try {
+      return hexToOklchCss(hex)
+    } catch {
+      return hex // Fallback to hex if conversion fails
+    }
+  }
+
   // Base CSS variables
   const baseStyles = `
     :root {
@@ -155,6 +206,9 @@ export function generateThemeStyles(siteTheme: SiteTheme | null): string {
       --theme-text-on-dark: ${colors.textOnDark};
       --theme-text-on-light: ${colors.textOnLight};
       --theme-text-on-surface: ${colors.textOnSurface};
+      --theme-primary-oklch: ${toOklch(colors.primary)};
+      --theme-secondary-oklch: ${toOklch(colors.secondary)};
+      --theme-accent-oklch: ${toOklch(colors.accent)};
       --radius-sm: ${radius.sm};
       --radius-md: ${radius.md};
       --radius-lg: ${radius.lg};

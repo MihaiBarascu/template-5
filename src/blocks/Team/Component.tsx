@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import Link from 'next/link'
 import { cn } from '@/utilities/cn'
 import { Media } from '@/components/Media'
@@ -120,18 +120,12 @@ export function TeamBlock({
   members = [],
   detailBasePath,
 }: TeamBlockProps) {
-  const [isLoaded, setIsLoaded] = useState(false)
-
   // Helper to get member detail URL
   const getMemberHref = (member: TeamMember): string | null => {
     if (!detailBasePath || !member.slug) return null
     const basePath = detailBasePath.startsWith('/') ? detailBasePath : `/${detailBasePath}`
     return `${basePath}/${member.slug}`
   }
-
-  useEffect(() => {
-    setIsLoaded(true)
-  }, [])
 
   // Background classes
   const bgClasses: Record<string, string> = {
@@ -198,13 +192,12 @@ export function TeamBlock({
                 key={member.id}
                 className={cn(
                   'group flex flex-col md:flex-row items-center gap-6 p-6 rounded-[var(--radius-card)]',
-                  'transform transition-all duration-500',
-                  isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8',
+                  'animate-fade-in-up card-hover',
                   isDark
                     ? 'bg-white/5 hover:bg-white/10 border border-white/10'
-                    : 'bg-white hover:shadow-xl border border-theme-border'
+                    : 'bg-white hover:shadow-xl border border-theme-border',
+                  index < 8 && `animation-delay-${(index % 4) * 100 + 100}`
                 )}
-                style={{ transitionDelay: `${index * 100}ms` }}
               >
                 {/* Image */}
                 <div className={cn(
@@ -353,10 +346,9 @@ export function TeamBlock({
               key={member.id}
               className={cn(
                 'group relative text-center',
-                'transform transition-all duration-500',
-                isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                'animate-fade-in-up',
+                index < 8 && `animation-delay-${(index % 4) * 100 + 100}`
               )}
-              style={{ transitionDelay: `${index * 100}ms` }}
             >
               {/* Card */}
               <div className={cn(

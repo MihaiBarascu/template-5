@@ -18,6 +18,7 @@ import {
   seedForms,
   formTemplates,
   createContactPageLayout,
+  buildHeroData,
 } from '../helpers'
 import { salonImages, salonData } from '../seed-data'
 import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
@@ -136,19 +137,35 @@ export async function seedSalon(payload: Payload) {
   await seedPortfolio(payload, portfolioItems)
 
   console.log('\n🏠 Creating homepage...')
-  const heroImageId = getImageId(salonImages.hero[0]?.filename)
   const homepageLayout = buildHomepageLayout(variant)
-
   const overlaySettings = getHeroOverlaySettings(variant)
-  await seedHomePage(payload, {
-    heroType: variant.hero.type,
-    hero: {
+
+  // Build hero data using helper (supports carousel/slider/split)
+  // Extract years from stats (e.g. "8+" -> 8)
+  const yearsStatValue = salonData.business.stats?.find((s) => s.label.toLowerCase().includes('ani'))?.value
+  const yearsExperience = yearsStatValue ? parseInt(yearsStatValue.replace(/\D/g, ''), 10) : 8
+
+  const heroData = buildHeroData(
+    variant.hero.type,
+    {
       headline: salonData.hero.headline,
       subheadline: salonData.hero.subheadline,
       ctaButtons: salonData.hero.ctaButtons,
-      imageId: heroImageId,
-      ...overlaySettings,
     },
+    overlaySettings,
+    {
+      heroImages: salonImages.hero,
+      galleryImages: salonImages.gallery,
+      getImageId,
+    },
+    {
+      yearsExperience,
+    }
+  )
+
+  await seedHomePage(payload, {
+    heroType: variant.hero.type,
+    hero: heroData,
     layout: homepageLayout,
   })
 

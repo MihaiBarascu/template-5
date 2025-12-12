@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import Link from 'next/link'
 import { cn } from '@/utilities/cn'
 import * as LucideIcons from 'lucide-react'
@@ -178,12 +178,6 @@ export function ServicesBlock({
   services = [],
   detailBasePath,
 }: ServicesBlockProps) {
-  const [isLoaded, setIsLoaded] = useState(false)
-
-  useEffect(() => {
-    setIsLoaded(true)
-  }, [])
-
   // Background classes
   const bgClasses: Record<string, string> = {
     default: 'bg-theme-surface',
@@ -250,11 +244,10 @@ export function ServicesBlock({
                 key={service.id}
                 className={cn(
                   'group flex items-center gap-2 py-4',
-                  'transform transition-all duration-500',
-                  isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8',
-                  index !== services.length - 1 && (isDark ? 'border-b border-white/10' : 'border-b border-theme-border')
+                  'animate-fade-in-up',
+                  index !== services.length - 1 && (isDark ? 'border-b border-white/10' : 'border-b border-theme-border'),
+                  index < 8 && `animation-delay-${(index % 4) * 100 + 100}`
                 )}
-                style={{ transitionDelay: `${index * 50}ms` }}
               >
                 {showIcons && (
                   <div className={cn(
@@ -353,14 +346,13 @@ export function ServicesBlock({
                 key={service.id}
                 className={cn(
                   'group flex items-center gap-6 p-6 rounded-[var(--radius-card)]',
-                  'transform transition-all duration-500',
-                  isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8',
+                  'animate-fade-in-up card-hover',
                   isDark
                     ? 'bg-white/5 hover:bg-white/10 border border-white/10'
                     : 'bg-white hover:shadow-lg border border-theme-border hover:border-theme-primary/30',
-                  variant === 'list-alternating' && index % 2 === 1 && 'md:flex-row-reverse'
+                  variant === 'list-alternating' && index % 2 === 1 && 'md:flex-row-reverse',
+                  index < 8 && `animation-delay-${(index % 4) * 100 + 100}`
                 )}
-                style={{ transitionDelay: `${index * 75}ms` }}
               >
                 {showIcons && (
                   <div className={cn(
@@ -470,16 +462,15 @@ export function ServicesBlock({
 
             const cardClassName = cn(
               'group relative rounded-[var(--radius-card)] overflow-hidden',
-              'transform transition-all duration-500',
-              isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8',
+              'animate-fade-in-up card-hover',
               isDark
                 ? 'bg-white/5 hover:bg-white/10 border border-white/10'
                 : 'bg-white hover:shadow-xl border border-theme-border hover:border-theme-primary/30',
               service.featured && 'ring-2 ring-theme-accent',
               serviceHref && 'cursor-pointer',
-              displayStyle === 'card-image' ? 'flex flex-col' : 'p-6'
+              displayStyle === 'card-image' ? 'flex flex-col' : 'p-6',
+              index < 8 && `animation-delay-${(index % 4) * 100 + 100}`
             )
-            const cardStyle = { transitionDelay: `${index * 75}ms` }
 
             const cardContent = (
               <>
@@ -583,7 +574,6 @@ export function ServicesBlock({
                 key={service.id}
                 href={serviceHref}
                 className={cardClassName}
-                style={cardStyle}
               >
                 {cardContent}
               </Link>
@@ -591,7 +581,6 @@ export function ServicesBlock({
               <div
                 key={service.id}
                 className={cardClassName}
-                style={cardStyle}
               >
                 {cardContent}
               </div>

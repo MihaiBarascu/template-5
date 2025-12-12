@@ -18,6 +18,7 @@ import {
   seedForms,
   formTemplates,
   createContactPageLayout,
+  buildHeroData,
 } from '../helpers'
 import { constructiiImages, constructiiData } from '../seed-data'
 import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
@@ -136,19 +137,35 @@ export async function seedConstructii(payload: Payload) {
   await seedPortfolio(payload, portfolioItems)
 
   console.log('\n🏠 Creating homepage...')
-  const heroImageId = getImageId(constructiiImages.hero[0]?.filename)
   const homepageLayout = buildHomepageLayout(variant)
-
   const overlaySettings = getHeroOverlaySettings(variant)
-  await seedHomePage(payload, {
-    heroType: variant.hero.type,
-    hero: {
+
+  // Build hero data using helper (supports carousel/slider/split)
+  // Extract years from stats (e.g. "20+" -> 20)
+  const yearsStatValue = constructiiData.business.stats?.find((s) => s.label.toLowerCase().includes('ani'))?.value
+  const yearsExperience = yearsStatValue ? parseInt(yearsStatValue.replace(/\D/g, ''), 10) : 20
+
+  const heroData = buildHeroData(
+    variant.hero.type,
+    {
       headline: constructiiData.hero.headline,
       subheadline: constructiiData.hero.subheadline,
       ctaButtons: constructiiData.hero.ctaButtons,
-      imageId: heroImageId,
-      ...overlaySettings,
     },
+    overlaySettings,
+    {
+      heroImages: constructiiImages.hero,
+      galleryImages: constructiiImages.gallery,
+      getImageId,
+    },
+    {
+      yearsExperience,
+    }
+  )
+
+  await seedHomePage(payload, {
+    heroType: variant.hero.type,
+    hero: heroData,
     layout: homepageLayout,
   })
 

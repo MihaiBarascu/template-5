@@ -413,6 +413,49 @@
     box-shadow: var(--shadow-card-hover);
   }
 
+  /* Card entry animations - controlled by admin
+     Uses CSS custom properties for duration and can be disabled */
+  .card-animate {
+    opacity: 0;
+    transform: translateY(2rem);
+    transition: opacity var(--animation-duration-slow) var(--animation-timing),
+                transform var(--animation-duration-slow) var(--animation-timing);
+  }
+  .card-animate.is-loaded {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* When animations are disabled (--animation-enabled: 0), show immediately */
+  @supports (opacity: calc(1 - var(--animation-enabled))) {
+    .card-animate {
+      opacity: calc(1 - var(--animation-enabled));
+      transform: translateY(calc(2rem * var(--animation-enabled)));
+    }
+  }
+
+  /* Card animation delays - scaled by admin setting */
+  .card-delay-1 { transition-delay: calc(var(--animation-duration-fast) * 0.5); }
+  .card-delay-2 { transition-delay: var(--animation-duration-fast); }
+  .card-delay-3 { transition-delay: calc(var(--animation-duration-fast) * 1.5); }
+  .card-delay-4 { transition-delay: calc(var(--animation-duration) * 1); }
+  .card-delay-5 { transition-delay: calc(var(--animation-duration) * 1.25); }
+  .card-delay-6 { transition-delay: calc(var(--animation-duration) * 1.5); }
+  .card-delay-7 { transition-delay: calc(var(--animation-duration) * 1.75); }
+  .card-delay-8 { transition-delay: calc(var(--animation-duration) * 2); }
+
+  /* Alternative: slide from left */
+  .card-animate-left {
+    opacity: 0;
+    transform: translateX(-2rem);
+    transition: opacity var(--animation-duration-slow) var(--animation-timing),
+                transform var(--animation-duration-slow) var(--animation-timing);
+  }
+  .card-animate-left.is-loaded {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
   /* -----------------------------
      EFFECTS
      ----------------------------- */

@@ -239,7 +239,14 @@ export interface Page {
     headline?: string | null;
     subheadline?: string | null;
     image?: (string | null) | Media;
+    /**
+     * URL YouTube sau Vimeo pentru embed video
+     */
     videoUrl?: string | null;
+    /**
+     * Video MP4 local pentru background video autoplay
+     */
+    videoFile?: (string | null) | Media;
     ctaButtons?:
       | {
           label: string;
@@ -256,6 +263,17 @@ export interface Page {
      */
     badge?: string | null;
     showScrollIndicator?: boolean | null;
+    /**
+     * Adauga 2-6 slide-uri pentru carousel hero
+     */
+    slides?:
+      | {
+          image: string | Media;
+          headline?: string | null;
+          subheadline?: string | null;
+          id?: string | null;
+        }[]
+      | null;
     /**
      * Badge-ul cu statistici afisat pe imaginea hero
      */
@@ -3140,6 +3158,7 @@ export interface PagesSelect<T extends boolean = true> {
         subheadline?: T;
         image?: T;
         videoUrl?: T;
+        videoFile?: T;
         ctaButtons?:
           | T
           | {
@@ -3153,6 +3172,14 @@ export interface PagesSelect<T extends boolean = true> {
         height?: T;
         badge?: T;
         showScrollIndicator?: T;
+        slides?:
+          | T
+          | {
+              image?: T;
+              headline?: T;
+              subheadline?: T;
+              id?: T;
+            };
         statsBadge?:
           | T
           | {
@@ -5389,6 +5416,10 @@ export interface SiteTheme {
    * Bifat = culorile de mai jos suprascriu varianta. Nebifat = culorile din varianta.
    */
   useCustomColors?: boolean | null;
+  /**
+   * Activeaza pentru a genera automat toate culorile din culoarea primara folosind algoritmul OKLCH.
+   */
+  autoGeneratePalette?: boolean | null;
   colors?: {
     primary?: string | null;
     secondary?: string | null;
@@ -5578,15 +5609,54 @@ export interface BusinessInfo {
     dismissible?: boolean | null;
   };
   /**
-   * Banner pentru consimtamant cookies conform GDPR
+   * Configurare banner cookie conform GDPR și Legea 506/2004 România
    */
   cookieConsent?: {
     enabled?: boolean | null;
-    message?: string | null;
-    position?: ('bottom' | 'bottom-left' | 'bottom-right') | null;
-    variant?: ('bar' | 'popup' | 'minimal') | null;
+    title?: string | null;
+    description?: string | null;
+    privacyPolicyUrl?: string | null;
     acceptButtonText?: string | null;
-    showDeclineButton?: boolean | null;
+    rejectButtonText?: string | null;
+    customizeButtonText?: string | null;
+    saveButtonText?: string | null;
+    necessaryTitle?: string | null;
+    necessaryDescription?: string | null;
+    analyticsTitle?: string | null;
+    analyticsDescription?: string | null;
+    marketingTitle?: string | null;
+    marketingDescription?: string | null;
+    preferencesTitle?: string | null;
+    preferencesDescription?: string | null;
+    /**
+     * Format: G-XXXXXXXXXX
+     */
+    googleAnalyticsId?: string | null;
+    /**
+     * Format: GTM-XXXXXXX
+     */
+    googleTagManagerId?: string | null;
+    /**
+     * ID numeric Facebook Pixel
+     */
+    facebookPixelId?: string | null;
+    /**
+     * ID TikTok Pixel pentru tracking conversii
+     */
+    tiktokPixelId?: string | null;
+    /**
+     * ID numeric Hotjar pentru heatmaps și session recordings
+     */
+    hotjarId?: string | null;
+    /**
+     * Număr de zile până când utilizatorul va fi întrebat din nou
+     */
+    consentExpiry?: number | null;
+    /**
+     * Buton discret în colț pentru a permite utilizatorilor să-și schimbe preferințele
+     */
+    showFloatingButton?: boolean | null;
+    position?: ('bottom' | 'bottom-left' | 'bottom-right') | null;
   };
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -5901,6 +5971,7 @@ export interface SiteThemeSelect<T extends boolean = true> {
   containerWidth?: T;
   sectionSpacing?: T;
   useCustomColors?: T;
+  autoGeneratePalette?: T;
   colors?:
     | T
     | {
@@ -6044,11 +6115,29 @@ export interface BusinessInfoSelect<T extends boolean = true> {
     | T
     | {
         enabled?: T;
-        message?: T;
-        position?: T;
-        variant?: T;
+        title?: T;
+        description?: T;
+        privacyPolicyUrl?: T;
         acceptButtonText?: T;
-        showDeclineButton?: T;
+        rejectButtonText?: T;
+        customizeButtonText?: T;
+        saveButtonText?: T;
+        necessaryTitle?: T;
+        necessaryDescription?: T;
+        analyticsTitle?: T;
+        analyticsDescription?: T;
+        marketingTitle?: T;
+        marketingDescription?: T;
+        preferencesTitle?: T;
+        preferencesDescription?: T;
+        googleAnalyticsId?: T;
+        googleTagManagerId?: T;
+        facebookPixelId?: T;
+        tiktokPixelId?: T;
+        hotjarId?: T;
+        consentExpiry?: T;
+        showFloatingButton?: T;
+        position?: T;
       };
   updatedAt?: T;
   createdAt?: T;

@@ -75,7 +75,7 @@ export interface DesignVariant {
     shadows: 'none' | 'subtle' | 'moderate' | 'strong'
   }
   hero: {
-    type: 'fullscreen' | 'centered' | 'split' | 'minimal' | 'video'
+    type: 'fullscreen' | 'centered' | 'split' | 'minimal' | 'video' | 'slider'
     overlay: 'dark' | 'light' | 'gradient' | 'none'
     alignment: 'left' | 'center' | 'right'
   }
@@ -282,11 +282,11 @@ export const barbershopVariants: DesignVariant[] = [
     },
   },
 
-  // VARIANTA 5 - Urban Green & Dark
+  // VARIANTA 5 - Urban Green & Dark (CAROUSEL HERO)
   {
     id: 'barbershop-v5',
     name: 'Urban Green & Dark',
-    description: 'Design urban cu verde si inchis - modern si cool',
+    description: 'Design urban cu verde si inchis - modern si cool, cu hero carousel',
     theme: {
       preset: 'modern',
       colors: {
@@ -308,7 +308,7 @@ export const barbershopVariants: DesignVariant[] = [
       shadows: 'moderate',
     },
     hero: {
-      type: 'fullscreen',
+      type: 'slider',
       overlay: 'dark',
       alignment: 'center',
     },
@@ -488,11 +488,11 @@ export const dentistVariants: DesignVariant[] = [
     },
   },
 
-  // VARIANTA 5 - Minimal Gray
+  // VARIANTA 5 - Minimal Gray (CAROUSEL HERO)
   {
     id: 'dentist-v5',
     name: 'Minimal Gray',
-    description: 'Design minimalist cu gri - profesional si serios',
+    description: 'Design minimalist cu gri - profesional si serios, cu hero carousel',
     theme: {
       preset: 'minimal',
       colors: {
@@ -514,8 +514,8 @@ export const dentistVariants: DesignVariant[] = [
       shadows: 'none',
     },
     hero: {
-      type: 'minimal',
-      overlay: 'none',
+      type: 'slider',
+      overlay: 'dark',
       alignment: 'left',
     },
     layout: {
@@ -574,11 +574,11 @@ export const restaurantVariants: DesignVariant[] = [
     },
   },
 
-  // VARIANTA 2 - Elegant Dark & Gold
+  // VARIANTA 2 - Elegant Dark & Gold (VIDEO HERO)
   {
     id: 'restaurant-v2',
     name: 'Elegant Dark & Gold',
-    description: 'Design elegant cu inchis si auriu - fine dining si lux',
+    description: 'Design elegant cu inchis si auriu - fine dining si lux, cu video hero',
     theme: {
       preset: 'elegant',
       colors: {
@@ -600,7 +600,7 @@ export const restaurantVariants: DesignVariant[] = [
       shadows: 'subtle',
     },
     hero: {
-      type: 'centered',
+      type: 'video',
       overlay: 'dark',
       alignment: 'center',
     },
@@ -694,11 +694,11 @@ export const restaurantVariants: DesignVariant[] = [
     },
   },
 
-  // VARIANTA 5 - Modern Blue Cafe
+  // VARIANTA 5 - Modern Blue Cafe (CAROUSEL HERO)
   {
     id: 'restaurant-v5',
     name: 'Modern Blue Cafe',
-    description: 'Design modern cu albastru - cafenea trendy si cool',
+    description: 'Design modern cu albastru - cafenea trendy si cool, cu hero carousel',
     theme: {
       preset: 'modern',
       colors: {
@@ -720,8 +720,8 @@ export const restaurantVariants: DesignVariant[] = [
       shadows: 'subtle',
     },
     hero: {
-      type: 'minimal',
-      overlay: 'none',
+      type: 'slider',
+      overlay: 'gradient',
       alignment: 'left',
     },
     layout: {
@@ -900,11 +900,11 @@ export const salonVariants: DesignVariant[] = [
     },
   },
 
-  // VARIANTA 5 - Black & White Chic
+  // VARIANTA 5 - Black & White Chic (CAROUSEL HERO)
   {
     id: 'salon-v5',
     name: 'Black & White Chic',
-    description: 'Design chic cu negru si alb - modern si stylish',
+    description: 'Design chic cu negru si alb - modern si stylish, cu hero carousel',
     theme: {
       preset: 'bold',
       colors: {
@@ -926,8 +926,8 @@ export const salonVariants: DesignVariant[] = [
       shadows: 'strong',
     },
     hero: {
-      type: 'split',
-      overlay: 'none',
+      type: 'slider',
+      overlay: 'dark',
       alignment: 'left',
     },
     layout: {
@@ -1066,11 +1066,11 @@ export const autoServiceVariants: DesignVariant[] = [
     },
   },
 
-  // VARIANTA 4 - Yellow & Black Speed
+  // VARIANTA 4 - Yellow & Black Speed (CAROUSEL HERO)
   {
     id: 'auto-v4',
     name: 'Yellow & Black Speed',
-    description: 'Design speed cu galben si negru - rapid si eficient',
+    description: 'Design speed cu galben si negru - rapid si eficient, cu hero carousel',
     theme: {
       preset: 'bold',
       colors: {
@@ -1092,7 +1092,7 @@ export const autoServiceVariants: DesignVariant[] = [
       shadows: 'strong',
     },
     hero: {
-      type: 'fullscreen',
+      type: 'slider',
       overlay: 'dark',
       alignment: 'center',
     },
@@ -1232,11 +1232,11 @@ export const avocatVariants: DesignVariant[] = [
     },
   },
 
-  // VARIANTA 3 - Dark Green Professional
+  // VARIANTA 3 - Dark Green Professional (CAROUSEL HERO)
   {
     id: 'avocat-v3',
     name: 'Dark Green Professional',
-    description: 'Design profesional cu verde inchis - de incredere si stabil',
+    description: 'Design profesional cu verde inchis - de incredere si stabil, cu hero carousel',
     theme: {
       preset: 'classic',
       colors: {
@@ -1258,7 +1258,7 @@ export const avocatVariants: DesignVariant[] = [
       shadows: 'subtle',
     },
     hero: {
-      type: 'fullscreen',
+      type: 'slider',
       overlay: 'dark',
       alignment: 'center',
     },
@@ -1478,11 +1478,11 @@ export const constructiiVariants: DesignVariant[] = [
     },
   },
 
-  // VARIANTA 4 - Green Eco Construction
+  // VARIANTA 4 - Green Eco Construction (CAROUSEL HERO)
   {
     id: 'constructii-v4',
     name: 'Green Eco Construction',
-    description: 'Design eco cu verde - constructii sustenabile',
+    description: 'Design eco cu verde - constructii sustenabile, cu hero carousel',
     theme: {
       preset: 'modern',
       colors: {
@@ -1504,8 +1504,8 @@ export const constructiiVariants: DesignVariant[] = [
       shadows: 'subtle',
     },
     hero: {
-      type: 'fullscreen',
-      overlay: 'light',
+      type: 'slider',
+      overlay: 'gradient',
       alignment: 'center',
     },
     layout: {
@@ -1724,11 +1724,11 @@ export const magazinVariants: DesignVariant[] = [
     },
   },
 
-  // VARIANTA 5 - Minimal Black & White
+  // VARIANTA 5 - Minimal Black & White (CAROUSEL HERO)
   {
     id: 'magazin-v5',
     name: 'Minimal Black & White',
-    description: 'Design minimalist alb-negru - clean si elegant',
+    description: 'Design minimalist alb-negru - clean si elegant, cu hero carousel',
     theme: {
       preset: 'minimal',
       colors: {
@@ -1750,8 +1750,8 @@ export const magazinVariants: DesignVariant[] = [
       shadows: 'none',
     },
     hero: {
-      type: 'minimal',
-      overlay: 'none',
+      type: 'slider',
+      overlay: 'dark',
       alignment: 'left',
     },
     layout: {
@@ -1850,11 +1850,11 @@ export const fitnessVariants: DesignVariant[] = [
     },
   },
 
-  // VARIANTA 3 - Green Wellness
+  // VARIANTA 3 - Green Wellness (VIDEO HERO)
   {
     id: 'fitness-v3',
     name: 'Green Wellness',
-    description: 'Design wellness cu verde - sanatos si echilibrat',
+    description: 'Design wellness cu verde - sanatos si echilibrat, cu video hero',
     theme: {
       preset: 'modern',
       colors: {
@@ -1876,9 +1876,9 @@ export const fitnessVariants: DesignVariant[] = [
       shadows: 'subtle',
     },
     hero: {
-      type: 'split',
-      overlay: 'none',
-      alignment: 'left',
+      type: 'video',
+      overlay: 'dark',
+      alignment: 'center',
     },
     layout: {
       sections: ['classesGrid', 'scheduleTable', 'subscriptionCards', 'team', 'stats', 'testimonials', 'faq', 'cta'],
@@ -1930,11 +1930,11 @@ export const fitnessVariants: DesignVariant[] = [
     },
   },
 
-  // VARIANTA 5 - Red Power
+  // VARIANTA 5 - Red Power (CAROUSEL HERO)
   {
     id: 'fitness-v5',
     name: 'Red Power',
-    description: 'Design puternic cu rosu - intens si motivant',
+    description: 'Design puternic cu rosu - intens si motivant, cu hero carousel',
     theme: {
       preset: 'bold',
       colors: {
@@ -1956,7 +1956,7 @@ export const fitnessVariants: DesignVariant[] = [
       shadows: 'strong',
     },
     hero: {
-      type: 'fullscreen',
+      type: 'slider',
       overlay: 'dark',
       alignment: 'center',
     },

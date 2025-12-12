@@ -19,6 +19,7 @@ import {
   seedForms,
   formTemplates,
   createContactPageLayout,
+  buildHeroData,
 } from '../helpers'
 import { magazinImages, magazinData } from '../seed-data'
 import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
@@ -145,19 +146,35 @@ export async function seedMagazin(payload: Payload) {
   await seedPortfolio(payload, portfolioItems)
 
   console.log('\n🏠 Creating homepage...')
-  const heroImageId = getImageId(magazinImages.hero[0]?.filename)
   const homepageLayout = buildHomepageLayout(variant, getImageId)
-
   const overlaySettings = getHeroOverlaySettings(variant)
-  await seedHomePage(payload, {
-    heroType: variant.hero.type,
-    hero: {
+
+  // Build hero data using helper (supports carousel/slider/split)
+  // Extract years from stats (e.g. "5+" -> 5)
+  const yearsStatValue = magazinData.business.stats?.find((s) => s.label.toLowerCase().includes('ani'))?.value
+  const yearsExperience = yearsStatValue ? parseInt(yearsStatValue.replace(/\D/g, ''), 10) : 5
+
+  const heroData = buildHeroData(
+    variant.hero.type,
+    {
       headline: magazinData.hero.headline,
       subheadline: magazinData.hero.subheadline,
       ctaButtons: magazinData.hero.ctaButtons,
-      imageId: heroImageId,
-      ...overlaySettings,
     },
+    overlaySettings,
+    {
+      heroImages: magazinImages.hero,
+      galleryImages: magazinImages.gallery,
+      getImageId,
+    },
+    {
+      yearsExperience,
+    }
+  )
+
+  await seedHomePage(payload, {
+    heroType: variant.hero.type,
+    hero: heroData,
     layout: homepageLayout,
   })
 
