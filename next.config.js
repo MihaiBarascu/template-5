@@ -1,14 +1,16 @@
-import { withPayload } from '@payloadcms/next/withPayload'
+import { withPayload } from '@payloadcms/next/withPayload';
 
-import redirects from './redirects.js'
+import redirects from './redirects.js';
 
 const NEXT_PUBLIC_SERVER_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
   ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-  : process.env.NEXT_PUBLIC_SERVER_URL || process.env.__NEXT_PRIVATE_ORIGIN || 'http://localhost:3010'
+  : process.env.NEXT_PUBLIC_SERVER_URL ||
+    process.env.__NEXT_PRIVATE_ORIGIN ||
+    'http://localhost:3010';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone', // Required for Docker deployment
+  //output: 'standalone', // Required for Docker deployment
   images: {
     // Local patterns for images with query strings (cache tags)
     localPatterns: [
@@ -18,13 +20,13 @@ const nextConfig = {
       },
     ],
     remotePatterns: [
-      ...[NEXT_PUBLIC_SERVER_URL /* 'https://example.com' */].map((item) => {
-        const url = new URL(item)
+      ...[NEXT_PUBLIC_SERVER_URL /* 'https://example.com' */].map(item => {
+        const url = new URL(item);
 
         return {
           hostname: url.hostname,
           protocol: url.protocol.replace(':', ''),
-        }
+        };
       }),
       // YouTube thumbnails for video embeds
       // NOTE: Use specific hostnames instead of wildcards due to Next.js 15 validation bugs
@@ -60,14 +62,14 @@ const nextConfig = {
     qualities: [75, 85], // Next.js 16 requires explicit quality values
     minimumCacheTTL: 31536000, // 1 year cache
   },
-  webpack: (webpackConfig) => {
+  webpack: webpackConfig => {
     webpackConfig.resolve.extensionAlias = {
       '.cjs': ['.cts', '.cjs'],
       '.js': ['.ts', '.tsx', '.js', '.jsx'],
       '.mjs': ['.mts', '.mjs'],
-    }
+    };
 
-    return webpackConfig
+    return webpackConfig;
   },
   reactStrictMode: true,
   redirects,
@@ -110,7 +112,8 @@ const nextConfig = {
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=60, s-maxage=3600, stale-while-revalidate=86400',
+            value:
+              'public, max-age=60, s-maxage=3600, stale-while-revalidate=86400',
           },
         ],
       },
@@ -124,8 +127,8 @@ const nextConfig = {
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
         ],
       },
-    ]
+    ];
   },
-}
+};
 
-export default withPayload(nextConfig, { devBundleServerPackages: false })
+export default withPayload(nextConfig, { devBundleServerPackages: false });
