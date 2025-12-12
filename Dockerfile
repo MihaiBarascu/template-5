@@ -32,13 +32,20 @@ ENV PAYLOAD_SECRET=$PAYLOAD_SECRET
 ENV DATABASE_URI=$DATABASE_URI
 ENV NEXT_PUBLIC_SERVER_URL=$NEXT_PUBLIC_SERVER_URL
 
-# Build with detected package manager
-# Using --experimental-build-mode compile to skip static generation during build
-# (MongoDB not accessible during Docker build - pages generated at runtime with ISR)
+# Two-step build process (no DB required):
+# 1. compile - compiles code without static generation
+# 2. generate-env - inlines NEXT_PUBLIC_* environment variables
 RUN \
-  if [ -f yarn.lock ]; then yarn cross-env NODE_OPTIONS=--no-deprecation next build --experimental-build-mode compile; \
-  elif [ -f package-lock.json ]; then npx cross-env NODE_OPTIONS=--no-deprecation next build --experimental-build-mode compile; \
-  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm exec cross-env NODE_OPTIONS=--no-deprecation next build --experimental-build-mode compile; \
+  if [ -f yarn.lock ]; then \
+    yarn cross-env NODE_OPTIONS=--no-deprecation next build --experimental-build-mode compile && \
+    yarn cross-env NODE_OPTIONS=--no-deprecation next build --experimental-build-mode generate-env; \
+  elif [ -f package-lock.json ]; then \
+    npx cross-env NODE_OPTIONS=--no-deprecation next build --experimental-build-mode compile && \
+    npx cross-env NODE_OPTIONS=--no-deprecation next build --experimental-build-mode generate-env; \
+  elif [ -f pnpm-lock.yaml ]; then \
+    corepack enable pnpm && \
+    pnpm exec cross-env NODE_OPTIONS=--no-deprecation next build --experimental-build-mode compile && \
+    pnpm exec cross-env NODE_OPTIONS=--no-deprecation next build --experimental-build-mode generate-env; \
   else echo "Lockfile not found." && exit 1; \
   fi
 
