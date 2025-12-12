@@ -35,17 +35,18 @@ ENV NEXT_PUBLIC_SERVER_URL=$NEXT_PUBLIC_SERVER_URL
 # Two-step build process (no DB required):
 # 1. compile - compiles code without static generation
 # 2. generate-env - inlines NEXT_PUBLIC_* environment variables
+# Using --webpack flag because Payload CMS doesn't support Turbopack production builds yet
 RUN \
   if [ -f yarn.lock ]; then \
-    yarn cross-env NODE_OPTIONS=--no-deprecation next build --experimental-build-mode compile && \
-    yarn cross-env NODE_OPTIONS=--no-deprecation next build --experimental-build-mode generate-env; \
+    yarn cross-env NODE_OPTIONS=--no-deprecation next build --webpack --experimental-build-mode compile && \
+    yarn cross-env NODE_OPTIONS=--no-deprecation next build --webpack --experimental-build-mode generate-env; \
   elif [ -f package-lock.json ]; then \
-    npx cross-env NODE_OPTIONS=--no-deprecation next build --experimental-build-mode compile && \
-    npx cross-env NODE_OPTIONS=--no-deprecation next build --experimental-build-mode generate-env; \
+    npx cross-env NODE_OPTIONS=--no-deprecation next build --webpack --experimental-build-mode compile && \
+    npx cross-env NODE_OPTIONS=--no-deprecation next build --webpack --experimental-build-mode generate-env; \
   elif [ -f pnpm-lock.yaml ]; then \
     corepack enable pnpm && \
-    pnpm exec cross-env NODE_OPTIONS=--no-deprecation next build --experimental-build-mode compile && \
-    pnpm exec cross-env NODE_OPTIONS=--no-deprecation next build --experimental-build-mode generate-env; \
+    pnpm exec cross-env NODE_OPTIONS=--no-deprecation next build --webpack --experimental-build-mode compile && \
+    pnpm exec cross-env NODE_OPTIONS=--no-deprecation next build --webpack --experimental-build-mode generate-env; \
   else echo "Lockfile not found." && exit 1; \
   fi
 
