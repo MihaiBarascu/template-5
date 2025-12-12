@@ -27,27 +27,19 @@ COPY . .
 # Build-time arguments for Payload
 ARG PAYLOAD_SECRET
 ARG DATABASE_URI
+ARG NEXT_PUBLIC_SERVER_URL
 ENV PAYLOAD_SECRET=$PAYLOAD_SECRET
 ENV DATABASE_URI=$DATABASE_URI
+ENV NEXT_PUBLIC_SERVER_URL=$NEXT_PUBLIC_SERVER_URL
 
 # Build with detected package manager
 # Using --webpack because Next.js 16 defaults to Turbopack but Payload CMS requires webpack for production builds
-# Using --experimental-build-mode compile to skip static generation during build
-# This allows building without a database connection (pages will be generated at runtime with ISR)
-# NOTE: When Next.js 16.1.0 stable is released, --webpack flag can be removed
 RUN \
-  if [ -f yarn.lock ]; then yarn cross-env NODE_OPTIONS=--no-deprecation next build --webpack --experimental-build-mode compile; \
-  elif [ -f package-lock.json ]; then npx cross-env NODE_OPTIONS=--no-deprecation next build --webpack --experimental-build-mode compile; \
-  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm exec cross-env NODE_OPTIONS=--no-deprecation next build --webpack --experimental-build-mode compile; \
+  if [ -f yarn.lock ]; then yarn cross-env NODE_OPTIONS=--no-deprecation next build --webpack; \
+  elif [ -f package-lock.json ]; then npx cross-env NODE_OPTIONS=--no-deprecation next build --webpack; \
+  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm exec cross-env NODE_OPTIONS=--no-deprecation next build --webpack; \
   else echo "Lockfile not found." && exit 1; \
   fi
-
-# RUN \
-#   if [ -f yarn.lock ]; then yarn cross-env NODE_OPTIONS=--no-deprecation next build --webpack; \
-#   elif [ -f package-lock.json ]; then npx cross-env NODE_OPTIONS=--no-deprecation next build --webpack; \
-#   elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm exec cross-env NODE_OPTIONS=--no-deprecation next build --webpack; \
-#   else echo "Lockfile not found." && exit 1; \
-#   fi
 
 # Production image, copy all the files and run next
 FROM base AS runner
