@@ -27,10 +27,11 @@ COPY . .
 # Build-time arguments for Payload
 ARG PAYLOAD_SECRET
 ARG DATABASE_URI
-ARG NEXT_PUBLIC_SERVER_URL
 ENV PAYLOAD_SECRET=$PAYLOAD_SECRET
 ENV DATABASE_URI=$DATABASE_URI
-ENV NEXT_PUBLIC_SERVER_URL=$NEXT_PUBLIC_SERVER_URL
+# Use placeholder for NEXT_PUBLIC_SERVER_URL - will be replaced at runtime by entrypoint.sh
+# This fixes Next.js 15.3+/16 bug where NEXT_PUBLIC_* vars don't work in client components
+ENV NEXT_PUBLIC_SERVER_URL=__NEXT_PUBLIC_SERVER_URL__
 
 # Build with detected package manager
 # Using --webpack because Next.js 16 defaults to Turbopack but Payload CMS requires webpack for production builds
@@ -70,6 +71,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
 COPY --from=builder --chown=nextjs:nodejs /app/run-seed.sh ./run-seed.sh
 RUN chmod +x ./run-seed.sh
 
+# Copy entrypoint script for runtime env var replacement (fixes Next.js 16 bug)
+COPY --from=builder --chown=nextjs:nodejs /app/scripts/entrypoint.sh ./entrypoint.sh
+RUN chmod +x ./entrypoint.sh
+
 # For uploads (media files)
 RUN mkdir -p media && chown -R nextjs:nodejs media
 RUN mkdir -p temp-uploads && chown -R nextjs:nodejs temp-uploads
@@ -81,4 +86,5 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "server.js"]
+# Use entrypoint to replace NEXT_PUBLIC_* placeholders at runtime
+ENTRYPOINT ["./entrypoint.sh"]

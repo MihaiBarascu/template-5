@@ -487,6 +487,7 @@ const ecommerceConfig: Parameters<typeof ecommercePlugin>[0] = {
 };
 
 export default buildConfig({
+  serverURL: getServerSideURL(),
   admin: {
     components: {
       beforeLogin: ['@/components/BeforeLogin'],
