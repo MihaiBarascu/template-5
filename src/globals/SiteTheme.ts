@@ -116,6 +116,15 @@ export const SiteTheme: GlobalConfig = {
                 },
               },
             },
+            {
+              name: 'livePreview',
+              type: 'ui',
+              admin: {
+                components: {
+                  Field: '@/components/admin/ThemeLivePreview',
+                },
+              },
+            },
           ],
         },
 
@@ -615,6 +624,25 @@ export const SiteTheme: GlobalConfig = {
                   defaultValue: 'normal',
                 },
               ],
+            },
+          ],
+        },
+
+        // =========================================================================
+        // TAB 6: EXPORT / IMPORT (BACKUP)
+        // =========================================================================
+        {
+          label: 'Export / Import',
+          description: 'Salveaza sau incarca configuratii de tema',
+          fields: [
+            {
+              name: 'exportImportUI',
+              type: 'ui',
+              admin: {
+                components: {
+                  Field: '@/components/admin/ThemeExportImport',
+                },
+              },
             },
           ],
         },
