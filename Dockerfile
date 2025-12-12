@@ -33,22 +33,12 @@ ENV DATABASE_URI=$DATABASE_URI
 ENV NEXT_PUBLIC_SERVER_URL=$NEXT_PUBLIC_SERVER_URL
 
 # Build with detected package manager
-# Using --webpack because Next.js 16 defaults to Turbopack but Payload CMS requires webpack for production builds
-# Using TWO-STEP build to fix Next.js 15.3+/16 bug with NEXT_PUBLIC_* vars:
-# Step 1: --experimental-build-mode compile (compiles code, no DB needed)
-# Step 2: --experimental-build-mode generate-env (inlines NEXT_PUBLIC_* vars, no DB needed)
-# See: https://payloadcms.com/docs/production/building-without-a-db-connection
+# Using --experimental-build-mode compile to skip static generation during build
+# (MongoDB not accessible during Docker build - pages generated at runtime with ISR)
 RUN \
-  if [ -f yarn.lock ]; then \
-    yarn cross-env NODE_OPTIONS=--no-deprecation next build --webpack --experimental-build-mode compile && \
-    yarn cross-env NODE_OPTIONS=--no-deprecation next build --webpack --experimental-build-mode generate-env; \
-  elif [ -f package-lock.json ]; then \
-    npx cross-env NODE_OPTIONS=--no-deprecation next build --webpack --experimental-build-mode compile && \
-    npx cross-env NODE_OPTIONS=--no-deprecation next build --webpack --experimental-build-mode generate-env; \
-  elif [ -f pnpm-lock.yaml ]; then \
-    corepack enable pnpm && \
-    pnpm exec cross-env NODE_OPTIONS=--no-deprecation next build --webpack --experimental-build-mode compile && \
-    pnpm exec cross-env NODE_OPTIONS=--no-deprecation next build --webpack --experimental-build-mode generate-env; \
+  if [ -f yarn.lock ]; then yarn cross-env NODE_OPTIONS=--no-deprecation next build --experimental-build-mode compile; \
+  elif [ -f package-lock.json ]; then npx cross-env NODE_OPTIONS=--no-deprecation next build --experimental-build-mode compile; \
+  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm exec cross-env NODE_OPTIONS=--no-deprecation next build --experimental-build-mode compile; \
   else echo "Lockfile not found." && exit 1; \
   fi
 
@@ -79,10 +69,6 @@ COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
 COPY --from=builder --chown=nextjs:nodejs /app/run-seed.sh ./run-seed.sh
 RUN chmod +x ./run-seed.sh
 
-# Copy entrypoint script for runtime env var replacement (fixes Next.js 16 bug)
-COPY --from=builder --chown=nextjs:nodejs /app/scripts/entrypoint.sh ./entrypoint.sh
-RUN chmod +x ./entrypoint.sh
-
 # For uploads (media files)
 RUN mkdir -p media && chown -R nextjs:nodejs media
 RUN mkdir -p temp-uploads && chown -R nextjs:nodejs temp-uploads
@@ -94,5 +80,4 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# Use entrypoint to replace NEXT_PUBLIC_* placeholders at runtime
-ENTRYPOINT ["./entrypoint.sh"]
+CMD ["node", "server.js"]
