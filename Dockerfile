@@ -35,6 +35,14 @@ ENV PAYLOAD_SECRET=$PAYLOAD_SECRET
 ENV DATABASE_URI=$DATABASE_URI
 ENV NEXT_PUBLIC_SERVER_URL=${NEXT_PUBLIC_SERVER_URL:-https://a.multiwebsite.org}
 
+# Generate Payload import map before build (required for admin UI components)
+RUN \
+  if [ -f yarn.lock ]; then yarn cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap; \
+  elif [ -f package-lock.json ]; then npx cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap; \
+  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm exec cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap; \
+  else echo "Lockfile not found." && exit 1; \
+  fi
+
 # Build with detected package manager
 # Using --experimental-build-mode compile to skip static generation during build
 # This allows building without a database connection (pages will be generated at runtime with ISR)
