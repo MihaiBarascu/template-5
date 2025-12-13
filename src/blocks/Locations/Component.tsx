@@ -91,7 +91,7 @@ export function LocationsBlock({
   const LocationCard = ({ location }: { location: Location }) => {
     const hasImage = isValidMedia(location.image)
     return (
-    <div className={cn('rounded-xl overflow-hidden shadow-lg', cardBg)}>
+    <div className={cn('rounded-(--radius-card) overflow-hidden shadow-lg', cardBg)}>
       {hasImage && (
         <div className="relative h-48 overflow-hidden">
           <Media
@@ -103,7 +103,7 @@ export function LocationsBlock({
         </div>
       )}
       <div className="p-6">
-        <h3 className="text-xl font-semibold mb-2">{location.name}</h3>
+        <h3 className="heading-h3 font-semibold mb-2">{location.name}</h3>
         {location.city && (
           <p className={cn('text-sm mb-2', textMuted)}>{location.city}</p>
         )}
@@ -206,7 +206,7 @@ export function LocationsBlock({
         <div className="container mx-auto px-4">
           {(heading || subheading) && (
             <div className="text-center mb-12">
-              {heading && <h2 className="text-3xl font-bold mb-4">{heading}</h2>}
+              {heading && <h2 className="heading-h2 font-bold mb-4">{heading}</h2>}
               {subheading && <p className={cn('text-lg', textMuted)}>{subheading}</p>}
             </div>
           )}
@@ -235,7 +235,7 @@ export function LocationsBlock({
             </div>
 
             {showMap && generalMapEmbed && (
-              <div className="h-[600px] rounded-xl overflow-hidden">
+              <div className="h-[600px] rounded-(--radius-card) overflow-hidden">
                 <iframe
                   src={generalMapEmbed}
                   width="100%"
@@ -258,7 +258,7 @@ export function LocationsBlock({
         <div className="container mx-auto px-4">
           {(heading || subheading) && (
             <div className="text-center mb-12">
-              {heading && <h2 className="text-3xl font-bold mb-4">{heading}</h2>}
+              {heading && <h2 className="heading-h2 font-bold mb-4">{heading}</h2>}
               {subheading && <p className={cn('text-lg', textMuted)}>{subheading}</p>}
             </div>
           )}
@@ -269,26 +269,34 @@ export function LocationsBlock({
               return (
               <div
                 key={location.id || idx}
-                className="group relative h-64 rounded-xl overflow-hidden"
+                className={cn(
+                  'group relative h-64 rounded-(--radius-card) overflow-hidden',
+                  !hasImage && 'bg-linear-to-br from-theme-primary via-theme-primary to-theme-accent'
+                )}
               >
                 {hasImage && (
-                  <Media
-                    resource={location.image as MediaType}
-                    fill
-                    size="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    imgClassName="object-cover transition-transform duration-300 group-hover:scale-110"
-                  />
+                  <>
+                    <Media
+                      resource={location.image as MediaType}
+                      fill
+                      size="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      imgClassName="object-cover transition-transform duration-300 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-linear-to-t from-black/80 to-transparent" />
+                  </>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                  <h3 className="text-xl font-semibold mb-1">{location.name}</h3>
+                <div className={cn(
+                  'absolute bottom-0 left-0 right-0 p-6 text-white',
+                  !hasImage && 'flex flex-col justify-end h-full'
+                )}>
+                  <h3 className="heading-h4 font-semibold mb-1">{location.name}</h3>
                   <p className="text-sm text-white/70">{location.address}</p>
                   {location.ctaButton?.link && (
                     <a
                       href={location.ctaButton.link}
-                      className="inline-block mt-3 text-sm text-theme-primary hover:underline"
+                      className="inline-block mt-3 text-sm text-white hover:underline"
                     >
-                      {location.ctaButton.label || 'Vezi detalii'} →
+                      {location.ctaButton.label || 'Programeaza-te'} →
                     </a>
                   )}
                 </div>
@@ -306,7 +314,7 @@ export function LocationsBlock({
         <div className="container mx-auto px-4">
           {(heading || subheading) && (
             <div className="text-center mb-12">
-              {heading && <h2 className="text-3xl font-bold mb-4">{heading}</h2>}
+              {heading && <h2 className="heading-h2 font-bold mb-4">{heading}</h2>}
               {subheading && <p className={cn('text-lg', textMuted)}>{subheading}</p>}
             </div>
           )}
@@ -335,7 +343,7 @@ export function LocationsBlock({
       <div className="container mx-auto px-4">
         {(heading || subheading) && (
           <div className="text-center mb-12">
-            {heading && <h2 className="text-3xl font-bold mb-4">{heading}</h2>}
+            {heading && <h2 className="heading-h2 font-bold mb-4">{heading}</h2>}
             {subheading && <p className={cn('text-lg', textMuted)}>{subheading}</p>}
           </div>
         )}

@@ -212,7 +212,7 @@ export function CheckoutBlock({
       <section className={`py-16 ${bgClasses[backgroundColor]}`}>
         <div className="container mx-auto px-4 text-center max-w-lg">
           <div className="text-6xl mb-4">✅</div>
-          <h2 className={`text-2xl font-bold mb-4 ${backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'}`}>
+          <h2 className={`heading-h2 font-bold mb-4 ${backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'}`}>
             Comanda plasata cu succes!
           </h2>
           <p className={`mb-6 ${backgroundColor === 'dark' ? 'text-white/70' : 'text-theme-text-light'}`}>
@@ -244,7 +244,7 @@ export function CheckoutBlock({
       <div className="container mx-auto px-4">
         {heading && (
           <h2
-            className={`text-3xl font-bold mb-8 ${backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'}`}
+            className={`heading-h2 font-bold mb-8 ${backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'}`}
           >
             {heading}
           </h2>

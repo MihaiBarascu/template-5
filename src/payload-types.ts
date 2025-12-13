@@ -5421,12 +5421,21 @@ export interface SiteTheme {
    * Lasa gol pentru default din varianta
    */
   shadows?: ('none' | 'subtle' | 'moderate' | 'strong') | null;
-  /**
-   * Lasa gol pentru default din varianta
-   */
   animations?: ('none' | 'subtle' | 'moderate' | 'dynamic') | null;
   containerWidth?: ('1024' | '1280' | '1400' | '1600') | null;
   sectionSpacing?: ('compact' | 'normal' | 'spacious') | null;
+  /**
+   * Scala pentru H1-H6
+   */
+  headingScale?: ('small' | 'compact' | 'normal' | 'large' | 'xlarge') | null;
+  /**
+   * Tot textul: paragrafe, liste, tabele, formulare, etc.
+   */
+  bodyTextSize?: ('small' | 'normal' | 'large') | null;
+  /**
+   * Distanta intre carduri in grid-uri
+   */
+  cardGap?: ('compact' | 'normal' | 'spacious') | null;
   /**
    * Bifat = culorile de mai jos suprascriu varianta. Nebifat = culorile din varianta.
    */
@@ -5985,6 +5994,9 @@ export interface SiteThemeSelect<T extends boolean = true> {
   animations?: T;
   containerWidth?: T;
   sectionSpacing?: T;
+  headingScale?: T;
+  bodyTextSize?: T;
+  cardGap?: T;
   useCustomColors?: T;
   autoGeneratePalette?: T;
   colors?:

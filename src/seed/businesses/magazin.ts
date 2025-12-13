@@ -55,7 +55,11 @@ export async function seedMagazin(payload: Payload) {
     variant: 'fresh-green', // Best for shop/magazine - natural, eco-friendly
     borderRadius: variant.theme.borderRadius,
     shadows: variant.theme.shadows,
-    sectionSpacing: 'normal',
+    sectionSpacing: variant.theme.sectionSpacing || 'compact',
+    headingScale: variant.theme.headingScale || 'normal',
+    bodyTextSize: variant.theme.bodyTextSize || 'normal',
+    cardGap: variant.theme.cardGap || 'compact',
+    animations: variant.theme.animations || 'subtle',
     // Typography - use fonts from design variant
     headingFont: variant.theme.headingFont,
     bodyFont: variant.theme.bodyFont,

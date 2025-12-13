@@ -303,7 +303,7 @@ export function BeforeAfterBlock({
         {(heading || subheading) && (
           <div className="text-center mb-12">
             {heading && (
-              <h2 className={cn('text-3xl md:text-4xl font-bold mb-4', textClass)}>{heading}</h2>
+              <h2 className={cn('heading-h2 font-bold mb-4', textClass)}>{heading}</h2>
             )}
             {subheading && (
               <p className={cn('text-lg max-w-2xl mx-auto', mutedClass)}>{subheading}</p>

@@ -56,7 +56,7 @@ export function CategoriesBlock({
         {(heading || subheading) && (
           <div className="text-center mb-12">
             {heading && (
-              <h2 className={cn('text-3xl md:text-4xl font-bold mb-4', backgroundColor === 'dark' ? 'text-white' : 'text-theme-text')}>
+              <h2 className={cn('heading-h2 font-bold mb-4', backgroundColor === 'dark' ? 'text-white' : 'text-theme-text')}>
                 {heading}
               </h2>
             )}
@@ -69,7 +69,7 @@ export function CategoriesBlock({
         )}
 
         {/* Categories Grid */}
-        <div className={cn('grid gap-6', gridCols[columns])}>
+        <div className={cn('grid gap-cards', gridCols[columns])}>
           {categories.map((category) => (
             <Link
               key={category.id}

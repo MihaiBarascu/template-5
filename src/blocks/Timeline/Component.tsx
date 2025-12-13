@@ -56,7 +56,7 @@ export function TimelineBlock({
         <div className="container mx-auto px-4">
           {(heading || subheading) && (
             <div className="text-center mb-12">
-              {heading && <h2 className="text-3xl font-bold mb-4">{heading}</h2>}
+              {heading && <h2 className="heading-h2 font-bold mb-4">{heading}</h2>}
               {subheading && <p className={cn('text-lg', textMuted)}>{subheading}</p>}
             </div>
           )}
@@ -103,7 +103,7 @@ export function TimelineBlock({
         <div className="container mx-auto px-4">
           {(heading || subheading) && (
             <div className="text-center mb-12">
-              {heading && <h2 className="text-3xl font-bold mb-4">{heading}</h2>}
+              {heading && <h2 className="heading-h2 font-bold mb-4">{heading}</h2>}
               {subheading && <p className={cn('text-lg', textMuted)}>{subheading}</p>}
             </div>
           )}
@@ -129,7 +129,7 @@ export function TimelineBlock({
                   >
                     <div className={cn('w-1/2', isLeft ? 'pr-12 text-right' : 'pl-12 text-left')}>
                       <span className="text-theme-primary font-bold text-lg">{event.year}</span>
-                      <h3 className="text-xl font-semibold mt-1 mb-2">{event.title}</h3>
+                      <h3 className="heading-h3 font-semibold mt-1 mb-2">{event.title}</h3>
                       {event.description && (
                         <p className={cn('text-sm', textMuted)}>{event.description}</p>
                       )}
@@ -171,7 +171,7 @@ export function TimelineBlock({
         <div className="container mx-auto px-4">
           {(heading || subheading) && (
             <div className="text-center mb-12">
-              {heading && <h2 className="text-3xl font-bold mb-4">{heading}</h2>}
+              {heading && <h2 className="heading-h2 font-bold mb-4">{heading}</h2>}
               {subheading && <p className={cn('text-lg', textMuted)}>{subheading}</p>}
             </div>
           )}
@@ -203,7 +203,7 @@ export function TimelineBlock({
       <div className="container mx-auto px-4">
         {(heading || subheading) && (
           <div className="text-center mb-12">
-            {heading && <h2 className="text-3xl font-bold mb-4">{heading}</h2>}
+            {heading && <h2 className="heading-h2 font-bold mb-4">{heading}</h2>}
             {subheading && <p className={cn('text-lg', textMuted)}>{subheading}</p>}
           </div>
         )}
@@ -231,7 +231,7 @@ export function TimelineBlock({
                     bgColor === 'dark' ? 'bg-white/5' : 'bg-theme-light'
                   )}
                 >
-                  <h3 className="text-xl font-semibold mb-2">{event.title}</h3>
+                  <h3 className="heading-h3 font-semibold mb-2">{event.title}</h3>
                   {event.description && (
                     <p className={cn('text-sm', textMuted)}>{event.description}</p>
                   )}

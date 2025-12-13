@@ -18,7 +18,7 @@ export function MinimalHero({ data }: MinimalHeroProps) {
 
       <div className="relative z-10 container mx-auto px-4 text-center">
         {headline && (
-          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2 animate-fade-in-up">
+          <h1 className="heading-h1 font-bold text-white mb-2 animate-fade-in-up">
             {headline}
           </h1>
         )}

@@ -57,7 +57,11 @@ export async function seedFitness(payload: Payload) {
     variant: 'fitness-orange', // Use the new fitness-orange theme
     borderRadius: variant.theme.borderRadius,
     shadows: variant.theme.shadows,
-    sectionSpacing: 'normal',
+    sectionSpacing: variant.theme.sectionSpacing || 'spacious',
+    headingScale: variant.theme.headingScale || 'normal',
+    bodyTextSize: variant.theme.bodyTextSize || 'large',
+    cardGap: variant.theme.cardGap || 'spacious',
+    animations: variant.theme.animations || 'dynamic',
     // Typography - use fonts from design variant
     headingFont: variant.theme.headingFont,
     bodyFont: variant.theme.bodyFont,

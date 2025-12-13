@@ -1,26 +1,30 @@
-import dotenv from 'dotenv';
-import path from 'path';
-import fs from 'fs';
-import type { Payload } from 'payload';
 import type { Config } from '@/payload-types';
+import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
+import type { Payload } from 'payload';
 
 // Load environment variables BEFORE anything else
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
-import { getPayload } from 'payload';
 import config from '@payload-config';
+import { getPayload } from 'payload';
 
 // Import seeders
-import { seedFrizerie } from './businesses/frizerie';
-import { seedDentist } from './businesses/dentist';
-import { seedAvocat } from './businesses/avocat';
-import { seedRestaurant } from './businesses/restaurant';
 import { seedAutoService } from './businesses/auto-service';
+import { seedAvocat } from './businesses/avocat';
 import { seedConstructii } from './businesses/constructii';
-import { seedSalon } from './businesses/salon';
-import { seedMagazin } from './businesses/magazin';
+import { seedDentist } from './businesses/dentist';
 import { seedFitness } from './businesses/fitness';
-import { clearImageCache, setReuseExistingImages } from './helpers';
+import { seedFrizerie } from './businesses/frizerie';
+import { seedMagazin } from './businesses/magazin';
+import { seedRestaurant } from './businesses/restaurant';
+import { seedSalon } from './businesses/salon';
+import {
+  clearImageCache,
+  setReuseExistingImages,
+  triggerRevalidation,
+} from './helpers';
 
 const seeders: Record<string, (payload: Payload) => Promise<void>> = {
   frizerie: seedFrizerie,
@@ -70,12 +74,23 @@ async function seed() {
     console.log(`\n🌱 Running ${seedType} seeder...`);
     await seeder(payload);
 
+    // Trigger cache revalidation via API (so dev server updates without restart)
+    console.log('\n🔄 Triggering cache revalidation...');
+    await triggerRevalidation(process.env.NEXT_PUBLIC_SERVER_URL);
+
     console.log(`\n✅ Seed complete for: ${seedType}`);
     console.log('\n👤 Default admin user:');
     console.log('   Email: admin@example.com');
     console.log('   Password: admin123');
-    console.log('\n🌐 Access the site at: http://localhost:3010');
-    console.log('🔧 Access admin at: http://localhost:3000/admin\n');
+    console.log(
+      `\n🌐 Access the site at: ${process.env.NEXT_PUBLIC_SERVER_URL}`,
+    );
+    console.log(
+      `🔧 Access admin at: ${process.env.NEXT_PUBLIC_SERVER_URL}/admin`,
+    );
+    console.log(
+      '\n💡 Refresh browser to see changes (no server restart needed!)\n',
+    );
   } catch (error) {
     console.error('❌ Seed failed:', error);
     process.exit(1);
@@ -178,15 +193,20 @@ async function clearData(payload: Payload, clearMedia: boolean = false) {
     }
   }
 
-  // Clear Next.js image cache
-  const nextImageCacheDir = path.join(
-    process.cwd(),
-    '.next',
-    'cache',
-    'images',
-  );
-  if (fs.existsSync(nextImageCacheDir)) {
-    fs.rmSync(nextImageCacheDir, { recursive: true, force: true });
+  // Clear Next.js image cache (supports both dev and production modes)
+  const imageCachePaths = [
+    path.join(process.cwd(), '.next', 'cache', 'images'), // Production runtime (all versions)
+    path.join(process.cwd(), '.next', 'dev', 'cache', 'images'), // Development mode (Next.js 16+)
+  ];
+
+  let cacheCleared = false;
+  for (const cachePath of imageCachePaths) {
+    if (fs.existsSync(cachePath)) {
+      fs.rmSync(cachePath, { recursive: true, force: true });
+      cacheCleared = true;
+    }
+  }
+  if (cacheCleared) {
     console.log('   Next.js image cache cleared');
   }
 }

@@ -172,7 +172,7 @@ export function TeamBlock({
             <div className="text-center mb-12">
               {heading && (
                 <h2 className={cn(
-                  'text-3xl md:text-4xl lg:text-5xl font-bold mb-4',
+                  'heading-h2 font-bold mb-4',
                   isDark ? 'text-white' : 'text-theme-text'
                 )}>
                   {heading}
@@ -213,7 +213,7 @@ export function TeamBlock({
                       imgClassName="object-cover transition-transform duration-500 group-hover:scale-110"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-theme-primary to-theme-secondary text-white text-3xl font-bold">
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-theme-primary to-theme-secondary text-white heading-h2 font-bold">
                       {member.name.charAt(0)}
                     </div>
                   )}
@@ -221,7 +221,7 @@ export function TeamBlock({
 
                 {/* Content */}
                 <div className="flex-grow text-center md:text-left">
-                  <h3 className={cn('text-xl font-bold mb-1', isDark ? 'text-white' : 'text-theme-text')}>
+                  <h3 className={cn('heading-h3 font-bold mb-1', isDark ? 'text-white' : 'text-theme-text')}>
                     {member.name}
                     {member.featured && (
                       <span className="ml-2 inline-flex items-center px-2 py-0.5 text-xs font-medium bg-theme-accent text-white rounded-full">
@@ -325,7 +325,7 @@ export function TeamBlock({
           <div className="text-center mb-12">
             {heading && (
               <h2 className={cn(
-                'text-3xl md:text-4xl lg:text-5xl font-bold mb-4',
+                'heading-h2 font-bold mb-4',
                 isDark ? 'text-white' : 'text-theme-text'
               )}>
                 {heading}
@@ -340,7 +340,7 @@ export function TeamBlock({
         )}
 
         {/* Grid */}
-        <div className={cn('grid gap-8', getGridCols())}>
+        <div className={cn('grid gap-cards', getGridCols())}>
           {members.map((member, index) => (
             <div
               key={member.id}
@@ -437,7 +437,7 @@ export function TeamBlock({
 
                 {/* Info */}
                 <h3 className={cn(
-                  'text-xl font-bold mb-1 transition-colors',
+                  'heading-h3 font-bold mb-1 transition-colors',
                   isDark ? 'text-white group-hover:text-theme-accent' : 'text-theme-text group-hover:text-theme-primary'
                 )}>
                   {getMemberHref(member) ? (

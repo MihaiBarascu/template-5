@@ -182,7 +182,7 @@ export function TeamMemberDetailBlock({
 
               <div className="p-6 space-y-4">
                 <div className="text-center">
-                  <h2 className="text-2xl font-bold text-theme-dark">{memberData.name}</h2>
+                  <h2 className="heading-h2 font-bold text-theme-dark">{memberData.name}</h2>
                   {memberData.role && (
                     <p className="text-lg text-theme-primary font-medium mt-1">
                       {memberData.role}
@@ -195,7 +195,7 @@ export function TeamMemberDetailBlock({
                   <div className="flex items-center justify-center gap-3 py-4 border-y border-theme-border">
                     <Award className="w-8 h-8 text-theme-primary" />
                     <div>
-                      <p className="text-2xl font-bold text-theme-dark">
+                      <p className="heading-h2 font-bold text-theme-dark">
                         {experienceYears}+
                       </p>
                       <p className="text-sm text-theme-text-light">{l.experienceTitle}</p>
@@ -299,7 +299,7 @@ export function TeamMemberDetailBlock({
               <div className="bg-white rounded-xl shadow-lg p-8">
                 <div className="flex items-center gap-3 mb-6">
                   <Target className="w-6 h-6 text-theme-primary" />
-                  <h2 className="text-2xl font-bold text-theme-dark">{l.specializationsTitle}</h2>
+                  <h2 className="heading-h2 font-bold text-theme-dark">{l.specializationsTitle}</h2>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {memberData.specializations.map((spec, index) => (
@@ -319,7 +319,7 @@ export function TeamMemberDetailBlock({
               <div className="bg-white rounded-xl shadow-lg p-8">
                 <div className="flex items-center gap-3 mb-6">
                   <Calendar className="w-6 h-6 text-theme-primary" />
-                  <h2 className="text-2xl font-bold text-theme-dark">{l.scheduleTitle}</h2>
+                  <h2 className="heading-h2 font-bold text-theme-dark">{l.scheduleTitle}</h2>
                 </div>
                 <div className="space-y-3">
                   {memberData.schedule.map((item, index) => (
@@ -340,7 +340,7 @@ export function TeamMemberDetailBlock({
             {/* CTA Section */}
             {showCTA && (
               <div className="bg-gradient-to-r from-theme-primary to-theme-primary/90 rounded-xl shadow-lg p-8 text-white">
-                <h3 className="text-2xl font-bold mb-4">
+                <h3 className="heading-h2 font-bold mb-4">
                   {ctaTitleFormatted}
                 </h3>
                 <p className="mb-6 text-white/90">
@@ -368,7 +368,7 @@ export function TeamMemberDetailBlock({
         {/* Related Members Section */}
         {showRelatedMembers && relatedMembers.length > 0 && (
           <div className="mt-16">
-            <h2 className="text-3xl font-bold text-theme-dark mb-8">{relatedMembersTitle}</h2>
+            <h2 className="heading-h2 font-bold text-theme-dark mb-8">{relatedMembersTitle}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {relatedMembers.map((member) => {
                 const memberImage = member.image as MediaType | null

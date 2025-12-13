@@ -73,6 +73,12 @@ export interface DesignVariant {
     stylePreset: 'modern' | 'classic' | 'bold' | 'minimal'
     borderRadius: 'none' | 'small' | 'medium' | 'large' | 'full'
     shadows: 'none' | 'subtle' | 'moderate' | 'strong'
+    // New typography & spacing settings (optional - defaults to 'normal')
+    headingScale?: 'small' | 'compact' | 'normal' | 'large' | 'xlarge'
+    bodyTextSize?: 'small' | 'normal' | 'large'
+    cardGap?: 'compact' | 'normal' | 'spacious'
+    sectionSpacing?: 'compact' | 'normal' | 'spacious'
+    animations?: 'none' | 'subtle' | 'moderate' | 'dynamic'
   }
   hero: {
     type: 'fullscreen' | 'centered' | 'split' | 'minimal' | 'video' | 'slider'

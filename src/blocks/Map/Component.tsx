@@ -74,7 +74,7 @@ export function MapBlock({
       <section className="w-full">
         {heading && (
           <div className="container mx-auto px-4 py-6">
-            <h2 className="text-2xl font-bold text-center">{heading}</h2>
+            <h2 className="heading-h2 font-bold text-center">{heading}</h2>
           </div>
         )}
         <div className={cn('w-full relative', heightClass)}>
@@ -113,7 +113,7 @@ export function MapBlock({
       <section className="py-8 md:py-12">
         <div className="container mx-auto px-4">
           {heading && (
-            <h2 className="text-2xl font-bold text-center mb-6">{heading}</h2>
+            <h2 className="heading-h2 font-bold text-center mb-6">{heading}</h2>
           )}
           <div className={cn('relative rounded-lg overflow-hidden shadow-lg', heightClass)}>
             <iframe
@@ -151,7 +151,7 @@ export function MapBlock({
     <section className="py-8 md:py-12">
       <div className="container mx-auto px-4">
         {heading && (
-          <h2 className="text-2xl font-bold text-center mb-6">{heading}</h2>
+          <h2 className="heading-h2 font-bold text-center mb-6">{heading}</h2>
         )}
         <div className={cn('relative rounded-lg overflow-hidden shadow-lg', heightClass)}>
           <iframe

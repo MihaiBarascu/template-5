@@ -217,7 +217,7 @@ export function VideoEmbedBlock({
         {(heading || subheading) && (
           <div className="text-center mb-8 md:mb-12">
             {heading && (
-              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">{heading}</h2>
+              <h2 className="heading-h2 font-bold mb-4">{heading}</h2>
             )}
             {subheading && (
               <p className={cn(
@@ -243,7 +243,7 @@ export function VideoEmbedBlock({
               sideContent.position === 'left' ? 'lg:order-1' : 'lg:order-2'
             )}>
               {sideContent.title && (
-                <h3 className="text-xl md:text-2xl font-bold">{sideContent.title}</h3>
+                <h3 className="text-xl md:heading-h2 font-bold">{sideContent.title}</h3>
               )}
               {sideContent.description && (
                 <p className={cn(

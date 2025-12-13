@@ -224,7 +224,7 @@ export function ServicesBlock({
             <div className="text-center mb-12">
               {heading && (
                 <h2 className={cn(
-                  'text-3xl md:text-4xl lg:text-5xl font-bold mb-4',
+                  'heading-h2 font-bold mb-4',
                   isDark ? 'text-white' : 'text-theme-text'
                 )}>
                   {heading}
@@ -326,7 +326,7 @@ export function ServicesBlock({
             <div className="text-center mb-12">
               {heading && (
                 <h2 className={cn(
-                  'text-3xl md:text-4xl lg:text-5xl font-bold mb-4',
+                  'heading-h2 font-bold mb-4',
                   isDark ? 'text-white' : 'text-theme-text'
                 )}>
                   {heading}
@@ -370,7 +370,7 @@ export function ServicesBlock({
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <h3 className={cn(
-                        'text-xl font-bold mb-1',
+                        'heading-h3 font-bold mb-1',
                         isDark ? 'text-white' : 'text-theme-text'
                       )}>
                         {service.title}
@@ -398,7 +398,7 @@ export function ServicesBlock({
                     </div>
                     <div className="text-right flex-shrink-0">
                       {service.price && (
-                        <div className={cn('text-2xl font-bold', isDark ? 'text-white' : 'text-theme-primary')}>
+                        <div className={cn('heading-h2 font-bold', isDark ? 'text-white' : 'text-theme-primary')}>
                           {service.price}
                         </div>
                       )}
@@ -440,7 +440,7 @@ export function ServicesBlock({
           <div className="text-center mb-12">
             {heading && (
               <h2 className={cn(
-                'text-3xl md:text-4xl lg:text-5xl font-bold mb-4',
+                'heading-h2 font-bold mb-4',
                 isDark ? 'text-white' : 'text-theme-text'
               )}>
                 {heading}
@@ -454,7 +454,7 @@ export function ServicesBlock({
           </div>
         )}
 
-        <div className={cn('grid gap-6', getColumns())}>
+        <div className={cn('grid gap-cards', getColumns())}>
           {services.map((service, index) => {
             const serviceHref = detailBasePath && service.slug ? `${detailBasePath}/${service.slug}` : null
             const displayStyle = service.displayStyle || 'card'
@@ -512,7 +512,7 @@ export function ServicesBlock({
 
                   {/* Title */}
                   <h3 className={cn(
-                    'text-xl font-bold mb-2 transition-colors',
+                    'heading-h3 font-bold mb-2 transition-colors',
                     isDark ? 'text-white group-hover:text-theme-accent' : 'text-theme-text group-hover:text-theme-primary'
                   )}>
                     {service.title}
@@ -550,7 +550,7 @@ export function ServicesBlock({
                         </div>
                         {service.price && (
                           <span className={cn(
-                            'text-xl font-bold',
+                            'text-(length:--font-size-h5) font-bold',
                             isDark ? 'text-white' : 'text-theme-primary'
                           )}>
                             {service.price}

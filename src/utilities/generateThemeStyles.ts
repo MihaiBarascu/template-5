@@ -8,6 +8,9 @@ import {
   buttonPaddingPresets,
   buttonLetterSpacingPresets,
   animationPresets,
+  headingScalePresets,
+  bodyTextSizePresets,
+  cardGapPresets,
 } from '@/theme/variants'
 import {
   generatePalette,
@@ -179,6 +182,18 @@ export function generateThemeStyles(siteTheme: SiteTheme | null): string {
   // Derive play state from enabled flag (for decorative infinite animations)
   const animationPlayState = animations.enabled === '1' ? 'running' : 'paused'
 
+  // Apply heading scale - affects H1-H6 sizes
+  const headingScaleKey = siteTheme?.headingScale || 'normal'
+  const headingScale = headingScalePresets[headingScaleKey as keyof typeof headingScalePresets] || headingScalePresets.normal
+
+  // Apply body text size - affects paragraph and body text
+  const bodyTextSizeKey = siteTheme?.bodyTextSize || 'normal'
+  const bodyTextSize = bodyTextSizePresets[bodyTextSizeKey as keyof typeof bodyTextSizePresets] || bodyTextSizePresets.normal
+
+  // Apply card gap - spacing between cards in grids
+  const cardGapKey = siteTheme?.cardGap || 'normal'
+  const cardGap = cardGapPresets[cardGapKey as keyof typeof cardGapPresets] || cardGapPresets.normal
+
   // Generate OKLCH values for colors (for advanced color manipulation in CSS)
   const toOklch = (hex: string): string => {
     try {
@@ -240,6 +255,27 @@ export function generateThemeStyles(siteTheme: SiteTheme | null): string {
       --animation-timing: ${animations.timing};
       --animation-enabled: ${animations.enabled};
       --animation-play-state: ${animationPlayState};
+      --font-size-h1: ${headingScale.h1};
+      --font-size-h2: ${headingScale.h2};
+      --font-size-h3: ${headingScale.h3};
+      --font-size-h4: ${headingScale.h4};
+      --font-size-h5: ${headingScale.h5};
+      --font-size-h6: ${headingScale.h6};
+      --font-size-body: ${bodyTextSize.body};
+      --font-size-small: ${bodyTextSize.small};
+      --font-size-h1-mobile: ${headingScale.h1Mobile};
+      --font-size-h2-mobile: ${headingScale.h2Mobile};
+      --font-size-h3-mobile: ${headingScale.h3Mobile};
+      --font-size-h4-mobile: ${headingScale.h4Mobile};
+      --spacing-card-gap: ${cardGap};
+    }
+    @media (max-width: 768px) {
+      :root {
+        --font-size-h1: ${headingScale.h1Mobile};
+        --font-size-h2: ${headingScale.h2Mobile};
+        --font-size-h3: ${headingScale.h3Mobile};
+        --font-size-h4: ${headingScale.h4Mobile};
+      }
     }
   `
 

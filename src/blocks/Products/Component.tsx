@@ -105,7 +105,7 @@ export function ProductsBlock({
           <div className="text-center mb-12">
             {heading && (
               <h2
-                className={`text-3xl md:text-4xl font-bold mb-4 ${backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'}`}
+                className={`heading-h2 font-bold mb-4 ${backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'}`}
               >
                 {heading}
               </h2>
@@ -121,7 +121,7 @@ export function ProductsBlock({
         )}
 
         {/* Products Grid */}
-        <div className={`grid gap-6 ${variant === 'carousel' ? '' : gridClasses[variant]}`}>
+        <div className={`grid gap-cards ${variant === 'carousel' ? '' : gridClasses[variant]}`}>
           {products.map((product, index) => {
             const productImage = getFirstImage(product)
             const isOutOfStock = (product.inventory ?? 0) <= 0

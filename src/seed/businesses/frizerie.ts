@@ -60,7 +60,11 @@ export async function seedFrizerie(payload: Payload) {
     variant: 'dark-gold', // Best for barbershop - elegant, premium, masculine
     borderRadius: variant.theme.borderRadius,
     shadows: variant.theme.shadows,
-    sectionSpacing: 'normal',
+    sectionSpacing: variant.theme.sectionSpacing || 'normal',
+    headingScale: variant.theme.headingScale || 'normal',
+    bodyTextSize: variant.theme.bodyTextSize || 'normal',
+    cardGap: variant.theme.cardGap || 'normal',
+    animations: variant.theme.animations || 'moderate',
     // Typography - use fonts from design variant
     headingFont: variant.theme.headingFont,
     bodyFont: variant.theme.bodyFont,

@@ -175,7 +175,6 @@ export const SiteTheme: GlobalConfig = {
                   label: 'Animatii',
                   admin: {
                     width: '33%',
-                    description: 'Lasa gol pentru default din varianta',
                   },
                   options: [
                     { label: 'Fara animatii', value: 'none' },
@@ -214,6 +213,60 @@ export const SiteTheme: GlobalConfig = {
                     { label: 'Compact', value: 'compact' },
                     { label: 'Normal', value: 'normal' },
                     { label: 'Spatios', value: 'spacious' },
+                  ],
+                },
+              ],
+            },
+            {
+              type: 'row',
+              fields: [
+                {
+                  name: 'headingScale',
+                  type: 'select',
+                  label: 'Dimensiune titluri',
+                  admin: {
+                    width: '50%',
+                    description: 'Scala pentru H1-H6',
+                  },
+                  options: [
+                    { label: 'Mic - toate titlurile mai mici', value: 'small' },
+                    { label: 'Compact - titluri moderate', value: 'compact' },
+                    { label: 'Normal - echilibrat', value: 'normal' },
+                    { label: 'Mare - titluri proeminente', value: 'large' },
+                    { label: 'Extra Mare - impact maxim', value: 'xlarge' },
+                  ],
+                },
+                {
+                  name: 'bodyTextSize',
+                  type: 'select',
+                  label: 'Dimensiune text',
+                  admin: {
+                    width: '50%',
+                    description: 'Tot textul: paragrafe, liste, tabele, formulare, etc.',
+                  },
+                  options: [
+                    { label: 'Mic (14px)', value: 'small' },
+                    { label: 'Normal (16px)', value: 'normal' },
+                    { label: 'Mare (18px)', value: 'large' },
+                  ],
+                },
+              ],
+            },
+            {
+              type: 'row',
+              fields: [
+                {
+                  name: 'cardGap',
+                  type: 'select',
+                  label: 'Spatiere carduri',
+                  admin: {
+                    width: '50%',
+                    description: 'Distanta intre carduri in grid-uri',
+                  },
+                  options: [
+                    { label: 'Compact (16px)', value: 'compact' },
+                    { label: 'Normal (24px)', value: 'normal' },
+                    { label: 'Spatios (32px)', value: 'spacious' },
                   ],
                 },
               ],

@@ -96,7 +96,7 @@ export function HeroCarousel({ data }: HeroCarouselProps) {
                 {slide.headline && (
                   <h1
                     className={cn(
-                      'text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-6 leading-tight text-white drop-shadow-lg transition-all',
+                      'heading-h1 font-bold mb-6 leading-tight text-white drop-shadow-lg transition-all',
                       isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
                     )}
                     style={{

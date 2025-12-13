@@ -211,7 +211,7 @@ export function CookieModal({
                       onClick={() => handleToggle(category.id)}
                       disabled={isDisabled}
                       className={cn(
-                        'relative shrink-0 w-14 h-8 rounded-full transition-colors duration-200',
+                        'relative shrink-0 w-12 h-7 rounded-full transition-colors duration-200',
                         'focus:outline-none focus:ring-2 focus:ring-theme-primary focus:ring-offset-2',
                         isDisabled
                           ? 'bg-theme-text-muted cursor-not-allowed opacity-50'
@@ -226,8 +226,8 @@ export function CookieModal({
                     >
                       <span
                         className={cn(
-                          'absolute top-1 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-200',
-                          isEnabled ? 'translate-x-7' : 'translate-x-1'
+                          'absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-200',
+                          isEnabled ? 'translate-x-5' : 'translate-x-0'
                         )}
                       />
                     </button>

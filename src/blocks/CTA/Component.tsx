@@ -106,7 +106,7 @@ export function CTABlock({
       >
         <div className="absolute inset-0 bg-black/60" />
         <div className={cn('relative container mx-auto px-4', alignClass)}>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">{headline}</h2>
+          <h2 className="heading-h2 font-bold text-white mb-4">{headline}</h2>
           {subheadline && (
             <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto mb-8">{subheadline}</p>
           )}
@@ -130,7 +130,7 @@ export function CTABlock({
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-8">
             <div className="flex-1">
-              <h2 className={cn('text-3xl md:text-4xl font-bold mb-4', isDark ? 'text-white' : 'text-theme-text')}>{headline}</h2>
+              <h2 className={cn('heading-h2 font-bold mb-4', isDark ? 'text-white' : 'text-theme-text')}>{headline}</h2>
               {subheadline && (
                 <p className={cn('text-lg', isDark ? 'text-white/80' : 'text-theme-text-light')}>
                   {subheadline}
@@ -177,7 +177,7 @@ export function CTABlock({
       <section className="py-section">
         <div className="container mx-auto px-4">
           <div className={cn('rounded-[var(--radius-xl)] p-8 md:p-12', bgClass, alignClass)}>
-            <h2 className={cn('text-3xl md:text-4xl font-bold mb-4', isDark ? 'text-white' : 'text-theme-text')}>{headline}</h2>
+            <h2 className={cn('heading-h2 font-bold mb-4', isDark ? 'text-white' : 'text-theme-text')}>{headline}</h2>
             {subheadline && (
               <p className={cn('text-lg max-w-2xl mx-auto mb-8', isDark ? 'text-white/80' : 'text-theme-text-light')}>
                 {subheadline}
@@ -202,7 +202,7 @@ export function CTABlock({
   return (
     <section className={cn(sizeClass, bgClass)}>
       <div className={cn('container mx-auto px-4', alignClass)}>
-        <h2 className={cn('text-3xl md:text-4xl lg:text-5xl font-bold mb-4', isDark ? 'text-white' : 'text-theme-text')}>{headline}</h2>
+        <h2 className={cn('heading-h2 font-bold mb-4', isDark ? 'text-white' : 'text-theme-text')}>{headline}</h2>
         {subheadline && (
           <p className={cn('text-lg md:text-xl max-w-2xl mb-8', textAlignment === 'center' && 'mx-auto', isDark ? 'text-white/80' : 'text-theme-text-light')}>
             {subheadline}

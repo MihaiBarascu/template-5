@@ -104,7 +104,7 @@ export function VideoHero({ data, social }: VideoHeroProps) {
       {/* Content */}
       <div className="relative z-20 container mx-auto px-4 text-center py-20">
         {headline && (
-          <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-6 leading-tight animate-fade-in-up text-white/80 [text-shadow:_0_1px_0_rgba(255,255,255,0.4),_0_-1px_0_rgba(0,0,0,0.2),_0_4px_8px_rgba(0,0,0,0.3)] backdrop-blur-[1px]">
+          <h1 className="heading-h1 font-bold mb-6 leading-tight animate-fade-in-up text-white/80 [text-shadow:_0_1px_0_rgba(255,255,255,0.4),_0_-1px_0_rgba(0,0,0,0.2),_0_4px_8px_rgba(0,0,0,0.3)] backdrop-blur-[1px]">
             {headline}
           </h1>
         )}

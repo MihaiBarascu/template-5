@@ -280,7 +280,7 @@ export function TestimonialsBlock({
             <div className="text-center mb-12">
               {heading && (
                 <h2 className={cn(
-                  'text-3xl md:text-4xl lg:text-5xl font-bold mb-4',
+                  'heading-h2 font-bold mb-4',
                   isDark ? 'text-white' : 'text-theme-text'
                 )}>
                   {heading}
@@ -386,7 +386,7 @@ export function TestimonialsBlock({
             <div className="text-center mb-12">
               {heading && (
                 <h2 className={cn(
-                  'text-3xl md:text-4xl lg:text-5xl font-bold mb-4',
+                  'heading-h2 font-bold mb-4',
                   isDark ? 'text-white' : 'text-theme-text'
                 )}>
                   {heading}
@@ -418,7 +418,7 @@ export function TestimonialsBlock({
             <div className="text-center mb-12">
               {heading && (
                 <h2 className={cn(
-                  'text-3xl md:text-4xl lg:text-5xl font-bold mb-4',
+                  'heading-h2 font-bold mb-4',
                   isDark ? 'text-white' : 'text-theme-text'
                 )}>
                   {heading}
@@ -453,7 +453,7 @@ export function TestimonialsBlock({
           <div className="text-center mb-12">
             {heading && (
               <h2 className={cn(
-                'text-3xl md:text-4xl lg:text-5xl font-bold mb-4',
+                'heading-h2 font-bold mb-4',
                 isDark ? 'text-white' : 'text-theme-text'
               )}>
                 {heading}
@@ -468,7 +468,7 @@ export function TestimonialsBlock({
         )}
 
         {/* Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-cards">
           {testimonials.map((testimonial, index) => (
             <TestimonialCard key={testimonial.id || index} testimonial={testimonial} index={index} />
           ))}

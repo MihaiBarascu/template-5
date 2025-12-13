@@ -60,7 +60,9 @@ const nextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     formats: ['image/avif', 'image/webp'],
     qualities: [75, 85], // Next.js 16 requires explicit quality values
-    minimumCacheTTL: 31536000, // 1 year cache
+    // In dev mode, use short cache to allow image updates during seeding
+    // In production, use 1 year cache for performance
+    minimumCacheTTL: process.env.NODE_ENV === 'development' ? 0 : 31536000
   },
   webpack: webpackConfig => {
     webpackConfig.resolve.extensionAlias = {
@@ -76,13 +78,15 @@ const nextConfig = {
   // HTTP Caching Headers for performance
   async headers() {
     return [
-      // Cache pentru imagini - 1 an
+      // Cache pentru imagini - 1 an in prod, 0 in dev (pentru seeding)
       {
         source: '/:all*(svg|jpg|jpeg|png|webp|avif|ico)',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
+            value: process.env.NODE_ENV === 'development'
+              ? 'no-cache, no-store, must-revalidate'
+              : 'public, max-age=31536000, immutable',
           },
         ],
       },

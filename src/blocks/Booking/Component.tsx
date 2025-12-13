@@ -133,7 +133,7 @@ export function BookingBlock({
       <section className={cn('py-16', bgClass)}>
         <div className="container mx-auto px-4 text-center">
           {heading && (
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">{heading}</h2>
+            <h2 className="heading-h2 font-bold mb-4">{heading}</h2>
           )}
           {subheading && (
             <p className={cn('text-lg max-w-2xl mx-auto mb-8', backgroundColor === 'dark' || backgroundColor === 'primary' ? 'text-white/80' : 'text-theme-text-light')}>
@@ -185,7 +185,7 @@ export function BookingBlock({
         {(heading || subheading) && (
           <div className="text-center mb-12">
             {heading && (
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">{heading}</h2>
+              <h2 className="heading-h2 font-bold mb-4">{heading}</h2>
             )}
             {subheading && (
               <p className={cn('text-lg max-w-2xl mx-auto', backgroundColor === 'dark' || backgroundColor === 'primary' ? 'text-white/80' : 'text-theme-text-light')}>
@@ -204,7 +204,7 @@ export function BookingBlock({
               <svg className="w-16 h-16 text-green-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <h3 className="text-xl font-semibold mb-2">Cerere trimisa!</h3>
+              <h3 className="heading-h3 font-semibold mb-2">Cerere trimisa!</h3>
               <p className={backgroundColor === 'dark' || backgroundColor === 'primary' ? 'text-white/70' : 'text-theme-text-light'}>
                 {successMessage}
               </p>

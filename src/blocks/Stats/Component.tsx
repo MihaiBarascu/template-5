@@ -119,7 +119,7 @@ export function StatsBlock({
     <section className={cn('py-16', bgClass)}>
       <div className="container mx-auto px-4">
         {heading && (
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">{heading}</h2>
+          <h2 className="heading-h2 font-bold text-center mb-12">{heading}</h2>
         )}
 
         {variant === 'inline' ? (

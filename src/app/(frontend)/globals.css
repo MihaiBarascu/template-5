@@ -63,18 +63,6 @@
   --font-body: var(--font-body), sans-serif;
 
   /* -----------------------------
-     FONT SIZES
-     ----------------------------- */
-  --text-theme-h1: var(--font-size-h1);
-  --text-theme-h2: var(--font-size-h2);
-  --text-theme-h3: var(--font-size-h3);
-  --text-theme-h4: var(--font-size-h4);
-  --text-theme-h5: var(--font-size-h5);
-  --text-theme-h6: var(--font-size-h6);
-  --text-theme-body: var(--font-size-body);
-  --text-theme-small: var(--font-size-small);
-
-  /* -----------------------------
      SPACING
      ----------------------------- */
   --spacing-section: var(--spacing-section);
@@ -107,11 +95,7 @@
   --shadow-theme-card-hover: var(--shadow-card-hover);
   --shadow-theme-button: var(--shadow-button);
 
-  /* -----------------------------
-     CONTAINER
-     ----------------------------- */
-  --container-7xl: 1400px;
-  --container-8xl: 1600px;
+  /* Container breakpoints removed - we override .container directly below */
 
   /* -----------------------------
      ANIMATIONS
@@ -171,125 +155,136 @@
 }
 
 /* =============================================================================
-   CSS VARIABLES - Defaults (overridden by ThemeProvider from admin settings)
+   CONTAINER OVERRIDE - Uses runtime CSS variable from admin settings
+   Must be outside @layer for proper specificity over Tailwind's .container
    ============================================================================= */
-:root {
-  /* -----------------------------
-     COLORS
-     ----------------------------- */
-  --theme-primary: #000000;
-  --theme-primary-light: #333333;
-  --theme-primary-dark: #000000;
-  --theme-secondary: #666666;
-  --theme-accent: #c9a962;
-  --theme-dark: #1a1a1a;
-  --theme-light: #f5f5f5;
-  --theme-surface: #ffffff;
-  --theme-surface-secondary: #fafafa;
-  --theme-text: #1a1a1a;
-  --theme-text-light: #666666;
-  --theme-text-muted: #999999;
-  --theme-border: #e5e5e5;
-  --theme-border-light: #f0f0f0;
+.container {
+  max-width: var(--container-max, 1280px);
+}
 
-  /* Contrast text colors - for text on colored backgrounds */
-  --theme-text-on-primary: #ffffff;
-  --theme-text-on-secondary: #ffffff;
-  --theme-text-on-accent: #1a1a1a;
-  --theme-text-on-dark: #f5f5f5;
-  --theme-text-on-light: #1a1a1a;
-  --theme-text-on-surface: #1a1a1a;
+/* =============================================================================
+   CSS VARIABLES - Defaults (in low-priority layer, overridden by inline theme styles)
+   Using @layer ensures these fallbacks don't override the inline styles from generateThemeStyles
+   ============================================================================= */
+@layer theme-fallbacks {
+  :root {
+    /* -----------------------------
+       COLORS
+       ----------------------------- */
+    --theme-primary: #000000;
+    --theme-primary-light: #333333;
+    --theme-primary-dark: #000000;
+    --theme-secondary: #666666;
+    --theme-accent: #c9a962;
+    --theme-dark: #1a1a1a;
+    --theme-light: #f5f5f5;
+    --theme-surface: #ffffff;
+    --theme-surface-secondary: #fafafa;
+    --theme-text: #1a1a1a;
+    --theme-text-light: #666666;
+    --theme-text-muted: #999999;
+    --theme-border: #e5e5e5;
+    --theme-border-light: #f0f0f0;
 
-  /* -----------------------------
-     TYPOGRAPHY
-     ----------------------------- */
-  --font-size-h1: 3rem;
-  --font-size-h2: 2.25rem;
-  --font-size-h3: 1.875rem;
-  --font-size-h4: 1.5rem;
-  --font-size-h5: 1.25rem;
-  --font-size-h6: 1rem;
-  --font-size-body: 1rem;
-  --font-size-small: 0.875rem;
-  --letter-spacing: 0;
-  --heading-line-height: 1.2;
-  --body-line-height: 1.6;
+    /* Contrast text colors - for text on colored backgrounds */
+    --theme-text-on-primary: #ffffff;
+    --theme-text-on-secondary: #ffffff;
+    --theme-text-on-accent: #1a1a1a;
+    --theme-text-on-dark: #f5f5f5;
+    --theme-text-on-light: #1a1a1a;
+    --theme-text-on-surface: #1a1a1a;
 
-  /* -----------------------------
-     SPACING
-     ----------------------------- */
-  --spacing-section: 80px;
-  --spacing-section-mobile: 48px;
-  --spacing-card-gap: 24px;
-  --container-max: 1280px;
+    /* -----------------------------
+       TYPOGRAPHY (fallback defaults - overridden by generateThemeStyles)
+       ----------------------------- */
+    --font-size-h1: 3rem;
+    --font-size-h2: 2.25rem;
+    --font-size-h3: 1.875rem;
+    --font-size-h4: 1.5rem;
+    --font-size-h5: 1.25rem;
+    --font-size-h6: 1rem;
+    --font-size-body: 1rem;
+    --font-size-small: 0.875rem;
+    --letter-spacing: 0;
+    --heading-line-height: 1.2;
+    --body-line-height: 1.6;
 
-  /* -----------------------------
-     BORDER RADIUS
-     ----------------------------- */
-  --radius: 8px;
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
-  --radius-button: 8px;
-  --radius-card: 12px;
-  --radius-input: 8px;
+    /* -----------------------------
+       SPACING (fallback defaults - overridden by generateThemeStyles)
+       ----------------------------- */
+    --spacing-section: 80px;
+    --spacing-section-mobile: 48px;
+    --spacing-card-gap: 24px;
+    --container-max: 1280px;
 
-  /* -----------------------------
-     SHADOWS
-     ----------------------------- */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
-  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08);
-  --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.12);
-  --shadow-button: none;
+    /* -----------------------------
+       BORDER RADIUS (fallback defaults - overridden by generateThemeStyles)
+       ----------------------------- */
+    --radius: 8px;
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-button: 8px;
+    --radius-card: 12px;
+    --radius-input: 8px;
 
-  /* -----------------------------
-     BUTTONS
-     ----------------------------- */
-  --btn-padding-y: 12px;
-  --btn-padding-x: 24px;
-  --btn-text-transform: none;
-  --btn-font-weight: 600;
-  --btn-letter-spacing: 0;
+    /* -----------------------------
+       SHADOWS (fallback defaults - overridden by generateThemeStyles)
+       ----------------------------- */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08);
+    --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.12);
+    --shadow-button: none;
 
-  /* -----------------------------
-     ANIMATIONS
-     ----------------------------- */
-  --animation-duration: 300ms;
-  --animation-duration-fast: 150ms;
-  --animation-duration-slow: 500ms;
-  --animation-timing: ease-in-out;
-  --animation-enabled: 1;
-  --animation-play-state: running;
+    /* -----------------------------
+       BUTTONS
+       ----------------------------- */
+    --btn-padding-y: 12px;
+    --btn-padding-x: 24px;
+    --btn-text-transform: none;
+    --btn-font-weight: 600;
+    --btn-letter-spacing: 0;
 
-  /* -----------------------------
-     SHADCN UI VARIABLES
-     ----------------------------- */
-  --background: 0 0% 100%;
-  --foreground: 0 0% 10%;
-  --card: 0 0% 100%;
-  --card-foreground: 0 0% 10%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 0 0% 10%;
-  --primary: 0 0% 0%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 0 0% 96%;
-  --secondary-foreground: 0 0% 10%;
-  --muted: 0 0% 96%;
-  --muted-foreground: 0 0% 40%;
-  --accent: 0 0% 96%;
-  --accent-foreground: 0 0% 10%;
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 0 0% 100%;
-  --border: 0 0% 90%;
-  --input: 0 0% 90%;
-  --ring: 0 0% 0%;
-  --success: 142 76% 36%;
-  --warning: 38 92% 50%;
-  --error: 0 84% 60%;
+    /* -----------------------------
+       ANIMATIONS
+       ----------------------------- */
+    --animation-duration: 300ms;
+    --animation-duration-fast: 150ms;
+    --animation-duration-slow: 500ms;
+    --animation-timing: ease-in-out;
+    --animation-enabled: 1;
+    --animation-play-state: running;
+
+    /* -----------------------------
+       SHADCN UI VARIABLES
+       ----------------------------- */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+    --primary: 0 0% 0%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 10%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 40%;
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 10%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 0 0% 0%;
+    --success: 142 76% 36%;
+    --warning: 38 92% 50%;
+    --error: 0 84% 60%;
+  }
 }
 
 /* =============================================================================
@@ -304,7 +299,13 @@
     background-color: var(--theme-surface);
     color: var(--theme-text);
     font-family: var(--font-body);
+    font-size: var(--font-size-body);
     line-height: var(--body-line-height);
+  }
+
+  /* Small text utility (captions, footnotes, metadata) */
+  small, .text-small, figcaption, caption {
+    font-size: var(--font-size-small);
   }
 
   /* Typography */
@@ -357,13 +358,6 @@
    COMPONENTS
    ============================================================================= */
 @layer components {
-  /* Container */
-  .container,
-  div.container,
-  section.container {
-    max-width: var(--container-max, 1280px);
-  }
-
   /* Sections */
   .section {
     padding-top: var(--spacing-section);
@@ -534,6 +528,22 @@
   .animation-delay-200 { animation-delay: var(--animation-duration-fast); }
   .animation-delay-300 { animation-delay: var(--animation-duration); }
   .animation-delay-400 { animation-delay: var(--animation-duration-slow); }
+
+  /* -----------------------------
+     HEADING SIZES - Uses admin-configurable CSS variables
+     Use these classes to make headings respect theme settings
+     ----------------------------- */
+  .heading-h1 { font-size: var(--font-size-h1) !important; }
+  .heading-h2 { font-size: var(--font-size-h2) !important; }
+  .heading-h3 { font-size: var(--font-size-h3) !important; }
+  .heading-h4 { font-size: var(--font-size-h4) !important; }
+  .heading-h5 { font-size: var(--font-size-h5) !important; }
+  .heading-h6 { font-size: var(--font-size-h6) !important; }
+
+  /* -----------------------------
+     CARD GRID GAPS - Uses admin-configurable CSS variable
+     ----------------------------- */
+  .gap-cards { gap: var(--spacing-card-gap) !important; }
 
   /* -----------------------------
      TRANSITIONS
@@ -736,12 +746,5 @@
 /* =============================================================================
    RESPONSIVE
    ============================================================================= */
-@media (max-width: 768px) {
-  :root {
-    --font-size-h1: 2.25rem;
-    --font-size-h2: 1.875rem;
-    --font-size-h3: 1.5rem;
-    --font-size-h4: 1.25rem;
-    --spacing-section: 48px;
-  }
-}
+/* Font sizes and spacing are now set dynamically via generateThemeStyles.ts
+   which includes responsive media query with values from admin settings */

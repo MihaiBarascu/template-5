@@ -130,7 +130,7 @@ export function NewsletterBlock({
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex-1">
               {heading && (
-                <h3 className="text-xl font-bold text-theme-text">{heading}</h3>
+                <h3 className="heading-h3 font-bold text-theme-text">{heading}</h3>
               )}
               {subheading && (
                 <p className="text-theme-text-light text-sm mt-1">{subheading}</p>
@@ -228,7 +228,7 @@ export function NewsletterBlock({
           {heading && (
             <h2
               className={cn(
-                'text-3xl md:text-4xl font-bold mb-4',
+                'heading-h2 font-bold mb-4',
                 isDark || variant === 'with-pattern' ? 'text-white' : 'text-theme-text'
               )}
             >

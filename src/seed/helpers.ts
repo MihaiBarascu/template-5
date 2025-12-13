@@ -20,6 +20,46 @@ export function clearImageCache(): void {
   console.log('   Image cache cleared');
 }
 
+// Clear Next.js image optimization cache
+export function clearNextImageCache(): void {
+  const nextCachePath = path.join(process.cwd(), '.next', 'cache', 'images');
+  if (fs.existsSync(nextCachePath)) {
+    fs.rmSync(nextCachePath, { recursive: true, force: true });
+    console.log('   Next.js image cache cleared (.next/cache/images)');
+  }
+}
+
+// Clear entire Next.js cache folder (use when seeding with new images)
+export function clearNextCache(): void {
+  const nextCachePath = path.join(process.cwd(), '.next', 'cache');
+  if (fs.existsSync(nextCachePath)) {
+    fs.rmSync(nextCachePath, { recursive: true, force: true });
+    console.log('   Next.js cache cleared (.next/cache)');
+  }
+}
+
+// Trigger Next.js cache revalidation via API (call after seed to refresh dev server)
+export async function triggerRevalidation(baseUrl: string = 'http://localhost:3010'): Promise<void> {
+  try {
+    console.log('   Triggering Next.js cache revalidation...');
+    const response = await fetch(`${baseUrl}/api/revalidate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}), // Empty body = revalidate all globals
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log('   ✅ Cache revalidated:', data.revalidated?.tags?.length || 0, 'tags');
+    } else {
+      console.log('   ⚠️  Revalidation failed (server might not be running)');
+    }
+  } catch {
+    // Server not running - that's OK, cache will be fresh on next start
+    console.log('   ⚠️  Could not reach dev server for revalidation');
+  }
+}
+
 // Helper to find existing image by filename in media collection
 async function findExistingImage(payload: Payload, filename: string): Promise<string | null> {
   try {
@@ -333,6 +373,9 @@ export async function seedSiteTheme(
     animations?: SiteTheme['animations'];
     containerWidth?: SiteTheme['containerWidth'];
     sectionSpacing?: SiteTheme['sectionSpacing'];
+    headingScale?: SiteTheme['headingScale'];
+    bodyTextSize?: SiteTheme['bodyTextSize'];
+    cardGap?: SiteTheme['cardGap'];
     useCustomColors?: boolean;
     colors?: SiteTheme['colors'];
     // Typography
@@ -346,9 +389,12 @@ export async function seedSiteTheme(
       variant: options.variant,
       borderRadius: options.borderRadius,
       shadows: options.shadows,
-      animations: options.animations,
-      containerWidth: options.containerWidth,
-      sectionSpacing: options.sectionSpacing,
+      animations: options.animations || 'moderate',
+      containerWidth: options.containerWidth || '1280',
+      sectionSpacing: options.sectionSpacing || 'normal',
+      headingScale: options.headingScale || 'normal',
+      bodyTextSize: options.bodyTextSize || 'normal',
+      cardGap: options.cardGap || 'normal',
       useCustomColors: options.useCustomColors || false,
       colors: options.colors,
       // Typography - if not provided, uses variant defaults from generateThemeStyles

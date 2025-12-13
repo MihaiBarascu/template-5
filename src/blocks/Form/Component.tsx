@@ -249,7 +249,7 @@ export const FormBlockComponent: React.FC<
         <div className="container mx-auto px-4">
           <div className="max-w-xl mx-auto">
             {enableIntro && heading && (
-              <h3 className="text-xl font-semibold mb-4">{heading}</h3>
+              <h3 className="heading-h3 font-semibold mb-4">{heading}</h3>
             )}
             {enableIntro && subheading && (
               <p className={cn('mb-6', backgroundColor === 'dark' ? 'text-white/70' : 'text-theme-text-light')}>
@@ -269,7 +269,7 @@ export const FormBlockComponent: React.FC<
         <div className="container mx-auto px-4">
           {enableIntro && (heading || subheading) && (
             <div className="text-center mb-12">
-              {heading && <h2 className="text-3xl md:text-4xl font-bold mb-4">{heading}</h2>}
+              {heading && <h2 className="heading-h2 font-bold mb-4">{heading}</h2>}
               {subheading && (
                 <p
                   className={cn(
@@ -301,7 +301,7 @@ export const FormBlockComponent: React.FC<
         <div className="container mx-auto px-4">
           {enableIntro && (heading || subheading) && (
             <div className="text-center mb-12">
-              {heading && <h2 className="text-3xl md:text-4xl font-bold mb-4">{heading}</h2>}
+              {heading && <h2 className="heading-h2 font-bold mb-4">{heading}</h2>}
               {subheading && (
                 <p
                   className={cn(
@@ -338,7 +338,7 @@ export const FormBlockComponent: React.FC<
       <div className="container mx-auto px-4">
         {enableIntro && (heading || subheading) && (
           <div className="text-center mb-12">
-            {heading && <h2 className="text-3xl md:text-4xl font-bold mb-4">{heading}</h2>}
+            {heading && <h2 className="heading-h2 font-bold mb-4">{heading}</h2>}
             {subheading && (
               <p
                 className={cn(

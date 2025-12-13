@@ -194,7 +194,7 @@ export function PriceListDottedBlock({
         {(heading || subheading) && (
           <div className="text-center mb-10 md:mb-14">
             {heading && (
-              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">{heading}</h2>
+              <h2 className="heading-h2 font-bold mb-4">{heading}</h2>
             )}
             {subheading && (
               <p className={cn(

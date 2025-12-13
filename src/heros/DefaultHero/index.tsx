@@ -88,7 +88,7 @@ export function DefaultHero({ data, social }: DefaultHeroProps) {
         {headline && (
           <h1
             className={cn(
-              'text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6 leading-tight animate-fade-in-up',
+              'heading-h1 font-bold mb-6 leading-tight animate-fade-in-up',
               hasImage ? 'text-white drop-shadow-lg' : 'text-theme-text'
             )}
           >

@@ -205,12 +205,12 @@ export function OpeningHoursBlock({
         <div className="container mx-auto px-4">
           <div
             className={cn(
-              'max-w-md mx-auto p-6 rounded-xl shadow-lg',
+              'max-w-md mx-auto p-6 rounded-(--radius-card) shadow-lg',
               backgroundColor === 'dark' ? 'bg-white/5' : 'bg-white'
             )}
           >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
+              <h3 className="heading-h3 font-semibold flex items-center gap-2">
                 <svg
                   className="w-5 h-5 text-theme-primary"
                   fill="none"
@@ -241,7 +241,7 @@ export function OpeningHoursBlock({
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             {hasImage && (
-              <div className="relative h-80 md:h-96 rounded-xl overflow-hidden">
+              <div className="relative h-80 md:h-96 rounded-(--radius-card) overflow-hidden">
                 <Media
                   resource={image as MediaType}
                   fill
@@ -252,7 +252,7 @@ export function OpeningHoursBlock({
             )}
             <div>
               {heading && (
-                <h2 className="text-3xl font-bold mb-4">{heading}</h2>
+                <h2 className="heading-h2 font-bold mb-4">{heading}</h2>
               )}
               {subheading && (
                 <p
@@ -283,7 +283,7 @@ export function OpeningHoursBlock({
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto text-center">
             {heading && (
-              <h2 className="text-3xl font-bold mb-4">{heading}</h2>
+              <h2 className="heading-h2 font-bold mb-4">{heading}</h2>
             )}
             {subheading && (
               <p
@@ -302,7 +302,7 @@ export function OpeningHoursBlock({
             )}
             <div
               className={cn(
-                'p-6 rounded-xl mb-8',
+                'p-6 rounded-(--radius-card) mb-8',
                 backgroundColor === 'dark' ? 'bg-white/5' : 'bg-theme-light'
               )}
             >
@@ -347,7 +347,7 @@ export function OpeningHoursBlock({
         <div className="max-w-xl mx-auto">
           {(heading || status) && (
             <div className="flex items-center justify-between mb-8">
-              {heading && <h2 className="text-2xl font-bold">{heading}</h2>}
+              {heading && <h2 className="heading-h2 font-bold">{heading}</h2>}
               {status && <StatusBadge />}
             </div>
           )}

@@ -308,7 +308,7 @@ export function TrustBadgesBlock({
         {heading && (
           <h2
             className={cn(
-              'text-xl md:text-2xl font-bold text-center mb-6 md:mb-8',
+              'text-xl md:heading-h2 font-bold text-center mb-6 md:mb-8',
               isDarkSection ? 'text-white' : 'text-theme-text',
             )}
           >

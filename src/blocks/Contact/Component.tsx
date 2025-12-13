@@ -146,7 +146,7 @@ export function ContactBlock({
       <div className={cn(bgClass, bgClass && 'py-4')}>
         {(heading || subheading) && (
           <div className="mb-4">
-            {heading && <h3 className="text-lg font-semibold">{heading}</h3>}
+            {heading && <h3 className="heading-h3 font-semibold">{heading}</h3>}
             {subheading && <p className={cn('text-sm', isDark ? 'text-white/70' : 'text-theme-text-muted')}>{subheading}</p>}
           </div>
         )}
@@ -180,7 +180,7 @@ export function ContactBlock({
       <div className={cn(bgClass, bgClass && 'py-4')}>
         {(heading || subheading) && (
           <div className="mb-4">
-            {heading && <h3 className="text-lg font-semibold">{heading}</h3>}
+            {heading && <h3 className="heading-h3 font-semibold">{heading}</h3>}
             {subheading && <p className={cn('text-sm', isDark ? 'text-white/70' : 'text-theme-text-muted')}>{subheading}</p>}
           </div>
         )}
@@ -209,7 +209,7 @@ export function ContactBlock({
       <div className={cn(bgClass, bgClass && 'py-8')}>
         {(heading || subheading) && (
           <div className="text-center mb-8">
-            {heading && <h2 className="text-2xl md:text-3xl font-bold mb-2">{heading}</h2>}
+            {heading && <h2 className="heading-h2 font-bold mb-2">{heading}</h2>}
             {subheading && <p className={cn('text-lg', isDark ? 'text-white/70' : 'text-theme-text-muted')}>{subheading}</p>}
           </div>
         )}

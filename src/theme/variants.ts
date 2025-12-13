@@ -419,6 +419,99 @@ export const buttonLetterSpacingPresets: Record<string, string> = {
   'extra-wide': '2px',
 }
 
+// Heading scale presets (separate from body text)
+// Reference: Tailwind text-4xl=2.25rem, text-5xl=3rem, text-6xl=3.75rem, text-7xl=4.5rem
+export const headingScalePresets = {
+  small: {
+    h1: '2.5rem',     // 40px - minimal, pentru site-uri text-heavy
+    h2: '2rem',       // 32px
+    h3: '1.5rem',     // 24px
+    h4: '1.25rem',    // 20px
+    h5: '1.125rem',   // 18px
+    h6: '1rem',       // 16px
+    // Mobile sizes
+    h1Mobile: '1.875rem',  // 30px
+    h2Mobile: '1.5rem',    // 24px
+    h3Mobile: '1.25rem',   // 20px
+    h4Mobile: '1.125rem',  // 18px
+  },
+  compact: {
+    h1: '3rem',       // 48px (text-5xl)
+    h2: '2.25rem',    // 36px (text-4xl)
+    h3: '1.875rem',   // 30px (text-3xl)
+    h4: '1.5rem',     // 24px
+    h5: '1.25rem',    // 20px
+    h6: '1rem',       // 16px
+    // Mobile sizes
+    h1Mobile: '2.25rem',   // 36px
+    h2Mobile: '1.875rem',  // 30px
+    h3Mobile: '1.5rem',    // 24px
+    h4Mobile: '1.25rem',   // 20px
+  },
+  normal: {
+    h1: '3.75rem',    // 60px (text-6xl) - echilibrat
+    h2: '2.5rem',     // 40px
+    h3: '2rem',       // 32px
+    h4: '1.625rem',   // 26px
+    h5: '1.375rem',   // 22px
+    h6: '1.125rem',   // 18px
+    // Mobile sizes
+    h1Mobile: '2.25rem',   // 36px
+    h2Mobile: '1.875rem',  // 30px
+    h3Mobile: '1.5rem',    // 24px
+    h4Mobile: '1.25rem',   // 20px
+  },
+  large: {
+    h1: '4.5rem',     // 72px (text-7xl) - ce era înainte default
+    h2: '3rem',       // 48px (text-5xl)
+    h3: '2.25rem',    // 36px (text-4xl)
+    h4: '1.875rem',   // 30px
+    h5: '1.5rem',     // 24px
+    h6: '1.25rem',    // 20px
+    // Mobile sizes
+    h1Mobile: '2.5rem',    // 40px
+    h2Mobile: '2rem',      // 32px
+    h3Mobile: '1.75rem',   // 28px
+    h4Mobile: '1.375rem',  // 22px
+  },
+  xlarge: {
+    h1: '5.5rem',     // 88px - pentru hero-uri impactante
+    h2: '3.5rem',     // 56px
+    h3: '2.75rem',    // 44px
+    h4: '2rem',       // 32px
+    h5: '1.625rem',   // 26px
+    h6: '1.375rem',   // 22px
+    // Mobile sizes
+    h1Mobile: '3rem',      // 48px
+    h2Mobile: '2.25rem',   // 36px
+    h3Mobile: '1.875rem',  // 30px
+    h4Mobile: '1.5rem',    // 24px
+  },
+}
+
+// Body text size presets (separate from headings)
+export const bodyTextSizePresets = {
+  small: {
+    body: '0.875rem',   // 14px
+    small: '0.75rem',   // 12px
+  },
+  normal: {
+    body: '1rem',       // 16px
+    small: '0.875rem',  // 14px
+  },
+  large: {
+    body: '1.125rem',   // 18px
+    small: '1rem',      // 16px
+  },
+}
+
+// Card gap presets
+export const cardGapPresets = {
+  compact: '16px',
+  normal: '24px',
+  spacious: '32px',
+}
+
 // Animation presets
 export interface AnimationPreset {
   duration: string

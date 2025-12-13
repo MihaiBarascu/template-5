@@ -124,7 +124,7 @@ export function CartBlock({
         <div className="container mx-auto px-4">
           {heading && (
             <h2
-              className={`text-3xl font-bold mb-8 ${backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'}`}
+              className={`heading-h2 font-bold mb-8 ${backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'}`}
             >
               {heading}
             </h2>
@@ -152,7 +152,7 @@ export function CartBlock({
       <div className="container mx-auto px-4">
         {heading && (
           <h2
-            className={`text-3xl font-bold mb-8 ${backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'}`}
+            className={`heading-h2 font-bold mb-8 ${backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'}`}
           >
             {heading}
           </h2>

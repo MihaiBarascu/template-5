@@ -145,7 +145,7 @@ export function ScheduleTableBlock({
         <div className="container mx-auto px-4">
           {(heading || subheading) && (
             <div className="text-center mb-12">
-              {heading && <h2 className="text-3xl md:text-4xl font-bold mb-4">{heading}</h2>}
+              {heading && <h2 className="heading-h2 font-bold mb-4">{heading}</h2>}
               {subheading && <p className="text-theme-text-light max-w-2xl mx-auto">{subheading}</p>}
             </div>
           )}
@@ -266,7 +266,7 @@ export function ScheduleTableBlock({
         <div className="container mx-auto px-4">
           {(heading || subheading) && (
             <div className="text-center mb-12">
-              {heading && <h2 className="text-3xl md:text-4xl font-bold mb-4">{heading}</h2>}
+              {heading && <h2 className="heading-h2 font-bold mb-4">{heading}</h2>}
               {subheading && <p className="text-theme-text-light max-w-2xl mx-auto">{subheading}</p>}
             </div>
           )}
@@ -304,7 +304,7 @@ export function ScheduleTableBlock({
           {/* Selected day content */}
           <div className="bg-white rounded-2xl shadow-[var(--shadow-card)] overflow-hidden max-w-2xl mx-auto">
             <div className="bg-theme-primary text-white px-6 py-4">
-              <h3 className="text-xl font-bold text-center">
+              <h3 className="heading-h3 font-bold text-center">
                 {selectedDay?.label}
                 {highlightToday && today === selectedDay?.key && (
                   <span className="ml-2 text-sm font-normal bg-white/20 px-2 py-1 rounded">{todayBadgeLabel}</span>
@@ -390,7 +390,7 @@ export function ScheduleTableBlock({
       <div className="container mx-auto px-4">
         {(heading || subheading) && (
           <div className="text-center mb-12">
-            {heading && <h2 className="text-3xl md:text-4xl font-bold mb-4">{heading}</h2>}
+            {heading && <h2 className="heading-h2 font-bold mb-4">{heading}</h2>}
             {subheading && <p className="text-theme-text-light max-w-2xl mx-auto">{subheading}</p>}
           </div>
         )}

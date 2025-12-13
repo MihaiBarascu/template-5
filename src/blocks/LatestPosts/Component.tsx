@@ -328,7 +328,7 @@ export function LatestPostsBlock({
       case 'featured':
         const [featuredPost, ...otherPosts] = posts
         return (
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-cards md:grid-cols-2">
             {featuredPost && <PostCard post={featuredPost} featured />}
             {otherPosts.length > 0 && (
               <div className="flex flex-col gap-6">
@@ -360,7 +360,7 @@ export function LatestPostsBlock({
 
       default:
         return (
-          <div className={cn('grid gap-6', getGridCols())}>
+          <div className={cn('grid gap-cards', getGridCols())}>
             {posts.map((post) => (
               <PostCard key={post.id} post={post} />
             ))}
@@ -384,7 +384,7 @@ export function LatestPostsBlock({
             {heading && (
               <h2
                 className={cn(
-                  'text-3xl md:text-4xl font-bold mb-4',
+                  'heading-h2 font-bold mb-4',
                   isDark ? 'text-white' : 'text-theme-text',
                 )}
               >

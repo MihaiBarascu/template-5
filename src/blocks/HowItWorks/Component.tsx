@@ -333,7 +333,7 @@ export function HowItWorksBlock({
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-10 md:mb-12">
-          <h2 className={cn('text-2xl md:text-3xl font-bold', isDark ? 'text-white' : 'text-theme-text')}>
+          <h2 className={cn('heading-h2 font-bold', isDark ? 'text-white' : 'text-theme-text')}>
             {heading}
           </h2>
           {subheading && (

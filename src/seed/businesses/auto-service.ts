@@ -48,7 +48,11 @@ export async function seedAutoService(payload: Payload) {
     variant: 'modern-red', // Best for auto service - bold, energetic, powerful
     borderRadius: variant.theme.borderRadius,
     shadows: variant.theme.shadows,
-    sectionSpacing: 'normal',
+    sectionSpacing: variant.theme.sectionSpacing || 'normal',
+    headingScale: variant.theme.headingScale || 'normal',
+    bodyTextSize: variant.theme.bodyTextSize || 'normal',
+    cardGap: variant.theme.cardGap || 'normal',
+    animations: variant.theme.animations || 'dynamic',
     // Typography - use fonts from design variant
     headingFont: variant.theme.headingFont,
     bodyFont: variant.theme.bodyFont,

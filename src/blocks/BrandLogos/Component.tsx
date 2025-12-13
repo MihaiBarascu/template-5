@@ -113,7 +113,7 @@ export function BrandLogosBlock({
         <div className="container mx-auto px-4">
           {(heading || subheading) && (
             <div className="text-center mb-8">
-              {heading && <h2 className="text-2xl font-bold mb-2">{heading}</h2>}
+              {heading && <h2 className="heading-h2 font-bold mb-2">{heading}</h2>}
               {subheading && <p className={cn('text-base', textMuted)}>{subheading}</p>}
             </div>
           )}
@@ -155,7 +155,7 @@ export function BrandLogosBlock({
         <div className="container mx-auto px-4">
           {(heading || subheading) && (
             <div className="text-center mb-12">
-              {heading && <h2 className="text-2xl font-bold mb-2">{heading}</h2>}
+              {heading && <h2 className="heading-h2 font-bold mb-2">{heading}</h2>}
               {subheading && <p className={cn('text-base', textMuted)}>{subheading}</p>}
             </div>
           )}
@@ -183,7 +183,7 @@ export function BrandLogosBlock({
       <section className={cn('py-16', bgClass)}>
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            {heading && <h2 className="text-2xl font-bold mb-4">{heading}</h2>}
+            {heading && <h2 className="heading-h2 font-bold mb-4">{heading}</h2>}
             {subheading && (
               <p className={cn('text-base max-w-2xl mx-auto', textMuted)}>{subheading}</p>
             )}
@@ -210,7 +210,7 @@ export function BrandLogosBlock({
         <div className="container mx-auto px-4">
           {(heading || subheading) && (
             <div className="text-center mb-12">
-              {heading && <h2 className="text-2xl font-bold mb-2">{heading}</h2>}
+              {heading && <h2 className="heading-h2 font-bold mb-2">{heading}</h2>}
               {subheading && <p className={cn('text-base', textMuted)}>{subheading}</p>}
             </div>
           )}
@@ -218,7 +218,7 @@ export function BrandLogosBlock({
           <div className="space-y-12">
             {sectionList.map((section, sIdx) => (
               <div key={section.id || sIdx}>
-                <h3 className="text-lg font-semibold mb-6 text-center">{section.title}</h3>
+                <h3 className="heading-h3 font-semibold mb-6 text-center">{section.title}</h3>
                 <div className="flex flex-wrap items-center justify-center gap-8">
                   {(section.logos || []).map((logo, lIdx) => (
                     <LogoItem key={logo.id || lIdx} logo={logo} />
