@@ -27,10 +27,13 @@ COPY . .
 # Build-time arguments for Payload
 ARG PAYLOAD_SECRET
 ARG DATABASE_URI
-ARG NEXT_PUBLIC_SERVER_URL
+# NEXT_PUBLIC_SERVER_URL must be set for Next.js to embed correct URLs at build time
+ARG NEXT_PUBLIC_SERVER_URL=https://a.multiwebsite.org
+
+# Set environment variables for build
 ENV PAYLOAD_SECRET=$PAYLOAD_SECRET
 ENV DATABASE_URI=$DATABASE_URI
-ENV NEXT_PUBLIC_SERVER_URL=$NEXT_PUBLIC_SERVER_URL
+ENV NEXT_PUBLIC_SERVER_URL=${NEXT_PUBLIC_SERVER_URL:-https://a.multiwebsite.org}
 
 # Build with detected package manager
 # Using --experimental-build-mode compile to skip static generation during build
