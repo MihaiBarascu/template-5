@@ -487,7 +487,10 @@ const ecommerceConfig: Parameters<typeof ecommercePlugin>[0] = {
 };
 
 export default buildConfig({
-  serverURL: getServerSideURL(),
+  // serverURL is intentionally omitted or empty to prevent URL duplication bug
+  // in Payload 3.x when using formatAdminURL. The URL is determined at runtime
+  // from NEXT_PUBLIC_SERVER_URL or the request origin.
+  // See: https://github.com/payloadcms/payload/issues/12171
   admin: {
     components: {
       beforeLogin: ['@/components/BeforeLogin'],
