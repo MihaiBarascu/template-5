@@ -966,6 +966,7 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   messages={block.messages}
                   ctaButton={block.ctaButton ?? undefined}
                   countdown={block.countdown ?? undefined}
+                  icon={block.icon ?? undefined}
                   backgroundColor={block.backgroundColor ?? undefined}
                   position={block.position ?? undefined}
                   sticky={block.sticky ?? undefined}

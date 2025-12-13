@@ -421,7 +421,7 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof barbershopDat
           linkText: 'Programeaza-te acum',
         },
       ],
-      icon: 'Percent',
+      icon: 'percent',
       backgroundColor: 'primary',
       position: 'top',
       sticky: false,

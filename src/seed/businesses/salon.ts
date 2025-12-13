@@ -375,7 +375,7 @@ function buildHomepageLayout(variant: DesignVariant) {
           linkText: 'Rezervă acum',
         },
       ],
-      icon: 'Sparkles',
+      icon: 'sparkles',
       backgroundColor: 'gradient',
       position: 'top',
       sticky: false,

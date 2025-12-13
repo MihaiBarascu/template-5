@@ -2198,10 +2198,25 @@ export interface AnnouncementBarBlock {
     endDate: string;
     expiredText?: string | null;
   };
-  /**
-   * Ex: Gift, Percent, Bell, Star
-   */
-  icon?: string | null;
+  icon?:
+    | (
+        | 'none'
+        | 'gift'
+        | 'star'
+        | 'bell'
+        | 'fire'
+        | 'sparkles'
+        | 'megaphone'
+        | 'percent'
+        | 'scale'
+        | 'tag'
+        | 'bullhorn'
+        | 'gem'
+        | 'party'
+        | 'clock'
+        | 'rocket'
+      )
+    | null;
   backgroundColor?: ('primary' | 'red' | 'green' | 'blue' | 'black' | 'gradient') | null;
   position?: ('top' | 'bottom') | null;
   sticky?: boolean | null;

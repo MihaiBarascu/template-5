@@ -388,7 +388,7 @@ function buildHomepageLayout(variant: DesignVariant) {
           linkText: 'Solicită evaluare',
         },
       ],
-      icon: 'HardHat',
+      icon: 'megaphone',
       backgroundColor: 'primary',
       position: 'top',
       sticky: false,

@@ -512,7 +512,7 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof restaurantDat
           linkText: 'Vezi meniul',
         },
       ],
-      icon: 'UtensilsCrossed',
+      icon: 'megaphone',
       backgroundColor: 'primary',
       position: 'top',
       sticky: false,

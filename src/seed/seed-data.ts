@@ -1913,7 +1913,7 @@ export const avocatData = {
     {
       title: 'Drept Civil',
       shortDescription: 'Contracte, proprietate, succesiuni, obligatii',
-      icon: 'Scale',
+      icon: 'scale',
       featured: true,
       order: 1,
       displayStyle: 'card' as const,

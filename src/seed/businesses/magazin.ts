@@ -411,7 +411,7 @@ function buildHomepageLayout(variant: DesignVariant, getImageId: (filename: stri
           linkText: 'Detalii',
         },
       ],
-      icon: 'ShoppingBag',
+      icon: 'tag',
       backgroundColor: 'primary',
       position: 'top',
       sticky: false,

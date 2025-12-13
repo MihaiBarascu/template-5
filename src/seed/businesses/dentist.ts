@@ -435,7 +435,7 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof dentistData) 
         label: 'Programează Consultație',
         link: '/programare',
       },
-      icon: 'Gift',
+      icon: 'gift',
       backgroundColor: 'primary',
       position: 'top',
       sticky: false,

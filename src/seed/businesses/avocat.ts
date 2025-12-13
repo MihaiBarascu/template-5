@@ -335,7 +335,7 @@ function buildHomepageLayout(variant: DesignVariant) {
           year: '1999',
           title: 'Admitere în Barou',
           description: 'Am obținut licența de avocat și am început practica individuală',
-          icon: 'Scale',
+          icon: 'scale',
         },
         {
           year: '2008',
@@ -375,7 +375,7 @@ function buildHomepageLayout(variant: DesignVariant) {
         label: 'Solicită Consultație Gratuită',
         link: '/contact',
       },
-      icon: 'Scale',
+      icon: 'scale',
       backgroundColor: 'blue',
       position: 'top',
       sticky: false,

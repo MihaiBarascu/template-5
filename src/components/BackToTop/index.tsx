@@ -38,7 +38,7 @@ export function BackToTop({
 
   const positionClasses = {
     'bottom-right': 'right-6 bottom-24', // Above WhatsApp button
-    'bottom-left': 'left-6 bottom-6',
+    'bottom-left': 'left-6 bottom-24', // Above Cookie button
   }
 
   return (

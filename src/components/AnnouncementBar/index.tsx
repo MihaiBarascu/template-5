@@ -72,11 +72,11 @@ export function AnnouncementBar({
   if (!enabled || isDismissed || !message) return null
 
   const bgClasses = {
-    primary: 'bg-theme-primary text-white',
-    secondary: 'bg-theme-secondary text-white',
-    accent: 'bg-theme-accent text-white',
-    dark: 'bg-theme-dark text-white',
-    gradient: 'bg-gradient-to-r from-theme-primary via-theme-secondary to-theme-accent text-white',
+    primary: 'bg-theme-primary text-theme-text-on-primary',
+    secondary: 'bg-theme-secondary text-theme-text-on-secondary',
+    accent: 'bg-theme-accent text-theme-text-on-accent',
+    dark: 'bg-theme-dark text-theme-text-on-dark',
+    gradient: 'bg-gradient-to-r from-theme-primary via-theme-secondary to-theme-accent text-theme-text-on-primary',
   }
 
   return (
@@ -90,21 +90,25 @@ export function AnnouncementBar({
     >
       <div className="container mx-auto flex items-center justify-center gap-2">
         {icon !== 'none' && icons[icon] && (
-          <span className={cn(animated && 'animate-bounce-subtle')}>
+          <span className={cn('shrink-0', animated && 'animate-bounce-subtle')}>
             {icons[icon]}
           </span>
         )}
 
-        <span>{message}</span>
-
-        {linkText && linkUrl && (
-          <Link
-            href={linkUrl}
-            className="underline hover:no-underline font-semibold ml-1 text-theme-accent hover:opacity-80"
-          >
-            {linkText}
-          </Link>
-        )}
+        <span className="inline-flex items-center gap-1 flex-wrap justify-center">
+          {message}
+          {linkText && linkUrl && (
+            <Link
+              href={linkUrl}
+              className="inline-flex items-center gap-1 underline decoration-2 underline-offset-2 font-semibold hover:decoration-4 transition-all text-inherit"
+            >
+              {linkText}
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          )}
+        </span>
 
         {dismissible && (
           <button

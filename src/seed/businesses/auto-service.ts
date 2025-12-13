@@ -378,7 +378,7 @@ function buildHomepageLayout(variant: DesignVariant) {
           linkText: 'Programează verificarea',
         },
       ],
-      icon: 'Car',
+      icon: 'fire',
       backgroundColor: 'red',
       position: 'top',
       sticky: false,
