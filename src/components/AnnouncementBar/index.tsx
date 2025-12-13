@@ -100,7 +100,7 @@ export function AnnouncementBar({
         {linkText && linkUrl && (
           <Link
             href={linkUrl}
-            className="underline hover:no-underline font-semibold ml-1"
+            className="underline hover:no-underline font-semibold ml-1 text-theme-accent hover:opacity-80"
           >
             {linkText}
           </Link>
