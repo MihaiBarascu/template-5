@@ -27,14 +27,14 @@ COPY . .
 # Build-time arguments for Payload
 ARG PAYLOAD_SECRET
 ARG DATABASE_URI
-ARG NEXT_PUBLIC_SERVER_URL=https://a.multiwebsite.org
-ARG R2_BUCKET=site-a
+ARG NEXT_PUBLIC_SERVER_URL
+ARG R2_BUCKET
 
 # Set environment variables for build
 ENV PAYLOAD_SECRET=$PAYLOAD_SECRET
 ENV DATABASE_URI=$DATABASE_URI
-ENV NEXT_PUBLIC_SERVER_URL=${NEXT_PUBLIC_SERVER_URL:-https://a.multiwebsite.org}
-ENV R2_BUCKET=${R2_BUCKET:-site-a}
+ENV NEXT_PUBLIC_SERVER_URL=$NEXT_PUBLIC_SERVER_URL
+ENV R2_BUCKET=$R2_BUCKET
 
 # Generate Payload import map before build (required for admin UI components)
 RUN \
