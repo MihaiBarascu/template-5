@@ -22,6 +22,7 @@ import { FormError } from '@/components/forms/FormError'
 import { FormItem } from '@/components/forms/FormItem'
 import { titles } from './constants'
 import { useAddresses } from '@payloadcms/plugin-ecommerce/client/react'
+import { useAuth } from '@/providers/Auth'
 import type { Address } from '@/payload-types'
 
 // Default country code (ISO 3166-1 alpha-2) - Payload plugin expects ISO codes
@@ -87,6 +88,7 @@ export const AddressForm: React.FC<Props> = ({
 
   // Use the official plugin hook for address management
   const { createAddress, updateAddress } = useAddresses()
+  const { refreshUser } = useAuth()
 
   const onSubmit = useCallback(
     async (data: AddressFormValues) => {
@@ -102,21 +104,57 @@ export const AddressForm: React.FC<Props> = ({
 
       // Save to database unless skipSubmission is true
       if (!skipSubmission) {
-        try {
+        // Helper function to save address
+        const saveAddress = async () => {
           if (addressID) {
             await updateAddress(String(addressID), newData)
           } else {
             await createAddress(newData)
           }
+        }
+
+        try {
+          await saveAddress()
         } catch (error) {
           console.error('Error saving address:', error)
+
+          // Check if it's a session/authentication error
+          const errorText = error instanceof Error ? error.message : ''
+          const isSessionError = errorText.includes('logged in') ||
+                                 errorText.includes('Unauthorized') ||
+                                 errorText.includes('401')
+
+          // If session error, try to refresh and retry once
+          if (isSessionError) {
+            console.log('Session error detected, attempting to refresh...')
+            const refreshedUser = await refreshUser()
+
+            if (refreshedUser) {
+              // User is still logged in, retry the save
+              try {
+                await saveAddress()
+                // Success after retry - continue to callback
+                if (callback) {
+                  callback(newData as Partial<Address>)
+                }
+                return
+              } catch (retryError) {
+                console.error('Retry failed:', retryError)
+                setApiError('Sesiunea a expirat. Vă rugăm reîncărcați pagina și încercați din nou.')
+                return
+              }
+            } else {
+              // User is not logged in anymore
+              setApiError('Trebuie să fiți autentificat pentru a salva adresa. Vă rugăm să vă reconectați.')
+              return
+            }
+          }
 
           // Parse and display API error to user
           let errorMessage = 'A apărut o eroare la salvarea adresei. Vă rugăm încercați din nou.'
 
           if (error instanceof Error) {
             // Try to extract validation error message
-            const errorText = error.message
             if (errorText.includes('ValidationError') || errorText.includes('invalid')) {
               try {
                 const parsed = JSON.parse(errorText.replace('Failed to update or create address: ', ''))
@@ -140,7 +178,7 @@ export const AddressForm: React.FC<Props> = ({
         callback(newData as Partial<Address>)
       }
     },
-    [initialData, skipSubmission, callback, addressID, updateAddress, createAddress],
+    [initialData, skipSubmission, callback, addressID, updateAddress, createAddress, refreshUser],
   )
 
   return (

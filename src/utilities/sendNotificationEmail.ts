@@ -1,4 +1,4 @@
-import type { Payload, PayloadRequest } from 'payload'
+import type { Payload } from 'payload'
 import { escapeHtml, escapeHtmlWithLineBreaks } from './escapeHtml'
 
 interface NotificationEmailOptions {
@@ -42,20 +42,11 @@ export async function sendNotificationEmail(
 }
 
 /**
- * Get business owner email from BusinessInfo global
- * Pass `req` for transaction safety when called from hooks (Payload best practice)
+ * Get business notification email from environment variable
+ * All notifications (orders, contact forms, bookings) are sent here
  */
-export async function getBusinessEmail(payload: Payload, req?: PayloadRequest): Promise<string | null> {
-  try {
-    const businessInfo = await payload.findGlobal({
-      slug: 'business-info',
-      req, // Threading req for transaction safety (Payload best practice)
-    })
-    return businessInfo?.email || null
-  } catch (error) {
-    console.error('Failed to get business email:', error)
-    return null
-  }
+export function getBusinessEmail(): string | null {
+  return process.env.BUSINESS_NOTIFICATION_EMAIL || null
 }
 
 /**
@@ -419,12 +410,11 @@ export function formatContactConfirmationEmail(contact: {
 
 /**
  * Order item interface for email formatting
+ * Price comes from populated product.priceInRON
  */
 interface OrderItem {
-  product?: { title?: string } | string
+  product?: { title?: string; priceInRON?: number | null } | string
   quantity?: number
-  price?: number
-  priceAtPurchase?: number
 }
 
 /**
@@ -436,13 +426,16 @@ export function formatOrderEmail(order: {
   customerEmail: string
   customerPhone?: string
   items: OrderItem[]
+  subtotal?: number
+  shippingCost?: number
   total: number
   shippingAddress?: string
   notes?: string
 }): string {
   const itemsHtml = order.items.map(item => {
-    const productName = typeof item.product === 'object' ? item.product?.title : item.product || 'Produs'
-    const price = item.priceAtPurchase || item.price || 0
+    const product = item.product
+    const productName = typeof product === 'object' ? product?.title : product || 'Produs'
+    const price = typeof product === 'object' ? product?.priceInRON || 0 : 0
     return `
       <tr>
         <td style="padding: 10px; border-bottom: 1px solid #eee;">${escapeHtml(productName || 'Produs')}</td>
@@ -522,9 +515,21 @@ export function formatOrderEmail(order: {
               </thead>
               <tbody>
                 ${itemsHtml}
+                ${order.subtotal !== undefined ? `
+                <tr>
+                  <td colspan="2" style="padding: 10px; text-align: right; border-top: 1px solid #eee;">Subtotal produse:</td>
+                  <td style="padding: 10px; text-align: right; border-top: 1px solid #eee;">${order.subtotal.toFixed(2)} lei</td>
+                </tr>
+                ` : ''}
+                ${order.shippingCost !== undefined ? `
+                <tr>
+                  <td colspan="2" style="padding: 10px; text-align: right;">🚚 Transport:</td>
+                  <td style="padding: 10px; text-align: right;">${order.shippingCost > 0 ? order.shippingCost.toFixed(2) + ' lei' : 'Gratuit'}</td>
+                </tr>
+                ` : ''}
                 <tr class="total-row">
-                  <td colspan="2" style="padding: 15px; text-align: right;">TOTAL:</td>
-                  <td style="padding: 15px; text-align: right; color: #059669;">${order.total.toFixed(2)} lei</td>
+                  <td colspan="2" style="padding: 15px; text-align: right; border-top: 2px solid #059669;">TOTAL:</td>
+                  <td style="padding: 15px; text-align: right; color: #059669; border-top: 2px solid #059669;">${order.total.toFixed(2)} lei</td>
                 </tr>
               </tbody>
             </table>
@@ -561,6 +566,8 @@ export function formatOrderConfirmationEmail(order: {
   orderNumber?: string
   customerName: string
   items: OrderItem[]
+  subtotal?: number
+  shippingCost?: number
   total: number
   shippingAddress?: string
   businessName?: string
@@ -568,8 +575,9 @@ export function formatOrderConfirmationEmail(order: {
   businessEmail?: string
 }): string {
   const itemsHtml = order.items.map(item => {
-    const productName = typeof item.product === 'object' ? item.product?.title : item.product || 'Produs'
-    const price = item.priceAtPurchase || item.price || 0
+    const product = item.product
+    const productName = typeof product === 'object' ? product?.title : product || 'Produs'
+    const price = typeof product === 'object' ? product?.priceInRON || 0 : 0
     return `
       <tr>
         <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">${escapeHtml(productName || 'Produs')}</td>
@@ -628,9 +636,21 @@ export function formatOrderConfirmationEmail(order: {
               </thead>
               <tbody>
                 ${itemsHtml}
+                ${order.subtotal !== undefined ? `
+                <tr>
+                  <td colspan="2" style="padding: 10px; text-align: right; border-top: 1px solid #e5e7eb;">Subtotal produse:</td>
+                  <td style="padding: 10px; text-align: right; border-top: 1px solid #e5e7eb;">${order.subtotal.toFixed(2)} lei</td>
+                </tr>
+                ` : ''}
+                ${order.shippingCost !== undefined ? `
+                <tr>
+                  <td colspan="2" style="padding: 10px; text-align: right;">🚚 Transport:</td>
+                  <td style="padding: 10px; text-align: right;">${order.shippingCost > 0 ? order.shippingCost.toFixed(2) + ' lei' : 'Gratuit'}</td>
+                </tr>
+                ` : ''}
                 <tr class="total-row">
-                  <td colspan="2" style="padding: 15px; text-align: right;">TOTAL:</td>
-                  <td style="padding: 15px; text-align: right; color: #059669; font-size: 18px;">${order.total.toFixed(2)} lei</td>
+                  <td colspan="2" style="padding: 15px; text-align: right; border-top: 2px solid #059669;">TOTAL:</td>
+                  <td style="padding: 15px; text-align: right; color: #059669; font-size: 18px; border-top: 2px solid #059669;">${order.total.toFixed(2)} lei</td>
                 </tr>
               </tbody>
             </table>

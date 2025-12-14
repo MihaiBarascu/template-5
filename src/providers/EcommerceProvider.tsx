@@ -12,11 +12,16 @@
  * Configuration:
  * - enableVariants: Set to true when you want product variants (size, color, etc.)
  * - paymentMethods: Array of payment adapters (manual, stripe, etc.)
+ *
+ * Cart Isolation:
+ * - Uses a key based on user ID to force re-mount when user changes
+ * - This ensures fresh cart fetch on login/logout (community recommended approach)
  */
 
 import React from 'react'
 import { EcommerceProvider } from '@payloadcms/plugin-ecommerce/client/react'
 import { manualAdapterClient } from '@/payments'
+import { useAuth } from '@/providers/Auth'
 
 // Optional: Import Stripe adapter when needed
 // import { stripeAdapterClient } from '@payloadcms/plugin-ecommerce/payments/stripe'
@@ -26,9 +31,9 @@ interface EcommerceProviderWrapperProps {
 }
 
 export function EcommerceProviderWrapper({ children }: EcommerceProviderWrapperProps) {
+  const { user } = useAuth()
+
   // Build payment methods array dynamically
-  // Always include manual payment (cash on delivery)
-  // Add Stripe only when API key is configured
   const paymentMethods = [
     manualAdapterClient({ label: 'Plată la livrare' }),
     // Uncomment when Stripe is configured:
@@ -41,12 +46,19 @@ export function EcommerceProviderWrapper({ children }: EcommerceProviderWrapperP
   const currenciesConfig = {
     defaultCurrency: 'RON',
     supportedCurrencies: [
-      { code: 'RON', symbol: 'lei', decimals: 2, label: 'Leu Romanesc' },
+      // decimals: 0 because we store prices in lei (whole numbers), not bani
+      { code: 'RON', symbol: 'lei', decimals: 0, label: 'Leu Romanesc' },
     ],
   }
 
+  // Key based on user ID for cart isolation
+  // router.refresh() after login/logout will re-mount with fresh cart
+  const cartIsolationKey = user?.id || 'guest'
+
   return (
     <EcommerceProvider
+      // Force re-mount when user changes to get fresh cart
+      key={cartIsolationKey}
       // Variants: set to true when you want size/color variants
       enableVariants={false}
       // Currency configuration

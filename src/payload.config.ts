@@ -83,11 +83,9 @@ const PagesWithBlocks = {
   }),
 };
 
-// Order item interface
+// Order item interface - price comes from populated product.priceInRON
 interface OrderItem {
-  product?: string | { id?: string; title?: string };
-  priceAtPurchase?: number;
-  price?: number;
+  product?: string | { id?: string; title?: string; priceInRON?: number | null };
   quantity?: number;
 }
 
@@ -101,7 +99,7 @@ const orderEmailHook: CollectionAfterChangeHook = async ({
   if (operation !== 'create') return doc;
 
   try {
-    const businessEmail = await getBusinessEmail(req.payload, req);
+    const businessEmail = getBusinessEmail();
 
     if (!businessEmail) {
       console.log('No business email configured - skipping order notification');
@@ -192,13 +190,19 @@ const orderEmailHook: CollectionAfterChangeHook = async ({
       .filter(Boolean)
       .join(', ');
 
-    // Get total from plugin's amount field
-    const total =
+    // Get subtotal from plugin's amount field (products only, no shipping)
+    const subtotal =
       doc.amount ||
       populatedItems.reduce((sum: number, item: OrderItem) => {
-        const price = item.priceAtPurchase || item.price || 0;
+        // Price comes from populated product.priceInRON
+        const product = item.product;
+        const price = typeof product === 'object' ? product?.priceInRON || 0 : 0;
         return sum + price * (item.quantity || 1);
       }, 0);
+
+    // Get shipping cost from order and calculate total
+    const shippingCost = doc.shippingCost || 0;
+    const total = subtotal + shippingCost;
 
     // Email 1: To business owner
     const ownerEmailHtml = formatOrderEmail({
@@ -207,6 +211,8 @@ const orderEmailHook: CollectionAfterChangeHook = async ({
       customerEmail,
       customerPhone,
       items: populatedItems,
+      subtotal,
+      shippingCost,
       total,
       shippingAddress: shippingAddressFormatted,
       notes: doc.notes,
@@ -227,17 +233,20 @@ const orderEmailHook: CollectionAfterChangeHook = async ({
         orderNumber: doc.orderNumber || doc.id,
         customerName,
         items: populatedItems,
+        subtotal,
+        shippingCost,
         total,
         shippingAddress: shippingAddressFormatted,
         businessName: businessInfo?.name ?? undefined,
         businessPhone: businessInfo?.phone ?? undefined,
-        businessEmail: businessInfo?.email ?? undefined,
+        businessEmail: businessEmail ?? undefined,
       });
 
       await sendNotificationEmail(req.payload, {
         to: customerEmail,
         subject: `Comanda #${doc.orderNumber || doc.id} a fost plasata - ${businessInfo?.name || 'Magazin Online'}`,
         html: clientEmailHtml,
+        replyTo: businessEmail || undefined,
       });
 
       console.log(`Order confirmation sent to client: ${customerEmail}`);
@@ -277,13 +286,15 @@ const ecommerceConfig: Parameters<typeof ecommercePlugin>[0] = {
         // Allow reading carts - needed for checkout payment flow
         // The plugin's initiatePayment uses overrideAccess: false
         read: () => true,
+        // Note: Don't allow delete - plugin uses purchasedAt to mark completed carts
       },
     }),
   },
   currencies: {
     defaultCurrency: 'RON',
     supportedCurrencies: [
-      { code: 'RON', symbol: 'lei', decimals: 2, label: 'Leu Romanesc' },
+      // decimals: 0 because we store prices in lei (whole numbers), not bani
+      { code: 'RON', symbol: 'lei', decimals: 0, label: 'Leu Romanesc' },
     ],
   },
   products: {
@@ -352,10 +363,14 @@ const ecommerceConfig: Parameters<typeof ecommercePlugin>[0] = {
           label: 'Categorie',
         },
         { name: 'sku', type: 'text', label: 'Cod Produs (SKU)', index: true },
-        // Plugin default fields FIRST (inventory, priceInRON from plugin)
-        // Plugin provides: inventory, priceInRONEnabled, priceInRON
+        // Plugin default fields - set priceInRONEnabled to default true
         ...(Array.isArray(defaultCollection.fields)
-          ? defaultCollection.fields.filter(Boolean)
+          ? defaultCollection.fields.filter(Boolean).map((field) => {
+              if ('name' in field && field.name === 'priceInRONEnabled') {
+                return { ...field, defaultValue: true } as typeof field
+              }
+              return field
+            })
           : []),
         // TAX/VAT category for this product
         {
@@ -456,12 +471,27 @@ const ecommerceConfig: Parameters<typeof ecommercePlugin>[0] = {
       admin: {
         ...defaultCollection.admin,
         group: 'Shop',
-        defaultColumns: ['customer', 'status', 'createdAt'],
+        defaultColumns: ['customer', 'status', 'amount', 'createdAt'],
       },
       labels: {
         singular: 'Comanda',
         plural: 'Comenzi',
       },
+      fields: [
+        ...(Array.isArray(defaultCollection.fields)
+          ? defaultCollection.fields
+          : []),
+        // Custom field for shipping cost
+        {
+          name: 'shippingCost',
+          type: 'number',
+          label: 'Cost Transport',
+          admin: {
+            position: 'sidebar',
+            description: 'Costul transportului în RON',
+          },
+        },
+      ],
       hooks: {
         ...defaultCollection.hooks,
         afterChange: [

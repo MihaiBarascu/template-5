@@ -10,6 +10,7 @@
 import React, { useCallback, useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { useCart, usePayments } from '@payloadcms/plugin-ecommerce/client/react'
 import { useAuth } from '@/providers/Auth'
 import { useToast } from '@/components/Toast'
@@ -54,10 +55,11 @@ const shippingOptions = [
 ]
 
 export const CheckoutPage: React.FC = () => {
-  const { cart, clearCart } = useCart()
+  const { cart } = useCart()
   const { initiatePayment, confirmOrder } = usePayments()
-  const { user, status } = useAuth()
+  const { user, status, logout } = useAuth()
   const { showToast } = useToast()
+  const router = useRouter()
 
   // Form state
   const [email, setEmail] = useState('')
@@ -127,6 +129,7 @@ export const CheckoutPage: React.FC = () => {
           customerEmail,
           billingAddress,
           shippingAddress: billingAddressSameAsShipping ? billingAddress : shippingAddress,
+          shippingCost, // Pass shipping cost to store in order
         },
       }) as { transactionID?: string; skipPaymentUI?: boolean } | null
 
@@ -140,14 +143,18 @@ export const CheckoutPage: React.FC = () => {
           customerEmail,
           transactionID: paymentResult.transactionID,
           shippingAddress: billingAddressSameAsShipping ? billingAddress : shippingAddress,
+          shippingCost, // Pass shipping cost to store in order
         },
       }) as { orderID?: string } | null
 
       if (confirmResult && confirmResult.orderID) {
-        // Clear cart and show success
-        clearCart()
+        // Clear cart from localStorage so UI shows empty cart immediately
+        localStorage.removeItem('cart')
+        localStorage.removeItem('cart_secret')
         setOrderPlaced(true)
         showToast('Comanda a fost plasată cu succes!', 'success')
+        // Full reload to reset cart state (EcommerceProvider key doesn't change since user is same)
+        setTimeout(() => window.location.reload(), 1500)
       } else {
         throw new Error('Nu s-a putut confirma comanda')
       }
@@ -172,9 +179,9 @@ export const CheckoutPage: React.FC = () => {
     billingAddress,
     shippingAddress,
     billingAddressSameAsShipping,
+    shippingCost,
     initiatePayment,
     confirmOrder,
-    clearCart,
     showToast,
   ])
 
@@ -259,9 +266,21 @@ export const CheckoutPage: React.FC = () => {
                   {user.name && <p className="text-theme-text-muted">{user.name}</p>}
                   <p className="text-sm text-theme-text-muted mt-2">
                     Nu ești tu?{' '}
-                    <Link href="/cont/logout" className="text-theme-primary hover:underline">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          await logout()
+                          router.refresh()
+                          router.push('/')
+                        } catch (err) {
+                          console.error('Logout error:', err)
+                        }
+                      }}
+                      className="text-theme-primary hover:underline"
+                    >
                       Deconectează-te
-                    </Link>
+                    </button>
                   </p>
                 </div>
               ) : (

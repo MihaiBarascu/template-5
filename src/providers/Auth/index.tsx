@@ -25,11 +25,34 @@ type AuthContext = {
   logout: Logout
   resetPassword: ResetPassword
   setUser: (user: User | null) => void
+  refreshUser: () => Promise<User | null>
   status: 'loggedIn' | 'loggedOut' | undefined
   user?: User | null
 }
 
 const Context = createContext({} as AuthContext)
+
+// Sync user's active (not purchased) cart ID to localStorage (plugin workaround)
+// Plugin bug: requests select[carts]=true but reads user.cart?.docs
+async function syncCartToLocalStorage(): Promise<void> {
+  if (typeof window === 'undefined') return
+  try {
+    const res = await fetch('/api/users/me?select[cart]=true', {
+      credentials: 'include',
+    })
+    if (res.ok) {
+      const data = await res.json()
+      // Find first cart that is NOT purchased
+      const carts = data.user?.cart?.docs || []
+      const activeCart = carts.find((cart: { id: string; purchasedAt?: string | null }) => !cart.purchasedAt)
+      if (activeCart?.id) {
+        localStorage.setItem('cart', activeCart.id)
+      }
+    }
+  } catch {
+    // Silently fail
+  }
+}
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>()
@@ -52,8 +75,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (res.ok) {
         const { errors, user } = await res.json()
         if (errors) throw new Error(errors[0].message)
+
+        // Sync cart to localStorage before setting user state
+        await syncCartToLocalStorage()
+
         setUser(user)
         setStatus('loggedIn')
+
         return user
       }
 
@@ -104,11 +132,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (res.ok) {
         setUser(null)
         setStatus('loggedOut')
+        // Clear cart localStorage so user gets fresh cart after logout
+        // Plugin stores: 'cart' (cart ID) and 'cart_secret' (guest cart secret)
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('cart')
+          localStorage.removeItem('cart_secret')
+        }
       } else {
         throw new Error('A apărut o eroare la deconectare.')
       }
     } catch {
       throw new Error('A apărut o eroare la deconectare.')
+    }
+  }, [])
+
+  // Refresh user session - useful when session becomes stale
+  const refreshUser = useCallback(async (): Promise<User | null> => {
+    try {
+      const res = await fetch(`/api/users/me`, {
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        method: 'GET',
+      })
+
+      if (res.ok) {
+        const { user: meUser } = await res.json()
+        setUser(meUser || null)
+        setStatus(meUser ? 'loggedIn' : 'loggedOut')
+        return meUser || null
+      } else {
+        setUser(null)
+        setStatus('loggedOut')
+        return null
+      }
+    } catch {
+      setUser(null)
+      setStatus('loggedOut')
+      return null
     }
   }, [])
 
@@ -127,6 +189,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const { user: meUser } = await res.json()
           setUser(meUser || null)
           setStatus(meUser ? 'loggedIn' : undefined)
+
+          // Sync cart if user is logged in and no cart in localStorage
+          if (meUser && !localStorage.getItem('cart')) {
+            await syncCartToLocalStorage()
+          }
         } else {
           setUser(null)
         }
@@ -193,6 +260,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         forgotPassword,
         login,
         logout,
+        refreshUser,
         resetPassword,
         setUser,
         status,

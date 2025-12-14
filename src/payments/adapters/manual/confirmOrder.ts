@@ -22,6 +22,7 @@ export const confirmOrder = (): ConfirmOrderFn => async ({
   const customerEmail = data.customerEmail
   const transactionID = (data as { transactionID?: string }).transactionID
   const shippingAddressFromData = data.shippingAddress as Order['shippingAddress'] | undefined
+  const shippingCost = (data as { shippingCost?: number }).shippingCost || 0
 
   if (!transactionID) {
     throw new Error('Transaction ID is required')
@@ -64,12 +65,15 @@ export const confirmOrder = (): ConfirmOrderFn => async ({
 
     // Create the order
     // Note: Order schema only has shippingAddress, billing is stored on Transaction
+    // Amount = products subtotal (without shipping). Shipping stored separately.
+    // Total for display = amount + shippingCost
     const orderData: Omit<Order, 'id' | 'createdAt' | 'updatedAt'> = {
-      amount: transaction.amount,
+      amount: transaction.amount || 0,
       currency: 'RON',
       ...(req.user ? { customer: req.user.id } : { customerEmail }),
       items: cartItemsSnapshot as Order['items'],
       shippingAddress: shippingAddressFromData || transaction.billingAddress,
+      shippingCost, // Store shipping cost separately for display
       status: 'processing',
       transactions: [transaction.id],
     }

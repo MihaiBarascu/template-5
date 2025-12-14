@@ -58,6 +58,44 @@ export const Users: CollectionConfig = {
       type: 'text',
       label: 'Telefon',
     },
+    // Ecommerce plugin has a BUG: requests select[carts]=true (plural)
+    // but reads user.cart?.docs (singular). Field must be 'cart' to match reading.
+    {
+      name: 'cart',
+      type: 'join',
+      collection: 'carts',
+      on: 'customer',
+      // Only return active carts (not purchased) - plugin takes first cart from docs
+      where: {
+        purchasedAt: {
+          exists: false,
+        },
+      },
+      admin: {
+        allowCreate: false,
+        defaultColumns: ['id', 'createdAt', 'items'],
+      },
+    },
+    {
+      name: 'orders',
+      type: 'join',
+      collection: 'orders',
+      on: 'customer',
+      admin: {
+        allowCreate: false,
+        defaultColumns: ['id', 'createdAt', 'amount', 'status'],
+      },
+    },
+    {
+      name: 'addresses',
+      type: 'join',
+      collection: 'addresses',
+      on: 'customer',
+      admin: {
+        allowCreate: false,
+        defaultColumns: ['id', 'city', 'country'],
+      },
+    },
   ],
   timestamps: true,
 }
