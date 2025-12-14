@@ -547,7 +547,52 @@ export async function seedHeader(
   console.log('   Header configured');
 }
 
+// Footer badge types
+type FooterBadge = { image: string; link: string; alt: string }
+type BadgeDefinition = { filename: string; link: string; alt: string }
+
+// Default ANPC badges - required for Romanian e-commerce
+const DEFAULT_BADGES: BadgeDefinition[] = [
+  {
+    filename: 'badges/anpc-sol.png',
+    link: 'https://ec.europa.eu/consumers/odr/main/index.cfm?event=main.home2.show&lng=RO',
+    alt: 'ANPC - Solutionarea Online a Litigiilor',
+  },
+  {
+    filename: 'badges/anpc-sal.png',
+    link: 'https://anpc.ro/ce-este-sal/',
+    alt: 'ANPC - Solutionarea Alternativa a Litigiilor',
+  },
+]
+
+// Internal helper to upload footer badges
+async function uploadBadges(
+  payload: Payload,
+  badgeDefinitions: BadgeDefinition[],
+): Promise<FooterBadge[]> {
+  const badges: FooterBadge[] = []
+  const imagesDir = path.join(process.cwd(), 'public', 'images')
+
+  for (const badge of badgeDefinitions) {
+    const imageId = await uploadLocalImage(
+      payload,
+      path.join(imagesDir, badge.filename),
+      badge.alt,
+    )
+    if (imageId) {
+      badges.push({
+        image: imageId,
+        link: badge.link,
+        alt: badge.alt,
+      })
+    }
+  }
+
+  return badges
+}
+
 // Helper to seed footer
+// badges: true (default) = ANPC badges, false = no badges, BadgeDefinition[] = custom
 export async function seedFooter(
   payload: Payload,
   data: {
@@ -566,6 +611,8 @@ export async function seedFooter(
       text?: string;
     }>;
     legalLinks?: Array<{ label: string; type: 'custom'; url: string }>;
+    // Badges: true (default) = ANPC, false = none, array = custom badges
+    badges?: boolean | BadgeDefinition[];
     // Background image (imagine mare pe tot footer-ul)
     backgroundImageId?: string;
     backgroundOpacity?: number;
@@ -576,6 +623,13 @@ export async function seedFooter(
     decorativeSize?: 'small' | 'medium' | 'large' | 'xl';
   },
 ) {
+  // Handle badges: true/undefined = default ANPC, false = none, array = custom
+  let badgeData: FooterBadge[] | undefined
+  if (data.badges !== false) {
+    const badgeDefs = Array.isArray(data.badges) ? data.badges : DEFAULT_BADGES
+    badgeData = await uploadBadges(payload, badgeDefs)
+  }
+
   await payload.updateGlobal({
     slug: 'footer',
     data: {
@@ -597,6 +651,7 @@ export async function seedFooter(
           url: '/termeni-conditii',
         },
       ],
+      badges: badgeData && badgeData.length > 0 ? badgeData : undefined,
       // Background texture (imagine mare pe tot footer-ul)
       backgroundImage: data.backgroundImageId || null,
       backgroundOpacity: data.backgroundOpacity ?? 20,
