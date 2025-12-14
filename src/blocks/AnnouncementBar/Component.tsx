@@ -202,30 +202,34 @@ export function AnnouncementBarBlock({
       )}
     >
       <div className="container mx-auto flex items-center justify-center gap-4">
-        {/* Iconiță */}
+        {/* Iconiță - ascunsă pe mobil */}
         {icon && icon !== 'none' && icons[icon] && (
-          <span className="shrink-0">{icons[icon]}</span>
+          <span className="shrink-0 hidden sm:block">{icons[icon]}</span>
         )}
 
         {variant === 'slider' && messageList.length > 1 ? (
-          <div className="flex-1 text-center overflow-hidden">
+          <div className="flex-1 text-center overflow-hidden h-6">
             <div
               className="transition-transform duration-500"
-              style={{ transform: `translateY(-${currentIndex * 100}%)` }}
+              style={{ transform: `translateY(-${currentIndex * 24}px)` }}
             >
               {messageList.map((msg, idx) => (
                 <div key={msg.id || idx} className="h-6 flex items-center justify-center gap-2">
-                  <span>{msg.text}</span>
-                  {msg.link && (
+                  {msg.link ? (
                     <a
                       href={msg.link}
-                      className="inline-flex items-center gap-1 underline decoration-2 underline-offset-2 font-semibold hover:decoration-4 transition-all text-inherit"
+                      className="inline-flex items-center gap-1 hover:underline transition-all text-inherit"
                     >
-                      {msg.linkText || 'Afla mai mult'}
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <span className="truncate">{msg.text}</span>
+                      <span className="hidden sm:inline font-semibold underline decoration-2 underline-offset-2 hover:decoration-4 whitespace-nowrap">
+                        {msg.linkText || 'Afla mai mult'}
+                      </span>
+                      <svg className="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
                     </a>
+                  ) : (
+                    <span className="truncate">{msg.text}</span>
                   )}
                 </div>
               ))}
