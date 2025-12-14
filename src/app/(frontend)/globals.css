@@ -539,6 +539,12 @@
   .heading-h5 { font-size: var(--font-size-h5) !important; }
   .heading-h6 { font-size: var(--font-size-h6) !important; }
 
+  /* Product card title - pentru titluri în carduri de produse (SEO: h2, stilizat pentru carduri) */
+  .product-card-title {
+    font-size: 1rem !important;
+    line-height: 1.4 !important;
+  }
+
   /* -----------------------------
      CARD GRID GAPS - Uses admin-configurable CSS variable
      ----------------------------- */

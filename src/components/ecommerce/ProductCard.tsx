@@ -105,7 +105,7 @@ export function ProductCard({
               </p>
             )}
             <Link href={`/produse/${slug}`}>
-              <h3 className="font-medium text-theme-text hover:text-theme-primary transition-colors line-clamp-2 mb-2">
+              <h3 className="product-card-title font-medium text-theme-text hover:text-theme-primary transition-colors line-clamp-2 mb-2">
                 {title}
               </h3>
             </Link>
@@ -237,7 +237,7 @@ export function ProductCard({
         <Link href={`/produse/${slug}`}>
           <h3
             className={cn(
-              'font-medium text-theme-text hover:text-theme-primary transition-colors line-clamp-2',
+              'product-card-title font-medium text-theme-text hover:text-theme-primary transition-colors line-clamp-2',
               variant === 'compact' ? 'text-sm' : ''
             )}
           >
