@@ -147,11 +147,11 @@ export const SiteTheme: GlobalConfig = {
                     description: 'Lasa gol pentru default din varianta',
                   },
                   options: [
-                    { label: 'Patrat (0)', value: 'none' },
-                    { label: 'Subtil (4px)', value: 'small' },
-                    { label: 'Mediu (8px)', value: 'medium' },
-                    { label: 'Mare (16px)', value: 'large' },
-                    { label: 'Rotunjit (50px)', value: 'full' },
+                    { label: 'Fără rotunjire', value: 'none' },
+                    { label: 'Subtil', value: 'small' },
+                    { label: 'Mediu', value: 'medium' },
+                    { label: 'Pronunțat', value: 'large' },
+                    { label: 'Foarte rotunjit', value: 'full' },
                   ],
                 },
                 {

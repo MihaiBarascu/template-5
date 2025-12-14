@@ -176,7 +176,7 @@ export function CTABlock({
     return (
       <section className="py-section">
         <div className="container mx-auto px-4">
-          <div className={cn('rounded-[var(--radius-xl)] p-8 md:p-12', bgClass, alignClass)}>
+          <div className={cn('rounded-[var(--radius-container)] p-8 md:p-12', bgClass, alignClass)}>
             <h2 className={cn('heading-h2 font-bold mb-4', isDark ? 'text-white' : 'text-theme-text')}>{headline}</h2>
             {subheadline && (
               <p className={cn('text-lg max-w-2xl mx-auto mb-8', isDark ? 'text-white/80' : 'text-theme-text-light')}>

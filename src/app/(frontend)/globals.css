@@ -80,9 +80,8 @@
   --radius-theme-button: var(--radius-button);
   --radius-theme-card: var(--radius-card);
   --radius-theme-input: var(--radius-input);
-  --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-sm: calc(var(--radius) - 4px);
+  --radius-theme-container: var(--radius-container);
+  /* Note: nu suprascriem --radius-lg/md/sm pentru a evita ovale pe containere mari */
 
   /* -----------------------------
      SHADOWS

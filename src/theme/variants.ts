@@ -347,19 +347,21 @@ export const THEME_VARIANTS: Record<string, ThemeVariant> = {
 }
 
 // Border radius presets
+// container = pentru containere mari (formulare, hărți, secțiuni) - limitat pentru a evita ovaluri
 export const radiusPresets = {
-  none: { sm: '0', md: '0', lg: '0', xl: '0', button: '0', card: '0', input: '0' },
-  small: { sm: '2px', md: '4px', lg: '6px', xl: '8px', button: '4px', card: '6px', input: '4px' },
-  medium: { sm: '4px', md: '8px', lg: '12px', xl: '16px', button: '8px', card: '12px', input: '8px' },
-  large: { sm: '8px', md: '16px', lg: '24px', xl: '32px', button: '16px', card: '20px', input: '12px' },
+  none: { sm: '0', md: '0', lg: '0', xl: '0', button: '0', card: '0', input: '0', container: '0' },
+  small: { sm: '2px', md: '4px', lg: '6px', xl: '8px', button: '4px', card: '6px', input: '4px', container: '8px' },
+  medium: { sm: '4px', md: '8px', lg: '12px', xl: '16px', button: '8px', card: '12px', input: '8px', container: '16px' },
+  large: { sm: '8px', md: '16px', lg: '24px', xl: '32px', button: '16px', card: '20px', input: '12px', container: '24px' },
   full: {
-    sm: '9999px',
-    md: '9999px',
-    lg: '9999px',
-    xl: '9999px',
-    button: '9999px',
+    sm: '12px',
+    md: '16px',
+    lg: '24px',
+    xl: '32px',
+    button: '9999px',  // Pill buttons
     card: '24px',
     input: '12px',
+    container: '24px',
   },
 }
 

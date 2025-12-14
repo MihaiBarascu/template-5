@@ -231,6 +231,7 @@ export function generateThemeStyles(siteTheme: SiteTheme | null): string {
       --radius-button: ${radius.button};
       --radius-card: ${radius.card};
       --radius-input: ${radius.input};
+      --radius-container: ${radius.container};
       --shadow-sm: ${shadows.sm};
       --shadow-md: ${shadows.md};
       --shadow-lg: ${shadows.lg};
