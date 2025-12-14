@@ -119,7 +119,7 @@ export function Footer({ data, businessInfo, logo }: FooterProps) {
           className="hidden md:block"
         />
       )}
-      <div className="container mx-auto py-12 md:py-16 relative z-10">
+      <div className="container mx-auto px-4 py-12 md:py-16 relative z-10">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           {/* Logo & Description */}
