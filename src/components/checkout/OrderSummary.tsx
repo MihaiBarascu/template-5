@@ -10,9 +10,11 @@ import React from 'react'
 import Image from 'next/image'
 import { useCart } from '@payloadcms/plugin-ecommerce/client/react'
 import type { Product } from '@/payload-types'
+import { useShopSettings, getDisplayPrice, type TaxCategory } from '@/providers/ShopSettings'
+import type { CartItem } from '@/components/cart'
 
-// Price formatter
-function formatPrice(amount: number, currency = 'RON') {
+// Price formatter - currency passed from shopSettings
+function formatPriceWithCurrency(amount: number, currency: string) {
   return new Intl.NumberFormat('ro-RO', {
     style: 'currency',
     currency,
@@ -31,6 +33,10 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
   showShipping = true,
 }) => {
   const { cart } = useCart()
+  const shopSettings = useShopSettings()
+
+  // Price formatter using currency from settings
+  const formatPrice = (amount: number) => formatPriceWithCurrency(amount, shopSettings.currency)
 
   if (!cart || !cart.items || cart.items.length === 0) {
     return (
@@ -40,7 +46,18 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
     )
   }
 
-  const subtotal = cart.subtotal || 0
+  // Calculate subtotal with TVA respecting each item's taxCategory
+  const subtotal = React.useMemo(() => {
+    if (!cart.items) return 0
+    return cart.items.reduce((sum, item: CartItem) => {
+      const product = item.product as Product
+      if (!product || typeof product !== 'object') return sum
+      const rawPrice = product.priceInRON || 0
+      const taxCategory = product.taxCategory
+      const displayPrice = getDisplayPrice(rawPrice, shopSettings, taxCategory ?? undefined)
+      return sum + displayPrice * (item.quantity || 1)
+    }, 0)
+  }, [cart.items, shopSettings])
   const total = subtotal + shippingCost
 
   return (
@@ -54,6 +71,8 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
           const firstImage = product.images?.[0]?.image
           const image = typeof firstImage === 'object' ? firstImage : undefined
           const price = product.priceInRON || 0
+          // Apply correct taxCategory for this product
+          const displayPrice = getDisplayPrice(price, shopSettings, product.taxCategory ?? undefined)
 
           return (
             <div key={index} className="flex items-center gap-3">
@@ -78,11 +97,11 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
                   {product.title}
                 </p>
                 <p className="text-xs text-theme-text-muted">
-                  {item.quantity} x {formatPrice(price)}
+                  {item.quantity} x {formatPrice(displayPrice)}
                 </p>
               </div>
               <span className="text-sm font-medium text-theme-text">
-                {formatPrice(price * (item.quantity || 1))}
+                {formatPrice(displayPrice * (item.quantity || 1))}
               </span>
             </div>
           )

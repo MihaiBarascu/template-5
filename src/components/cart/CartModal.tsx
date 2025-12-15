@@ -9,18 +9,19 @@ import type { CartItem } from '@/components/cart'
 import type { Product } from '@/payload-types'
 import { useCart } from '@payloadcms/plugin-ecommerce/client/react'
 import { cn } from '@/utilities/cn'
+import { useShopSettings, getDisplayPrice, type TaxCategory } from '@/providers/ShopSettings'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState, useCallback } from 'react'
 
 import { DeleteItemButton } from './DeleteItemButton'
 import { EditItemQuantityButton } from './EditItemQuantityButton'
 import { OpenCartButton } from './OpenCart'
 import { CloseCart } from './CloseCart'
 
-// Price formatter
-function formatPrice(amount: number, currency = 'RON') {
+// Price formatter - currency is passed from shopSettings
+function formatPriceWithCurrency(amount: number, currency: string) {
   return new Intl.NumberFormat('ro-RO', {
     style: 'currency',
     currency,
@@ -33,6 +34,35 @@ export function CartModal() {
   const { cart } = useCart()
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
+  const shopSettings = useShopSettings()
+
+  // Track hydration state to prevent mismatch in dev mode
+  const [isHydrated, setIsHydrated] = useState(false)
+  useEffect(() => {
+    setIsHydrated(true)
+  }, [])
+
+  // Price formatter using currency from settings
+  const formatPrice = (amount: number) => formatPriceWithCurrency(amount, shopSettings.currency)
+
+  // Calculate display price with VAT transformation
+  // Accepts optional taxCategory to respect product-level VAT exemptions
+  const calculateDisplayPrice = useCallback((price: number, quantity: number = 1, taxCategory?: TaxCategory | null) => {
+    return Math.round(getDisplayPrice(price, shopSettings, taxCategory ?? undefined) * quantity)
+  }, [shopSettings])
+
+  // Calculate cart subtotal respecting each item's taxCategory
+  const calculatedSubtotal = useMemo(() => {
+    if (!cart?.items?.length) return 0
+    return cart.items.reduce((sum, item: CartItem) => {
+      const product = item.product
+      if (typeof product !== 'object' || !product) return sum
+      const price = product.priceInRON || 0
+      const taxCategory = (product as Product).taxCategory
+      const displayPrice = getDisplayPrice(price, shopSettings, taxCategory ?? undefined)
+      return sum + displayPrice * (item.quantity || 1)
+    }, 0)
+  }, [cart?.items, shopSettings])
 
   // Close the cart modal when the pathname changes
   useEffect(() => {
@@ -73,8 +103,8 @@ export function CartModal() {
             </button>
           </div>
 
-          {/* Content */}
-          {!cart || cart?.items?.length === 0 ? (
+          {/* Content - Only render cart items after hydration to prevent price mismatch */}
+          {!isHydrated || !cart || cart?.items?.length === 0 ? (
             <div className="flex-1 flex flex-col items-center justify-center gap-4 p-8">
               <svg className="h-16 w-16 text-theme-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -108,6 +138,8 @@ export function CartModal() {
 
                   // Get price - use plugin's priceInRON field
                   let price = product.priceInRON || 0
+                  // Get product's tax category for correct TVA calculation
+                  const productTaxCategory = (product as Product).taxCategory
 
                   const isVariant = Boolean(variant) && typeof variant === 'object'
 
@@ -172,9 +204,9 @@ export function CartModal() {
                             <EditItemQuantityButton item={item} type="plus" />
                           </div>
 
-                          {/* Price */}
+                          {/* Price with TVA */}
                           <span className="font-semibold text-theme-text">
-                            {formatPrice(price * (item.quantity || 1))}
+                            {formatPrice(calculateDisplayPrice(price, item.quantity || 1, productTaxCategory))}
                           </span>
                         </div>
                       </div>
@@ -185,12 +217,12 @@ export function CartModal() {
 
               {/* Footer */}
               <div className="p-4 border-t border-theme-border bg-theme-surface-secondary">
-                {/* Subtotal */}
-                {typeof cart?.subtotal === 'number' && (
+                {/* Subtotal with TVA - calculated per-item respecting each product's taxCategory */}
+                {calculatedSubtotal > 0 && (
                   <div className="flex items-center justify-between mb-4 pb-4 border-b border-theme-border">
                     <span className="text-theme-text-muted">Subtotal</span>
                     <span className="text-xl font-bold text-theme-text">
-                      {formatPrice(cart.subtotal)}
+                      {formatPrice(Math.round(calculatedSubtotal))}
                     </span>
                   </div>
                 )}

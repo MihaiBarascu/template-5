@@ -8,8 +8,26 @@ import { ProductCard } from '@/components/ecommerce/ProductCard'
 import { ProductSort } from '@/components/ecommerce/ProductSort'
 import { ShopSearch, ShopFilters, ActiveFilters, MobileFilters, getSortField } from '@/components/shop'
 import type { SortOption } from '@/components/shop'
-import type { SystemPage, Product, ProductTag, Media, BusinessInfo } from '@/payload-types'
+import type { SystemPage, Product, ProductTag, Media, BusinessInfo, ShopSetting } from '@/payload-types'
 import type { Where } from 'payload'
+
+// Helper to calculate display price on server
+function calculateDisplayPrice(
+  priceInDb: number,
+  shopSettings: ShopSetting | null,
+  taxCategory?: 'standard' | 'reduced' | 'zero' | null
+): number {
+  if (!shopSettings || !shopSettings.vatEnabled) {
+    return priceInDb
+  }
+  if (shopSettings.pricesIncludeVat) {
+    return priceInDb
+  }
+  const category = taxCategory || shopSettings.defaultVatRate || 'standard'
+  const vatRates = shopSettings.vatRates || { standard: 21, reduced: 11 }
+  const vatRate = category === 'zero' ? 0 : (vatRates as Record<string, number>)[category] || (vatRates as Record<string, number>).standard || 21
+  return priceInDb * (1 + vatRate / 100)
+}
 
 export const revalidate = 60
 
@@ -31,8 +49,11 @@ export default async function ShopPage({ searchParams }: PageProps) {
   const params = await searchParams
   const payload = await getPayload({ config: configPromise })
 
-  // Fetch system pages config
-  const systemPages = await payload.findGlobal({ slug: 'system-pages' }).catch(() => null) as SystemPage | null
+  // Fetch system pages config and shop settings
+  const [systemPages, shopSettings] = await Promise.all([
+    payload.findGlobal({ slug: 'system-pages' }).catch(() => null) as Promise<SystemPage | null>,
+    payload.findGlobal({ slug: 'shop-settings' }).catch(() => null) as Promise<ShopSetting | null>,
+  ])
   const config = systemPages?.productsPage || {}
   const labels = systemPages?.labels || {}
 
@@ -94,7 +115,7 @@ export default async function ShopPage({ searchParams }: PageProps) {
     depth: 2,
   })
 
-  // Prepare product data
+  // Prepare product data with pre-calculated display prices
   const productCards = products.docs.map((product: Product) => {
     const firstImage = product.images?.[0]?.image as Media | undefined
     const imageUrl = firstImage?.url ?? null
@@ -113,17 +134,23 @@ export default async function ShopPage({ searchParams }: PageProps) {
           }))
       : []
 
+    // Calculate display price on server to avoid hydration mismatch
+    const priceInRON = product.priceInRON ?? 0
+    const displayPrice = calculateDisplayPrice(priceInRON, shopSettings, product.taxCategory)
+
     return {
       id: product.id,
       slug: product.slug,
       title: product.title,
-      priceInRON: product.priceInRON ?? 0,
+      priceInRON,
+      displayPrice,
       imageUrl,
       secondaryImageUrl,
       badge: product.badge ?? null,
       tags,
       stock: product.inventory ?? 0,
       brand: product.brand ?? null,
+      taxCategory: product.taxCategory ?? null,
     }
   })
 

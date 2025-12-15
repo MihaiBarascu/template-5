@@ -410,11 +410,13 @@ export function formatContactConfirmationEmail(contact: {
 
 /**
  * Order item interface for email formatting
- * Price comes from populated product.priceInRON
+ * displayPrice is the price with TVA for customer display
+ * Falls back to product.priceInRON if displayPrice not provided
  */
 interface OrderItem {
   product?: { title?: string; priceInRON?: number | null } | string
   quantity?: number
+  displayPrice?: number // Price with TVA applied for customer display
 }
 
 /**
@@ -435,7 +437,8 @@ export function formatOrderEmail(order: {
   const itemsHtml = order.items.map(item => {
     const product = item.product
     const productName = typeof product === 'object' ? product?.title : product || 'Produs'
-    const price = typeof product === 'object' ? product?.priceInRON || 0 : 0
+    // Use displayPrice (with TVA) if available, fallback to priceInRON
+    const price = item.displayPrice ?? (typeof product === 'object' ? product?.priceInRON || 0 : 0)
     return `
       <tr>
         <td style="padding: 10px; border-bottom: 1px solid #eee;">${escapeHtml(productName || 'Produs')}</td>
@@ -577,7 +580,8 @@ export function formatOrderConfirmationEmail(order: {
   const itemsHtml = order.items.map(item => {
     const product = item.product
     const productName = typeof product === 'object' ? product?.title : product || 'Produs'
-    const price = typeof product === 'object' ? product?.priceInRON || 0 : 0
+    // Use displayPrice (with TVA) if available, fallback to priceInRON
+    const price = item.displayPrice ?? (typeof product === 'object' ? product?.priceInRON || 0 : 0)
     return `
       <tr>
         <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">${escapeHtml(productName || 'Produs')}</td>

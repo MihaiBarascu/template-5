@@ -5,7 +5,9 @@ import Link from 'next/link'
 import { Eye, Heart } from 'lucide-react'
 import { cn } from '@/utilities/cn'
 import { AddToCart } from '@/components/cart/AddToCart'
+import { useShopSettings, getDisplayPrice, type TaxCategory } from '@/providers/ShopSettings'
 import type { Product } from '@/payload-types'
+import { useState, useEffect } from 'react'
 
 interface ProductTag {
   id: string
@@ -19,12 +21,14 @@ interface ProductCardProps {
     slug: string
     title: string
     priceInRON: number
+    displayPrice?: number  // Pre-calculated display price (with VAT if needed)
     imageUrl: string | null
     secondaryImageUrl?: string | null
     badge?: string | null
     tags?: ProductTag[]
     stock?: number
     brand?: string | null
+    taxCategory?: TaxCategory | null  // Product-level VAT category
   }
   variant?: 'default' | 'compact' | 'horizontal'
   className?: string
@@ -54,19 +58,35 @@ export function ProductCard({
   showQuickView = false,
   showWishlist = false,
 }: ProductCardProps) {
+  const shopSettings = useShopSettings()
+
+  // Track hydration state to prevent mismatch in dev mode (Turbopack/HMR issue)
+  const [isHydrated, setIsHydrated] = useState(false)
+  useEffect(() => {
+    setIsHydrated(true)
+  }, [])
+
   const {
     id,
     slug,
     title,
     priceInRON,
+    displayPrice: preCalculatedPrice,
     imageUrl,
     secondaryImageUrl,
     badge,
     tags = [],
     stock = 0,
     brand,
+    taxCategory,
   } = product
 
+  // Use pre-calculated display price if available (from server component)
+  // Otherwise calculate it (for client-side renders or when not provided)
+  const displayPrice = preCalculatedPrice ?? getDisplayPrice(priceInRON, shopSettings, taxCategory ?? undefined)
+
+  // Format price with currency from settings
+  const formattedPrice = `${Math.round(displayPrice)} ${shopSettings.currencySymbol.toUpperCase()}`
   const isOutOfStock = stock <= 0
 
   if (variant === 'horizontal') {
@@ -113,7 +133,7 @@ export function ProductCard({
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="font-bold text-theme-text">{priceInRON} RON</span>
+              <span className="font-bold text-theme-text" suppressHydrationWarning>{formattedPrice}</span>
             </div>
 
             <AddToCart
@@ -247,7 +267,7 @@ export function ProductCard({
 
         {/* Price */}
         <div className="flex items-center gap-2">
-          <span className="font-bold text-theme-text">{priceInRON} RON</span>
+          <span className="font-bold text-theme-text" suppressHydrationWarning>{formattedPrice}</span>
         </div>
 
         {/* Add to Cart */}

@@ -5784,7 +5784,35 @@ export interface ShopSetting {
    * Valoarea de la care transportul devine gratuit. Lasa gol daca nu se aplica.
    */
   freeShippingThreshold?: number | null;
+  /**
+   * Cost implicit pentru livrare standard. Folosit daca nu sunt configurate metode de livrare.
+   */
   shippingCost?: number | null;
+  /**
+   * Configureaza metodele de livrare disponibile. Daca lista e goala, se foloseste doar livrarea standard.
+   */
+  shippingMethods?:
+    | {
+        id: string | null;
+        enabled?: boolean | null;
+        /**
+         * Ex: Livrare standard, Livrare express, Ridicare din magazin
+         */
+        label: string;
+        /**
+         * Ex: 2-4 zile lucratoare, 24 ore, Imediat
+         */
+        deliveryTime?: string | null;
+        /**
+         * 0 = gratuit
+         */
+        price: number;
+        /**
+         * Lasa gol daca nu se aplica
+         */
+        freeAbove?: number | null;
+      }[]
+    | null;
   paymentMethods?:
     | {
         method: 'cod' | 'stripe' | 'bank';
@@ -6224,6 +6252,16 @@ export interface ShopSettingsSelect<T extends boolean = true> {
   orderMinimum?: T;
   freeShippingThreshold?: T;
   shippingCost?: T;
+  shippingMethods?:
+    | T
+    | {
+        id?: T;
+        enabled?: T;
+        label?: T;
+        deliveryTime?: T;
+        price?: T;
+        freeAbove?: T;
+      };
   paymentMethods?:
     | T
     | {

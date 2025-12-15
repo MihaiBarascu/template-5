@@ -8,6 +8,7 @@ import { getCachedGlobal } from '@/utilities/getGlobals'
 import { ThemeProvider } from '@/providers/ThemeProvider'
 import { EcommerceProviderWrapper } from '@/providers/EcommerceProvider'
 import { AuthProvider } from '@/providers/Auth'
+import { ShopSettingsProvider } from '@/providers/ShopSettings'
 import { ToastProvider } from '@/components/Toast'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
@@ -37,12 +38,13 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
   // Fetch globals with cache tags for proper revalidation
-  const [siteThemeData, headerData, footerData, businessInfoData, logoData] = await Promise.all([
+  const [siteThemeData, headerData, footerData, businessInfoData, logoData, shopSettingsData] = await Promise.all([
     getCachedGlobal('site-theme'),
     getCachedGlobal('header'),
     getCachedGlobal('footer'),
     getCachedGlobal('business-info'),
     getCachedGlobal('logo'),
+    getCachedGlobal('shop-settings'),
   ])
 
   // Generate inline CSS for theme to prevent FOUC
@@ -94,6 +96,14 @@ export default async function RootLayout({
       <head>
         {/* Inline theme styles to prevent FOUC */}
         <style dangerouslySetInnerHTML={{ __html: themeStyles }} />
+        {/* Shop settings for hydration - ensures client has correct settings immediately */}
+        {shopSettingsData && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `window.__SHOP_SETTINGS__=${JSON.stringify(shopSettingsData)};`,
+            }}
+          />
+        )}
         {/* JSON-LD Structured Data for LocalBusiness (Schema.org) */}
         {businessInfoData?.name && (
           <script
@@ -159,6 +169,7 @@ export default async function RootLayout({
       <body className="antialiased">
         <ThemeProvider siteTheme={siteThemeData}>
           <AuthProvider>
+          <ShopSettingsProvider settings={shopSettingsData}>
           <EcommerceProviderWrapper>
             <ToastProvider>
               {/* Skip to main content link for accessibility */}
@@ -238,6 +249,7 @@ export default async function RootLayout({
             )}
           </ToastProvider>
           </EcommerceProviderWrapper>
+          </ShopSettingsProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>
