@@ -83,12 +83,42 @@ const PagesWithBlocks = {
   }),
 };
 
-// Order item interface
+// Order item interface - price comes from populated product.priceInRON
+// displayPrice is the price with TVA applied for customer display
 interface OrderItem {
-  product?: string | { id?: string; title?: string };
-  priceAtPurchase?: number;
-  price?: number;
+  product?: string | { id?: string; title?: string; priceInRON?: number | null };
   quantity?: number;
+  displayPrice?: number; // Price with TVA for email display
+}
+
+// Helper function to calculate display price with TVA
+// Mirrors logic from src/providers/ShopSettings.tsx getDisplayPrice()
+function calculateDisplayPrice(
+  priceInDb: number,
+  shopSettings: {
+    vatEnabled?: boolean;
+    pricesIncludeVat?: boolean;
+    vatRates?: { standard?: number; reduced?: number };
+    defaultVatRate?: 'standard' | 'reduced' | 'zero';
+  } | null,
+  taxCategory?: 'standard' | 'reduced' | 'zero'
+): number {
+  if (!shopSettings || !shopSettings.vatEnabled) {
+    return priceInDb;
+  }
+
+  // If prices in DB already include VAT, return as-is
+  if (shopSettings.pricesIncludeVat) {
+    return priceInDb;
+  }
+
+  // Get VAT rate for the category
+  const category = taxCategory || shopSettings.defaultVatRate || 'standard';
+  const vatRates = shopSettings.vatRates || { standard: 21, reduced: 11 };
+  const vatRate = category === 'zero' ? 0 : vatRates[category] || vatRates.standard || 21;
+
+  // Prices in DB are without VAT - add VAT for display
+  return priceInDb * (1 + vatRate / 100);
 }
 
 // Order email notification hook
@@ -101,7 +131,7 @@ const orderEmailHook: CollectionAfterChangeHook = async ({
   if (operation !== 'create') return doc;
 
   try {
-    const businessEmail = await getBusinessEmail(req.payload, req);
+    const businessEmail = getBusinessEmail();
 
     if (!businessEmail) {
       console.log('No business email configured - skipping order notification');
@@ -114,11 +144,23 @@ const orderEmailHook: CollectionAfterChangeHook = async ({
       req, // Threading req for transaction safety (Payload best practice)
     });
 
-    // Populate items with product titles
+    // Get shop settings for TVA calculation
+    const shopSettings = await req.payload.findGlobal({
+      slug: 'shop-settings',
+      req,
+    }) as {
+      vatEnabled?: boolean;
+      pricesIncludeVat?: boolean;
+      vatRates?: { standard?: number; reduced?: number };
+      defaultVatRate?: 'standard' | 'reduced' | 'zero';
+    } | null;
+
+    // Populate items with product titles and calculate display prices with TVA
     let populatedItems: OrderItem[] = doc.items || [];
     if (Array.isArray(populatedItems)) {
       populatedItems = await Promise.all(
         populatedItems.map(async (item: OrderItem) => {
+          let populatedItem = item;
           if (item.product && typeof item.product === 'string') {
             try {
               const product = await req.payload.findByID({
@@ -126,12 +168,20 @@ const orderEmailHook: CollectionAfterChangeHook = async ({
                 id: item.product,
                 req, // Threading req for transaction safety (Payload best practice)
               });
-              return { ...item, product };
+              populatedItem = { ...item, product };
             } catch (_e) {
-              return item;
+              // Keep original item
             }
           }
-          return item;
+
+          // Calculate display price with TVA for customer emails
+          // Respects product-level taxCategory (e.g., 'zero' for tax-exempt products)
+          const product = populatedItem.product;
+          const rawPrice = typeof product === 'object' ? product?.priceInRON || 0 : 0;
+          const productTaxCategory = typeof product === 'object' ? (product as { taxCategory?: 'standard' | 'reduced' | 'zero' })?.taxCategory : undefined;
+          const displayPrice = calculateDisplayPrice(rawPrice, shopSettings, productTaxCategory);
+
+          return { ...populatedItem, displayPrice };
         }),
       );
     }
@@ -192,13 +242,20 @@ const orderEmailHook: CollectionAfterChangeHook = async ({
       .filter(Boolean)
       .join(', ');
 
-    // Get total from plugin's amount field
-    const total =
-      doc.amount ||
-      populatedItems.reduce((sum: number, item: OrderItem) => {
-        const price = item.priceAtPurchase || item.price || 0;
-        return sum + price * (item.quantity || 1);
-      }, 0);
+    // Calculate subtotal using display prices with TVA
+    // Note: doc.amount is the raw DB amount, we need to apply TVA for customer display
+    const subtotalWithTva = populatedItems.reduce((sum: number, item: OrderItem) => {
+      // Use displayPrice (with TVA applied) for customer emails
+      const displayPrice = item.displayPrice || 0;
+      return sum + displayPrice * (item.quantity || 1);
+    }, 0);
+
+    // Round subtotal to 2 decimal places
+    const subtotal = Math.round(subtotalWithTva * 100) / 100;
+
+    // Get shipping cost from order and calculate total
+    const shippingCost = doc.shippingCost || 0;
+    const total = subtotal + shippingCost;
 
     // Email 1: To business owner
     const ownerEmailHtml = formatOrderEmail({
@@ -207,6 +264,8 @@ const orderEmailHook: CollectionAfterChangeHook = async ({
       customerEmail,
       customerPhone,
       items: populatedItems,
+      subtotal,
+      shippingCost,
       total,
       shippingAddress: shippingAddressFormatted,
       notes: doc.notes,
@@ -227,17 +286,20 @@ const orderEmailHook: CollectionAfterChangeHook = async ({
         orderNumber: doc.orderNumber || doc.id,
         customerName,
         items: populatedItems,
+        subtotal,
+        shippingCost,
         total,
         shippingAddress: shippingAddressFormatted,
         businessName: businessInfo?.name ?? undefined,
         businessPhone: businessInfo?.phone ?? undefined,
-        businessEmail: businessInfo?.email ?? undefined,
+        businessEmail: businessEmail ?? undefined,
       });
 
       await sendNotificationEmail(req.payload, {
         to: customerEmail,
         subject: `Comanda #${doc.orderNumber || doc.id} a fost plasata - ${businessInfo?.name || 'Magazin Online'}`,
         html: clientEmailHtml,
+        replyTo: businessEmail || undefined,
       });
 
       console.log(`Order confirmation sent to client: ${customerEmail}`);
@@ -277,13 +339,52 @@ const ecommerceConfig: Parameters<typeof ecommercePlugin>[0] = {
         // Allow reading carts - needed for checkout payment flow
         // The plugin's initiatePayment uses overrideAccess: false
         read: () => true,
+        // Note: Don't allow delete - plugin uses purchasedAt to mark completed carts
+      },
+      hooks: {
+        ...defaultCollection.hooks,
+        // Ensure taxCategory is populated for each cart item's product
+        // This is needed because the plugin might not fetch all custom product fields
+        afterRead: [
+          ...(defaultCollection.hooks?.afterRead || []),
+          async ({ doc, req }) => {
+            if (!doc?.items?.length) return doc;
+
+            // Populate taxCategory for each product if not already present
+            const populatedItems = await Promise.all(
+              doc.items.map(async (item: { product?: string | { id: string; taxCategory?: string }; quantity?: number }) => {
+                const product = item.product;
+                // If product is populated but missing taxCategory, fetch it
+                if (typeof product === 'object' && product && !product.taxCategory) {
+                  try {
+                    const fullProduct = await req.payload.findByID({
+                      collection: 'products',
+                      id: product.id,
+                      select: { taxCategory: true },
+                    });
+                    return {
+                      ...item,
+                      product: { ...product, taxCategory: fullProduct?.taxCategory },
+                    };
+                  } catch {
+                    return item;
+                  }
+                }
+                return item;
+              }),
+            );
+
+            return { ...doc, items: populatedItems };
+          },
+        ],
       },
     }),
   },
   currencies: {
     defaultCurrency: 'RON',
     supportedCurrencies: [
-      { code: 'RON', symbol: 'lei', decimals: 2, label: 'Leu Romanesc' },
+      // decimals: 0 because we store prices in lei (whole numbers), not bani
+      { code: 'RON', symbol: 'lei', decimals: 0, label: 'Leu Romanesc' },
     ],
   },
   products: {
@@ -352,10 +453,14 @@ const ecommerceConfig: Parameters<typeof ecommercePlugin>[0] = {
           label: 'Categorie',
         },
         { name: 'sku', type: 'text', label: 'Cod Produs (SKU)', index: true },
-        // Plugin default fields FIRST (inventory, priceInRON from plugin)
-        // Plugin provides: inventory, priceInRONEnabled, priceInRON
+        // Plugin default fields - set priceInRONEnabled to default true
         ...(Array.isArray(defaultCollection.fields)
-          ? defaultCollection.fields.filter(Boolean)
+          ? defaultCollection.fields.filter(Boolean).map((field) => {
+              if ('name' in field && field.name === 'priceInRONEnabled') {
+                return { ...field, defaultValue: true } as typeof field
+              }
+              return field
+            })
           : []),
         // TAX/VAT category for this product
         {
@@ -456,12 +561,27 @@ const ecommerceConfig: Parameters<typeof ecommercePlugin>[0] = {
       admin: {
         ...defaultCollection.admin,
         group: 'Shop',
-        defaultColumns: ['customer', 'status', 'createdAt'],
+        defaultColumns: ['customer', 'status', 'amount', 'createdAt'],
       },
       labels: {
         singular: 'Comanda',
         plural: 'Comenzi',
       },
+      fields: [
+        ...(Array.isArray(defaultCollection.fields)
+          ? defaultCollection.fields
+          : []),
+        // Custom field for shipping cost
+        {
+          name: 'shippingCost',
+          type: 'number',
+          label: 'Cost Transport',
+          admin: {
+            position: 'sidebar',
+            description: 'Costul transportului în RON',
+          },
+        },
+      ],
       hooks: {
         ...defaultCollection.hooks,
         afterChange: [

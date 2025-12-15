@@ -36,6 +36,8 @@ export const LoginForm: React.FC<Props> = ({ buttonText = 'Autentificare' }) => 
 
       try {
         await login(formData)
+        // Refresh to ensure cart and other user data is loaded
+        router.refresh()
         if (redirect?.current) router.push(redirect.current)
         else router.push('/cont')
       } catch (err) {

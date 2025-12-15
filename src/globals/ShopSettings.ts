@@ -211,6 +211,85 @@ export const ShopSettings: GlobalConfig = {
               type: 'number',
               label: 'Cost Transport Standard (RON)',
               defaultValue: 20,
+              admin: {
+                description: 'Cost implicit pentru livrare standard. Folosit daca nu sunt configurate metode de livrare.',
+              },
+            },
+            {
+              name: 'shippingMethods',
+              type: 'array',
+              label: 'Metode de Livrare',
+              admin: {
+                description: 'Configureaza metodele de livrare disponibile. Daca lista e goala, se foloseste doar livrarea standard.',
+              },
+              fields: [
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'id',
+                      type: 'text',
+                      label: 'ID (unic)',
+                      required: true,
+                      admin: {
+                        width: '30%',
+                        description: 'Ex: standard, express, pickup',
+                      },
+                    },
+                    {
+                      name: 'enabled',
+                      type: 'checkbox',
+                      label: 'Activ',
+                      defaultValue: true,
+                      admin: {
+                        width: '20%',
+                      },
+                    },
+                  ],
+                },
+                {
+                  name: 'label',
+                  type: 'text',
+                  label: 'Nume afisat',
+                  required: true,
+                  admin: {
+                    description: 'Ex: Livrare standard, Livrare express, Ridicare din magazin',
+                  },
+                },
+                {
+                  name: 'deliveryTime',
+                  type: 'text',
+                  label: 'Timp livrare',
+                  admin: {
+                    description: 'Ex: 2-4 zile lucratoare, 24 ore, Imediat',
+                  },
+                },
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'price',
+                      type: 'number',
+                      label: 'Pret (RON)',
+                      required: true,
+                      defaultValue: 0,
+                      admin: {
+                        width: '50%',
+                        description: '0 = gratuit',
+                      },
+                    },
+                    {
+                      name: 'freeAbove',
+                      type: 'number',
+                      label: 'Gratuit peste (RON)',
+                      admin: {
+                        width: '50%',
+                        description: 'Lasa gol daca nu se aplica',
+                      },
+                    },
+                  ],
+                },
+              ],
             },
             {
               name: 'paymentMethods',

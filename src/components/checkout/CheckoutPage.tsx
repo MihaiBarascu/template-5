@@ -10,8 +10,10 @@
 import React, { useCallback, useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { useCart, usePayments } from '@payloadcms/plugin-ecommerce/client/react'
 import { useAuth } from '@/providers/Auth'
+import { useShopSettings, getDisplayPrice, type TaxCategory } from '@/providers/ShopSettings'
 import { useToast } from '@/components/Toast'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -21,9 +23,10 @@ import { FormItem } from '@/components/forms/FormItem'
 import { AddressForm } from '@/components/forms/AddressForm'
 import { CheckoutAddresses } from '@/components/checkout/CheckoutAddresses'
 import type { Product } from '@/payload-types'
+import type { CartItem } from '@/components/cart'
 
-// Price formatter
-function formatPrice(amount: number, currency = 'RON') {
+// Price formatter - uses shopSettings.currency
+function formatPriceWithCurrency(amount: number, currency: string) {
   return new Intl.NumberFormat('ro-RO', {
     style: 'currency',
     currency,
@@ -47,17 +50,19 @@ type AddressData = {
   phone?: string | null
 }
 
-// Shipping options
-const shippingOptions = [
-  { id: 'standard', label: 'Livrare standard (2-4 zile)', price: 20, freeAbove: 200 },
-  { id: 'express', label: 'Livrare express (1 zi)', price: 35, freeAbove: null },
-]
-
 export const CheckoutPage: React.FC = () => {
-  const { cart, clearCart } = useCart()
+  const { cart } = useCart()
   const { initiatePayment, confirmOrder } = usePayments()
-  const { user, status } = useAuth()
+  const { user, status, logout } = useAuth()
+  const shopSettings = useShopSettings()
+
+  // Get shipping methods from admin settings
+  const shippingMethods = shopSettings.shippingMethods
+
+  // Price formatter using currency from settings
+  const formatPrice = (amount: number) => formatPriceWithCurrency(amount, shopSettings.currency)
   const { showToast } = useToast()
+  const router = useRouter()
 
   // Form state
   const [email, setEmail] = useState('')
@@ -102,8 +107,23 @@ export const CheckoutPage: React.FC = () => {
 
   // Cart calculations
   const cartIsEmpty = !cart || !cart.items || cart.items.length === 0
-  const subtotal = cart?.subtotal || 0
-  const selectedShipping = shippingOptions.find(s => s.id === shippingMethod)
+  // Calculate subtotal with TVA respecting each item's taxCategory
+  const subtotal = React.useMemo(() => {
+    if (!cart?.items?.length) return 0
+    return cart.items.reduce((sum, item: CartItem) => {
+      const product = item.product as Product
+      if (!product || typeof product !== 'object') return sum
+      const rawPrice = product.priceInRON || 0
+      const taxCategory = product.taxCategory
+      const displayPrice = getDisplayPrice(rawPrice, shopSettings, taxCategory ?? undefined)
+      return sum + displayPrice * (item.quantity || 1)
+    }, 0)
+  }, [cart?.items, shopSettings])
+  // Safe access to shipping methods with fallback
+  const availableShippingMethods = shippingMethods && shippingMethods.length > 0
+    ? shippingMethods
+    : [{ id: 'standard', label: 'Livrare standard', price: 20, freeAbove: null, enabled: true }]
+  const selectedShipping = availableShippingMethods.find(s => s.id === shippingMethod) || availableShippingMethods[0]
   const shippingCost = selectedShipping?.freeAbove && subtotal >= selectedShipping.freeAbove
     ? 0
     : (selectedShipping?.price || 0)
@@ -127,6 +147,7 @@ export const CheckoutPage: React.FC = () => {
           customerEmail,
           billingAddress,
           shippingAddress: billingAddressSameAsShipping ? billingAddress : shippingAddress,
+          shippingCost, // Pass shipping cost to store in order
         },
       }) as { transactionID?: string; skipPaymentUI?: boolean } | null
 
@@ -140,14 +161,18 @@ export const CheckoutPage: React.FC = () => {
           customerEmail,
           transactionID: paymentResult.transactionID,
           shippingAddress: billingAddressSameAsShipping ? billingAddress : shippingAddress,
+          shippingCost, // Pass shipping cost to store in order
         },
       }) as { orderID?: string } | null
 
       if (confirmResult && confirmResult.orderID) {
-        // Clear cart and show success
-        clearCart()
+        // Clear cart from localStorage so UI shows empty cart immediately
+        localStorage.removeItem('cart')
+        localStorage.removeItem('cart_secret')
         setOrderPlaced(true)
         showToast('Comanda a fost plasată cu succes!', 'success')
+        // Full reload to reset cart state (EcommerceProvider key doesn't change since user is same)
+        setTimeout(() => window.location.reload(), 1500)
       } else {
         throw new Error('Nu s-a putut confirma comanda')
       }
@@ -172,9 +197,9 @@ export const CheckoutPage: React.FC = () => {
     billingAddress,
     shippingAddress,
     billingAddressSameAsShipping,
+    shippingCost,
     initiatePayment,
     confirmOrder,
-    clearCart,
     showToast,
   ])
 
@@ -259,9 +284,21 @@ export const CheckoutPage: React.FC = () => {
                   {user.name && <p className="text-theme-text-muted">{user.name}</p>}
                   <p className="text-sm text-theme-text-muted mt-2">
                     Nu ești tu?{' '}
-                    <Link href="/cont/logout" className="text-theme-primary hover:underline">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          await logout()
+                          router.refresh()
+                          router.push('/')
+                        } catch (err) {
+                          console.error('Logout error:', err)
+                        }
+                      }}
+                      className="text-theme-primary hover:underline"
+                    >
                       Deconectează-te
-                    </Link>
+                    </button>
                   </p>
                 </div>
               ) : (
@@ -396,13 +433,13 @@ export const CheckoutPage: React.FC = () => {
                 Metoda de livrare
               </h2>
               <div className="space-y-3">
-                {shippingOptions.map((option) => {
-                  const isFree = option.freeAbove && subtotal >= option.freeAbove
+                {availableShippingMethods.map((method) => {
+                  const isFree = method.freeAbove && subtotal >= method.freeAbove
                   return (
                     <label
-                      key={option.id}
+                      key={method.id}
                       className={`flex items-center gap-3 p-4 rounded-lg cursor-pointer border transition-colors ${
-                        shippingMethod === option.id
+                        shippingMethod === method.id
                           ? 'border-theme-primary bg-theme-primary/5'
                           : 'border-theme-border hover:border-theme-primary/50'
                       }`}
@@ -410,21 +447,28 @@ export const CheckoutPage: React.FC = () => {
                       <input
                         type="radio"
                         name="shippingMethod"
-                        value={option.id}
-                        checked={shippingMethod === option.id}
+                        value={method.id}
+                        checked={shippingMethod === method.id}
                         onChange={(e) => setShippingMethod(e.target.value)}
                         className="w-4 h-4 text-theme-primary"
                       />
                       <div className="flex-grow">
-                        <span className="text-theme-text">{option.label}</span>
+                        <span className="text-theme-text">
+                          {method.label}
+                          {method.deliveryTime && (
+                            <span className="text-theme-text-muted ml-1">({method.deliveryTime})</span>
+                          )}
+                        </span>
                         <p className="text-sm text-theme-text-muted">
                           {isFree ? (
                             <span className="text-green-600 font-medium">Gratuit</span>
+                          ) : method.price === 0 ? (
+                            <span className="text-green-600 font-medium">Gratuit</span>
                           ) : (
-                            formatPrice(option.price)
+                            formatPrice(method.price)
                           )}
-                          {option.freeAbove && !isFree && (
-                            <span className="ml-2">(gratuit peste {formatPrice(option.freeAbove)})</span>
+                          {method.freeAbove && !isFree && method.price > 0 && (
+                            <span className="ml-2">(gratuit peste {formatPrice(method.freeAbove)})</span>
                           )}
                         </p>
                       </div>
@@ -487,7 +531,9 @@ export const CheckoutPage: React.FC = () => {
 
                   const firstImage = product.images?.[0]?.image
                   const image = typeof firstImage === 'object' ? firstImage : undefined
-                  const price = product.priceInRON || 0
+                  // Apply TVA to product price respecting taxCategory
+                  const rawPrice = product.priceInRON || 0
+                  const price = getDisplayPrice(rawPrice, shopSettings, product.taxCategory ?? undefined)
 
                   return (
                     <div key={index} className="flex items-center gap-3">

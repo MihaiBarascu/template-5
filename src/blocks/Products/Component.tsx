@@ -177,7 +177,7 @@ export function ProductsBlock({
 
                   {/* Title */}
                   <Link href={`/produse/${product.slug}`}>
-                    <h3 className="font-semibold text-theme-text mt-1 group-hover:text-primary transition-colors line-clamp-2">
+                    <h3 className="product-card-title font-semibold text-theme-text mt-1 group-hover:text-primary transition-colors line-clamp-2">
                       {product.title}
                     </h3>
                   </Link>

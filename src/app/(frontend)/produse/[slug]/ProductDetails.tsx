@@ -338,7 +338,7 @@ export function ProductDetails({ product, category, relatedProducts }: ProductDe
                       </div>
                     )}
                   </div>
-                  <h3 className="font-medium text-theme-text group-hover:text-theme-primary transition-colors line-clamp-2">
+                  <h3 className="product-card-title font-medium text-theme-text group-hover:text-theme-primary transition-colors line-clamp-2">
                     {related.title}
                   </h3>
                   <div className="mt-1">

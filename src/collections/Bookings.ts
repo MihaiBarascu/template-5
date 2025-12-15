@@ -32,7 +32,7 @@ export const Bookings: CollectionConfig = {
         if (operation !== 'create') return doc
 
         try {
-          const businessEmail = await getBusinessEmail(req.payload, req)
+          const businessEmail = getBusinessEmail()
 
           if (!businessEmail) {
             req.payload.logger.warn('No business email configured - skipping booking notification')
@@ -114,6 +114,7 @@ export const Bookings: CollectionConfig = {
               to: populatedDoc.clientEmail,
               subject: `✅ Confirmare programare - ${serviceTitle}`,
               html: clientEmailHtml,
+              replyTo: businessEmail,
             })
 
             req.payload.logger.info(`Booking confirmation sent to client: ${populatedDoc.clientEmail}`)

@@ -1516,14 +1516,21 @@ export async function seedSubscriptions(
 }
 
 // Helper to seed sample newsletter subscribers for demo purposes
+// DISABLED: To avoid sending welcome emails during seeding
+// Uncomment the code below if you want to seed newsletter subscribers
 export async function seedNewsletterSubscribers(
-  payload: Payload,
+  _payload: Payload,
   subscribers: Array<{
     email: string;
     source?: 'website' | 'footer' | 'popup' | 'page' | 'import' | 'manual';
     status?: 'active' | 'unsubscribed' | 'bounced';
   }>,
 ) {
+  console.log(`   ⏭️  Skipping ${subscribers.length} newsletter subscribers (disabled to avoid sending emails)`);
+  return;
+
+  // ORIGINAL CODE - uncomment to enable:
+  /*
   for (const subscriber of subscribers) {
     try {
       await payload.create({
@@ -1549,6 +1556,7 @@ export async function seedNewsletterSubscribers(
     }
   }
   console.log(`   Created ${subscribers.length} newsletter subscribers`);
+  */
 }
 
 // ================================

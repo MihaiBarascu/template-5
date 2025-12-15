@@ -151,6 +151,7 @@ const sendNotificationEmail = async (
     await req.payload.sendEmail({
       to: email,
       subject: confirmation.subject,
+      replyTo: businessEmail,
       html: `
         <!DOCTYPE html>
         <html>

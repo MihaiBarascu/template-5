@@ -2,7 +2,7 @@
 status: ACTIVE
 type: lesson
 created: 2025-12-08
-updated: 2025-12-09
+updated: 2025-12-14
 tags: [lessons, bugs, fixes, tips]
 ---
 
@@ -19,11 +19,18 @@ tags: [lessons, bugs, fixes, tips]
 
 | Data | Problema | Solutie |
 |------|----------|---------|
+| 2025-12-14 | Cart nu apare dupa login | Plugin bug: cere `select[carts]=true` dar citeste `user.cart?.docs` - camp join = `cart` (singular) + `syncCartToLocalStorage()` |
+| 2025-12-14 | Cart ramane dupa comanda | Clear localStorage (`cart`, `cart_secret`) + `window.location.reload()` |
+| 2025-12-14 | Preturi /100 in admin | `decimals: 0` in currency config (nu 2) pt RON stocat in lei |
+| 2025-12-14 | shippingCost nu se salva | useCallback stale closure - adauga variabila in dependency array |
+| 2025-12-14 | priceInRONEnabled default false | Foloseste `.map()` pe fields pt a modifica `defaultValue`, NU filter+add |
 | 2025-12-08 | 404 "Cart not found" la checkout | Plugin foloseste `overrideAccess: false` - adauga `read: () => true` in carts access |
 | 2025-12-08 | ProductCard folosea localStorage | Schimba `AddToCartButton` cu `AddToCart` (useCart din plugin) |
 | 2025-12-08 | Order status invalid | Plugin accepta: `processing`, `completed`, `cancelled`, `refunded` - NU `pending` |
 | 2025-12-07 | Inventory nu se decrementeaza | Plugin-ul face AUTOMAT - nu decrementa manual in adapter |
 | 2025-12-07 | Campul `stock` vs `inventory` | Plugin foloseste `inventory` - nu crea camp `stock` separat |
+
+> Vezi [SESSION-ECOMMERCE-CART-FIXES.md](./SESSION-ECOMMERCE-CART-FIXES.md) pentru detalii complete
 
 ### Payload CMS General
 
@@ -70,6 +77,16 @@ tags: [lessons, bugs, fixes, tips]
 | Data | Problema | Solutie |
 |------|----------|---------|
 | 2025-12-07 | Functii din 'use client' nu merg pe server | Muta helper functions in fisier separat fara 'use client' |
+
+---
+
+## REACT PATTERNS
+
+| Data | Problema | Solutie |
+|------|----------|---------|
+| 2025-12-14 | useCallback stale closure | TOATE variabilele folosite in callback TREBUIE sa fie in dependency array |
+| 2025-12-14 | Valoare veche in callback | Daca callback foloseste `x`, adauga `x` in `[deps]` - chiar daca e computed |
+| 2025-12-14 | Component re-mount la user change | Foloseste `key={user?.id}` pe Provider pentru force remount |
 
 ---
 

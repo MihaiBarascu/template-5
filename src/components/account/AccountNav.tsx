@@ -56,6 +56,7 @@ export const AccountNav: React.FC<Props> = ({ className = '', labels = {} }) => 
   const handleLogout = async () => {
     try {
       await logout()
+      router.refresh()
       router.push('/')
     } catch (error) {
       console.error('Logout error:', error)

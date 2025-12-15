@@ -12,10 +12,12 @@ import Link from 'next/link'
 import { useCart } from '@payloadcms/plugin-ecommerce/client/react'
 import { DeleteItemButton } from './DeleteItemButton'
 import { EditItemQuantityButton } from './EditItemQuantityButton'
+import { useShopSettings, getDisplayPrice, type TaxCategory } from '@/providers/ShopSettings'
 import type { Product } from '@/payload-types'
+import type { CartItem } from '@/components/cart'
 
-// Price formatter
-function formatPrice(amount: number, currency = 'RON') {
+// Price formatter - currency passed from shopSettings
+function formatPriceWithCurrency(amount: number, currency: string) {
   return new Intl.NumberFormat('ro-RO', {
     style: 'currency',
     currency,
@@ -26,10 +28,30 @@ function formatPrice(amount: number, currency = 'RON') {
 
 export function CartPage() {
   const { cart, isLoading } = useCart()
+  const shopSettings = useShopSettings()
+
+  // Price formatter using currency from settings
+  const formatPrice = (amount: number) => formatPriceWithCurrency(amount, shopSettings.currency)
 
   const cartIsEmpty = !cart || !cart.items || cart.items.length === 0
-  const subtotal = cart?.subtotal || 0
-  const shipping = subtotal >= 200 ? 0 : 20
+
+  // Calculate subtotal with TVA respecting each item's taxCategory
+  const subtotal = React.useMemo(() => {
+    if (!cart?.items?.length) return 0
+    return cart.items.reduce((sum, item: CartItem) => {
+      const product = item.product as Product
+      if (!product || typeof product !== 'object') return sum
+      const rawPrice = product.priceInRON || 0
+      const taxCategory = product.taxCategory
+      const displayPrice = getDisplayPrice(rawPrice, shopSettings, taxCategory ?? undefined)
+      return sum + displayPrice * (item.quantity || 1)
+    }, 0)
+  }, [cart?.items, shopSettings])
+
+  // Get shipping settings from admin
+  const shippingCost = shopSettings.shippingCost
+  const freeShippingThreshold = shopSettings.freeShippingThreshold
+  const shipping = freeShippingThreshold && subtotal >= freeShippingThreshold ? 0 : shippingCost
   const total = subtotal + shipping
 
   if (isLoading) {
@@ -123,7 +145,9 @@ export function CartPage() {
 
               const firstImage = product.images?.[0]?.image
               const image = typeof firstImage === 'object' ? firstImage : undefined
-              const price = product.priceInRON || 0
+              // Get display price with TVA respecting product's taxCategory
+              const rawPrice = product.priceInRON || 0
+              const price = getDisplayPrice(rawPrice, shopSettings, product.taxCategory ?? undefined)
 
               return (
                 <div
@@ -214,9 +238,9 @@ export function CartPage() {
                   <span>Livrare</span>
                   <span>{shipping === 0 ? 'Gratuită' : formatPrice(shipping)}</span>
                 </div>
-                {subtotal < 200 && subtotal > 0 && (
+                {freeShippingThreshold && subtotal < freeShippingThreshold && subtotal > 0 && (
                   <p className="text-xs text-theme-text-muted">
-                    Mai adaugă {formatPrice(200 - subtotal)} pentru livrare gratuită
+                    Mai adaugă {formatPrice(freeShippingThreshold - subtotal)} pentru livrare gratuită
                   </p>
                 )}
                 <hr className="border-theme-border" />
