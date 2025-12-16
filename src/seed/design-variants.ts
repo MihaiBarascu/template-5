@@ -16,7 +16,7 @@
 // =============================================================================
 
 // Available fonts - must match SiteTheme schema from Payload
-// HeadingFont allows serif fonts like Playfair_Display
+// HeadingFont allows serif fonts like Playfair_Display and modern display fonts
 export type HeadingFontName =
   | 'Playfair_Display'
   | 'Lora'
@@ -27,8 +27,17 @@ export type HeadingFontName =
   | 'Open_Sans'
   | 'Lato'
   | 'Source_Sans_3'
+  // Modern agency/tech fonts
+  | 'Space_Grotesk'
+  | 'Sora'
+  | 'Outfit'
+  | 'Plus_Jakarta_Sans'
+  | 'Manrope'
+  | 'DM_Sans'
+  | 'DM_Serif_Display'
+  | 'Raleway'
 
-// BodyFont excludes display serif fonts (no Playfair_Display)
+// BodyFont excludes display serif fonts (no Playfair_Display, DM_Serif_Display)
 export type BodyFontName =
   | 'Inter'
   | 'Open_Sans'
@@ -38,6 +47,14 @@ export type BodyFontName =
   | 'Montserrat'
   | 'Work_Sans'
   | 'Lora'
+  // Modern agency/tech fonts
+  | 'Space_Grotesk'
+  | 'Sora'
+  | 'Outfit'
+  | 'Plus_Jakarta_Sans'
+  | 'Manrope'
+  | 'DM_Sans'
+  | 'Raleway'
 
 // Combined type for backwards compatibility
 export type FontName = HeadingFontName | BodyFontName
@@ -1978,6 +1995,267 @@ export const fitnessVariants: DesignVariant[] = [
 ]
 
 // =============================================================================
+// AGENCY / MULTIWEB - 5 VARIANTE (Modern web agency)
+// =============================================================================
+
+export const multiwebVariants: DesignVariant[] = [
+  // VARIANTA 1 - Indigo Modern (Default)
+  {
+    id: 'multiweb-v1',
+    name: 'Indigo Modern',
+    description: 'Design modern cu indigo/violet - profesional și tech-forward',
+    theme: {
+      preset: 'modern',
+      colors: {
+        primary: '#6366F1',      // Indigo 500
+        secondary: '#818CF8',    // Indigo 400
+        accent: '#A5B4FC',       // Indigo 300
+        dark: '#0F172A',         // Slate 900
+        light: '#F8FAFC',        // Slate 50
+        surface: '#FFFFFF',
+        text: '#0F172A',
+        textLight: '#64748B',    // Slate 500
+        border: '#E2E8F0',       // Slate 200
+        textOnPrimary: '#FFFFFF',
+        textOnSecondary: '#FFFFFF',
+        textOnAccent: '#0F172A',
+        textOnDark: '#F8FAFC',
+        textOnLight: '#0F172A',
+        textOnSurface: '#0F172A',
+      },
+      headingFont: 'Space_Grotesk',
+      bodyFont: 'Inter',
+      fontPreset: 'modern',
+      stylePreset: 'modern',
+      borderRadius: 'large',
+      shadows: 'moderate',
+      headingScale: 'large',
+      bodyTextSize: 'normal',
+      cardGap: 'spacious',
+      sectionSpacing: 'spacious',
+      animations: 'dynamic',
+    },
+    hero: {
+      type: 'fullscreen',
+      overlay: 'gradient',
+      alignment: 'center',
+    },
+    layout: {
+      sections: ['stats', 'portfolio', 'services', 'howItWorks', 'testimonials', 'faq', 'latestPosts', 'cta'],
+      servicesVariant: 'grid-3',
+      teamVariant: 'grid',
+      testimonialsVariant: 'carousel',
+      galleryVariant: 'grid-3',
+      pricingVariant: 'cards-3',
+    },
+  },
+
+  // VARIANTA 2 - Emerald Fresh
+  {
+    id: 'multiweb-v2',
+    name: 'Emerald Fresh',
+    description: 'Design proaspăt cu verde smarald - eco și modern',
+    theme: {
+      preset: 'modern',
+      colors: {
+        primary: '#059669',      // Emerald 600
+        secondary: '#10B981',    // Emerald 500
+        accent: '#6EE7B7',       // Emerald 300
+        dark: '#022C22',         // Emerald 950
+        light: '#ECFDF5',        // Emerald 50
+        surface: '#FFFFFF',
+        text: '#022C22',
+        textLight: '#047857',    // Emerald 700
+        border: '#D1FAE5',       // Emerald 100
+        textOnPrimary: '#FFFFFF',
+        textOnSecondary: '#FFFFFF',
+        textOnAccent: '#022C22',
+        textOnDark: '#ECFDF5',
+        textOnLight: '#022C22',
+        textOnSurface: '#022C22',
+      },
+      headingFont: 'Sora',
+      bodyFont: 'DM_Sans',
+      fontPreset: 'modern',
+      stylePreset: 'modern',
+      borderRadius: 'medium',
+      shadows: 'subtle',
+      headingScale: 'normal',
+      bodyTextSize: 'normal',
+      cardGap: 'normal',
+      sectionSpacing: 'normal',
+      animations: 'moderate',
+    },
+    hero: {
+      type: 'split',
+      overlay: 'light',
+      alignment: 'left',
+    },
+    layout: {
+      sections: ['stats', 'portfolio', 'services', 'howItWorks', 'testimonials', 'faq', 'latestPosts', 'cta'],
+      servicesVariant: 'grid-3',
+      teamVariant: 'grid-centered',
+      testimonialsVariant: 'cards-rotating',
+      galleryVariant: 'masonry',
+      pricingVariant: 'cards-3',
+    },
+  },
+
+  // VARIANTA 3 - Rose Elegant
+  {
+    id: 'multiweb-v3',
+    name: 'Rose Elegant',
+    description: 'Design elegant cu rose/pink - sofisticat și creativ',
+    theme: {
+      preset: 'elegant',
+      colors: {
+        primary: '#DB2777',      // Pink 600
+        secondary: '#EC4899',    // Pink 500
+        accent: '#F9A8D4',       // Pink 300
+        dark: '#500724',         // Pink 950
+        light: '#FDF2F8',        // Pink 50
+        surface: '#FFFFFF',
+        text: '#1F2937',         // Gray 800
+        textLight: '#6B7280',    // Gray 500
+        border: '#FCE7F3',       // Pink 100
+        textOnPrimary: '#FFFFFF',
+        textOnSecondary: '#FFFFFF',
+        textOnAccent: '#500724',
+        textOnDark: '#FDF2F8',
+        textOnLight: '#1F2937',
+        textOnSurface: '#1F2937',
+      },
+      headingFont: 'Outfit',
+      bodyFont: 'Plus_Jakarta_Sans',
+      fontPreset: 'elegant',
+      stylePreset: 'modern',
+      borderRadius: 'large',
+      shadows: 'moderate',
+      headingScale: 'large',
+      bodyTextSize: 'large',
+      cardGap: 'spacious',
+      sectionSpacing: 'spacious',
+      animations: 'dynamic',
+    },
+    hero: {
+      type: 'centered',
+      overlay: 'gradient',
+      alignment: 'center',
+    },
+    layout: {
+      sections: ['stats', 'portfolio', 'services', 'howItWorks', 'testimonials', 'faq', 'latestPosts', 'cta'],
+      servicesVariant: 'grid-4',
+      teamVariant: 'carousel',
+      testimonialsVariant: 'minimal',
+      galleryVariant: 'carousel',
+      pricingVariant: 'featured-center',
+    },
+  },
+
+  // VARIANTA 4 - Dark Premium
+  {
+    id: 'multiweb-v4',
+    name: 'Dark Premium',
+    description: 'Design dark premium cu accente luminoase - bold și impactant',
+    theme: {
+      preset: 'bold',
+      colors: {
+        primary: '#F59E0B',      // Amber 500
+        secondary: '#FBBF24',    // Amber 400
+        accent: '#FCD34D',       // Amber 300
+        dark: '#0A0A0A',         // Near black
+        light: '#1F1F1F',        // Dark gray
+        surface: '#171717',      // Neutral 900
+        text: '#FAFAFA',         // Light
+        textLight: '#A3A3A3',    // Neutral 400
+        border: '#262626',       // Neutral 800
+        textOnPrimary: '#0A0A0A',
+        textOnSecondary: '#0A0A0A',
+        textOnAccent: '#0A0A0A',
+        textOnDark: '#FAFAFA',
+        textOnLight: '#FAFAFA',
+        textOnSurface: '#FAFAFA',
+      },
+      headingFont: 'Manrope',
+      bodyFont: 'Inter',
+      fontPreset: 'bold',
+      stylePreset: 'bold',
+      borderRadius: 'medium',
+      shadows: 'strong',
+      headingScale: 'xlarge',
+      bodyTextSize: 'large',
+      cardGap: 'spacious',
+      sectionSpacing: 'spacious',
+      animations: 'dynamic',
+    },
+    hero: {
+      type: 'fullscreen',
+      overlay: 'dark',
+      alignment: 'center',
+    },
+    layout: {
+      sections: ['stats', 'portfolio', 'services', 'howItWorks', 'testimonials', 'faq', 'latestPosts', 'cta'],
+      servicesVariant: 'grid-3',
+      teamVariant: 'grid',
+      testimonialsVariant: 'single-featured',
+      galleryVariant: 'grid-4',
+      pricingVariant: 'cards-3',
+    },
+  },
+
+  // VARIANTA 5 - Blue Corporate
+  {
+    id: 'multiweb-v5',
+    name: 'Blue Corporate',
+    description: 'Design corporate cu albastru - profesional și de încredere',
+    theme: {
+      preset: 'classic',
+      colors: {
+        primary: '#2563EB',      // Blue 600
+        secondary: '#3B82F6',    // Blue 500
+        accent: '#93C5FD',       // Blue 300
+        dark: '#1E293B',         // Slate 800
+        light: '#F1F5F9',        // Slate 100
+        surface: '#FFFFFF',
+        text: '#1E293B',
+        textLight: '#64748B',    // Slate 500
+        border: '#CBD5E1',       // Slate 300
+        textOnPrimary: '#FFFFFF',
+        textOnSecondary: '#FFFFFF',
+        textOnAccent: '#1E293B',
+        textOnDark: '#F1F5F9',
+        textOnLight: '#1E293B',
+        textOnSurface: '#1E293B',
+      },
+      headingFont: 'Raleway',
+      bodyFont: 'Open_Sans',
+      fontPreset: 'classic',
+      stylePreset: 'classic',
+      borderRadius: 'small',
+      shadows: 'subtle',
+      headingScale: 'normal',
+      bodyTextSize: 'normal',
+      cardGap: 'normal',
+      sectionSpacing: 'normal',
+      animations: 'subtle',
+    },
+    hero: {
+      type: 'split',
+      overlay: 'light',
+      alignment: 'left',
+    },
+    layout: {
+      sections: ['stats', 'portfolio', 'services', 'howItWorks', 'testimonials', 'faq', 'latestPosts', 'cta'],
+      servicesVariant: 'list',
+      teamVariant: 'list',
+      testimonialsVariant: 'grid',
+      galleryVariant: 'grid-3',
+      pricingVariant: 'table',
+    },
+  },
+]
+
+// =============================================================================
 // HELPER FUNCTIONS
 // =============================================================================
 
@@ -1991,6 +2269,7 @@ export type BusinessType =
   | 'constructii'
   | 'magazin'
   | 'fitness'
+  | 'multiweb'
 
 export function getVariant(businessType: BusinessType, variantIndex: number = 0): DesignVariant {
   const variants = {
@@ -2003,6 +2282,7 @@ export function getVariant(businessType: BusinessType, variantIndex: number = 0)
     constructii: constructiiVariants,
     magazin: magazinVariants,
     fitness: fitnessVariants,
+    multiweb: multiwebVariants,
   }
 
   const businessVariants = variants[businessType]
@@ -2021,6 +2301,7 @@ export function getAllVariants(businessType: BusinessType): DesignVariant[] {
     constructii: constructiiVariants,
     magazin: magazinVariants,
     fitness: fitnessVariants,
+    multiweb: multiwebVariants,
   }
   return variants[businessType]
 }
@@ -2036,6 +2317,7 @@ export function getVariantById(variantId: string): DesignVariant | undefined {
     ...constructiiVariants,
     ...magazinVariants,
     ...fitnessVariants,
+    ...multiwebVariants,
   ]
   return allVariants.find((v) => v.id === variantId)
 }

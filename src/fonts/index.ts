@@ -16,6 +16,15 @@ import {
   Lora,
   Source_Sans_3,
   Work_Sans,
+  // Modern fonts for agency/tech sites
+  Space_Grotesk,
+  Sora,
+  Outfit,
+  Plus_Jakarta_Sans,
+  Manrope,
+  DM_Sans,
+  DM_Serif_Display,
+  Raleway,
 } from 'next/font/google'
 
 // Initialize all available fonts with display: swap
@@ -82,6 +91,63 @@ const workSans = Work_Sans({
   weight: ['400', '500', '600', '700'],
 })
 
+// Modern agency/tech fonts
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin', 'latin-ext'],
+  display: 'swap',
+  variable: '--font-space-grotesk',
+  weight: ['400', '500', '600', '700'],
+})
+
+const sora = Sora({
+  subsets: ['latin', 'latin-ext'],
+  display: 'swap',
+  variable: '--font-sora',
+  weight: ['400', '500', '600', '700'],
+})
+
+const outfit = Outfit({
+  subsets: ['latin', 'latin-ext'],
+  display: 'swap',
+  variable: '--font-outfit',
+  weight: ['400', '500', '600', '700'],
+})
+
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ['latin', 'latin-ext'],
+  display: 'swap',
+  variable: '--font-plus-jakarta-sans',
+  weight: ['400', '500', '600', '700'],
+})
+
+const manrope = Manrope({
+  subsets: ['latin', 'latin-ext'],
+  display: 'swap',
+  variable: '--font-manrope',
+  weight: ['400', '500', '600', '700'],
+})
+
+const dmSans = DM_Sans({
+  subsets: ['latin', 'latin-ext'],
+  display: 'swap',
+  variable: '--font-dm-sans',
+  weight: ['400', '500', '600', '700'],
+})
+
+const dmSerifDisplay = DM_Serif_Display({
+  subsets: ['latin', 'latin-ext'],
+  display: 'swap',
+  variable: '--font-dm-serif-display',
+  weight: ['400'],
+})
+
+const raleway = Raleway({
+  subsets: ['latin', 'latin-ext'],
+  display: 'swap',
+  variable: '--font-raleway',
+  weight: ['400', '500', '600', '700'],
+})
+
 // Map font names to font objects
 export const FONTS = {
   'Inter': inter,
@@ -97,6 +163,19 @@ export const FONTS = {
   'Source_Sans_3': sourceSans3,
   'Work Sans': workSans,
   'Work_Sans': workSans,
+  // Modern fonts for agency/tech
+  'Space Grotesk': spaceGrotesk,
+  'Space_Grotesk': spaceGrotesk,
+  'Sora': sora,
+  'Outfit': outfit,
+  'Plus Jakarta Sans': plusJakartaSans,
+  'Plus_Jakarta_Sans': plusJakartaSans,
+  'Manrope': manrope,
+  'DM Sans': dmSans,
+  'DM_Sans': dmSans,
+  'DM Serif Display': dmSerifDisplay,
+  'DM_Serif_Display': dmSerifDisplay,
+  'Raleway': raleway,
 } as const
 
 export type FontName = keyof typeof FONTS
@@ -140,6 +219,15 @@ export function getAllFontVariables(): string {
     lora.variable,
     sourceSans3.variable,
     workSans.variable,
+    // Modern agency/tech fonts
+    spaceGrotesk.variable,
+    sora.variable,
+    outfit.variable,
+    plusJakartaSans.variable,
+    manrope.variable,
+    dmSans.variable,
+    dmSerifDisplay.variable,
+    raleway.variable,
   ].join(' ')
 }
 
@@ -154,4 +242,13 @@ export {
   lora,
   sourceSans3,
   workSans,
+  // Modern agency/tech fonts
+  spaceGrotesk,
+  sora,
+  outfit,
+  plusJakartaSans,
+  manrope,
+  dmSans,
+  dmSerifDisplay,
+  raleway,
 }

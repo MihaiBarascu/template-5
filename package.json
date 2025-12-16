@@ -31,6 +31,7 @@
     "seed:pensiune": "cross-env SEED_TYPE=pensiune NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/seed/index.ts",
     "seed:magazin": "cross-env SEED_TYPE=magazin NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/seed/index.ts",
     "seed:fitness": "cross-env SEED_TYPE=fitness NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/seed/index.ts",
+    "seed:multiweb": "cross-env SEED_TYPE=multiweb NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/seed/index.ts",
     "seed:curatenie": "cross-env SEED_TYPE=curatenie NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/seed/index.ts",
     "seed:transport": "cross-env SEED_TYPE=transport NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/seed/index.ts",
     "seed:foto-video": "cross-env SEED_TYPE=foto-video NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/seed/index.ts",

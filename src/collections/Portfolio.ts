@@ -113,6 +113,14 @@ export const Portfolio: CollectionConfig = {
       },
     },
     {
+      name: 'externalUrl',
+      type: 'text',
+      label: 'Link extern (URL site demo)',
+      admin: {
+        description: 'URL catre site-ul demo sau proiect live',
+      },
+    },
+    {
       name: 'featured',
       type: 'checkbox',
       label: 'Proiect recomandat',

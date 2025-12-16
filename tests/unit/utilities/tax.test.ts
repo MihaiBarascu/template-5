@@ -280,4 +280,176 @@ describe('Tax Utilities', () => {
       expect(result.total).toBe(100)
     })
   })
+
+  // ============================================
+  // EDGE CASES (from BugMagnet methodology)
+  // ============================================
+  describe('Edge Cases', () => {
+    describe('price edge cases', () => {
+      it.each([
+        [0, 0, 'zero price'],
+        [0.01, 0.0121, 'minimum price (1 ban)'],
+        [0.001, 0.00121, 'sub-cent price'],
+        [99999.99, 120999.9879, 'very large price'], // Note: floating point precision
+      ])('addVat handles %s correctly (%s)', (input, expected) => {
+        expect(addVat(input, 21)).toBeCloseTo(expected, 2)
+      })
+
+      it('handles negative price (refund scenario)', () => {
+        expect(addVat(-100, 21)).toBe(-121)
+        expect(removeVat(-121, 21)).toBeCloseTo(-100, 2)
+      })
+
+      it('handles zero price in cart', () => {
+        const items: CartItem[] = [{ price: 0, quantity: 5 }]
+        const result = calculateCartTotals(items, {
+          vatEnabled: true,
+          pricesIncludeVat: false,
+        })
+        expect(result.subtotal).toBe(0)
+        expect(result.total).toBe(0)
+      })
+    })
+
+    describe('quantity edge cases', () => {
+      const settings: Partial<TaxSettings> = {
+        vatEnabled: true,
+        pricesIncludeVat: false,
+      }
+
+      it('handles zero quantity', () => {
+        const items: CartItem[] = [{ price: 100, quantity: 0 }]
+        const result = calculateCartTotals(items, settings)
+        expect(result.subtotal).toBe(0)
+        expect(result.total).toBe(0)
+      })
+
+      it('handles very large quantity', () => {
+        const items: CartItem[] = [{ price: 0.01, quantity: 1000000 }]
+        const result = calculateCartTotals(items, settings)
+        expect(result.subtotal).toBe(10000)
+        expect(result.vatAmount).toBeCloseTo(2100, 0)
+      })
+
+      it('handles fractional quantity (weight-based products)', () => {
+        const items: CartItem[] = [{ price: 10, quantity: 0.5 }]
+        const result = calculateCartTotals(items, settings)
+        expect(result.subtotal).toBe(5)
+      })
+    })
+
+    describe('rounding edge cases', () => {
+      it.each([
+        [0.004, 0, 'rounds down at .004'],
+        [0.005, 0.01, 'rounds up at .005 (banker rounding boundary)'],
+        [0.006, 0.01, 'rounds up at .006'],
+        [0.014, 0.01, 'rounds down at .014'],
+        [0.015, 0.02, 'rounds up at .015'],
+        [0.025, 0.03, 'rounds up at .025'],
+        [10.994, 10.99, 'rounds down complex'],
+        [10.995, 11, 'rounds up complex'],
+        [10.999, 11, 'rounds up near integer'],
+      ])('roundPrice(%s) = %s (%s)', (input, expected) => {
+        expect(roundPrice(input)).toBe(expected)
+      })
+
+      it('avoids floating point accumulation errors', () => {
+        // Classic floating point issue: 0.1 + 0.2 !== 0.3
+        const price1 = 0.1
+        const price2 = 0.2
+        const sum = roundPrice(price1 + price2)
+        expect(sum).toBe(0.3)
+      })
+
+      it('handles rounding in cart totals', () => {
+        // Multiple items that could cause rounding accumulation
+        const items: CartItem[] = [
+          { price: 0.01, quantity: 3 }, // 0.03
+          { price: 0.01, quantity: 3 }, // 0.03
+          { price: 0.01, quantity: 3 }, // 0.03
+        ]
+        const result = calculateCartTotals(items, {
+          vatEnabled: true,
+          pricesIncludeVat: false,
+        })
+        expect(result.subtotal).toBeCloseTo(0.09, 2)
+      })
+    })
+
+    describe('VAT rate edge cases', () => {
+      it('handles 0% VAT rate', () => {
+        expect(addVat(100, 0)).toBe(100)
+        expect(removeVat(100, 0)).toBe(100)
+        expect(calculateVat(100, 0)).toBe(0)
+      })
+
+      it('handles 100% VAT rate (theoretical)', () => {
+        expect(addVat(100, 100)).toBe(200)
+        expect(removeVat(200, 100)).toBe(100)
+        expect(calculateVat(100, 100)).toBe(100)
+      })
+
+      it('handles very small VAT rate', () => {
+        expect(addVat(100, 0.1)).toBeCloseTo(100.1, 2)
+      })
+    })
+
+    describe('mixed tax categories in cart', () => {
+      const settings: Partial<TaxSettings> = {
+        vatEnabled: true,
+        pricesIncludeVat: false,
+      }
+
+      it('handles all three tax categories', () => {
+        const items: CartItem[] = [
+          { price: 100, quantity: 1, taxCategory: 'standard' }, // 21% = 21
+          { price: 100, quantity: 1, taxCategory: 'reduced' }, // 11% = 11
+          { price: 100, quantity: 1, taxCategory: 'zero' }, // 0% = 0
+        ]
+        const result = calculateCartTotals(items, settings)
+
+        expect(result.subtotal).toBe(300)
+        expect(result.vatAmount).toBe(32) // 21 + 11 + 0
+        expect(result.total).toBe(332)
+        // Note: 0% VAT items are not included in breakdown (correct behavior)
+        expect(result.vatBreakdown).toHaveLength(2)
+        expect(result.vatBreakdown).toContainEqual({ rate: 21, amount: 21 })
+        expect(result.vatBreakdown).toContainEqual({ rate: 11, amount: 11 })
+      })
+
+      it('consolidates same tax rates', () => {
+        const items: CartItem[] = [
+          { price: 50, quantity: 1, taxCategory: 'standard' },
+          { price: 50, quantity: 1, taxCategory: 'standard' },
+        ]
+        const result = calculateCartTotals(items, settings)
+
+        // Should have only one entry for 21%
+        const standardEntries = result.vatBreakdown.filter((b) => b.rate === 21)
+        expect(standardEntries).toHaveLength(1)
+        expect(standardEntries[0].amount).toBe(21) // 100 * 0.21
+      })
+    })
+
+    describe('currency formatting edge cases', () => {
+      it('formats zero correctly', () => {
+        expect(formatPrice(0)).toBe('0.00 lei')
+      })
+
+      it('formats very small amounts', () => {
+        expect(formatPrice(0.01)).toBe('0.01 lei')
+        expect(formatPrice(0.001)).toBe('0.00 lei') // Rounded
+      })
+
+      it('formats very large amounts', () => {
+        expect(formatPrice(999999.99)).toBe('999999.99 lei')
+      })
+
+      it('formats with different currencies', () => {
+        expect(formatPrice(100, 'EUR', '€')).toBe('100.00 €')
+        expect(formatPrice(100, 'USD', '$', 'before')).toBe('$100.00')
+        expect(formatPrice(100, 'GBP', '£', 'before')).toBe('£100.00')
+      })
+    })
+  })
 })

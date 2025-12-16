@@ -469,6 +469,37 @@
   to { width: 100%; }
 }
 
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes scrollFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scrollFadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scrollScaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+@keyframes pulseRing {
+  0% { transform: scale(1); opacity: 0.4; }
+  100% { transform: scale(1.3); opacity: 0; }
+}
+
 /* =============================================================================
    UTILITIES
    ============================================================================= */
@@ -686,6 +717,215 @@
     -webkit-background-clip: text;
     color: transparent;
     background-image: linear-gradient(to right, var(--theme-primary), var(--theme-accent));
+  }
+
+  /* Gradient text with animation */
+  .gradient-text-animated {
+    background: linear-gradient(135deg, var(--theme-primary), var(--theme-secondary), var(--theme-accent), var(--theme-primary));
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradient-shift 6s ease infinite;
+  }
+
+  /* -----------------------------
+     MODERN EFFECTS - Reusable
+     ----------------------------- */
+
+  /* Hover Lift - Card lift on hover with shadow */
+  .hover-lift {
+    transition: transform var(--animation-duration) var(--animation-timing),
+                box-shadow var(--animation-duration) var(--animation-timing);
+  }
+  .hover-lift:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+  }
+
+  /* Shine Effect - Glossy sweep on hover */
+  .shine-effect {
+    position: relative;
+    overflow: hidden;
+  }
+  .shine-effect::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      to right,
+      transparent 0%,
+      rgba(255, 255, 255, 0.25) 50%,
+      transparent 100%
+    );
+    transform: rotate(30deg) translateX(-100%);
+    transition: transform 0.6s ease;
+    pointer-events: none;
+  }
+  .shine-effect:hover::after {
+    transform: rotate(30deg) translateX(100%);
+  }
+
+  /* Border Gradient - Gradient border effect */
+  .border-gradient {
+    border: 2px solid transparent;
+    background:
+      linear-gradient(var(--theme-surface), var(--theme-surface)) padding-box,
+      linear-gradient(135deg, var(--theme-primary), var(--theme-accent)) border-box;
+    border-radius: var(--radius-card);
+  }
+  .border-gradient-dark {
+    border: 2px solid transparent;
+    background:
+      linear-gradient(var(--theme-dark), var(--theme-dark)) padding-box,
+      linear-gradient(135deg, var(--theme-primary), var(--theme-accent)) border-box;
+    border-radius: var(--radius-card);
+  }
+
+  /* Animated Underline - Underline that grows on hover */
+  .animated-underline {
+    position: relative;
+    display: inline-block;
+  }
+  .animated-underline::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -2px;
+    left: 0;
+    background: linear-gradient(90deg, var(--theme-primary), var(--theme-accent));
+    transition: width var(--animation-duration) var(--animation-timing);
+  }
+  .animated-underline:hover::after {
+    width: 100%;
+  }
+
+  /* Glow Effect - Subtle glow around element */
+  .glow-primary {
+    box-shadow: 0 0 20px rgba(var(--theme-primary-rgb, 99, 102, 241), 0.3);
+  }
+  .glow-primary-hover:hover {
+    box-shadow: 0 0 30px rgba(var(--theme-primary-rgb, 99, 102, 241), 0.4);
+  }
+
+  /* Scale on Hover - Subtle scale effect */
+  .hover-scale {
+    transition: transform var(--animation-duration) var(--animation-timing);
+  }
+  .hover-scale:hover {
+    transform: scale(1.02);
+  }
+  .hover-scale-lg:hover {
+    transform: scale(1.05);
+  }
+
+  /* Text Shadow Glow */
+  .text-glow {
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+  }
+  .text-glow-primary {
+    text-shadow: 0 0 30px var(--theme-primary);
+  }
+
+  /* Blur Backdrop variations */
+  .glass-subtle {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .glass-strong {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  .glass-colored {
+    background: rgba(var(--theme-primary-rgb, 99, 102, 241), 0.1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  /* Parallax Background (CSS only) */
+  .parallax-bg {
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+
+  /* Scroll-triggered animations (modern CSS) */
+  @supports (animation-timeline: view()) {
+    .scroll-fade-in {
+      animation: scrollFadeIn linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 40%;
+    }
+    .scroll-fade-up {
+      animation: scrollFadeUp linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 40%;
+    }
+    .scroll-scale-in {
+      animation: scrollScaleIn linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 40%;
+    }
+  }
+
+  /* Image hover zoom */
+  .img-zoom-container {
+    overflow: hidden;
+  }
+  .img-zoom {
+    transition: transform 0.5s ease;
+  }
+  .img-zoom-container:hover .img-zoom,
+  .img-zoom:hover {
+    transform: scale(1.08);
+  }
+
+  /* Floating animation for decorative elements */
+  .float {
+    animation: float 6s ease-in-out infinite;
+  }
+  .float-delayed {
+    animation: float 6s ease-in-out infinite;
+    animation-delay: 2s;
+  }
+
+  /* Pulse ring effect (for CTAs) */
+  .pulse-ring {
+    position: relative;
+  }
+  .pulse-ring::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: inherit;
+    background: var(--theme-primary);
+    opacity: 0;
+    animation: pulseRing 2s ease-out infinite;
+  }
+
+  /* Gradient border animated */
+  .border-gradient-animated {
+    position: relative;
+    background: var(--theme-surface);
+    border-radius: var(--radius-card);
+  }
+  .border-gradient-animated::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: calc(var(--radius-card) + 2px);
+    background: linear-gradient(135deg, var(--theme-primary), var(--theme-accent), var(--theme-secondary), var(--theme-primary));
+    background-size: 300% 300%;
+    animation: gradient-shift 4s ease infinite;
+    z-index: -1;
   }
 
   /* -----------------------------
