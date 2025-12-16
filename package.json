@@ -39,14 +39,10 @@
     "variants:info": "tsx scripts/test-all-variants.ts --info",
     "variants:commands": "tsx scripts/test-all-variants.ts --commands",
     "test:quick": "pnpm exec playwright test tests/e2e/quick-check.spec.ts --reporter=list",
-    "test:images": "pnpm exec playwright test tests/e2e/images-loaded.spec.ts --reporter=list --project=chromium",
-    "test:images:quick": "pnpm exec playwright test tests/e2e/images-loaded.spec.ts -g 'Quick Check' --reporter=list",
-    "test:seo": "pnpm exec playwright test tests/e2e/seo.spec.ts --reporter=list --project=chromium",
-    "test:seo:quick": "pnpm exec playwright test tests/e2e/seo.spec.ts -g 'Quick Check' --reporter=list",
-    "test:lighthouse": "pnpm exec playwright test tests/e2e/lighthouse.spec.ts --reporter=list --project=chromium --workers=1",
-    "test:lighthouse:quick": "pnpm exec playwright test tests/e2e/lighthouse.spec.ts -g 'Quick Report' --reporter=list --workers=1",
-    "test:screenshots": "pnpm exec playwright test tests/e2e/all-businesses.spec.ts --reporter=list --project=chromium",
-    "test:screenshots:show": "pnpm exec playwright show-report"
+    "test:app": "pnpm exec playwright test tests/e2e/app.spec.ts --reporter=list",
+    "test:unit": "cross-env NODE_OPTIONS=--no-deprecation vitest run tests/unit --config ./vitest.config.mts",
+    "test:checkout": "pnpm exec playwright test tests/e2e/ecommerce-checkout.spec.ts --reporter=list",
+    "test:api": "pnpm exec playwright test tests/e2e/payload-api.spec.ts --reporter=list"
   },
   "dependencies": {
     "@payloadcms/admin-bar": "3.68.3",
