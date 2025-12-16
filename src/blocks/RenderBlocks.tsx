@@ -45,6 +45,8 @@ import { ContentBlock } from './Content/Component'
 import { FormBlockComponent } from './Form/Component'
 // Map block
 import { MapBlock } from './Map/Component'
+// Portfolio block
+import { PortfolioBlock } from './Portfolio/Component'
 
 type LayoutBlock = NonNullable<Page['layout']>[number]
 
@@ -656,6 +658,68 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   } : undefined}
                 />
               )
+            }
+
+            case 'portfolio': {
+              // Fetch portfolio items with proper filters and error handling
+              try {
+                const where: Where = {}
+                if (block.onlyFeatured) {
+                  where.featured = { equals: true }
+                }
+                if (block.filterByCategory) {
+                  where.category = { equals: block.filterByCategory }
+                }
+
+                const payload = await getPayload({ config: configPromise })
+                const portfolioResult = await payload.find({
+                  collection: 'portfolio',
+                  where,
+                  limit: block.limit || 6,
+                  sort: 'order',
+                  depth: 2,
+                })
+
+                // Transform portfolio items for the component with null safety
+                const portfolioItems = portfolioResult.docs.map((item) => ({
+                  id: item.id,
+                  title: item.title || 'Proiect fără titlu',
+                  shortDescription: item.shortDescription ?? null,
+                  client: item.client ?? null,
+                  externalUrl: item.externalUrl ?? null,
+                  featuredImage: (item.featuredImage && typeof item.featuredImage === 'object')
+                    ? item.featuredImage as MediaType
+                    : null,
+                  slug: item.slug ?? null,
+                }))
+
+                return (
+                  <PortfolioBlock
+                    key={block.id || index}
+                    variant={block.variant ?? undefined}
+                    heading={block.heading ?? undefined}
+                    subheading={block.subheading ?? undefined}
+                    columns={block.columns ?? undefined}
+                    showDescription={block.showDescription ?? undefined}
+                    showClient={block.showClient ?? undefined}
+                    backgroundColor={block.backgroundColor ?? undefined}
+                    ctaButton={block.ctaButton ?? undefined}
+                    items={portfolioItems}
+                  />
+                )
+              } catch (error) {
+                console.error('Error fetching portfolio items:', error)
+                // Return empty portfolio block on error
+                return (
+                  <PortfolioBlock
+                    key={block.id || index}
+                    variant={block.variant ?? undefined}
+                    heading={block.heading ?? undefined}
+                    subheading={block.subheading ?? undefined}
+                    items={[]}
+                  />
+                )
+              }
             }
 
             // 'pricing' case removed - use 'subscriptionCards' instead

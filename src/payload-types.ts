@@ -845,6 +845,10 @@ export interface Portfolio {
     author?: string | null;
   };
   category?: (string | null) | Category;
+  /**
+   * URL catre site-ul demo sau proiect live
+   */
+  externalUrl?: string | null;
   featured?: boolean | null;
   order?: number | null;
   updatedAt: string;
@@ -4610,6 +4614,7 @@ export interface PortfolioSelect<T extends boolean = true> {
         author?: T;
       };
   category?: T;
+  externalUrl?: T;
   featured?: T;
   order?: T;
   updatedAt?: T;
@@ -5506,13 +5511,37 @@ export interface SiteTheme {
         | 'Open_Sans'
         | 'Lato'
         | 'Source_Sans_3'
+        | 'Space_Grotesk'
+        | 'Sora'
+        | 'Outfit'
+        | 'Plus_Jakarta_Sans'
+        | 'Manrope'
+        | 'DM_Sans'
+        | 'DM_Serif_Display'
+        | 'Raleway'
       )
     | null;
   /**
    * Fontul folosit pentru text si paragrafe
    */
   bodyFont?:
-    | ('Inter' | 'Open_Sans' | 'Lato' | 'Poppins' | 'Source_Sans_3' | 'Montserrat' | 'Work_Sans' | 'Lora')
+    | (
+        | 'Inter'
+        | 'Open_Sans'
+        | 'Lato'
+        | 'Poppins'
+        | 'Source_Sans_3'
+        | 'Montserrat'
+        | 'Work_Sans'
+        | 'Lora'
+        | 'Space_Grotesk'
+        | 'Sora'
+        | 'Outfit'
+        | 'Plus_Jakarta_Sans'
+        | 'Manrope'
+        | 'DM_Sans'
+        | 'Raleway'
+      )
     | null;
   /**
    * Permite controlul fin asupra letter-spacing si line-height

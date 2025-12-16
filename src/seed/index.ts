@@ -18,6 +18,7 @@ import { seedDentist } from './businesses/dentist';
 import { seedFitness } from './businesses/fitness';
 import { seedFrizerie } from './businesses/frizerie';
 import { seedMagazin } from './businesses/magazin';
+import { seedMultiweb } from './businesses/multiweb';
 import { seedRestaurant } from './businesses/restaurant';
 import { seedSalon } from './businesses/salon';
 import {
@@ -36,6 +37,7 @@ const seeders: Record<string, (payload: Payload) => Promise<void>> = {
   salon: seedSalon,
   magazin: seedMagazin,
   fitness: seedFitness,
+  multiweb: seedMultiweb,
 };
 
 // Parse command line arguments

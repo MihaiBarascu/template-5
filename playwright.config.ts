@@ -29,10 +29,6 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'], channel: 'chromium' },
     },
   ],
-  webServer: {
-    command: `PORT=${TEST_PORT} pnpm dev`,
-    reuseExistingServer: !process.env.CI,
-    url: BASE_URL,
-    timeout: 120000, // 2 minutes for server startup
-  },
+  // Server must be started manually: pnpm start (port 3100)
+  // webServer disabled - we control when to start/stop
 })

@@ -1102,6 +1102,7 @@ export async function seedPortfolio(
     imageId: string;
     featured?: boolean;
     order?: number;
+    externalUrl?: string;
   }>,
 ) {
   for (const item of items) {
@@ -1117,6 +1118,7 @@ export async function seedPortfolio(
         featuredImage: item.imageId,
         featured: item.featured || false,
         order: item.order || 0,
+        externalUrl: item.externalUrl,
       },
     });
   }

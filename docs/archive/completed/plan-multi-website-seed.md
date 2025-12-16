@@ -1,279 +1,166 @@
 # Plan: Multi-Website Agency Seed
 
-> **ACTUALIZAT:** Decembrie 2024 - Reflect starea curentă a proiectului
+> **ACTUALIZAT:** 16 Decembrie 2024 - Plan revizuit complet
 
 ## Rezumat
 
-Crearea unui seed pentru **website de agenție web** care prezintă serviciul de creare site-uri și afișează demo-urile live ca portofoliu.
+Crearea unui seed pentru **website de agenție web (MultiWebsite)** - cel mai frumos și spectaculos site din toate demo-urile. Prezintă serviciul de creare site-uri și afișează demo-urile ca portofoliu.
 
-**Principiu:** Toate blocurile noi vor fi **generice și reutilizabile** pentru orice tip de afacere.
-
----
-
-## Stare Curentă Proiect
-
-### Ce avem implementat:
-
-| Component | Status | Detalii |
-|-----------|--------|---------|
-| **Seed System** | ✅ Complet | 9 business-uri, flag `--with-images`, design variants |
-| **Blocuri** | ✅ 36 blocuri | Vezi lista completă mai jos |
-| **Colecții** | ✅ 16+ colecții | Users, Media, Pages, Posts, Services, Products, etc. |
-| **Globals** | ✅ 7 globals | SiteTheme, BusinessInfo, Header, Footer, Logo, ShopSettings, SystemPages |
-| **Plugin-uri** | ✅ 8 plugin-uri | SEO, Search, Forms, Redirects, Ecommerce, S3, etc. |
-| **Design System** | ✅ 10+ variante | 5 variante per business type |
-| **Storage** | ✅ R2 + Local | Cloudflare R2 cu fallback local |
-| **Email** | ✅ Notificări | Comenzi + formulare via Resend |
+**Principii cheie:**
+- **Design spectaculos** - prioritate maximă pe aspect vizual
+- **Fără iframe-uri** - folosim screenshot-uri pentru portofoliu
+- **Efecte CSS/Tailwind only** - fără librării JavaScript noi
+- **Totul configurabil** - nimic hardcodat, totul din seed și admin
+- **Reutilizabil** - efectele noi vor fi disponibile pentru toate site-urile
 
 ---
 
-## Seed System
+## Screenshots Demo-uri (Capturate)
 
-### Comportament
+| Subdomain | Business | Screenshot |
+|-----------|----------|------------|
+| a.multiwebsite.org | Barber Shop Premium (Frizerie) | `docs/previews/agency/a-frizerie.png` |
+| b.multiwebsite.org | DentalMed (Dentist) | `docs/previews/agency/b-dentist.png` |
+| c.multiwebsite.org | Avocat Ionescu (Avocat) | `docs/previews/agency/c-avocat.png` |
+| d.multiwebsite.org | AutoPro (Auto Service) | `docs/previews/agency/d-auto-service.png` |
+| e.multiwebsite.org | La Copac (Restaurant) | `docs/previews/agency/e-restaurant.png` |
+| f.multiwebsite.org | EcoShop (Magazin Online) | `docs/previews/agency/f-magazin.png` |
+| g.multiwebsite.org | Beauty Elena (Salon) | `docs/previews/agency/g-salon.png` |
+| h.multiwebsite.org | BuildPro (Construcții) | `docs/previews/agency/h-constructii.png` |
+| i.multiwebsite.org | Transilvania Fitness (Fitness) | `docs/previews/agency/i-fitness.png` |
 
-```bash
-# Container (Dokploy)
-sh run-seed.sh frizerie             # Refolosește imaginile existente
-sh run-seed.sh frizerie with-images # Șterge și reimportă toate imaginile
+---
 
-# Local (development)
-pnpm seed                    # Refolosește imaginile existente
-pnpm seed -- --with-images   # Șterge și reimportă toate imaginile
+## Efecte CSS/Tailwind Noi (Reutilizabile)
+
+Toate efectele vor fi implementate doar cu CSS/Tailwind, fără librării JavaScript externe.
+
+### 1. Gradient Text
+```css
+/* Text cu gradient animat */
+.gradient-text {
+  background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease infinite;
+}
 ```
 
-### Business Types Disponibile (9)
-
-| Tip | Slug | Design Variants |
-|-----|------|-----------------|
-| Frizerie/Barbershop | `frizerie` | Classic Dark & Gold, Modern Blue, Bold Black, Minimal Clean, Elegant Premium |
-| Cabinet Stomatologic | `dentist` | Professional Blue, Clean White, Modern Teal, Warm Beige, Bold Black |
-| Cabinet Avocat | `avocat` | Classic Blue, Professional Gray, Modern Dark, Elegant Burgundy, Minimalist White |
-| Restaurant | `restaurant` | Warm Rustic, Modern Black, Fresh Green, Elegant Gold, Vibrant Red |
-| Service Auto | `auto-service` | Professional Blue, Industrial Dark, Modern Silver, Bold Red, Clean Minimalist |
-| Construcții | `constructii` | Professional Blue, Industrial Gray, Modern Orange, Bold Black, Minimalist Clean |
-| Salon Beauty | `salon` | Luxury Gold, Modern Pink, Clean Minimalist, Bold Purple, Elegant Peach |
-| Magazin Online | `magazin` | Modern Blue, Warm Gold, Fresh Green, Bold Purple, Clean Minimalist |
-| Fitness/Gym | `fitness` | Orange Energy, Bold Black, Vibrant Blue, Minimalist White, Modern Gray |
-
-### Fișiere Seed
-
-```
-src/seed/
-├── index.ts              # Orchestrator principal
-├── helpers.ts            # 40+ funcții helper (1933 linii)
-├── design-variants.ts    # 5 variante per business (1939 linii)
-└── businesses/
-    ├── frizerie.ts
-    ├── dentist.ts
-    ├── avocat.ts
-    ├── restaurant.ts
-    ├── auto-service.ts
-    ├── constructii.ts
-    ├── salon.ts
-    ├── magazin.ts
-    └── fitness.ts
+### 2. Glass Morphism
+```css
+/* Efect sticlă mată */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
 ```
 
----
-
-## Blocuri Existente (36)
-
-### Blocuri Active
-
-| Bloc | Variante | Scop |
-|------|----------|------|
-| Hero | minimal, centered, fullscreen, split, withImage, video, slider | Landing section |
-| Services | grid-3, grid-4, list, cards, pricing | Servicii business |
-| Team | grid, carousel, list | Echipa |
-| Testimonials | carousel, grid, masonry | Recenzii clienți |
-| Portfolio | grid, masonry, carousel | Portofoliu lucrări |
-| FAQ | accordion, grid, simple | Întrebări frecvente |
-| Contact | standard, cards, split | Info contact + formular |
-| CTA | simple, split, banner | Call to action |
-| Gallery | grid, masonry, carousel | Galerie imagini |
-| Stats | grid, inline, cards | Statistici/numere |
-| Content | richtext, columns | Conținut flexibil |
-| Products | grid, carousel, featured | Produse e-commerce |
-| Map | contained, fullwidth | Google Maps embed |
-| Booking | form, calendar | Programări |
-| Cart | standard | Coș cumpărături |
-| Checkout | standard | Finalizare comandă |
-| VideoEmbed | youtube, vimeo | Video embed |
-| PriceListDotted | standard | Listă prețuri cu dots |
-| BeforeAfter | slider | Comparație înainte/după |
-| Newsletter | simple, card | Abonare newsletter |
-| TrustBadges | inline, grid | Badge-uri încredere |
-| HowItWorks | timeline, steps, cards | Proces/pași |
-| LogoCloud | grid, carousel | Logo-uri parteneri |
-| LatestPosts | grid, list, carousel | Articole recente |
-| OpeningHours | table, cards | Program funcționare |
-| Locations | grid, map | Locații multiple |
-| BrandLogos | grid, carousel | Logo-uri branduri |
-| Timeline | vertical, horizontal | Cronologie |
-| AnnouncementBar | simple | Anunț top page |
-| SubscriptionCards | grid | Carduri abonamente |
-| ScheduleTable | table | Orar clase/servicii |
-| TeamMemberDetail | standard | Pagină membru echipă |
-| ServiceDetail | standard | Pagină serviciu detaliat |
-| FormBlock | card, inline | Formular dinamic (Form Builder) |
-
-### Blocuri Neexportate (disponibile dar inactive)
-
-- Banner
-- MediaBlock
-- ExpertiseAreas
-- NewsEvents
-- RestaurantMenu
-- Categories
-
----
-
-## Colecții
-
-### Colecții Principale
-
-| Colecție | Slug | Scop |
-|----------|------|------|
-| Users | `users` | Utilizatori admin + clienți |
-| Media | `media` | Imagini, PDF-uri |
-| Pages | `pages` | Pagini cu layout blocks |
-| Posts | `posts` | Articole blog |
-| Services | `services` | Servicii business |
-| Team | `team` | Membri echipă |
-| Portfolio | `portfolio` | Proiecte portofoliu |
-| Testimonials | `testimonials` | Recenzii clienți |
-| FAQ | `faq` | Întrebări frecvente |
-| Bookings | `bookings` | Programări |
-| Subscriptions | `subscriptions` | Abonamente |
-| SubscriptionOrders | `subscription-orders` | Comenzi abonamente |
-| NewsletterSubscribers | `newsletter-subscribers` | Abonați newsletter |
-| Categories | `categories` | Categorii blog |
-| ProductCategories | `product-categories` | Categorii produse |
-| ProductTags | `product-tags` | Tag-uri produse |
-
-### Colecții din Plugin-uri
-
-| Colecție | Plugin | Scop |
-|----------|--------|------|
-| Products | Ecommerce | Produse magazin |
-| Orders | Ecommerce | Comenzi |
-| Carts | Ecommerce | Coșuri |
-| Addresses | Ecommerce | Adrese livrare/facturare |
-| Forms | Form Builder | Formulare dinamice |
-| form-submissions | Form Builder | Submisii formulare |
-
----
-
-## Globals
-
-| Global | Scop |
-|--------|------|
-| **SiteTheme** | Design system: culori, fonturi, spacing, shadows, animații |
-| **BusinessInfo** | Info business: nume, telefon, email, adresă, program, social, WhatsApp |
-| **Header** | Navigație: variante, meniu, CTA button |
-| **Footer** | Footer: coloane, links, copyright, background |
-| **Logo** | Brand: text/imagine/ambele, dimensiuni |
-| **ShopSettings** | E-commerce: Stripe, currency, metode plată |
-| **SystemPages** | Labels: produse, coș, checkout, cont |
-
----
-
-## Plugin-uri Active (8)
-
-| Plugin | Scop |
-|--------|------|
-| **SEO Plugin** | Meta tags auto-generate pentru pages, posts, products, services |
-| **Search Plugin** | Full-text search pentru posts |
-| **Form Builder** | Formulare dinamice: contact, newsletter, booking, order |
-| **Redirects Plugin** | URL redirects pentru SEO |
-| **Nested Docs** | Pagini ierarhice: /clase/yoga, /servicii/consultatie |
-| **Import/Export** | Backup și migrare date |
-| **S3 Storage** | Cloudflare R2 (cloud) + local fallback |
-| **Ecommerce** | Produse, comenzi, coșuri, plăți |
-
----
-
-## Storage Configuration
-
-### Local Development
-- Folder: `./media`
-- Nu necesită configurare
-
-### Production (Dokploy)
-- Cloudflare R2 (S3-compatible)
-- Prefix: `media`
-- Fiecare afacere are propriul bucket
-
-```env
-R2_BUCKET=bucket-restaurant
-R2_ACCESS_KEY_ID=...
-R2_SECRET_ACCESS_KEY=...
-R2_ENDPOINT=https://ACCOUNT_ID.r2.cloudflarestorage.com
+### 3. Hover Lift Effect
+```css
+/* Card lift la hover cu shadow */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
 ```
 
----
-
-## Email & Notificări
-
-### Configurare
-- Adapter: Resend
-- API Key: `RESEND_API_KEY`
-
-### Notificări Active
-1. **Order emails** - La plasare comandă (business + client)
-2. **Form submissions** - La trimitere formular (către business-info email)
-3. **Newsletter** - Confirmare abonare
-
----
-
-## Ce Lipsește pentru Agency Seed
-
-### Blocuri Noi Necesare
-
-#### 1. Showcase Block
-**Scop:** Grid/carousel pentru proiecte, portofoliu, case studies
-
-```typescript
-// Variante necesare:
-- 'featured-grid'  // 2 mari + 4 mici
-- 'grid-3'         // 3 coloane
-- 'grid-4'         // 4 coloane
-- 'masonry'        // Layout masonry
-- 'carousel'       // Slider
-- 'bento'          // Bento grid (modern)
-
-// Fields:
-- heading, subheading
-- items[]: title, category, description, image, externalUrl, detailPageLink, tags[], featured
-- showTags, showCategory
-- ctaButton
-- backgroundColor
+### 4. Shine Effect
+```css
+/* Efect strălucire pe card/button */
+.shine-effect {
+  position: relative;
+  overflow: hidden;
+}
+.shine-effect::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 100%
+  );
+  transform: rotate(30deg) translateX(-100%);
+  transition: transform 0.6s;
+}
+.shine-effect:hover::after {
+  transform: rotate(30deg) translateX(100%);
+}
 ```
 
-#### 2. IframeEmbed Block
-**Scop:** Embed site-uri live, preview-uri cu device frames
+### 5. Scroll-triggered Fade In (CSS only)
+```css
+/* Animație la scroll folosind scroll-driven animations */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-```typescript
-// Variante necesare:
-- 'default'        // Iframe simplu
-- 'device-frame'   // Cu frame MacBook/iPhone
-- 'browser-frame'  // Cu bara browser Chrome
-- 'responsive'     // Cu device switcher
-- 'fullscreen'     // Full width
-
-// Fields:
-- heading, subheading
-- url (required)
-- fallbackImage
-- aspectRatio, height
-- deviceFrame: 'none' | 'macbook' | 'imac' | 'iphone' | 'ipad' | 'browser'
-- showDeviceSwitcher
-- allowFullscreen
-- lazyLoad
+.animate-on-scroll {
+  animation: fade-in-up linear both;
+  animation-timeline: view();
+  animation-range: entry 0% cover 40%;
+}
 ```
 
-#### 3. ComparisonTable Block (opțional)
-**Scop:** Comparație pachete/prețuri
+### 6. Border Gradient
+```css
+/* Border cu gradient */
+.border-gradient {
+  border: 2px solid transparent;
+  background: linear-gradient(white, white) padding-box,
+              linear-gradient(135deg, var(--primary), var(--secondary)) border-box;
+  border-radius: 12px;
+}
+```
+
+### 7. Subtle Parallax (CSS)
+```css
+/* Parallax ușor fără JS */
+.parallax-subtle {
+  background-attachment: fixed;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+```
+
+### 8. Animated Underline
+```css
+/* Underline animat la hover */
+.animated-underline {
+  position: relative;
+}
+.animated-underline::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -2px;
+  left: 0;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  transition: width 0.3s ease;
+}
+.animated-underline:hover::after {
+  width: 100%;
+}
+```
 
 ---
 
@@ -285,92 +172,205 @@ R2_ENDPOINT=https://ACCOUNT_ID.r2.cloudflarestorage.com
 {
   name: 'MultiWebsite',
   tagline: 'Website-uri profesionale pentru afacerea ta',
+  description: 'Creăm site-uri web moderne și funcționale pentru afaceri mici din România. Fiecare website este optimizat pentru conversii și ușor de administrat.',
   phone: '0722 456 789',
   email: 'contact@multiwebsite.org',
   address: 'București, România',
   stats: [
     { value: '9+', label: 'Template-uri disponibile' },
     { value: '100%', label: 'Personalizabil' },
-    { value: '24/7', label: 'Suport' },
+    { value: '24h', label: 'Răspuns garantat' },
+    { value: '4.9★', label: 'Rating clienți' },
   ]
 }
 ```
 
-### Pagini
-
-| Pagina | URL | Blocuri |
-|--------|-----|---------|
-| Home | `/` | Hero, TrustBadges, Stats, Showcase, Services, HowItWorks, Testimonials, FAQ, CTA |
-| Portofoliu | `/portofoliu` | Hero (minimal), Showcase (grid), CTA |
-| Servicii | `/servicii` | Hero, Services (detailed), FAQ, CTA |
-| Cum Funcționează | `/cum-functioneaza` | Hero, HowItWorks (timeline), CTA |
-| Blog | `/blog` | Hero, LatestPosts |
-| Contact | `/contact` | Contact (split), Map |
-| Demo Individual | `/portofoliu/[slug]` | IframeEmbed, Content, Showcase (related), CTA |
-
-### Demo Websites
+### Design Theme (Modern & Elegant)
 
 ```typescript
-demoWebsites: [
-  { title: 'Barber Shop Premium', type: 'Frizerie', url: 'https://a.multiwebsite.org', featured: true },
-  { title: 'DentalMed Clinic', type: 'Cabinet Stomatologic', url: 'https://b.multiwebsite.org', featured: true },
-  { title: 'Cabinet Avocat', type: 'Cabinet Juridic', url: 'https://c.multiwebsite.org', featured: false },
-  { title: 'AutoPro Service', type: 'Service Auto', url: 'https://d.multiwebsite.org', featured: false },
-  { title: 'Restaurant La Copac', type: 'Restaurant', url: 'https://e.multiwebsite.org', featured: true },
-  { title: 'EcoShop', type: 'Magazin Online', url: 'https://f.multiwebsite.org', featured: true },
-  { title: 'Beauty Studio', type: 'Salon Beauty', url: 'https://g.multiwebsite.org', featured: false },
-  { title: 'BuildPro Construct', type: 'Construcții', url: 'https://h.multiwebsite.org', featured: false },
-  { title: 'FitZone Gym', type: 'Fitness', url: 'https://i.multiwebsite.org', featured: false },
+// Tema modernă - de decis culoarea exactă
+// Opțiuni: Violet/Purple, Deep Blue, Emerald, sau combinație
+colors: {
+  primary: '#6366F1',     // Indigo 500 (sau alt accent)
+  secondary: '#818CF8',   // Indigo 400
+  accent: '#A5B4FC',      // Indigo 300
+  dark: '#0F172A',        // Slate 900
+  light: '#F8FAFC',       // Slate 50
+}
+
+// Accent pe efecte moderne:
+// - Glass morphism pentru cards
+// - Gradient text pentru headings
+// - Hover lift pentru portfolio items
+// - Shine effect pentru CTA buttons
+```
+
+### Pagini
+
+| Pagină | URL | Blocuri |
+|--------|-----|---------|
+| **Home** | `/` | Hero (spectaculos), TrustBadges, Stats, Showcase (portofoliu), Services, HowItWorks, Testimonials, FAQ, CTA |
+| **Portofoliu** | `/portofoliu` | Hero (minimal), Showcase (grid cu toate 9 demo-uri), CTA |
+| **Servicii** | `/servicii` | Hero, Services (detailed cu icons), FAQ, CTA |
+| **Despre** | `/despre` | Hero, Content (story), Stats, CTA |
+| **Blog** | `/blog` | Hero, LatestPosts |
+| **Contact** | `/contact` | Contact (formular prominent), Map |
+
+### Demo Websites (Portfolio Items)
+
+```typescript
+portfolioItems: [
+  {
+    title: 'Barber Shop Premium',
+    category: 'Frizerie / Barbershop',
+    description: 'Website modern pentru frizerie cu sistem de programări online',
+    image: 'a-frizerie.png', // Screenshot capturat
+    externalUrl: 'https://a.multiwebsite.org',
+    tags: ['Programări', 'Servicii', 'Echipă'],
+    featured: true,
+  },
+  {
+    title: 'DentalMed Clinic',
+    category: 'Cabinet Stomatologic',
+    description: 'Prezentare profesională pentru cabinet dentar cu booking',
+    image: 'b-dentist.png',
+    externalUrl: 'https://b.multiwebsite.org',
+    tags: ['Medical', 'Programări', 'Servicii'],
+    featured: true,
+  },
+  {
+    title: 'Cabinet Avocat Ionescu',
+    category: 'Juridic / Avocat',
+    description: 'Website elegant pentru cabinet de avocatură',
+    image: 'c-avocat.png',
+    externalUrl: 'https://c.multiwebsite.org',
+    tags: ['Juridic', 'Consultații', 'Contact'],
+    featured: false,
+  },
+  {
+    title: 'AutoPro Service',
+    category: 'Service Auto',
+    description: 'Prezentare completă pentru service auto cu prețuri',
+    image: 'd-auto-service.png',
+    externalUrl: 'https://d.multiwebsite.org',
+    tags: ['Auto', 'Servicii', 'Prețuri'],
+    featured: false,
+  },
+  {
+    title: 'Restaurant La Copac',
+    category: 'Restaurant / HoReCa',
+    description: 'Website apetisant pentru restaurant cu meniu și rezervări',
+    image: 'e-restaurant.png',
+    externalUrl: 'https://e.multiwebsite.org',
+    tags: ['Meniu', 'Rezervări', 'Galerie'],
+    featured: true,
+  },
+  {
+    title: 'EcoShop Premium',
+    category: 'Magazin Online',
+    description: 'E-commerce complet pentru produse naturale',
+    image: 'f-magazin.png',
+    externalUrl: 'https://f.multiwebsite.org',
+    tags: ['E-commerce', 'Produse', 'Coș'],
+    featured: true,
+  },
+  {
+    title: 'Beauty Studio Elena',
+    category: 'Salon Înfrumusețare',
+    description: 'Website elegant pentru salon beauty cu programări',
+    image: 'g-salon.png',
+    externalUrl: 'https://g.multiwebsite.org',
+    tags: ['Beauty', 'Programări', 'Servicii'],
+    featured: false,
+  },
+  {
+    title: 'BuildPro Construct',
+    category: 'Construcții / Renovări',
+    description: 'Prezentare solidă pentru firmă de construcții',
+    image: 'h-constructii.png',
+    externalUrl: 'https://h.multiwebsite.org',
+    tags: ['Construcții', 'Portofoliu', 'Ofertă'],
+    featured: false,
+  },
+  {
+    title: 'Transilvania Fitness',
+    category: 'Fitness / Gym',
+    description: 'Website energic pentru sală de fitness cu abonamente',
+    image: 'i-fitness.png',
+    externalUrl: 'https://i.multiwebsite.org',
+    tags: ['Fitness', 'Abonamente', 'Clase'],
+    featured: false,
+  },
 ]
 ```
 
-### Design Theme
+### Blog Posts (Emphasis pe crearea website-urilor)
 
 ```typescript
-// Violet/Purple theme
-colors: {
-  primary: '#8B5CF6',     // Violet 500
-  secondary: '#A78BFA',   // Violet 400
-  accent: '#C4B5FD',      // Violet 300
-  dark: '#1E1B4B',        // Indigo 950
-  light: '#F5F3FF',       // Violet 50
-}
-// Gradient: from-violet-600 via-purple-600 to-indigo-600
+blogPosts: [
+  {
+    title: 'De ce are nevoie afacerea ta de un website în 2024',
+    excerpt: 'Descoperă beneficiile unui website profesional pentru orice tip de afacere.',
+    category: 'Ghiduri',
+  },
+  {
+    title: 'Cum să alegi template-ul potrivit pentru afacerea ta',
+    excerpt: 'Sfaturi pentru alegerea designului perfect care reprezintă brandul tău.',
+    category: 'Sfaturi',
+  },
+  {
+    title: 'Website pentru frizerie: funcționalități esențiale',
+    excerpt: 'Ce trebuie să includă un site de succes pentru un barbershop modern.',
+    category: 'Case Studies',
+  },
+  {
+    title: 'E-commerce pentru afaceri mici: ghid complet',
+    excerpt: 'Cum să începi să vinzi online fără investiții mari.',
+    category: 'E-commerce',
+  },
+  {
+    title: 'SEO pentru afaceri locale: primii pași',
+    excerpt: 'Cum să fii găsit de clienți în zona ta geografică.',
+    category: 'SEO',
+  },
+]
 ```
 
 ---
 
 ## Pași Implementare
 
-### Faza 1: Blocuri Noi
-- [ ] Creare **Showcase** block (config.ts + Component.tsx)
-- [ ] Creare **IframeEmbed** block (config.ts + Component.tsx)
-- [ ] Export în blocks/index.ts
-- [ ] Test în admin panel
+### Faza 1: Efecte CSS Noi
+- [ ] Creare fișier `src/app/(frontend)/globals-effects.css` cu efectele noi
+- [ ] Adăugare clase Tailwind custom în `tailwind.config.ts`
+- [ ] Documentare efecte pentru reutilizare
 
 ### Faza 2: Seeder Agency
 - [ ] Creare `src/seed/businesses/multiweb.ts`
+- [ ] Design variant modern (indigo/violet sau altă culoare)
+- [ ] Import screenshots ca imagini de portofoliu
 - [ ] Adăugare în seeders (index.ts)
-- [ ] Screenshot-uri demo-uri cu Playwright
-- [ ] Design variant violet/purple
 
 ### Faza 3: Testare
-- [ ] Test toate paginile
-- [ ] Test responsive
-- [ ] Test iframe previews
-- [ ] Performance check
+- [ ] Test homepage - toate efectele vizibile
+- [ ] Test portofoliu - grid cu screenshots
+- [ ] Test responsive pe mobile
+- [ ] Test formularul de contact
+- [ ] Performance check (Core Web Vitals)
 
 ---
 
 ## Decizii
 
 ### Confirmate
-- **Nume:** `multiweb` sau `agency`
-- **Culori:** Violet/Purple gradient
-- **Echipă:** Nu se afișează
+- **Nume seed:** `multiweb`
+- **Fără iframe-uri** - folosim screenshots
+- **Efecte CSS only** - fără JS libraries
 - **Blog:** Da, articole despre web development
+- **Contact:** Formular simplu, fără prețuri deocamdată
+- **Target:** Afaceri mici din România
 
-### De făcut
-- [ ] Screenshots demo-uri
-- [ ] Decidere model business (abonament vs unic)
-- [ ] Pagină prețuri (ulterior)
+### De făcut ulterior
+- Pagină prețuri/pachete (când se decide modelul)
+- Integrare CRM/email marketing
+- Landing pages pentru fiecare tip de business
