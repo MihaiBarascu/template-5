@@ -1,4 +1,5 @@
 import type { Block } from 'payload'
+import { sectionWrapperFields } from '../_shared/sectionWrapperFields'
 
 export const ServicesBlock: Block = {
   slug: 'services',
@@ -210,6 +211,19 @@ export const ServicesBlock: Block = {
         { label: 'Primary', value: 'primary' },
       ],
     },
+    {
+      name: 'hoverEffect',
+      type: 'select',
+      label: 'Efect hover carduri',
+      defaultValue: 'default',
+      options: [
+        { label: 'Default (shadow + border)', value: 'default' },
+        { label: 'Lift (ridicare)', value: 'lift' },
+        { label: 'Glow (stralucire)', value: 'glow' },
+        { label: 'Scale (marire)', value: 'scale' },
+        { label: 'Fara efect', value: 'none' },
+      ],
+    },
     // Configurable labels for i18n
     {
       name: 'labels',
@@ -233,5 +247,7 @@ export const ServicesBlock: Block = {
         },
       ],
     },
+    // Section wrapper fields for advanced layout options
+    ...sectionWrapperFields,
   ],
 }

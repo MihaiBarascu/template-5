@@ -1,4 +1,5 @@
 import type { Block } from 'payload'
+import { sectionWrapperFields } from '../_shared/sectionWrapperFields'
 
 export const GalleryBlock: Block = {
   slug: 'gallery',
@@ -140,5 +141,7 @@ export const GalleryBlock: Block = {
         },
       ],
     },
+    // Section wrapper fields for advanced layout options
+    ...sectionWrapperFields,
   ],
 }

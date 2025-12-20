@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { Clock, User, MapPin, ArrowRight } from 'lucide-react'
+import { getBgClasses, getCategoryColors, type CategoryColorName } from '@/blocks/_shared/themeHelpers'
 
 interface ScheduleEntry {
   id?: string | null
@@ -48,12 +49,22 @@ interface ScheduleTableBlockProps {
   labels?: ScheduleLabels
 }
 
-const COLORS: Record<string, { bg: string; border: string; text: string }> = {
-  primary: { bg: 'bg-theme-primary/10', border: 'border-theme-primary', text: 'text-theme-primary' },
-  orange: { bg: 'bg-orange-100', border: 'border-orange-500', text: 'text-orange-700' },
-  blue: { bg: 'bg-blue-100', border: 'border-blue-500', text: 'text-blue-700' },
-  green: { bg: 'bg-green-100', border: 'border-green-500', text: 'text-green-700' },
-  purple: { bg: 'bg-purple-100', border: 'border-purple-500', text: 'text-purple-700' },
+// Helper function to get color for schedule entries (supports both direct colors and category mapping)
+function getEntryColors(colorName: string | null | undefined): { bg: string; border: string; text: string } {
+  if (!colorName) return { bg: 'bg-theme-primary/10', border: 'border-theme-primary', text: 'text-theme-primary' }
+
+  // Handle 'primary' as theme color
+  if (colorName === 'primary') {
+    return { bg: 'bg-theme-primary/10', border: 'border-theme-primary', text: 'text-theme-primary' }
+  }
+
+  // Try to get from centralized category colors
+  try {
+    return getCategoryColors(colorName as CategoryColorName)
+  } catch {
+    // Default fallback to theme primary
+    return { bg: 'bg-theme-primary/10', border: 'border-theme-primary', text: 'text-theme-primary' }
+  }
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -114,11 +125,7 @@ export function ScheduleTableBlock({
     { key: 'sunday', label: dayLabels.sunday, short: dayLabels.sunday?.charAt(0) || 'D' },
   ]
 
-  const bgClasses = {
-    default: 'bg-theme-surface',
-    light: 'bg-theme-light',
-    dark: 'bg-theme-dark text-white',
-  }
+  const bgClass = getBgClasses(backgroundColor)
 
   // Get today's day key
   const today = DAYS_WITH_LABELS[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1]?.key
@@ -141,7 +148,7 @@ export function ScheduleTableBlock({
 
   if (variant === 'list-days') {
     return (
-      <section className={`py-section ${bgClasses[backgroundColor]}`}>
+      <section className={`py-section ${bgClass}`}>
         <div className="container mx-auto px-4">
           {(heading || subheading) && (
             <div className="text-center mb-12">
@@ -193,7 +200,7 @@ export function ScheduleTableBlock({
                   </h3>
                   <div className="space-y-3">
                     {dayEntries.map((entry, idx) => {
-                      const color = COLORS[entry.color || CATEGORY_COLORS[entry.category || ''] || 'primary']
+                      const color = getEntryColors(entry.color || CATEGORY_COLORS[entry.category || ''])
                       return (
                         <div
                           key={entry.id || idx}
@@ -262,7 +269,7 @@ export function ScheduleTableBlock({
     const selectedDayEntries = selectedDay ? entriesByDay[selectedDay.key] : []
 
     return (
-      <section className={`py-section ${bgClasses[backgroundColor]}`}>
+      <section className={`py-section ${bgClass}`}>
         <div className="container mx-auto px-4">
           {(heading || subheading) && (
             <div className="text-center mb-12">
@@ -316,7 +323,7 @@ export function ScheduleTableBlock({
                 <p className="text-center text-theme-text-light py-8">{noClassesLabel}</p>
               ) : (
                 selectedDayEntries.map((entry, idx) => {
-                  const color = COLORS[entry.color || CATEGORY_COLORS[entry.category || ''] || 'primary']
+                  const color = getEntryColors(entry.color || CATEGORY_COLORS[entry.category || ''])
                   return (
                     <div
                       key={entry.id || idx}
@@ -386,7 +393,7 @@ export function ScheduleTableBlock({
     : DAYS_WITH_LABELS
 
   return (
-    <section className={`py-section ${bgClasses[backgroundColor]}`}>
+    <section className={`py-section ${bgClass}`}>
       <div className="container mx-auto px-4">
         {(heading || subheading) && (
           <div className="text-center mb-12">
@@ -481,7 +488,7 @@ export function ScheduleTableBlock({
                         }`}
                       >
                         {hourEntries.map((entry, idx) => {
-                          const color = COLORS[entry.color || CATEGORY_COLORS[entry.category || ''] || 'primary']
+                          const color = getEntryColors(entry.color || CATEGORY_COLORS[entry.category || ''])
                           return (
                             <div
                               key={entry.id || idx}

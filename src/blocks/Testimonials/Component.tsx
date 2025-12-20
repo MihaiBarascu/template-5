@@ -3,7 +3,37 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import { cn } from '@/utilities/cn'
 import { Media } from '@/components/Media'
+import { Play, X } from 'lucide-react'
 import type { Media as MediaType } from '@/payload-types'
+
+// Shared utilities
+import { getBgClasses, isDarkBackground, getCardClasses, getEmptyStateClasses } from '../_shared/themeHelpers'
+import { isValidMedia } from '../_shared/mediaHelpers'
+import { StarRating, QuoteIcon, getSourceIcon, ChevronIcon, PlayButton, EmptyStateIcon } from '../_shared/iconComponents'
+
+// Helper to parse video URLs
+function parseVideoUrl(url: string): { type: 'youtube' | 'vimeo' | 'direct'; embedUrl: string } | null {
+  if (!url) return null
+
+  // YouTube
+  const youtubeMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/)
+  if (youtubeMatch) {
+    return { type: 'youtube', embedUrl: `https://www.youtube.com/embed/${youtubeMatch[1]}?autoplay=1` }
+  }
+
+  // Vimeo
+  const vimeoMatch = url.match(/(?:vimeo\.com\/)(\d+)/)
+  if (vimeoMatch) {
+    return { type: 'vimeo', embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1` }
+  }
+
+  // Direct video URL
+  if (url.match(/\.(mp4|webm|ogg)$/i)) {
+    return { type: 'direct', embedUrl: url }
+  }
+
+  return null
+}
 
 interface Testimonial {
   id: string
@@ -18,6 +48,11 @@ interface Testimonial {
   source?: string | null
   featured?: boolean | null
   date?: string | null
+  videoUrl?: string | null
+  videoPoster?: {
+    url?: string | null
+    alt?: string | null
+  } | string | null
 }
 
 interface TestimonialsBlockProps {
@@ -37,60 +72,6 @@ interface TestimonialsBlockProps {
   testimonials?: Testimonial[]
 }
 
-// Helper to check if avatar is valid Media object
-function isValidMedia(image: unknown): image is MediaType {
-  return typeof image === 'object' && image !== null && 'url' in image
-}
-
-// Star Rating Component
-function StarRating({ rating, size = 'md' }: { rating: number; size?: 'sm' | 'md' | 'lg' }) {
-  const sizeClasses = {
-    sm: 'w-4 h-4',
-    md: 'w-5 h-5',
-    lg: 'w-6 h-6',
-  }
-
-  return (
-    <div className="flex gap-0.5">
-      {[1, 2, 3, 4, 5].map((star) => (
-        <svg
-          key={star}
-          className={cn(
-            sizeClasses[size],
-            star <= rating ? 'text-amber-400 fill-amber-400' : 'text-theme-border fill-theme-light'
-          )}
-          viewBox="0 0 20 20"
-        >
-          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-        </svg>
-      ))}
-    </div>
-  )
-}
-
-// Quote Icon
-const QuoteIcon = ({ className }: { className?: string }) => (
-  <svg className={className} fill="currentColor" viewBox="0 0 32 32">
-    <path d="M10 8c-3.3 0-6 2.7-6 6v10h10V14H8c0-1.1.9-2 2-2V8zm14 0c-3.3 0-6 2.7-6 6v10h10V14h-6c0-1.1.9-2 2-2V8z" />
-  </svg>
-)
-
-// Source Icons
-const SourceIcons: Record<string, React.ReactNode> = {
-  google: (
-    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-    </svg>
-  ),
-  facebook: (
-    <svg className="w-5 h-5 text-[#1877F2]" fill="currentColor" viewBox="0 0 24 24">
-      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-    </svg>
-  ),
-}
 
 export function TestimonialsBlock({
   variant = 'carousel',
@@ -107,16 +88,11 @@ export function TestimonialsBlock({
 }: TestimonialsBlockProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
+  const [activeVideo, setActiveVideo] = useState<string | null>(null)
 
-  // Background classes
-  const bgClasses: Record<string, string> = {
-    default: 'bg-theme-surface',
-    light: 'bg-theme-light',
-    dark: 'bg-theme-dark',
-    primary: 'bg-theme-primary',
-  }
-
-  const isDark = backgroundColor === 'dark' || backgroundColor === 'primary'
+  // Use shared theme helpers
+  const bgClass = getBgClasses(backgroundColor)
+  const isDark = isDarkBackground(backgroundColor)
 
   const nextSlide = useCallback(() => {
     if (isTransitioning) return
@@ -141,7 +117,7 @@ export function TestimonialsBlock({
 
   if (testimonials.length === 0) {
     return (
-      <section className={cn('py-section', bgClasses[backgroundColor] || bgClasses.light)}>
+      <section className={cn('py-section', bgClass)}>
         <div className="container mx-auto px-4">
           <div className={cn(
             'text-center py-16 border-2 border-dashed rounded-xl',
@@ -256,7 +232,7 @@ export function TestimonialsBlock({
         {/* Source */}
         {showSource && testimonial.source && (
           <div className={cn('ml-auto', featured && 'hidden')}>
-            {SourceIcons[testimonial.source.toLowerCase()] || (
+            {getSourceIcon(testimonial.source) || (
               <span className={cn(
                 'text-xs font-medium px-2 py-1 rounded-full',
                 isDark ? 'bg-white/10 text-white/70' : 'bg-theme-light text-theme-text-light'
@@ -273,7 +249,7 @@ export function TestimonialsBlock({
   // Carousel Variant
   if (variant === 'carousel') {
     return (
-      <section className={cn('py-section overflow-hidden', bgClasses[backgroundColor] || bgClasses.light)}>
+      <section className={cn('py-section overflow-hidden', bgClass)}>
         <div className="container mx-auto px-4">
           {/* Header */}
           {(heading || subheading) && (
@@ -379,7 +355,7 @@ export function TestimonialsBlock({
   // Single Featured Variant
   if (variant === 'single-featured') {
     return (
-      <section className={cn('py-section', bgClasses[backgroundColor] || bgClasses.light)}>
+      <section className={cn('py-section', bgClass)}>
         <div className="container mx-auto px-4">
           {/* Header */}
           {(heading || subheading) && (
@@ -411,7 +387,7 @@ export function TestimonialsBlock({
   // Masonry Variant
   if (variant === 'masonry') {
     return (
-      <section className={cn('py-section', bgClasses[backgroundColor] || bgClasses.light)}>
+      <section className={cn('py-section', bgClass)}>
         <div className="container mx-auto px-4">
           {/* Header */}
           {(heading || subheading) && (
@@ -444,9 +420,224 @@ export function TestimonialsBlock({
     )
   }
 
+  // Video Grid Variant
+  if (variant === 'video-grid') {
+    const videoTestimonials = testimonials.filter(t => t.videoUrl)
+
+    if (videoTestimonials.length === 0) {
+      return (
+        <section className={cn('py-section', bgClass)}>
+          <div className="container mx-auto px-4">
+            <div className={cn(
+              'text-center py-16 border-2 border-dashed rounded-xl',
+              isDark ? 'border-white/20' : 'border-theme-border'
+            )}>
+              <Play className={cn('w-16 h-16 mx-auto mb-4', isDark ? 'text-white/40' : 'text-theme-text-muted')} />
+              <p className={isDark ? 'text-white/60' : 'text-theme-text-muted'}>Nu sunt video testimoniale disponibile.</p>
+            </div>
+          </div>
+        </section>
+      )
+    }
+
+    return (
+      <section className={cn('py-section', bgClass)}>
+        <div className="container mx-auto px-4">
+          {/* Header */}
+          {(heading || subheading) && (
+            <div className="text-center mb-12">
+              {heading && (
+                <h2 className={cn(
+                  'heading-h2 font-bold mb-4',
+                  isDark ? 'text-white' : 'text-theme-text'
+                )}>
+                  {heading}
+                </h2>
+              )}
+              {subheading && (
+                <p className={cn('text-lg max-w-2xl mx-auto', isDark ? 'text-white/70' : 'text-theme-text-light')}>
+                  {subheading}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Video Grid */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {videoTestimonials.map((testimonial, index) => {
+              const videoInfo = parseVideoUrl(testimonial.videoUrl || '')
+              const posterImage = isValidMedia(testimonial.videoPoster) ? testimonial.videoPoster as MediaType : null
+
+              return (
+                <div
+                  key={testimonial.id || index}
+                  className={cn(
+                    'group relative rounded-[var(--radius-card)] overflow-hidden',
+                    'animate-fade-in-up card-hover cursor-pointer',
+                    isDark
+                      ? 'bg-white/5 border border-white/10'
+                      : 'bg-white shadow-lg hover:shadow-xl border border-theme-border/50',
+                    index < 8 && `animation-delay-${(index % 4) * 100 + 100}`
+                  )}
+                  onClick={() => videoInfo && setActiveVideo(testimonial.id)}
+                >
+                  {/* Video Thumbnail */}
+                  <div className="relative aspect-video overflow-hidden">
+                    {posterImage?.url ? (
+                      <Media
+                        resource={posterImage}
+                        fill
+                        size="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        imgClassName="object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    ) : isValidMedia(testimonial.avatar) ? (
+                      <Media
+                        resource={testimonial.avatar as MediaType}
+                        fill
+                        size="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        imgClassName="object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className={cn(
+                        'w-full h-full flex items-center justify-center',
+                        'bg-gradient-to-br from-theme-primary to-theme-secondary'
+                      )}>
+                        <span className="text-4xl font-bold text-white">{testimonial.name.charAt(0)}</span>
+                      </div>
+                    )}
+
+                    {/* Play Button Overlay */}
+                    <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+                      <div className={cn(
+                        'w-16 h-16 rounded-full flex items-center justify-center',
+                        'bg-white/90 text-theme-primary transition-all duration-300',
+                        'group-hover:scale-110 group-hover:bg-white shadow-lg'
+                      )}>
+                        <Play className="w-7 h-7 ml-1" fill="currentColor" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Info Section */}
+                  <div className="p-5">
+                    {/* Rating */}
+                    {showRating && testimonial.rating && (
+                      <div className="mb-3">
+                        <StarRating rating={parseInt(testimonial.rating) || 5} size="sm" />
+                      </div>
+                    )}
+
+                    {/* Quote Preview */}
+                    <p className={cn(
+                      'text-sm line-clamp-2 mb-3',
+                      isDark ? 'text-white/70' : 'text-theme-text-light'
+                    )}>
+                      &ldquo;{testimonial.content}&rdquo;
+                    </p>
+
+                    {/* Author */}
+                    <div className="flex items-center gap-3">
+                      {showAvatar && (
+                        <div className={cn(
+                          'w-10 h-10 rounded-full overflow-hidden flex-shrink-0',
+                          'ring-2',
+                          isDark ? 'ring-white/20' : 'ring-theme-primary/20'
+                        )}>
+                          {isValidMedia(testimonial.avatar) ? (
+                            <Media
+                              resource={testimonial.avatar as MediaType}
+                              fill
+                              size="40px"
+                              imgClassName="object-cover"
+                            />
+                          ) : (
+                            <div className={cn(
+                              'w-full h-full flex items-center justify-center text-sm font-bold',
+                              'bg-gradient-to-br from-theme-primary to-theme-secondary text-white'
+                            )}>
+                              {testimonial.name.charAt(0)}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      <div>
+                        <div className={cn(
+                          'font-semibold text-sm',
+                          isDark ? 'text-white' : 'text-theme-text'
+                        )}>
+                          {testimonial.name}
+                        </div>
+                        {testimonial.role && (
+                          <div className={cn(
+                            'text-xs',
+                            isDark ? 'text-white/50' : 'text-theme-text-muted'
+                          )}>
+                            {testimonial.role}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Video Modal */}
+          {activeVideo && (
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+              onClick={() => setActiveVideo(null)}
+            >
+              <div className="relative w-full max-w-4xl mx-4 aspect-video">
+                {/* Close Button */}
+                <button
+                  onClick={() => setActiveVideo(null)}
+                  className="absolute -top-12 right-0 p-2 text-white hover:text-theme-accent transition-colors"
+                  aria-label="Inchide"
+                >
+                  <X className="w-8 h-8" />
+                </button>
+
+                {/* Video Player */}
+                {(() => {
+                  const currentTestimonial = videoTestimonials.find(t => t.id === activeVideo)
+                  if (!currentTestimonial?.videoUrl) return null
+
+                  const videoInfo = parseVideoUrl(currentTestimonial.videoUrl)
+                  if (!videoInfo) return null
+
+                  if (videoInfo.type === 'direct') {
+                    return (
+                      <video
+                        src={videoInfo.embedUrl}
+                        controls
+                        autoPlay
+                        className="w-full h-full rounded-lg"
+                      />
+                    )
+                  }
+
+                  return (
+                    <iframe
+                      src={videoInfo.embedUrl}
+                      className="w-full h-full rounded-lg"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  )
+                })()}
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+    )
+  }
+
   // Grid Variant (default)
   return (
-    <section className={cn('py-section', bgClasses[backgroundColor] || bgClasses.light)}>
+    <section className={cn('py-section', bgClass)}>
       <div className="container mx-auto px-4">
         {/* Header */}
         {(heading || subheading) && (

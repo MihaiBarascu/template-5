@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { cn } from '@/utilities/cn'
 import { Media } from '@/components/Media'
 import type { Media as MediaType } from '@/payload-types'
+import { getBgClasses, isDarkBackground } from '@/blocks/_shared/themeHelpers'
+import { ArrowIcon } from '@/blocks/_shared/iconComponents'
 
 export interface PortfolioItem {
   id: string
@@ -39,13 +41,6 @@ const ExternalLinkIcon = () => (
   </svg>
 )
 
-// Arrow icon for CTA
-const ArrowRightIcon = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-  </svg>
-)
-
 export function PortfolioBlock({
   variant = 'grid-masonry',
   heading,
@@ -57,12 +52,8 @@ export function PortfolioBlock({
   ctaButton,
   items = [],
 }: PortfolioBlockProps) {
-  // Background classes
-  const bgClasses: Record<string, string> = {
-    default: 'bg-theme-surface',
-    light: 'bg-theme-light',
-    dark: 'bg-theme-dark text-white',
-  }
+  const bgClass = getBgClasses(backgroundColor)
+  const isDark = isDarkBackground(backgroundColor)
 
   // Column classes for grid
   const getColumns = (): string => {
@@ -75,7 +66,7 @@ export function PortfolioBlock({
 
   if (items.length === 0) {
     return (
-      <section className={cn('py-section', bgClasses[backgroundColor] || bgClasses.default)}>
+      <section className={cn('py-section', bgClass)}>
         <div className="container mx-auto px-4">
           <div className="text-center py-16 border-2 border-dashed border-theme-border rounded-xl">
             <svg className="w-16 h-16 mx-auto text-theme-text-muted mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -233,7 +224,7 @@ export function PortfolioBlock({
 
   return (
     <section
-      className={cn('py-section', bgClasses[backgroundColor] || bgClasses.default)}
+      className={cn('py-section', bgClass)}
       aria-labelledby={heading ? 'portfolio-heading' : undefined}
     >
       <div className="container mx-auto px-4">
@@ -245,7 +236,7 @@ export function PortfolioBlock({
                 id="portfolio-heading"
                 className={cn(
                   'heading-h2 font-bold mb-4',
-                  backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'
+                  isDark ? 'text-white' : 'text-theme-text'
                 )}
               >
                 {heading}
@@ -254,7 +245,7 @@ export function PortfolioBlock({
             {subheading && (
               <p className={cn(
                 'text-lg max-w-2xl mx-auto',
-                backgroundColor === 'dark' ? 'text-white/70' : 'text-theme-text-light'
+                isDark ? 'text-white/70' : 'text-theme-text-light'
               )}>
                 {subheading}
               </p>
@@ -340,7 +331,7 @@ export function PortfolioBlock({
               )}
             >
               {ctaButton.label}
-              <ArrowRightIcon />
+              <ArrowIcon />
             </Link>
           </div>
         )}

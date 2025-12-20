@@ -82,68 +82,118 @@ export function ServiceDetail({
 
   return (
     <main className="min-h-screen bg-theme-surface">
-      {/* Hero Section */}
-      <section className="relative h-[50vh] min-h-[400px]">
-        {image?.url ? (
-          <Image
-            src={image.url}
-            alt={image.alt || service.title}
-            fill
-            className="object-cover"
-            priority
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-theme-primary to-theme-primary/80" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+      {/* Split Hero Section */}
+      <section className="bg-theme-surface">
+        <div className="container mx-auto px-4 py-8">
+          {/* Back Link */}
+          <Link
+            href={backLink}
+            className="inline-flex items-center gap-2 text-theme-text-light hover:text-theme-primary mb-8 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            {backLabel}
+          </Link>
 
-        <div className="absolute inset-0 flex items-end">
-          <div className="container mx-auto px-4 pb-12">
-            {/* Back Link */}
-            <Link
-              href={backLink}
-              className="inline-flex items-center gap-2 text-white/80 hover:text-white mb-6 transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              {backLabel}
-            </Link>
+          {/* Split Layout: Image left, Content right */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+            {/* Left: Image at natural aspect ratio */}
+            <div className="relative">
+              {image?.url ? (
+                <div className="relative rounded-2xl overflow-hidden shadow-xl">
+                  <Image
+                    src={image.url}
+                    alt={image.alt || service.title}
+                    width={image.width || 600}
+                    height={image.height || 500}
+                    className="w-full h-auto object-cover"
+                    priority
+                  />
+                </div>
+              ) : (
+                <div className="aspect-[4/3] rounded-2xl bg-gradient-to-br from-theme-primary to-theme-primary/80 flex items-center justify-center">
+                  {getIcon(service.icon, 'w-24 h-24 text-white/50')}
+                </div>
+              )}
+            </div>
 
-            {/* Difficulty Badge */}
-            {service.difficulty && (
-              <div className="flex flex-wrap gap-3 mb-4">
-                <span className={cn(
-                  'px-3 py-1 text-sm font-medium rounded-full',
-                  difficultyColors[service.difficulty] || 'bg-theme-light text-theme-text'
-                )}>
-                  {difficultyTranslations[service.difficulty] || service.difficulty}
-                </span>
+            {/* Right: Content */}
+            <div className="space-y-6">
+              {/* Badges */}
+              <div className="flex flex-wrap gap-3">
+                {service.featured && (
+                  <span className="px-3 py-1 text-sm font-medium rounded-full bg-theme-accent text-white">
+                    Popular
+                  </span>
+                )}
+                {service.difficulty && (
+                  <span className={cn(
+                    'px-3 py-1 text-sm font-medium rounded-full',
+                    difficultyColors[service.difficulty] || 'bg-theme-light text-theme-text'
+                  )}>
+                    {difficultyTranslations[service.difficulty] || service.difficulty}
+                  </span>
+                )}
               </div>
-            )}
 
-            {/* Title */}
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
-              {service.title}
-            </h1>
+              {/* Title */}
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-theme-text">
+                {service.title}
+              </h1>
 
-            {/* Quick Stats */}
-            <div className="flex flex-wrap gap-6 text-white/90">
-              {service.duration && (
-                <span className="flex items-center gap-2">
-                  <Clock className="w-5 h-5" />
-                  {service.duration}
-                </span>
+              {/* Short Description */}
+              {service.shortDescription && (
+                <p className="text-lg text-theme-text-light leading-relaxed">
+                  {service.shortDescription}
+                </p>
               )}
-              {service.capacity && (
-                <span className="flex items-center gap-2">
-                  <Users className="w-5 h-5" />
-                  Max {service.capacity} persoane
-                </span>
+
+              {/* Quick Stats */}
+              <div className="flex flex-wrap items-center gap-6 py-4 border-y border-theme-border">
+                {service.duration && (
+                  <span className="flex items-center gap-2 text-theme-text">
+                    <Clock className="w-5 h-5 text-theme-primary" />
+                    {service.duration}
+                  </span>
+                )}
+                {service.capacity && (
+                  <span className="flex items-center gap-2 text-theme-text">
+                    <Users className="w-5 h-5 text-theme-primary" />
+                    Max {service.capacity} persoane
+                  </span>
+                )}
+                {service.price && (
+                  <span className="text-xl font-bold text-theme-primary">
+                    {service.price}
+                  </span>
+                )}
+              </div>
+
+              {/* Features preview */}
+              {service.features && service.features.length > 0 && (
+                <div className="space-y-3">
+                  {service.features.slice(0, 4).map((item, index) => (
+                    <div key={item.id || index} className="flex items-start gap-3">
+                      <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <span className="text-theme-text">{item.feature}</span>
+                    </div>
+                  ))}
+                  {service.features.length > 4 && (
+                    <p className="text-sm text-theme-text-light ml-8">
+                      + {service.features.length - 4} mai multe beneficii
+                    </p>
+                  )}
+                </div>
               )}
-              {service.price && (
-                <span className="text-2xl font-bold text-white">
-                  {service.price}
-                </span>
-              )}
+
+              {/* CTA Button */}
+              <div className="pt-4">
+                <Link
+                  href={ctaLink}
+                  className="btn-primary inline-flex items-center gap-2 text-lg px-8 py-4"
+                >
+                  {buttonLabel}
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -155,13 +205,7 @@ export function ServiceDetail({
           <div className="grid lg:grid-cols-3 gap-12">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-8">
-              {/* Description */}
-              {service.shortDescription && (
-                <p className="text-xl text-theme-text-light leading-relaxed">
-                  {service.shortDescription}
-                </p>
-              )}
-
+              {/* Full Description */}
               {service.description && (
                 <div className="prose prose-lg max-w-none">
                   <RichText data={service.description} enableGutter={false} />

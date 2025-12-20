@@ -21,6 +21,7 @@ import { seedMagazin } from './businesses/magazin';
 import { seedMultiweb } from './businesses/multiweb';
 import { seedRestaurant } from './businesses/restaurant';
 import { seedSalon } from './businesses/salon';
+import { seedTerapiiEnergetice } from './businesses/terapii-energetice';
 import {
   clearImageCache,
   setReuseExistingImages,
@@ -38,6 +39,7 @@ const seeders: Record<string, (payload: Payload) => Promise<void>> = {
   magazin: seedMagazin,
   fitness: seedFitness,
   multiweb: seedMultiweb,
+  'terapii-energetice': seedTerapiiEnergetice,
 };
 
 // Parse command line arguments
@@ -102,6 +104,93 @@ async function seed() {
 }
 
 async function clearData(payload: Payload, clearMedia: boolean = false) {
+  // Reset globals to clean state (fixes theme colors, announcementBar, etc. persisting between seeds)
+  console.log('   Resetting globals...');
+
+  // Reset site-theme to defaults
+  await payload.updateGlobal({
+    slug: 'site-theme',
+    data: {
+      variant: 'dark-gold',
+      borderRadius: undefined,
+      shadows: undefined,
+      animations: 'moderate',
+      containerWidth: '1280',
+      sectionSpacing: 'normal',
+      headingScale: 'normal',
+      bodyTextSize: 'normal',
+      cardGap: 'normal',
+      useCustomColors: false,
+      colors: {
+        primary: '#000000',
+        secondary: '#666666',
+        accent: '#c9a962',
+        dark: '#1a1a1a',
+        light: '#f5f5f5',
+        surface: '#ffffff',
+        text: '#1a1a1a',
+        textLight: '#666666',
+        border: '#e5e5e5',
+        textOnPrimary: '#ffffff',
+        textOnSecondary: '#ffffff',
+        textOnAccent: '#000000',
+        textOnDark: '#ffffff',
+        textOnLight: '#1a1a1a',
+        textOnSurface: '#1a1a1a',
+      },
+      headingFont: undefined,
+      bodyFont: undefined,
+    },
+  });
+
+  // Reset business-info - clear fields that persist between seeds (social, whatsappFloat, announcementBar)
+  // Note: We only reset the problematic fields, not required fields like 'name'
+  await payload.updateGlobal({
+    slug: 'business-info',
+    data: {
+      // Reset social links to empty (prevents old values persisting)
+      social: {
+        facebook: '',
+        instagram: '',
+        tiktok: '',
+        youtube: '',
+        linkedin: '',
+      },
+      // Reset whatsappFloat completely
+      whatsappFloat: {
+        enabled: false,
+        position: 'bottom-right',
+        showOnMobile: true,
+        defaultMessage: '',
+        tooltipText: '',
+        pulseAnimation: false,
+      },
+      // Reset announcementBar completely
+      announcementBar: {
+        enabled: false,
+        message: '',
+        linkText: '',
+        linkUrl: '',
+      },
+    },
+  });
+
+  // Reset Footer badges when clearing media (to remove orphaned references)
+  if (clearMedia) {
+    await payload.updateGlobal({
+      slug: 'footer',
+      data: {
+        badges: [], // Clear badge references before media is deleted
+      },
+    });
+    console.log('   Footer badges cleared');
+  }
+
+  // Note: Header, Footer, Logo are fully set by each seeder, so no need to reset them
+  // The seeder's seedHeader, seedFooter, seedLogo calls will overwrite all values
+
+  console.log('   Globals reset to clean state');
+
   // Collections to clear (media only if --with-images flag)
   const collections: (keyof Config['collections'])[] = [
     'pages',

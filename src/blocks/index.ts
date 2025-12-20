@@ -15,6 +15,7 @@ import { BookingBlock } from './Booking/config'
 import { CartBlock } from './Cart/config'
 import { CheckoutBlock } from './Checkout/config'
 import { VideoEmbedBlock } from './VideoEmbed/config'
+import { VideoGalleryBlock } from './VideoGallery/config'
 import { PriceListDottedBlock } from './PriceListDotted/config'
 import { BeforeAfterBlock } from './BeforeAfter/config'
 import { NewsletterBlock } from './Newsletter/config'
@@ -35,6 +36,10 @@ import { TeamMemberDetailBlock } from './TeamMemberDetail/config'
 import { ServiceDetailBlock } from './ServiceDetail/config'
 // Form Builder block - uses forms defined in admin
 import { FormBlock } from './Form/config'
+// Premium blocks (Plasturi integration)
+import { VideoHeroBlock } from './VideoHero/config'
+import { ProcessStepsBlock } from './ProcessSteps/config'
+import { PricingKitsBlock } from './PricingKits/config'
 
 export const blocks = [
   HeroBlock,
@@ -54,6 +59,7 @@ export const blocks = [
   CartBlock,
   CheckoutBlock,
   VideoEmbedBlock,
+  VideoGalleryBlock,
   PriceListDottedBlock,
   BeforeAfterBlock,
   NewsletterBlock,
@@ -74,6 +80,10 @@ export const blocks = [
   ServiceDetailBlock,
   // Form Builder block
   FormBlock,
+  // Premium blocks (Plasturi integration)
+  VideoHeroBlock,
+  ProcessStepsBlock,
+  PricingKitsBlock,
 ]
 
 export {
@@ -94,6 +104,7 @@ export {
   CartBlock,
   CheckoutBlock,
   VideoEmbedBlock,
+  VideoGalleryBlock,
   PriceListDottedBlock,
   BeforeAfterBlock,
   NewsletterBlock,
@@ -114,4 +125,8 @@ export {
   ServiceDetailBlock,
   // Form Builder block
   FormBlock,
+  // Premium blocks (Plasturi integration)
+  VideoHeroBlock,
+  ProcessStepsBlock,
+  PricingKitsBlock,
 }

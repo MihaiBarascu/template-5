@@ -3,6 +3,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { cn } from '@/utilities/cn'
+import { getBgClasses, isDarkBackground } from '@/blocks/_shared/themeHelpers'
 
 interface CTAButton {
   label: string
@@ -48,15 +49,8 @@ export function CTABlock({
   size = 'medium',
   businessPhone,
 }: CTABlockProps) {
-  const bgClass = {
-    default: 'bg-theme-surface text-theme-text',
-    light: 'bg-theme-light text-theme-text',
-    dark: 'bg-theme-dark text-white',
-    primary: 'bg-theme-primary text-white',
-    accent: 'bg-theme-accent text-white',
-  }[backgroundColor] || 'bg-theme-primary text-white'
-
-  const isDark = backgroundColor === 'dark' || backgroundColor === 'primary' || backgroundColor === 'accent'
+  const bgClass = getBgClasses(backgroundColor)
+  const isDark = isDarkBackground(backgroundColor) || backgroundColor === 'accent'
 
   const alignClass = {
     left: 'text-left',

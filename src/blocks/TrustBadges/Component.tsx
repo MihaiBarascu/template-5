@@ -2,61 +2,9 @@
 
 import React from 'react'
 import { cn } from '@/utilities/cn'
-import {
-  Truck,
-  Package,
-  Shield,
-  ShieldCheck,
-  CheckCircle,
-  Star,
-  Heart,
-  Phone,
-  Clock,
-  Calendar,
-  CreditCard,
-  Gift,
-  Award,
-  Users,
-  ThumbsUp,
-  Leaf,
-  Recycle,
-  RefreshCw,
-  Headphones,
-  MessageCircle,
-  Zap,
-  BadgeCheck,
-  CircleDollarSign,
-  Banknote,
-  type LucideIcon,
-} from 'lucide-react'
-
-// Icon mapping
-const iconMap: Record<string, LucideIcon> = {
-  Truck,
-  Package,
-  Shield,
-  ShieldCheck,
-  CheckCircle,
-  Star,
-  Heart,
-  Phone,
-  Clock,
-  Calendar,
-  CreditCard,
-  Gift,
-  Award,
-  Users,
-  ThumbsUp,
-  Leaf,
-  Recycle,
-  RefreshCw,
-  Headphones,
-  MessageCircle,
-  Zap,
-  BadgeCheck,
-  CircleDollarSign,
-  Banknote,
-}
+import { CheckCircle } from 'lucide-react'
+import { getBgClasses, isDarkBackground } from '@/blocks/_shared/themeHelpers'
+import { getLucideIconComponent } from '@/blocks/_shared/iconComponents'
 
 interface Badge {
   icon: string
@@ -193,18 +141,11 @@ export function TrustBadgesBlock({
     large: 'w-8 h-8',
   }
 
-  // Background colors - using theme variables
-  const bgColors = {
-    default: 'bg-theme-surface',
-    light: 'bg-theme-light',
-    dark: 'bg-theme-dark text-white',
-    primary: 'bg-theme-primary text-white',
-    transparent: 'bg-transparent',
-  }
+  const bgClass = getBgClasses(backgroundColor)
 
   // Render a single badge
   const renderBadge = (badge: Badge, index: number) => {
-    const IconComponent = iconMap[badge.icon] || CheckCircle
+    const IconComponent = getLucideIconComponent(badge.icon) || CheckCircle
 
     if (variant === 'minimal') {
       return (
@@ -300,10 +241,10 @@ export function TrustBadgesBlock({
     minimal: 'flex flex-wrap justify-center gap-4 md:gap-6',
   }
 
-  const isDarkSection = backgroundColor === 'dark' || backgroundColor === 'primary'
+  const isDarkSection = isDarkBackground(backgroundColor)
 
   return (
-    <section className={cn('py-8 md:py-12', bgColors[backgroundColor])}>
+    <section className={cn('py-8 md:py-12', bgClass)}>
       <div className="container mx-auto px-4">
         {heading && (
           <h2

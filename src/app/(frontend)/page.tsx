@@ -1,33 +1,19 @@
-import { getPayload } from 'payload'
-import configPromise from '@payload-config'
 import Link from 'next/link'
 import { RenderBlocks } from '@/blocks/RenderBlocks'
 import { RenderHero } from '@/heros/RenderHero'
+import { getCachedDocument } from '@/utilities/getDocument'
+import { getCachedGlobal } from '@/utilities/getGlobals'
 
-// Revalidate page every 60 seconds for ISR
+// Revalidate page every 60 seconds for ISR (fallback if tags not invalidated)
 export const revalidate = 60
 
 export default async function HomePage() {
-  const payload = await getPayload({ config: configPromise })
-
-  const [pageResult, businessInfo] = await Promise.all([
-    payload.find({
-      collection: 'pages',
-      where: {
-        slug: {
-          equals: 'home',
-        },
-      },
-      limit: 1,
-    }),
-    payload.findGlobal({
-      slug: 'business-info',
-    }).catch(() => null),
+  const [pageData, businessInfo] = await Promise.all([
+    getCachedDocument('pages', 'home', 2),
+    getCachedGlobal('business-info', 1).catch(() => null),
   ])
 
-  const page = pageResult
-
-  if (!page.docs[0]) {
+  if (!pageData) {
     // Render a default homepage if no page exists
     return (
       <div className="container mx-auto py-20 text-center">
@@ -46,7 +32,6 @@ export default async function HomePage() {
     )
   }
 
-  const pageData = page.docs[0]
   const social = businessInfo?.social || null
 
   return (
@@ -60,20 +45,9 @@ export default async function HomePage() {
 }
 
 export async function generateMetadata() {
-  const payload = await getPayload({ config: configPromise })
+  const pageData = await getCachedDocument('pages', 'home', 1)
 
-  const page = await payload.find({
-    collection: 'pages',
-    where: {
-      slug: {
-        equals: 'home',
-      },
-    },
-    limit: 1,
-    depth: 1,
-  })
-
-  if (!page.docs[0]) {
+  if (!pageData) {
     return {
       title: 'Acasa',
       description: 'Bine ai venit pe site-ul nostru',
@@ -81,5 +55,5 @@ export async function generateMetadata() {
   }
 
   const { generateMeta } = await import('@/utilities/generateMeta')
-  return generateMeta({ doc: page.docs[0] })
+  return generateMeta({ doc: pageData })
 }

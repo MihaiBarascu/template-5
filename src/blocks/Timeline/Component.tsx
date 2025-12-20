@@ -14,6 +14,13 @@ interface TimelineEvent {
   id?: string | null
 }
 
+interface Conclusion {
+  enabled?: boolean | null
+  quote?: string | null
+  author?: string | null
+  role?: string | null
+}
+
 interface TimelineBlockProps {
   variant?: string | null
   heading?: string | null
@@ -21,6 +28,7 @@ interface TimelineBlockProps {
   events?: TimelineEvent[] | null
   showConnector?: boolean | null
   backgroundColor?: string | null
+  conclusion?: Conclusion | null
 }
 
 // Helper to check if image is valid Media object
@@ -35,6 +43,7 @@ export function TimelineBlock({
   events = [],
   showConnector = true,
   backgroundColor = 'default',
+  conclusion,
 }: TimelineBlockProps) {
   const eventList = events || []
   const bgColor = backgroundColor || 'default'
@@ -49,6 +58,57 @@ export function TimelineBlock({
   const textMuted = bgColor === 'dark' ? 'text-white/60' : 'text-theme-text-light'
   const borderColor = bgColor === 'dark' ? 'border-white/10' : 'border-theme-border'
   const connectorColor = bgColor === 'dark' ? 'bg-white/10' : 'bg-theme-border'
+
+  // Conclusion/Quote section component
+  const ConclusionSection = () => {
+    if (!conclusion?.enabled || !conclusion?.quote) return null
+
+    return (
+      <div className="mt-16 max-w-3xl mx-auto text-center">
+        <div className={cn(
+          'relative p-8 rounded-2xl',
+          bgColor === 'dark' ? 'bg-white/5' : 'bg-theme-light'
+        )}>
+          {/* Quote icon */}
+          <div className={cn(
+            'absolute -top-4 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full flex items-center justify-center',
+            'bg-theme-primary text-white'
+          )}>
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h4v10h-10z"/>
+            </svg>
+          </div>
+
+          {/* Quote text */}
+          <blockquote className={cn(
+            'text-xl md:text-2xl font-medium italic leading-relaxed mt-4',
+            bgColor === 'dark' ? 'text-white' : 'text-theme-text'
+          )}>
+            "{conclusion.quote}"
+          </blockquote>
+
+          {/* Author */}
+          {(conclusion.author || conclusion.role) && (
+            <div className="mt-6">
+              {conclusion.author && (
+                <p className={cn(
+                  'font-semibold',
+                  bgColor === 'dark' ? 'text-white' : 'text-theme-text'
+                )}>
+                  {conclusion.author}
+                </p>
+              )}
+              {conclusion.role && (
+                <p className={cn('text-sm', textMuted)}>
+                  {conclusion.role}
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
 
   if (variant === 'horizontal') {
     return (
@@ -92,6 +152,8 @@ export function TimelineBlock({
               ))}
             </div>
           </div>
+
+          <ConclusionSection />
         </div>
       </section>
     )
@@ -160,6 +222,8 @@ export function TimelineBlock({
               })}
             </div>
           </div>
+
+          <ConclusionSection />
         </div>
       </section>
     )
@@ -192,6 +256,8 @@ export function TimelineBlock({
               </div>
             ))}
           </div>
+
+          <ConclusionSection />
         </div>
       </section>
     )
@@ -250,6 +316,8 @@ export function TimelineBlock({
             ))}
           </div>
         </div>
+
+        <ConclusionSection />
       </div>
     </section>
   )

@@ -1995,6 +1995,166 @@ export const fitnessVariants: DesignVariant[] = [
 ]
 
 // =============================================================================
+// TERAPII ENERGETICE - 3 VARIANTE (Wellness & Healing)
+// =============================================================================
+
+export const terapiiEnergeticeVariants: DesignVariant[] = [
+  // VARIANTA 1 - Gold & Navy (Original terapiienergetice.ro)
+  {
+    id: 'terapii-v1',
+    name: 'Gold & Navy Healing',
+    description: 'Design premium pentru terapii energetice - auriu și navy, calm și spiritual',
+    theme: {
+      preset: 'elegant',
+      colors: {
+        primary: '#F5C518',      // Gold
+        secondary: '#1a1a2e',    // Dark Navy
+        accent: '#FFD700',       // Gold accent
+        dark: '#0d0d1a',         // Darker Navy
+        light: '#faf9f6',        // Warm white
+        surface: '#ffffff',
+        text: '#1a1a2e',
+        textLight: '#666666',
+        border: '#e5e5e5',
+        // Contrast colors
+        textOnPrimary: '#1a1a2e',     // Dark on gold
+        textOnSecondary: '#F5C518',   // Gold on navy
+        textOnAccent: '#1a1a2e',      // Dark on gold
+        textOnDark: '#ffffff',        // White on dark
+        textOnLight: '#1a1a2e',       // Dark on light
+        textOnSurface: '#1a1a2e',     // Dark on white
+      },
+      headingFont: 'Playfair_Display',  // Elegant serif
+      bodyFont: 'Open_Sans',            // Friendly sans
+      fontPreset: 'elegant',
+      stylePreset: 'modern',
+      borderRadius: 'medium',           // 8px like plasturi
+      shadows: 'subtle',                // Minimal shadows like plasturi
+      headingScale: 'large',
+      bodyTextSize: 'large',
+      cardGap: 'spacious',
+      sectionSpacing: 'spacious',
+      animations: 'moderate',
+    },
+    hero: {
+      type: 'video',
+      overlay: 'gradient',
+      alignment: 'center',
+    },
+    layout: {
+      sections: ['services', 'howItWorks', 'team', 'testimonials', 'videoTestimonials', 'stats', 'videoGallery', 'faq', 'contact', 'cta'],
+      servicesVariant: 'grid-4',
+      teamVariant: 'grid-centered',
+      testimonialsVariant: 'carousel',
+      galleryVariant: 'grid-3',
+      pricingVariant: 'featured-center',
+    },
+  },
+
+  // VARIANTA 2 - Soft Purple Zen
+  {
+    id: 'terapii-v2',
+    name: 'Soft Purple Zen',
+    description: 'Design zen cu violet soft - spiritual și relaxant',
+    theme: {
+      preset: 'elegant',
+      colors: {
+        primary: '#9333EA',      // Purple 600
+        secondary: '#7C3AED',    // Violet 600
+        accent: '#C4B5FD',       // Violet 300
+        dark: '#2E1065',         // Purple 950
+        light: '#FAF5FF',        // Purple 50
+        surface: '#ffffff',
+        text: '#1F2937',
+        textLight: '#6B7280',
+        border: '#EDE9FE',       // Violet 100
+        textOnPrimary: '#ffffff',
+        textOnSecondary: '#ffffff',
+        textOnAccent: '#2E1065',
+        textOnDark: '#FAF5FF',
+        textOnLight: '#1F2937',
+        textOnSurface: '#1F2937',
+      },
+      headingFont: 'Lora',
+      bodyFont: 'Lato',
+      fontPreset: 'elegant',
+      stylePreset: 'modern',
+      borderRadius: 'large',
+      shadows: 'subtle',
+      headingScale: 'normal',
+      bodyTextSize: 'normal',
+      cardGap: 'spacious',
+      sectionSpacing: 'spacious',
+      animations: 'subtle',
+    },
+    hero: {
+      type: 'fullscreen',
+      overlay: 'gradient',
+      alignment: 'center',
+    },
+    layout: {
+      sections: ['services', 'howItWorks', 'team', 'stats', 'testimonials', 'videoTestimonials', 'videoGallery', 'faq', 'cta'],
+      servicesVariant: 'grid-3',
+      teamVariant: 'grid',
+      testimonialsVariant: 'grid',
+      galleryVariant: 'masonry',
+      pricingVariant: 'cards-3',
+    },
+  },
+
+  // VARIANTA 3 - Teal Harmony (VIDEO HERO)
+  {
+    id: 'terapii-v3',
+    name: 'Teal Harmony',
+    description: 'Design armonios cu teal - echilibrat și liniștitor, cu video hero',
+    theme: {
+      preset: 'modern',
+      colors: {
+        primary: '#0D9488',      // Teal 600
+        secondary: '#14B8A6',    // Teal 500
+        accent: '#5EEAD4',       // Teal 300
+        dark: '#042F2E',         // Teal 950
+        light: '#F0FDFA',        // Teal 50
+        surface: '#ffffff',
+        text: '#042F2E',
+        textLight: '#0F766E',    // Teal 700
+        border: '#CCFBF1',       // Teal 100
+        textOnPrimary: '#ffffff',
+        textOnSecondary: '#ffffff',
+        textOnAccent: '#042F2E',
+        textOnDark: '#F0FDFA',
+        textOnLight: '#042F2E',
+        textOnSurface: '#042F2E',
+      },
+      headingFont: 'Poppins',
+      bodyFont: 'Inter',
+      fontPreset: 'modern',
+      stylePreset: 'modern',
+      borderRadius: 'medium',
+      shadows: 'moderate',
+      headingScale: 'normal',
+      bodyTextSize: 'normal',
+      cardGap: 'normal',
+      sectionSpacing: 'normal',
+      animations: 'moderate',
+    },
+    hero: {
+      type: 'video',
+      overlay: 'dark',
+      alignment: 'center',
+    },
+    layout: {
+      sections: ['services', 'stats', 'team', 'howItWorks', 'testimonials', 'videoGallery', 'faq', 'contact', 'cta'],
+      servicesVariant: 'list-alternating',
+      teamVariant: 'grid-centered',
+      testimonialsVariant: 'carousel',
+      galleryVariant: 'grid-4',
+      pricingVariant: 'cards-4',
+    },
+  },
+]
+
+// =============================================================================
 // AGENCY / MULTIWEB - 5 VARIANTE (Modern web agency)
 // =============================================================================
 
@@ -2270,6 +2430,7 @@ export type BusinessType =
   | 'magazin'
   | 'fitness'
   | 'multiweb'
+  | 'terapii-energetice'
 
 export function getVariant(businessType: BusinessType, variantIndex: number = 0): DesignVariant {
   const variants = {
@@ -2283,6 +2444,7 @@ export function getVariant(businessType: BusinessType, variantIndex: number = 0)
     magazin: magazinVariants,
     fitness: fitnessVariants,
     multiweb: multiwebVariants,
+    'terapii-energetice': terapiiEnergeticeVariants,
   }
 
   const businessVariants = variants[businessType]
@@ -2302,6 +2464,7 @@ export function getAllVariants(businessType: BusinessType): DesignVariant[] {
     magazin: magazinVariants,
     fitness: fitnessVariants,
     multiweb: multiwebVariants,
+    'terapii-energetice': terapiiEnergeticeVariants,
   }
   return variants[businessType]
 }
@@ -2318,6 +2481,7 @@ export function getVariantById(variantId: string): DesignVariant | undefined {
     ...magazinVariants,
     ...fitnessVariants,
     ...multiwebVariants,
+    ...terapiiEnergeticeVariants,
   ]
   return allVariants.find((v) => v.id === variantId)
 }

@@ -19,3 +19,5 @@ export {
   SelectTrigger,
   SelectValue,
 } from './select'
+export { FloatingCTA, type FloatingCTAProps } from './FloatingCTA'
+export { VideoPlayer, type VideoPlayerProps } from './VideoPlayer'

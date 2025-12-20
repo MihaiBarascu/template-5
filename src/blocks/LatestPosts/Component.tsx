@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { cn } from '@/utilities/cn'
 import { Media } from '@/components/Media'
 import type { Media as MediaType } from '@/payload-types'
+import { getBgClasses, isDarkBackground } from '@/blocks/_shared/themeHelpers'
 import { ChevronLeft, ChevronRight, Calendar, User, Tag, ArrowRight } from 'lucide-react'
 
 interface PostImage {
@@ -102,15 +103,8 @@ export function LatestPostsBlock({
 }: LatestPostsBlockProps) {
   const [currentSlide, setCurrentSlide] = useState(0)
 
-  // Background classes
-  const bgClasses: Record<string, string> = {
-    default: 'bg-theme-surface',
-    light: 'bg-theme-light',
-    dark: 'bg-theme-dark',
-    primary: 'bg-theme-primary',
-  }
-
-  const isDark = backgroundColor === 'dark' || backgroundColor === 'primary'
+  const bgClass = getBgClasses(backgroundColor)
+  const isDark = isDarkBackground(backgroundColor)
 
   // Carousel navigation
   const nextSlide = useCallback(() => {
@@ -374,7 +368,7 @@ export function LatestPostsBlock({
       className={cn(
         'py-16 md:py-24',
         'animate-fade-in-up',
-        bgClasses[backgroundColor] || bgClasses.default,
+        bgClass,
       )}
     >
       <div className="container mx-auto px-4">

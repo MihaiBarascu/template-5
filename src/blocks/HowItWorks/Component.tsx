@@ -5,53 +5,9 @@ import Link from 'next/link'
 import { cn } from '@/utilities/cn'
 import { Media } from '@/components/Media'
 import type { Media as MediaType } from '@/payload-types'
-import {
-  Search,
-  MousePointerClick,
-  Calendar,
-  CheckCircle,
-  User,
-  Store,
-  ShoppingCart,
-  CreditCard,
-  Package,
-  Truck,
-  Home,
-  Phone,
-  Mail,
-  MessageSquare,
-  Settings,
-  FileText,
-  Scissors,
-  Star,
-  Heart,
-  ClipboardCheck,
-  type LucideIcon,
-} from 'lucide-react'
-
-// Icon mapping
-const iconMap: Record<string, LucideIcon> = {
-  Search,
-  MousePointerClick,
-  Calendar,
-  CheckCircle,
-  User,
-  Store,
-  ShoppingCart,
-  CreditCard,
-  Package,
-  Truck,
-  Home,
-  Phone,
-  Mail,
-  MessageSquare,
-  Settings,
-  FileText,
-  Scissors,
-  Star,
-  Heart,
-  ClipboardCheck,
-}
+import { getBgClasses, isDarkBackground } from '@/blocks/_shared/themeHelpers'
+import { getLucideIconComponent } from '@/blocks/_shared/iconComponents'
+import { CheckCircle } from 'lucide-react'
 
 interface Step {
   title: string
@@ -87,20 +43,13 @@ export function HowItWorksBlock({
 }: HowItWorksBlockProps) {
   if (steps.length === 0) return null
 
-  // Background colors - using theme variables
-  const bgColors = {
-    default: 'bg-theme-surface',
-    light: 'bg-theme-light',
-    dark: 'bg-theme-dark text-white',
-    primary: 'bg-theme-primary/5',
-  }
-
-  const isDark = backgroundColor === 'dark'
+  const bgClass = getBgClasses(backgroundColor)
+  const isDark = isDarkBackground(backgroundColor)
 
   // Render step number or icon
   const renderStepIndicator = (step: Step, index: number) => {
     if (variant === 'icons' || variant === 'connected') {
-      const IconComponent = step.icon ? iconMap[step.icon] : CheckCircle
+      const IconComponent = step.icon ? getLucideIconComponent(step.icon) || CheckCircle : CheckCircle
       return (
         <div
           className={cn(
@@ -329,7 +278,7 @@ export function HowItWorksBlock({
   }
 
   return (
-    <section className={cn('py-12 md:py-16', bgColors[backgroundColor])}>
+    <section className={cn('py-12 md:py-16', bgClass)}>
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-10 md:mb-12">

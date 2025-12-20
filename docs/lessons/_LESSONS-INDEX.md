@@ -2,7 +2,7 @@
 status: ACTIVE
 type: lesson
 created: 2025-12-08
-updated: 2025-12-14
+updated: 2025-12-20
 tags: [lessons, bugs, fixes, tips]
 ---
 
@@ -36,9 +36,14 @@ tags: [lessons, bugs, fixes, tips]
 
 | Data | Problema | Solutie |
 |------|----------|---------|
+| 2025-12-20 | `type: 'group'` nu suporta `initCollapsed` | Foloseste `type: 'collapsible'` sau omite optiunea |
+| 2025-12-20 | `relationTo` cere CollectionSlug literal | NU poti genericiza - `relationTo: 'team'` literal, nu variabila |
+| 2025-12-20 | Spread pe Field cu override admin | Scrie field-ul complet inline, nu spread + override |
 | 2025-12-01 | Hooks nu ruleaza in aceeasi tranzactie | Transmite `req` la toate operatiile Local API din hooks |
 | 2025-12-01 | Loop infinit in hooks | Foloseste `context.skipRevalidation` sau similar |
 | 2025-12-01 | TypeScript errors la blocuri | Adauga `interfaceName` in config.ts pentru fiecare bloc |
+
+> Vezi [SESSION-SHARED-UTILITIES-REFACTORING.md](./SESSION-SHARED-UTILITIES-REFACTORING.md) pentru shared fields pattern
 
 ---
 
@@ -121,6 +126,24 @@ tags: [lessons, bugs, fixes, tips]
 
 ---
 
+## SHARED UTILITIES (2025-12-20)
+
+| Tip | Locatie | Utilizare |
+|-----|---------|-----------|
+| Theme helpers | `blocks/_shared/themeHelpers.ts` | `getBgClasses()`, `isDarkBackground()`, `getTextColor()` |
+| Icon components | `blocks/_shared/iconComponents.tsx` | `getLucideIcon()` (ReactNode), `getLucideIconComponent()` (ComponentType) |
+| Common fields | `blocks/_shared/commonFields.ts` | `backgroundColorField()`, `headingFields()`, `ctaButtonFields()` |
+| Section wrapper | `blocks/_shared/sectionWrapperFields.ts` | Layout & design fields for all blocks |
+
+### TypeScript: ReactNode vs ComponentType
+
+| Tip | Returneaza | Cand sa folosesti |
+|-----|------------|-------------------|
+| `React.ReactNode` | Element JSX renderizat | `{getLucideIcon('Star')}` - afisare directa |
+| `React.ComponentType` | Clasa/functie componenta | `<IconComponent className="..." />` - cand vrei sa pasezi props |
+
+---
+
 ## Quick Reference
 
 ### Comenzi utile
@@ -152,6 +175,32 @@ function getImageUrl(image: Media | string | null): string | null {
 // Pattern isDark pentru blocuri
 const isDark = backgroundColor === 'dark' || backgroundColor === 'primary'
 className={isDark ? 'text-white' : 'text-theme-text'}
+```
+
+### Import-uri pentru Block Configs (nou 2025-12-20)
+
+```typescript
+// Shared Payload fields
+import {
+  backgroundColorField,
+  headingFields,
+  ctaButtonFields,
+  allIconOptions,
+  columnsSelectField,
+  toggleField,
+} from '../_shared/commonFields'
+import { sectionWrapperFields } from '../_shared/sectionWrapperFields'
+```
+
+### Import-uri pentru Block Components (nou 2025-12-20)
+
+```typescript
+// Theme helpers
+import { getBgClasses, isDarkBackground, getTextColor, getCardClasses } from '@/blocks/_shared/themeHelpers'
+
+// Dynamic icons - alegere in functie de utilizare
+import { getLucideIconComponent } from '@/blocks/_shared/iconComponents'  // pentru <Icon className="..."/>
+import { getLucideIcon } from '@/blocks/_shared/iconComponents'           // pentru {icon}
 ```
 
 ---

@@ -3,6 +3,7 @@
 import React from 'react'
 import { cn } from '@/utilities/cn'
 import type { Form as PayloadFormType } from '@/payload-types'
+import { getBgClasses, isDarkBackground } from '@/blocks/_shared/themeHelpers'
 
 /**
  * ContactBlock Component
@@ -112,14 +113,8 @@ export function ContactBlock({
   }
   const labels = labelsProp ?? {}
 
-  const bgClass = {
-    transparent: '',
-    default: 'bg-theme-surface',
-    light: 'bg-theme-light',
-    dark: 'bg-theme-dark text-white',
-  }[backgroundColor] || ''
-
-  const isDark = backgroundColor === 'dark'
+  const bgClass = getBgClasses(backgroundColor)
+  const isDark = isDarkBackground(backgroundColor)
 
   // Build address string
   const getAddressString = () => {
@@ -143,7 +138,7 @@ export function ContactBlock({
   // Compact variant - single line with icons
   if (variant === 'compact') {
     return (
-      <div className={cn(bgClass, bgClass && 'py-4')}>
+      <div className={cn('py-4', bgClass)}>
         {(heading || subheading) && (
           <div className="mb-4">
             {heading && <h3 className="heading-h3 font-semibold">{heading}</h3>}
@@ -177,7 +172,7 @@ export function ContactBlock({
   // Minimal variant - just text, no icons
   if (variant === 'minimal') {
     return (
-      <div className={cn(bgClass, bgClass && 'py-4')}>
+      <div className={cn('py-4', bgClass)}>
         {(heading || subheading) && (
           <div className="mb-4">
             {heading && <h3 className="heading-h3 font-semibold">{heading}</h3>}
@@ -206,7 +201,7 @@ export function ContactBlock({
   // Cards variant
   if (variant === 'cards') {
     return (
-      <div className={cn(bgClass, bgClass && 'py-8')}>
+      <div className={cn('py-8 md:py-12', bgClass)}>
         {(heading || subheading) && (
           <div className="text-center mb-8">
             {heading && <h2 className="heading-h2 font-bold mb-2">{heading}</h2>}
@@ -285,7 +280,7 @@ export function ContactBlock({
 
   // Standard variant (default) - vertical list with icons
   return (
-    <div className={cn(bgClass, bgClass && 'py-8')}>
+    <div className={cn('py-8 md:py-12', bgClass)}>
       {(heading || subheading) && (
         <div className="mb-6">
           {heading && <h2 className="text-xl font-bold mb-2">{heading}</h2>}

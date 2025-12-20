@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import { cn } from '@/utilities/cn'
+import { getBgClasses, isDarkBackground } from '@/blocks/_shared/themeHelpers'
 
 interface Service {
   id: string
@@ -63,16 +64,12 @@ export function BookingBlock({
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [error, setError] = useState('')
 
-  const bgClass = {
-    default: 'bg-white',
-    light: 'bg-theme-light',
-    dark: 'bg-theme-dark text-white',
-    primary: 'bg-theme-primary text-white',
-  }[backgroundColor] || 'bg-white'
+  const bgClass = getBgClasses(backgroundColor)
+  const isDark = isDarkBackground(backgroundColor)
 
   const inputClass = cn(
     'w-full px-4 py-3 rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-theme-primary',
-    backgroundColor === 'dark' || backgroundColor === 'primary'
+    isDark
       ? 'bg-white/5 border-white/10 text-white placeholder-theme-text-muted'
       : 'bg-white border-theme-border text-theme-text placeholder-theme-text-muted'
   )
@@ -136,7 +133,7 @@ export function BookingBlock({
             <h2 className="heading-h2 font-bold mb-4">{heading}</h2>
           )}
           {subheading && (
-            <p className={cn('text-lg max-w-2xl mx-auto mb-8', backgroundColor === 'dark' || backgroundColor === 'primary' ? 'text-white/80' : 'text-theme-text-light')}>
+            <p className={cn('text-lg max-w-2xl mx-auto mb-8', isDark ? 'text-white/80' : 'text-theme-text-light')}>
               {subheading}
             </p>
           )}
@@ -188,7 +185,7 @@ export function BookingBlock({
               <h2 className="heading-h2 font-bold mb-4">{heading}</h2>
             )}
             {subheading && (
-              <p className={cn('text-lg max-w-2xl mx-auto', backgroundColor === 'dark' || backgroundColor === 'primary' ? 'text-white/80' : 'text-theme-text-light')}>
+              <p className={cn('text-lg max-w-2xl mx-auto', isDark ? 'text-white/80' : 'text-theme-text-light')}>
                 {subheading}
               </p>
             )}
@@ -197,7 +194,7 @@ export function BookingBlock({
 
         <div className={cn(
           'max-w-2xl mx-auto p-8 rounded-xl',
-          backgroundColor === 'dark' || backgroundColor === 'primary' ? 'bg-white/5' : 'bg-white shadow-lg'
+          isDark ? 'bg-white/5' : 'bg-white shadow-lg'
         )}>
           {isSubmitted ? (
             <div className="text-center py-8">
@@ -205,7 +202,7 @@ export function BookingBlock({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <h3 className="heading-h3 font-semibold mb-2">Cerere trimisa!</h3>
-              <p className={backgroundColor === 'dark' || backgroundColor === 'primary' ? 'text-white/70' : 'text-theme-text-light'}>
+              <p className={isDark ? 'text-white/70' : 'text-theme-text-light'}>
                 {successMessage}
               </p>
               <button
@@ -401,7 +398,7 @@ export function BookingBlock({
 
               {(businessPhone || whatsapp) && (
                 <div className="text-center pt-4 border-t border-theme-border">
-                  <p className={cn('text-sm mb-3', backgroundColor === 'dark' || backgroundColor === 'primary' ? 'text-white/60' : 'text-theme-text-muted')}>
+                  <p className={cn('text-sm mb-3', isDark ? 'text-white/60' : 'text-theme-text-muted')}>
                     Sau contacteaza-ne direct:
                   </p>
                   <div className="flex justify-center gap-4">

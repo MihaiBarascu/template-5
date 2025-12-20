@@ -1,4 +1,5 @@
 import type { Block } from 'payload'
+import { sectionWrapperFields } from '../_shared/sectionWrapperFields'
 
 export const CTABlock: Block = {
   slug: 'cta',
@@ -116,5 +117,7 @@ export const CTABlock: Block = {
         { label: 'Mare', value: 'large' },
       ],
     },
+    // Section wrapper fields for advanced layout options
+    ...sectionWrapperFields,
   ],
 }

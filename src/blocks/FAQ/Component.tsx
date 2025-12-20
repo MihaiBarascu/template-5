@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react'
 import { cn } from '@/utilities/cn'
+import { getBgClasses, isDarkBackground } from '@/blocks/_shared/themeHelpers'
+import { ChevronIcon } from '@/blocks/_shared/iconComponents'
 
 interface LexicalContent {
   root?: {
@@ -77,13 +79,8 @@ export function FAQBlock({
     return initial
   })
 
-  const bgClass = {
-    default: 'bg-theme-surface',
-    light: 'bg-theme-light',
-    dark: 'bg-theme-dark text-white',
-  }[backgroundColor] || 'bg-theme-surface'
-
-  const isDark = backgroundColor === 'dark'
+  const bgClass = getBgClasses(backgroundColor)
+  const isDark = isDarkBackground(backgroundColor)
 
   const toggleItem = (index: number) => {
     setOpenItems((prev) => {

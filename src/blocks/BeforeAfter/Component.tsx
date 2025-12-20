@@ -4,6 +4,7 @@ import React, { useState, useRef, useCallback } from 'react'
 import Image from 'next/image'
 import { cn } from '@/utilities/cn'
 import type { BeforeAfterBlock as BeforeAfterBlockType, Media } from '@/payload-types'
+import { getBgClasses, isDarkBackground } from '@/blocks/_shared/themeHelpers'
 
 // Helper to get image URL
 function getImageUrl(image: Media | string | null | undefined): string | null {
@@ -283,21 +284,15 @@ export function BeforeAfterBlock({
 }: BeforeAfterBlockProps) {
   const [activeIndex, setActiveIndex] = useState(0)
 
-  // Background classes
-  const bgClasses = {
-    default: 'bg-theme-bg',
-    light: 'bg-theme-bg-subtle',
-    dark: 'bg-theme-bg-inverted',
-  }
-
-  const isDark = backgroundColor === 'dark'
+  const bgClass = getBgClasses(backgroundColor || 'default')
+  const isDark = isDarkBackground(backgroundColor || 'default')
   const textClass = isDark ? 'text-white' : 'text-theme-text'
   const mutedClass = isDark ? 'text-white/70' : 'text-theme-text-muted'
 
   if (!items || items.length === 0) return null
 
   return (
-    <section className={cn('py-16 md:py-24', bgClasses[backgroundColor || 'default'])}>
+    <section className={cn('py-16 md:py-24', bgClass)}>
       <div className="container mx-auto px-4">
         {/* Header */}
         {(heading || subheading) && (

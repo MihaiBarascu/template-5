@@ -88,5 +88,42 @@ export const TimelineBlock: Block = {
         { label: 'Dark', value: 'dark' },
       ],
     },
+    {
+      name: 'conclusion',
+      type: 'group',
+      label: 'Concluzie / Citat (optional)',
+      fields: [
+        {
+          name: 'enabled',
+          type: 'checkbox',
+          label: 'Afiseaza concluzie',
+          defaultValue: false,
+        },
+        {
+          name: 'quote',
+          type: 'textarea',
+          label: 'Citat / Mesaj',
+          admin: {
+            condition: (data, siblingData) => siblingData?.enabled,
+          },
+        },
+        {
+          name: 'author',
+          type: 'text',
+          label: 'Autor',
+          admin: {
+            condition: (data, siblingData) => siblingData?.enabled,
+          },
+        },
+        {
+          name: 'role',
+          type: 'text',
+          label: 'Rol / Titlu',
+          admin: {
+            condition: (data, siblingData) => siblingData?.enabled,
+          },
+        },
+      ],
+    },
   ],
 }

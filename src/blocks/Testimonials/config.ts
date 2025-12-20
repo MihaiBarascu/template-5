@@ -1,4 +1,11 @@
 import type { Block } from 'payload'
+import { sectionWrapperFields } from '../_shared/sectionWrapperFields'
+import {
+  headingFields,
+  backgroundColorField,
+  showRatingField,
+  showAvatarField,
+} from '../_shared/commonFields'
 
 export const TestimonialsBlock: Block = {
   slug: 'testimonials',
@@ -21,19 +28,10 @@ export const TestimonialsBlock: Block = {
         { label: 'Masonry', value: 'masonry' },
         { label: 'Carduri rotative', value: 'cards-rotating' },
         { label: 'Minimal (fara avatare)', value: 'minimal' },
+        { label: 'Video Testimonials', value: 'video-grid' },
       ],
     },
-    {
-      name: 'heading',
-      type: 'text',
-      label: 'Titlu sectiune',
-      defaultValue: 'Ce spun clientii nostri',
-    },
-    {
-      name: 'subheading',
-      type: 'textarea',
-      label: 'Subtitlu sectiune',
-    },
+    ...headingFields({ headingDefault: 'Ce spun clientii nostri' }),
     {
       name: 'source',
       type: 'select',
@@ -72,18 +70,8 @@ export const TestimonialsBlock: Block = {
         condition: (_, siblingData) => siblingData?.source === 'collection',
       },
     },
-    {
-      name: 'showRating',
-      type: 'checkbox',
-      label: 'Afiseaza rating (stele)',
-      defaultValue: true,
-    },
-    {
-      name: 'showAvatar',
-      type: 'checkbox',
-      label: 'Afiseaza avatar',
-      defaultValue: true,
-    },
+    showRatingField,
+    showAvatarField,
     {
       name: 'showSource',
       type: 'checkbox',
@@ -99,17 +87,8 @@ export const TestimonialsBlock: Block = {
         condition: (_, siblingData) => siblingData?.variant === 'carousel',
       },
     },
-    {
-      name: 'backgroundColor',
-      type: 'select',
-      label: 'Culoare fundal',
-      defaultValue: 'light',
-      options: [
-        { label: 'Default', value: 'default' },
-        { label: 'Light', value: 'light' },
-        { label: 'Dark', value: 'dark' },
-        { label: 'Primary', value: 'primary' },
-      ],
-    },
+    backgroundColorField({ defaultValue: 'light' }),
+    // Section wrapper fields for advanced layout options
+    ...sectionWrapperFields,
   ],
 }

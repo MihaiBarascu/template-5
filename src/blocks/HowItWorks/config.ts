@@ -1,4 +1,11 @@
 import type { Block } from 'payload'
+import {
+  headingFields,
+  ctaButtonFields,
+  backgroundColorField,
+  allIconOptions,
+  showNumbersField,
+} from '../_shared/commonFields'
 
 export const HowItWorksBlock: Block = {
   slug: 'how-it-works',
@@ -23,17 +30,7 @@ export const HowItWorksBlock: Block = {
         { label: 'Alternant (zig-zag)', value: 'alternating' },
       ],
     },
-    {
-      name: 'heading',
-      type: 'text',
-      label: 'Titlu sectiune',
-      defaultValue: 'Cum functioneaza',
-    },
-    {
-      name: 'subheading',
-      type: 'textarea',
-      label: 'Subtitlu',
-    },
+    ...headingFields({ headingDefault: 'Cum functioneaza' }),
     {
       name: 'steps',
       type: 'array',
@@ -59,28 +56,7 @@ export const HowItWorksBlock: Block = {
           admin: {
             condition: (_, { variant } = {}) => variant === 'icons' || variant === 'connected',
           },
-          options: [
-            { label: 'Cauta', value: 'Search' },
-            { label: 'Click', value: 'MousePointerClick' },
-            { label: 'Calendar', value: 'Calendar' },
-            { label: 'Bifa', value: 'CheckCircle' },
-            { label: 'Utilizator', value: 'User' },
-            { label: 'Magazin', value: 'Store' },
-            { label: 'Cos', value: 'ShoppingCart' },
-            { label: 'Card', value: 'CreditCard' },
-            { label: 'Pachet', value: 'Package' },
-            { label: 'Camion', value: 'Truck' },
-            { label: 'Casa', value: 'Home' },
-            { label: 'Telefon', value: 'Phone' },
-            { label: 'Email', value: 'Mail' },
-            { label: 'Mesaj', value: 'MessageSquare' },
-            { label: 'Setari', value: 'Settings' },
-            { label: 'Formular', value: 'FileText' },
-            { label: 'Foarfece', value: 'Scissors' },
-            { label: 'Stea', value: 'Star' },
-            { label: 'Inima', value: 'Heart' },
-            { label: 'Clipboard', value: 'ClipboardCheck' },
-          ],
+          options: allIconOptions,
         },
         {
           name: 'image',
@@ -93,53 +69,8 @@ export const HowItWorksBlock: Block = {
         },
       ],
     },
-    {
-      name: 'showNumbers',
-      type: 'checkbox',
-      label: 'Afiseaza numerele pasilor',
-      defaultValue: true,
-    },
-    {
-      name: 'ctaButton',
-      type: 'group',
-      label: 'Buton CTA (optional)',
-      fields: [
-        {
-          name: 'enabled',
-          type: 'checkbox',
-          label: 'Afiseaza buton',
-          defaultValue: false,
-        },
-        {
-          name: 'label',
-          type: 'text',
-          label: 'Text buton',
-          defaultValue: 'Incepe acum',
-          admin: {
-            condition: (_, siblingData) => siblingData?.enabled,
-          },
-        },
-        {
-          name: 'link',
-          type: 'text',
-          label: 'Link buton',
-          admin: {
-            condition: (_, siblingData) => siblingData?.enabled,
-          },
-        },
-      ],
-    },
-    {
-      name: 'backgroundColor',
-      type: 'select',
-      label: 'Culoare fundal',
-      defaultValue: 'default',
-      options: [
-        { label: 'Default', value: 'default' },
-        { label: 'Light', value: 'light' },
-        { label: 'Dark', value: 'dark' },
-        { label: 'Primary', value: 'primary' },
-      ],
-    },
+    showNumbersField,
+    ctaButtonFields(),
+    backgroundColorField(),
   ],
 }

@@ -17,6 +17,7 @@ import {
 import type { Team as TeamMember, Media as MediaType } from '@/payload-types'
 import { Media } from '@/components/Media'
 import RichText from '@/components/RichText'
+import { getBgClasses } from '@/blocks/_shared/themeHelpers'
 
 interface LabelsConfig {
   breadcrumbHome?: string
@@ -112,11 +113,7 @@ export function TeamMemberDetailBlock({
     )
   }
 
-  const bgClasses = {
-    default: 'bg-theme-light',
-    light: 'bg-theme-light',
-    dark: 'bg-theme-dark text-white',
-  }
+  const bgClass = getBgClasses(backgroundColor) || 'bg-theme-light'
 
   const image = memberData.image as MediaType | null
   const firstName = memberData.name?.split(' ')[0] || ''
@@ -127,7 +124,7 @@ export function TeamMemberDetailBlock({
 
   // Full variant (default) - matching template-2's design
   return (
-    <section className={`min-h-screen ${bgClasses[backgroundColor]}`}>
+    <section className={`min-h-screen ${bgClass}`}>
       <article className="container mx-auto py-8 px-4">
         {/* Breadcrumb */}
         {showBreadcrumb && (

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useRef } from 'react'
 import { cn } from '@/utilities/cn'
+import { getBgClasses, isDarkBackground } from '@/blocks/_shared/themeHelpers'
 
 interface Stat {
   value: string
@@ -89,14 +90,8 @@ export function StatsBlock({
   animated = true,
   backgroundColor = 'primary',
 }: StatsBlockProps) {
-  const bgClass = {
-    default: 'bg-theme-surface text-theme-text',
-    light: 'bg-theme-light text-theme-text',
-    dark: 'bg-theme-dark text-white',
-    primary: 'bg-theme-primary text-white',
-  }[backgroundColor] || 'bg-theme-primary text-white'
-
-  const isDark = backgroundColor === 'dark' || backgroundColor === 'primary'
+  const bgClass = getBgClasses(backgroundColor) || 'bg-theme-primary text-white'
+  const isDark = isDarkBackground(backgroundColor)
 
   if (stats.length === 0) {
     return null

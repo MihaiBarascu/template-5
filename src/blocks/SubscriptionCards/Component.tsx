@@ -4,6 +4,7 @@ import { Media } from '@/components/Media';
 import type { Media as MediaType, Subscription } from '@/payload-types';
 import { ArrowRight, Check, Star, X } from 'lucide-react';
 import Link from 'next/link';
+import { getBgClasses, isDarkBackground } from '@/blocks/_shared/themeHelpers';
 
 interface SubscriptionCardsBlockProps {
   variant?:
@@ -39,12 +40,8 @@ export function SubscriptionCardsBlock({
   backgroundColor = 'default',
   subscriptions,
 }: SubscriptionCardsBlockProps) {
-  const bgClasses = {
-    default: 'bg-theme-surface',
-    light: 'bg-theme-light',
-    dark: 'bg-theme-dark text-white',
-    primary: 'bg-theme-primary text-white',
-  };
+  const bgClass = getBgClasses(backgroundColor);
+  const isDark = isDarkBackground(backgroundColor);
 
   const gridClasses = {
     'cards-3': 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
@@ -72,7 +69,7 @@ export function SubscriptionCardsBlock({
 
   if (variant === 'table-compare') {
     return (
-      <section className={`py-section ${bgClasses[backgroundColor]}`}>
+      <section className={`py-section ${bgClass}`}>
         <div className="container mx-auto px-4">
           {(heading || subheading) && (
             <div className="text-center mb-12">
@@ -147,7 +144,7 @@ export function SubscriptionCardsBlock({
   }
 
   return (
-    <section className={`py-section ${bgClasses[backgroundColor]}`}>
+    <section className={`py-section ${bgClass}`}>
       <div className="container mx-auto px-4">
         {/* Header */}
         {(heading || subheading) && (

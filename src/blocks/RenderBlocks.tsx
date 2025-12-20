@@ -21,6 +21,7 @@ import { ProductsBlock } from './Products/Component'
 import { CartBlock } from './Cart/Component'
 import { CheckoutBlock } from './Checkout/Component'
 import { VideoEmbedBlock } from './VideoEmbed/Component'
+import { VideoGalleryBlock } from './VideoGallery/Component'
 import { PriceListDottedBlock } from './PriceListDotted/Component'
 import { BeforeAfterBlock } from './BeforeAfter/Component'
 import { NewsletterBlock } from './Newsletter/Component'
@@ -47,6 +48,10 @@ import { FormBlockComponent } from './Form/Component'
 import { MapBlock } from './Map/Component'
 // Portfolio block
 import { PortfolioBlock } from './Portfolio/Component'
+// Premium blocks (Plasturi integration)
+import { VideoHeroBlock } from './VideoHero/Component'
+import { ProcessStepsBlock } from './ProcessSteps/Component'
+import { PricingKitsBlock } from './PricingKits/Component'
 
 type LayoutBlock = NonNullable<Page['layout']>[number]
 
@@ -824,6 +829,23 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
               )
             }
 
+            case 'videoGallery': {
+              return (
+                <VideoGalleryBlock
+                  key={block.id || index}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
+                  subheading={block.subheading ?? undefined}
+                  videos={block.videos ?? undefined}
+                  showTitles={block.showTitles ?? undefined}
+                  showDuration={block.showDuration ?? undefined}
+                  showCategories={block.showCategories ?? undefined}
+                  aspectRatio={block.aspectRatio ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
+                />
+              )
+            }
+
             case 'priceListDotted': {
               const priceListServices = block.source === 'services'
                 ? await getServices({
@@ -1342,6 +1364,60 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   height={block.height ?? undefined}
                   showDirectionsButton={block.showDirectionsButton ?? undefined}
                   businessInfo={businessInfo}
+                />
+              )
+            }
+
+            case 'video-hero': {
+              return (
+                <VideoHeroBlock
+                  key={block.id || index}
+                  videoSource={block.videoSource ?? undefined}
+                  videoUrl={block.videoUrl ?? undefined}
+                  videoFile={block.videoFile ?? undefined}
+                  videoPoster={block.videoPoster ?? undefined}
+                  overlayColor={block.overlayColor ?? undefined}
+                  overlayOpacity={block.overlayOpacity ?? undefined}
+                  headline={block.headline}
+                  subheadline={block.subheadline ?? undefined}
+                  ctaButtons={block.ctaButtons ?? undefined}
+                  trustBadges={block.trustBadges ?? undefined}
+                  showSocialLinks={block.showSocialLinks ?? undefined}
+                  textAlignment={block.textAlignment ?? undefined}
+                  height={block.height ?? undefined}
+                  showScrollIndicator={block.showScrollIndicator ?? undefined}
+                />
+              )
+            }
+
+            case 'process-steps': {
+              return (
+                <ProcessStepsBlock
+                  key={block.id || index}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
+                  subheading={block.subheading ?? undefined}
+                  steps={block.steps ?? undefined}
+                  showNumbers={block.showNumbers ?? undefined}
+                  showConnectors={block.showConnectors ?? undefined}
+                  imagePosition={block.imagePosition ?? undefined}
+                  ctaButton={block.ctaButton ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
+                />
+              )
+            }
+
+            case 'pricing-kits': {
+              return (
+                <PricingKitsBlock
+                  key={block.id || index}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
+                  subheading={block.subheading ?? undefined}
+                  kits={block.kits ?? undefined}
+                  columns={block.columns ?? undefined}
+                  showCompareFeatures={block.showCompareFeatures ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
                 />
               )
             }

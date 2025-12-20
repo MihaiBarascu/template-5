@@ -36,6 +36,7 @@
     "seed:transport": "cross-env SEED_TYPE=transport NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/seed/index.ts",
     "seed:foto-video": "cross-env SEED_TYPE=foto-video NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/seed/index.ts",
     "seed:producator": "cross-env SEED_TYPE=producator NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/seed/index.ts",
+    "seed:terapii-energetice": "cross-env SEED_TYPE=terapii-energetice NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/seed/index.ts",
     "variants": "tsx scripts/test-all-variants.ts",
     "variants:info": "tsx scripts/test-all-variants.ts --info",
     "variants:commands": "tsx scripts/test-all-variants.ts --commands",

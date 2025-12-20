@@ -38,26 +38,41 @@ export function clearNextCache(): void {
   }
 }
 
-// Trigger Next.js cache revalidation via API (call after seed to refresh dev server)
+// Trigger Next.js cache revalidation via API (call after seed to refresh running server)
+// Tries multiple ports: primary URL, then fallback ports for dev (3010) and prod (3100)
 export async function triggerRevalidation(baseUrl: string = 'http://localhost:3010'): Promise<void> {
-  try {
-    console.log('   Triggering Next.js cache revalidation...');
-    const response = await fetch(`${baseUrl}/api/revalidate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({}), // Empty body = revalidate all globals
-    });
+  const urlsToTry = [
+    baseUrl,
+    'http://localhost:3010', // dev port
+    'http://localhost:3100', // production port
+  ];
 
-    if (response.ok) {
-      const data = await response.json();
-      console.log('   ✅ Cache revalidated:', data.revalidated?.tags?.length || 0, 'tags');
-    } else {
-      console.log('   ⚠️  Revalidation failed (server might not be running)');
+  // Remove duplicates
+  const uniqueUrls = [...new Set(urlsToTry)];
+
+  console.log('   Triggering Next.js cache revalidation...');
+
+  for (const url of uniqueUrls) {
+    try {
+      const response = await fetch(`${url}/api/revalidate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}), // Empty body = revalidate all globals + collections
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(`   ✅ Cache revalidated on ${url}: ${data.revalidated?.tags?.length || 0} tags`);
+        return; // Success, exit early
+      }
+    } catch {
+      // Server not running on this port, try next
     }
-  } catch {
-    // Server not running - that's OK, cache will be fresh on next start
-    console.log('   ⚠️  Could not reach dev server for revalidation');
   }
+
+  // No server responded
+  console.log('   ⚠️  No running server found for revalidation (dev or production)');
+  console.log('   💡 Start the server and run revalidation manually: curl -X POST http://localhost:PORT/api/revalidate');
 }
 
 // Helper to find existing image by filename in media collection
@@ -446,6 +461,12 @@ export async function seedBusinessInfo(
       tooltipText?: string;
       pulseAnimation?: boolean;
     };
+    announcementBar?: {
+      enabled?: boolean;
+      message?: string;
+      linkText?: string;
+      linkUrl?: string;
+    };
   },
 ) {
   await payload.updateGlobal({
@@ -466,6 +487,7 @@ export async function seedBusinessInfo(
       googleMapsEmbed: data.googleMapsEmbed,
       googleMapsLink: data.googleMapsLink,
       whatsappFloat: data.whatsappFloat,
+      announcementBar: data.announcementBar,
     },
   });
   console.log('   Business info configured');

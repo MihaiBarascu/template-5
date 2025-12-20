@@ -105,6 +105,14 @@ export const SiteTheme: GlobalConfig = {
                   label: '12. Fitness Dark - Dark cu accent rosu, stil gym modern',
                   value: 'fitness-dark',
                 },
+                {
+                  label: '13. Gold Navy Healing - Calm, premium, spiritual',
+                  value: 'gold-navy-healing',
+                },
+                {
+                  label: '14. Revital Harmony - Gold/Navy exact de pe terapiienergetice.ro',
+                  value: 'revital-harmony',
+                },
               ],
             },
             {

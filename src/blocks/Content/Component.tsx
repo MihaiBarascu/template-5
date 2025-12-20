@@ -5,6 +5,7 @@ import { LazyVideo } from '@/components/LazyVideo'
 import { Media } from '@/components/Media'
 import type { Page, Media as MediaType } from '@/payload-types'
 import { RenderBlocks } from '../RenderBlocks'
+import { getBgClasses } from '@/blocks/_shared/themeHelpers'
 
 // Extract ContentBlock type from Page layout
 type LayoutBlock = NonNullable<Page['layout']>[number]
@@ -72,12 +73,6 @@ const paddingClasses: Record<string, string> = {
   large: 'py-12 md:py-20',
 }
 
-const bgClasses: Record<string, string> = {
-  default: 'bg-background',
-  light: 'bg-muted/30',
-  dark: 'bg-foreground text-background',
-}
-
 export const ContentBlock: React.FC<ContentBlockProps> = async ({
   columns = [],
   backgroundColor = 'default',
@@ -91,9 +86,10 @@ export const ContentBlock: React.FC<ContentBlockProps> = async ({
   // Combine padding classes
   const topPadding = paddingTop === 'none' ? '' : paddingClasses[paddingTop]?.replace('py-', 'pt-').replace('md:py-', 'md:pt-') || ''
   const bottomPadding = paddingBottom === 'none' ? '' : paddingClasses[paddingBottom]?.replace('py-', 'pb-').replace('md:py-', 'md:pb-') || ''
+  const bgClass = getBgClasses(backgroundColor)
 
   return (
-    <section className={cn(bgClasses[backgroundColor], topPadding, bottomPadding)}>
+    <section className={cn(bgClass, topPadding, bottomPadding)}>
       <div className="container mx-auto px-4">
         <div className="flex flex-wrap -mx-4 items-start">
           {await Promise.all(columns.map(async (column, index) => {

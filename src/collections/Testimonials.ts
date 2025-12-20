@@ -73,6 +73,24 @@ export const Testimonials: CollectionConfig = {
       ],
     },
     {
+      name: 'videoUrl',
+      type: 'text',
+      label: 'URL Video Testimonial',
+      admin: {
+        description: 'YouTube, Vimeo sau URL direct la video. Optional - doar pentru varianta video-grid.',
+      },
+    },
+    {
+      name: 'videoPoster',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Poster Video',
+      admin: {
+        description: 'Imagine de preview pentru video testimonial',
+        condition: (_, siblingData) => !!siblingData?.videoUrl,
+      },
+    },
+    {
       name: 'featured',
       type: 'checkbox',
       label: 'Afisat pe homepage',
