@@ -27,6 +27,7 @@ export const ProcessStepsBlock: Block = {
         { label: 'Timeline vertical', value: 'timeline' },
         { label: 'Carduri orizontale', value: 'horizontal' },
         { label: 'Grid 2x2', value: 'grid' },
+        { label: 'Carousel (scroll orizontal)', value: 'carousel' },
       ],
     },
     ...headingFields({ headingDefault: 'Cum functioneaza' }),

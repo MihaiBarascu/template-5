@@ -113,6 +113,26 @@ const presetBadges: Record<string, (values?: CustomValues) => Badge> = {
     title: 'Programare online',
     description: 'Simplu si rapid',
   }),
+  'money-back-30': () => ({
+    icon: 'BadgeDollarSign',
+    title: 'Garantie 30 zile',
+    description: 'Banii inapoi fara intrebari',
+  }),
+  'patented': () => ({
+    icon: 'Award',
+    title: 'Tehnologie patentata',
+    description: 'Solutie unica si inovatoare',
+  }),
+  'certified': () => ({
+    icon: 'ShieldCheck',
+    title: 'Certificat',
+    description: 'Calitate verificata',
+  }),
+  'non-invasive': () => ({
+    icon: 'Heart',
+    title: 'Non-invaziv',
+    description: 'Fara efecte secundare',
+  }),
 }
 
 export function TrustBadgesBlock({
@@ -159,7 +179,7 @@ export function TrustBadgesBlock({
     if (variant === 'inline') {
       return (
         <div key={index} className="flex items-center gap-2">
-          <div className="p-1.5 rounded-full bg-theme-primary/10">
+          <div className="p-1.5 rounded-full icon-gradient-bg">
             <IconComponent className={cn(iconSizes[iconSize], 'text-theme-primary')} />
           </div>
           <div>
@@ -176,9 +196,9 @@ export function TrustBadgesBlock({
       return (
         <div
           key={index}
-          className="flex flex-col items-center text-center p-4 rounded-[var(--radius-card)] bg-theme-surface shadow-sm border border-theme-border"
+          className="flex flex-col items-center text-center p-4 rounded-[var(--radius-card)] card-gradient-subtle shadow-sm border border-theme-border"
         >
-          <div className="p-3 rounded-full bg-theme-primary/10 mb-3">
+          <div className="p-3 rounded-full icon-gradient-bg mb-3">
             <IconComponent className={cn(iconSizes[iconSize], 'text-theme-primary')} />
           </div>
           <h4 className="font-semibold text-sm mb-1 text-theme-text">{badge.title}</h4>
@@ -197,7 +217,7 @@ export function TrustBadgesBlock({
         <div
           className={cn(
             'p-2 rounded-full shrink-0',
-            isDark ? 'bg-white/20' : 'bg-theme-primary/10',
+            isDark ? 'bg-white/20' : 'icon-gradient-bg',
           )}
         >
           <IconComponent

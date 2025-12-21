@@ -40,6 +40,67 @@ export const Pages: CollectionConfig = {
     },
     slugField('title'),
     {
+      name: 'headerSettings',
+      type: 'group',
+      label: 'Setări Header',
+      admin: {
+        description: 'Suprascrie setările globale de header pentru această pagină',
+      },
+      fields: [
+        {
+          name: 'headerVariant',
+          type: 'select',
+          label: 'Varianta header',
+          defaultValue: 'inherit',
+          options: [
+            { label: 'Moștenește din global', value: 'inherit' },
+            { label: 'Standard (logo stânga, meniu dreapta)', value: 'standard' },
+            { label: 'Centrat (logo centru)', value: 'centered' },
+            { label: 'Cu TopBar', value: 'with-topbar' },
+            { label: 'Full Width (fără container)', value: 'full-width' },
+            { label: 'Minimal', value: 'minimal' },
+          ],
+        },
+        {
+          name: 'headerTransparency',
+          type: 'select',
+          label: 'Transparență header',
+          defaultValue: 'inherit',
+          options: [
+            { label: 'Moștenește din global', value: 'inherit' },
+            { label: 'Transparent (overlay pe conținut)', value: 'transparent' },
+            { label: 'Solid (cu fundal)', value: 'solid' },
+          ],
+        },
+        {
+          name: 'headerTextColor',
+          type: 'select',
+          label: 'Culoare text când transparent',
+          defaultValue: 'inherit',
+          options: [
+            { label: 'Moștenește din global', value: 'inherit' },
+            { label: 'Alb', value: 'white' },
+            { label: 'Negru', value: 'dark' },
+            { label: 'Auto (bazat pe hero)', value: 'auto' },
+          ],
+          admin: {
+            condition: (_, siblingData) => siblingData?.headerTransparency === 'transparent',
+          },
+        },
+        {
+          name: 'headerTopBar',
+          type: 'select',
+          label: 'Top Bar',
+          defaultValue: 'inherit',
+          options: [
+            { label: 'Moștenește din global', value: 'inherit' },
+            { label: 'Afișează', value: 'show' },
+            { label: 'Ascunde', value: 'hide' },
+          ],
+        },
+      ],
+    },
+    {
       name: 'heroType',
       type: 'select',
       label: 'Tip Hero',

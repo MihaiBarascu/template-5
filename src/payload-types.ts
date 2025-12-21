@@ -78,6 +78,7 @@ export interface Config {
     categories: Category;
     users: User;
     services: Service;
+    'service-categories': ServiceCategory;
     team: Team;
     portfolio: Portfolio;
     testimonials: Testimonial;
@@ -113,6 +114,9 @@ export interface Config {
       orders: 'orders';
       addresses: 'addresses';
     };
+    'service-categories': {
+      services: 'services';
+    };
     variantTypes: {
       options: 'variantOptions';
     };
@@ -127,6 +131,7 @@ export interface Config {
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     services: ServicesSelect<false> | ServicesSelect<true>;
+    'service-categories': ServiceCategoriesSelect<false> | ServiceCategoriesSelect<true>;
     team: TeamSelect<false> | TeamSelect<true>;
     portfolio: PortfolioSelect<false> | PortfolioSelect<true>;
     testimonials: TestimonialsSelect<false> | TestimonialsSelect<true>;
@@ -239,6 +244,15 @@ export interface Page {
    * URL-ul paginii (generat automat din titlu)
    */
   slug: string;
+  /**
+   * Suprascrie setările globale de header pentru această pagină
+   */
+  headerSettings?: {
+    headerVariant?: ('inherit' | 'standard' | 'centered' | 'with-topbar' | 'full-width' | 'minimal') | null;
+    headerTransparency?: ('inherit' | 'transparent' | 'solid') | null;
+    headerTextColor?: ('inherit' | 'white' | 'dark' | 'auto') | null;
+    headerTopBar?: ('inherit' | 'show' | 'hide') | null;
+  };
   heroType?: ('none' | 'minimal' | 'centered' | 'withImage' | 'fullscreen' | 'split' | 'video' | 'slider') | null;
   hero?: {
     headline?: string | null;
@@ -334,6 +348,7 @@ export interface Page {
         | VideoHeroBlock
         | ProcessStepsBlock
         | PricingKitsBlock
+        | DownloadLinksBlock
       )[]
     | null;
   publishedAt?: string | null;
@@ -529,7 +544,10 @@ export interface ServicesBlock {
   subheading?: string | null;
   source?: ('collection' | 'manual' | 'custom') | null;
   selectedServices?: (string | Service)[] | null;
-  filterByCategory?: (string | null) | Category;
+  /**
+   * Selectează una sau mai multe categorii pentru a filtra serviciile
+   */
+  filterByCategory?: (string | ServiceCategory)[] | null;
   limit?: number | null;
   onlyFeatured?: boolean | null;
   customServices?:
@@ -635,9 +653,16 @@ export interface Service {
    */
   slug: string;
   /**
+   * Categorie pentru organizare (ex: Terapii, Cursuri)
+   */
+  category?: (string | null) | ServiceCategory;
+  /**
    * Maxim 2-3 propoziții pentru carduri
    */
   shortDescription?: string | null;
+  /**
+   * Conținut complet cu titluri, imagini, liste și formatare avansată
+   */
   description?: {
     root: {
       type: string;
@@ -728,6 +753,39 @@ export interface Service {
   createdAt: string;
 }
 /**
+ * Categorii pentru organizarea serviciilor (ex: Terapii, Cursuri, Clase)
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "service-categories".
+ */
+export interface ServiceCategory {
+  id: string;
+  title: string;
+  /**
+   * URL-ul paginii (generat automat din titlu)
+   */
+  slug: string;
+  /**
+   * Descriere scurtă a categoriei (opțional)
+   */
+  description?: string | null;
+  /**
+   * Numele iconului Lucide (ex: Heart, GraduationCap, Dumbbell)
+   */
+  icon?: string | null;
+  /**
+   * Lista serviciilor asociate acestei categorii
+   */
+  services?: {
+    docs?: (string | Service)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  order?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "team".
  */
@@ -788,30 +846,6 @@ export interface Team {
     | null;
   featured?: boolean | null;
   order?: number | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories".
- */
-export interface Category {
-  id: string;
-  title: string;
-  /**
-   * URL-ul paginii (generat automat din titlu)
-   */
-  slug: string;
-  description?: string | null;
-  parent?: (string | null) | Category;
-  breadcrumbs?:
-    | {
-        doc?: (string | null) | Category;
-        url?: string | null;
-        label?: string | null;
-        id?: string | null;
-      }[]
-    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1064,6 +1098,30 @@ export interface Portfolio {
   externalUrl?: string | null;
   featured?: boolean | null;
   order?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: string;
+  title: string;
+  /**
+   * URL-ul paginii (generat automat din titlu)
+   */
+  slug: string;
+  description?: string | null;
+  parent?: (string | null) | Category;
+  breadcrumbs?:
+    | {
+        doc?: (string | null) | Category;
+        url?: string | null;
+        label?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1471,7 +1529,45 @@ export interface Form {
  * via the `definition` "CtaBlock".
  */
 export interface CtaBlock {
-  variant?: ('centered' | 'split' | 'with-image' | 'gradient' | 'minimal' | 'floating' | 'with-form') | null;
+  variant?:
+    | ('centered' | 'split' | 'with-image' | 'gradient' | 'minimal' | 'floating' | 'with-form' | 'with-pattern')
+    | null;
+  /**
+   * Adauga un pattern decorativ profesional in fundal
+   */
+  pattern?: {
+    enabled?: boolean | null;
+    type?:
+      | (
+          | 'bubbles'
+          | 'floating-dots'
+          | 'diagonal-lines'
+          | 'waves'
+          | 'topography'
+          | 'grid'
+          | 'hexagons'
+          | 'circuit'
+          | 'diamonds'
+          | 'moroccan'
+          | 'plus'
+          | 'noise'
+          | 'crosshatch'
+        )
+      | null;
+    position?:
+      | ('full' | 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'center')
+      | null;
+    color?: ('primary' | 'accent' | 'dark' | 'light' | 'white' | 'black') | null;
+    /**
+     * Cu cat e mai mare textul, cu atat opacitatea trebuie sa fie mai mica
+     */
+    opacity?: ('3' | '5' | '8' | '10' | '15' | '20' | '25' | '30' | '40' | '50') | null;
+    size?: ('sm' | 'md' | 'lg') | null;
+    /**
+     * Adauga o animatie de pulsatie foarte subtila
+     */
+    animated?: boolean | null;
+  };
   headline: string;
   subheadline?: string | null;
   image?: (string | null) | Media;
@@ -1632,6 +1728,42 @@ export interface GalleryBlock {
  */
 export interface StatsBlock {
   variant?: ('inline' | 'grid-4' | 'grid-3' | 'with-icons' | 'animated' | 'minimal') | null;
+  /**
+   * Adauga un pattern decorativ profesional in fundal
+   */
+  pattern?: {
+    enabled?: boolean | null;
+    type?:
+      | (
+          | 'bubbles'
+          | 'floating-dots'
+          | 'diagonal-lines'
+          | 'waves'
+          | 'topography'
+          | 'grid'
+          | 'hexagons'
+          | 'circuit'
+          | 'diamonds'
+          | 'moroccan'
+          | 'plus'
+          | 'noise'
+          | 'crosshatch'
+        )
+      | null;
+    position?:
+      | ('full' | 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'center')
+      | null;
+    color?: ('primary' | 'accent' | 'dark' | 'light' | 'white' | 'black') | null;
+    /**
+     * Cu cat e mai mare textul, cu atat opacitatea trebuie sa fie mai mica
+     */
+    opacity?: ('3' | '5' | '8' | '10' | '15' | '20' | '25' | '30' | '40' | '50') | null;
+    size?: ('sm' | 'md' | 'lg') | null;
+    /**
+     * Adauga o animatie de pulsatie foarte subtila
+     */
+    animated?: boolean | null;
+  };
   heading?: string | null;
   source?: ('businessInfo' | 'custom') | null;
   stats?:
@@ -2257,6 +2389,42 @@ export interface BeforeAfterBlock {
  */
 export interface NewsletterBlock {
   variant?: ('simple' | 'with-image' | 'dark' | 'with-pattern' | 'inline') | null;
+  /**
+   * Adauga un pattern decorativ profesional in fundal
+   */
+  pattern?: {
+    enabled?: boolean | null;
+    type?:
+      | (
+          | 'bubbles'
+          | 'floating-dots'
+          | 'diagonal-lines'
+          | 'waves'
+          | 'topography'
+          | 'grid'
+          | 'hexagons'
+          | 'circuit'
+          | 'diamonds'
+          | 'moroccan'
+          | 'plus'
+          | 'noise'
+          | 'crosshatch'
+        )
+      | null;
+    position?:
+      | ('full' | 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'center')
+      | null;
+    color?: ('primary' | 'accent' | 'dark' | 'light' | 'white' | 'black') | null;
+    /**
+     * Cu cat e mai mare textul, cu atat opacitatea trebuie sa fie mai mica
+     */
+    opacity?: ('3' | '5' | '8' | '10' | '15' | '20' | '25' | '30' | '40' | '50') | null;
+    size?: ('sm' | 'md' | 'lg') | null;
+    /**
+     * Adauga o animatie de pulsatie foarte subtila
+     */
+    animated?: boolean | null;
+  };
   heading?: string | null;
   subheading?: string | null;
   placeholder?: string | null;
@@ -2265,6 +2433,11 @@ export interface NewsletterBlock {
   backgroundImage?: (string | null) | Media;
   privacyText?: string | null;
   showPrivacyLink?: boolean | null;
+  /**
+   * Afiseaza un checkbox pe care utilizatorul trebuie sa-l bifeze inainte de abonare
+   */
+  requireConsent?: boolean | null;
+  consentText?: string | null;
   benefits?:
     | {
         text?: string | null;
@@ -2307,6 +2480,10 @@ export interface TrustBadgesBlock {
         | 'eco-friendly'
         | 'free-consultation'
         | 'online-booking'
+        | 'money-back-30'
+        | 'patented'
+        | 'certified'
+        | 'non-invasive'
       )[]
     | null;
   /**
@@ -3305,7 +3482,7 @@ export interface VideoHeroBlock {
       }[]
     | null;
   /**
-   * Imagini de incredere (certificari, parteneri, etc.)
+   * Imagini de incredere (certificari, garantii, parteneri, etc.) - ex: Money-back guarantee, Patent
    */
   trustBadges?:
     | {
@@ -3315,6 +3492,10 @@ export interface VideoHeroBlock {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Plasturi style: sub textul principal cu badge-uri de garantie
+   */
+  trustBadgesPosition?: ('below' | 'above') | null;
   /**
    * Preia din BusinessInfo
    */
@@ -3331,7 +3512,7 @@ export interface VideoHeroBlock {
  * via the `definition` "ProcessStepsBlock".
  */
 export interface ProcessStepsBlock {
-  variant?: ('zigzag' | 'timeline' | 'horizontal' | 'grid') | null;
+  variant?: ('zigzag' | 'timeline' | 'horizontal' | 'grid' | 'carousel') | null;
   heading?: string | null;
   subheading?: string | null;
   steps?:
@@ -3461,6 +3642,31 @@ export interface PricingKitsBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'pricing-kits';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "DownloadLinksBlock".
+ */
+export interface DownloadLinksBlock {
+  variant?: ('buttons' | 'list' | 'cards' | 'inline') | null;
+  heading?: string | null;
+  links?:
+    | {
+        label: string;
+        description?: string | null;
+        linkType?: ('upload' | 'external') | null;
+        file?: (string | null) | Media;
+        url?: string | null;
+        icon?: ('download' | 'pdf' | 'document' | 'external-link' | 'none') | null;
+        openInNewTab?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  alignment?: ('left' | 'center' | 'right') | null;
+  backgroundColor?: ('default' | 'light' | 'dark' | 'primary') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'download-links';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3803,6 +4009,10 @@ export interface PayloadLockedDocument {
         value: string | Service;
       } | null)
     | ({
+        relationTo: 'service-categories';
+        value: string | ServiceCategory;
+      } | null)
+    | ({
         relationTo: 'team';
         value: string | Team;
       } | null)
@@ -3943,6 +4153,14 @@ export interface PayloadMigration {
 export interface PagesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
+  headerSettings?:
+    | T
+    | {
+        headerVariant?: T;
+        headerTransparency?: T;
+        headerTextColor?: T;
+        headerTopBar?: T;
+      };
   heroType?: T;
   hero?:
     | T
@@ -4025,6 +4243,7 @@ export interface PagesSelect<T extends boolean = true> {
         'video-hero'?: T | VideoHeroBlockSelect<T>;
         'process-steps'?: T | ProcessStepsBlockSelect<T>;
         'pricing-kits'?: T | PricingKitsBlockSelect<T>;
+        'download-links'?: T | DownloadLinksBlockSelect<T>;
       };
   publishedAt?: T;
   meta?:
@@ -4481,6 +4700,17 @@ export interface ContactBlockSelect<T extends boolean = true> {
  */
 export interface CtaBlockSelect<T extends boolean = true> {
   variant?: T;
+  pattern?:
+    | T
+    | {
+        enabled?: T;
+        type?: T;
+        position?: T;
+        color?: T;
+        opacity?: T;
+        size?: T;
+        animated?: T;
+      };
   headline?: T;
   subheadline?: T;
   image?: T;
@@ -4605,6 +4835,17 @@ export interface GalleryBlockSelect<T extends boolean = true> {
  */
 export interface StatsBlockSelect<T extends boolean = true> {
   variant?: T;
+  pattern?:
+    | T
+    | {
+        enabled?: T;
+        type?: T;
+        position?: T;
+        color?: T;
+        opacity?: T;
+        size?: T;
+        animated?: T;
+      };
   heading?: T;
   source?: T;
   stats?:
@@ -4944,6 +5185,17 @@ export interface BeforeAfterBlockSelect<T extends boolean = true> {
  */
 export interface NewsletterBlockSelect<T extends boolean = true> {
   variant?: T;
+  pattern?:
+    | T
+    | {
+        enabled?: T;
+        type?: T;
+        position?: T;
+        color?: T;
+        opacity?: T;
+        size?: T;
+        animated?: T;
+      };
   heading?: T;
   subheading?: T;
   placeholder?: T;
@@ -4952,6 +5204,8 @@ export interface NewsletterBlockSelect<T extends boolean = true> {
   backgroundImage?: T;
   privacyText?: T;
   showPrivacyLink?: T;
+  requireConsent?: T;
+  consentText?: T;
   benefits?:
     | T
     | {
@@ -5455,6 +5709,7 @@ export interface VideoHeroBlockSelect<T extends boolean = true> {
         link?: T;
         id?: T;
       };
+  trustBadgesPosition?: T;
   showSocialLinks?: T;
   textAlignment?: T;
   height?: T;
@@ -5531,6 +5786,30 @@ export interface PricingKitsBlockSelect<T extends boolean = true> {
       };
   columns?: T;
   showCompareFeatures?: T;
+  backgroundColor?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "DownloadLinksBlock_select".
+ */
+export interface DownloadLinksBlockSelect<T extends boolean = true> {
+  variant?: T;
+  heading?: T;
+  links?:
+    | T
+    | {
+        label?: T;
+        description?: T;
+        linkType?: T;
+        file?: T;
+        url?: T;
+        icon?: T;
+        openInNewTab?: T;
+        id?: T;
+      };
+  alignment?: T;
   backgroundColor?: T;
   id?: T;
   blockName?: T;
@@ -5708,6 +5987,7 @@ export interface UsersSelect<T extends boolean = true> {
 export interface ServicesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
+  category?: T;
   shortDescription?: T;
   description?: T;
   image?: T;
@@ -5756,6 +6036,20 @@ export interface ServicesSelect<T extends boolean = true> {
         description?: T;
         image?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "service-categories_select".
+ */
+export interface ServiceCategoriesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  description?: T;
+  icon?: T;
+  services?: T;
+  order?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -6501,14 +6795,30 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
  */
 export interface Header {
   id: string;
-  variant?: ('standard' | 'centered' | 'with-topbar' | 'transparent' | 'minimal') | null;
+  variant?: ('standard' | 'centered' | 'with-topbar' | 'full-width' | 'minimal') | null;
+  /**
+   * Bara superioara cu social media, contact, mesaj etc.
+   */
+  showTopBar?: boolean | null;
   topBar?: {
+    backgroundColor?: ('dark' | 'primary' | 'transparent' | 'light') | null;
+    layout?: ('social-left' | 'message-left' | 'contact-left' | 'centered') | null;
     showPhone?: boolean | null;
     showEmail?: boolean | null;
     showSocial?: boolean | null;
+    /**
+     * Daca nu sunt setate, se folosesc link-urile din BusinessInfo
+     */
+    customSocialLinks?:
+      | {
+          platform: 'youtube' | 'facebook' | 'instagram' | 'tiktok' | 'twitter' | 'linkedin' | 'whatsapp';
+          url: string;
+          id?: string | null;
+        }[]
+      | null;
     showWorkingHours?: boolean | null;
     /**
-     * Ex: Transport gratuit la comenzi peste 200 lei
+     * Ex: Te rugam sa te intorci la persoana care te-a recomandat!
      */
     customText?: string | null;
   };
@@ -6550,6 +6860,14 @@ export interface Header {
     variant?: ('default' | 'outline' | 'ghost') | null;
   };
   sticky?: boolean | null;
+  /**
+   * Header-ul va fi transparent și suprapus peste primul block (ideal pentru Video Hero)
+   */
+  isTransparent?: boolean | null;
+  /**
+   * Culoarea textului și logo-ului când header-ul este transparent
+   */
+  transparentTextColor?: ('white' | 'dark' | 'auto') | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -6740,6 +7058,7 @@ export interface SiteTheme {
         | 'DM_Sans'
         | 'DM_Serif_Display'
         | 'Raleway'
+        | 'Prompt'
       )
     | null;
   /**
@@ -6762,8 +7081,13 @@ export interface SiteTheme {
         | 'Manrope'
         | 'DM_Sans'
         | 'Raleway'
+        | 'Prompt'
       )
     | null;
+  /**
+   * Font weight pentru titluri (H1-H6). "Light" pentru design clean/flat.
+   */
+  headingWeight?: ('300' | '400' | '500' | '600' | '700') | null;
   /**
    * Permite controlul fin asupra letter-spacing si line-height
    */
@@ -6775,6 +7099,7 @@ export interface SiteTheme {
    * Permite controlul fin asupra aspectului butoanelor
    */
   useCustomButtons?: boolean | null;
+  buttonRounding?: ('none' | 'small' | 'default' | 'medium' | 'large' | 'pill' | 'full') | null;
   buttonPadding?: ('compact' | 'normal' | 'large' | 'xl') | null;
   buttonTextTransform?: ('none' | 'uppercase' | 'capitalize') | null;
   buttonFontWeight?: ('400' | '500' | '600' | '700') | null;
@@ -6909,6 +7234,29 @@ export interface BusinessInfo {
     backgroundColor?: ('primary' | 'secondary' | 'accent' | 'dark' | 'gradient') | null;
     icon?: ('megaphone' | 'gift' | 'star' | 'fire' | 'sparkles' | 'none') | null;
     dismissible?: boolean | null;
+  };
+  /**
+   * Buton call-to-action flotant (stil Plasturi)
+   */
+  floatingCta?: {
+    enabled?: boolean | null;
+    text?: string | null;
+    href?: string | null;
+    variant?: ('primary' | 'accent' | 'secondary' | 'dark' | 'gradient') | null;
+    icon?: ('arrow' | 'phone' | 'message' | 'calendar' | 'none') | null;
+    position?: ('bottom-right' | 'bottom-left' | 'bottom-center' | 'right-center' | 'left-center') | null;
+    shape?: ('pill' | 'rectangle') | null;
+    showOnMobile?: boolean | null;
+    pulseAnimation?: boolean | null;
+    dismissible?: boolean | null;
+    /**
+     * Butonul apare după ce utilizatorul derulează X pixeli
+     */
+    showAfterScroll?: number | null;
+    /**
+     * Ex: /contact, /programare - pagini unde butonul nu apare
+     */
+    hideOnPaths?: string | null;
   };
   /**
    * Configurare banner cookie conform GDPR și Legea 506/2004 România
@@ -7176,12 +7524,22 @@ export interface SystemPage {
  */
 export interface HeaderSelect<T extends boolean = true> {
   variant?: T;
+  showTopBar?: T;
   topBar?:
     | T
     | {
+        backgroundColor?: T;
+        layout?: T;
         showPhone?: T;
         showEmail?: T;
         showSocial?: T;
+        customSocialLinks?:
+          | T
+          | {
+              platform?: T;
+              url?: T;
+              id?: T;
+            };
         showWorkingHours?: T;
         customText?: T;
       };
@@ -7219,6 +7577,8 @@ export interface HeaderSelect<T extends boolean = true> {
         variant?: T;
       };
   sticky?: T;
+  isTransparent?: T;
+  transparentTextColor?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -7326,11 +7686,13 @@ export interface SiteThemeSelect<T extends boolean = true> {
       };
   headingFont?: T;
   bodyFont?: T;
+  headingWeight?: T;
   useAdvancedTypography?: T;
   letterSpacing?: T;
   headingLineHeight?: T;
   bodyLineHeight?: T;
   useCustomButtons?: T;
+  buttonRounding?: T;
   buttonPadding?: T;
   buttonTextTransform?: T;
   buttonFontWeight?: T;
@@ -7443,6 +7805,22 @@ export interface BusinessInfoSelect<T extends boolean = true> {
         backgroundColor?: T;
         icon?: T;
         dismissible?: T;
+      };
+  floatingCta?:
+    | T
+    | {
+        enabled?: T;
+        text?: T;
+        href?: T;
+        variant?: T;
+        icon?: T;
+        position?: T;
+        shape?: T;
+        showOnMobile?: T;
+        pulseAnimation?: T;
+        dismissible?: T;
+        showAfterScroll?: T;
+        hideOnPaths?: T;
       };
   cookieConsent?:
     | T

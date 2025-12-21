@@ -95,6 +95,19 @@ export async function seedFrizerie(payload: Payload) {
       tooltipText: 'Programeaza-te pe WhatsApp',
       pulseAnimation: true,
     },
+    floatingCta: {
+      enabled: true,
+      text: 'Programează-te',
+      href: '/contact',
+      variant: 'gradient',
+      icon: 'calendar',
+      position: 'bottom-center',
+      shape: 'pill',
+      showOnMobile: true,
+      pulseAnimation: true,
+      dismissible: true,
+      showAfterScroll: 300,
+    },
   })
 
   // 5. Logo

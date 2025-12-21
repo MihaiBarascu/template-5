@@ -24,6 +24,7 @@ import { Categories } from './collections/Categories';
 import { Media } from './collections/Media';
 import { Pages } from './collections/Pages';
 import { Posts } from './collections/Posts';
+import { ServiceCategories } from './collections/ServiceCategories';
 import { Services } from './collections/Services';
 import { Users } from './collections/Users';
 // Products is created by ecommerce plugin with productsCollectionOverride
@@ -656,6 +657,7 @@ export default buildConfig({
     Categories,
     Users,
     Services,
+    ServiceCategories,
     // Products is created by ecommerce plugin
     Team,
     Portfolio,

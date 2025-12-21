@@ -330,73 +330,105 @@ export function ServicesBlock({
           )}
 
           <div className="space-y-4 max-w-4xl mx-auto">
-            {services.map((service, index) => (
-              <div
-                key={service.id}
-                className={cn(
-                  'group flex items-center gap-6 p-6 rounded-[var(--radius-card)]',
-                  'animate-fade-in-up',
-                  hoverClasses,
-                  isDark
-                    ? 'bg-white/5 hover:bg-white/10 border border-white/10'
-                    : 'bg-white border border-theme-border hover:border-theme-primary/30',
-                  variant === 'list-alternating' && index % 2 === 1 && 'md:flex-row-reverse',
-                  index < 8 && `animation-delay-${(index % 4) * 100 + 100}`
-                )}
-              >
-                {showIcons && (
-                  <div className={cn(
-                    'flex-shrink-0 w-16 h-16 rounded-2xl flex items-center justify-center',
-                    'transition-all duration-300 group-hover:scale-110',
-                    isDark
-                      ? 'bg-theme-accent/20 text-theme-accent'
-                      : 'bg-theme-primary/10 text-theme-primary group-hover:bg-theme-primary group-hover:text-white'
-                  )}>
-                    {getLucideIcon(service.icon, 'w-7 h-7')}
-                  </div>
-                )}
+            {services.map((service, index) => {
+              const serviceHref = detailBasePath && service.slug ? `${detailBasePath}/${service.slug}` : null
+              const imageObj = service.image && typeof service.image === 'object' ? service.image as MediaType : null
+              const hasImage = imageObj?.url
 
-                <div className="flex-grow">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <h3 className={cn(
-                        'heading-h3 font-bold mb-1',
-                        isDark ? 'text-white' : 'text-theme-text'
-                      )}>
-                        {service.title}
-                        {service.featured && (
-                          <span className="ml-2 inline-flex items-center px-2 py-0.5 text-xs font-medium bg-theme-accent text-white rounded-full">
-                            Popular
-                          </span>
+              const cardClassName = cn(
+                'group flex items-center gap-6 p-6 rounded-[var(--radius-card)]',
+                'animate-fade-in-up',
+                hoverClasses,
+                isDark
+                  ? 'bg-white/5 hover:bg-white/10 border border-white/10'
+                  : 'bg-white border border-theme-border hover:border-theme-primary/30',
+                variant === 'list-alternating' && index % 2 === 1 && 'md:flex-row-reverse',
+                serviceHref && 'cursor-pointer',
+                index < 8 && `animation-delay-${(index % 4) * 100 + 100}`
+              )
+
+              const cardContent = (
+                <>
+                  {/* Image if available, otherwise icon */}
+                  {hasImage ? (
+                    <div className="relative flex-shrink-0 w-24 h-24 md:w-32 md:h-32 rounded-xl overflow-hidden">
+                      <Media
+                        resource={imageObj}
+                        fill
+                        size="128px"
+                        imgClassName="object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
+                    </div>
+                  ) : showIcons && (
+                    <div className={cn(
+                      'flex-shrink-0 w-16 h-16 rounded-2xl flex items-center justify-center',
+                      'transition-all duration-300 group-hover:scale-110',
+                      isDark
+                        ? 'bg-theme-accent/20 text-theme-accent'
+                        : 'bg-theme-primary/10 text-theme-primary group-hover:bg-theme-primary group-hover:text-white'
+                    )}>
+                      {getLucideIcon(service.icon, 'w-7 h-7')}
+                    </div>
+                  )}
+
+                  <div className="flex-grow">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <h3 className={cn(
+                          'heading-h3 font-bold mb-1 transition-colors',
+                          isDark ? 'text-white group-hover:text-theme-accent' : 'text-theme-text group-hover:text-theme-primary'
+                        )}>
+                          {service.title}
+                          {service.featured && (
+                            <span className="ml-2 inline-flex items-center px-2 py-0.5 text-xs font-medium bg-theme-accent text-white rounded-full">
+                              Popular
+                            </span>
+                          )}
+                        </h3>
+                        {service.shortDescription && (
+                          <p className={cn('text-sm mb-2', isDark ? 'text-white/60' : 'text-theme-text-light')}>
+                            {service.shortDescription}
+                          </p>
                         )}
-                      </h3>
-                      {service.shortDescription && (
-                        <p className={cn('text-sm mb-2', isDark ? 'text-white/60' : 'text-theme-text-light')}>
-                          {service.shortDescription}
-                        </p>
-                      )}
-                      {/* Duration and additional attributes */}
-                      <div className="flex items-center gap-3">
+                        {/* Duration only - attributes shown on detail page */}
                         {service.duration && (
-                          <span className={cn('flex items-center gap-1 text-sm', isDark ? 'text-white/50' : 'text-theme-text-muted')}>
-                            <LucideIcons.Clock className="w-4 h-4" />
-                            {service.duration}
-                          </span>
+                          <div className="flex items-center gap-3">
+                            <span className={cn('flex items-center gap-1 text-sm', isDark ? 'text-white/50' : 'text-theme-text-muted')}>
+                              <LucideIcons.Clock className="w-4 h-4" />
+                              {service.duration}
+                            </span>
+                          </div>
                         )}
-                        <AttributeList attributes={service.attributes} isDark={isDark} layout="inline" />
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        {service.price && (
+                          <div className={cn('text-lg font-bold', isDark ? 'text-white' : 'text-theme-primary')}>
+                            {service.price}
+                          </div>
+                        )}
                       </div>
                     </div>
-                    <div className="text-right flex-shrink-0">
-                      {service.price && (
-                        <div className={cn('heading-h2 font-bold', isDark ? 'text-white' : 'text-theme-primary')}>
-                          {service.price}
-                        </div>
-                      )}
-                    </div>
                   </div>
+                </>
+              )
+
+              return serviceHref ? (
+                <Link
+                  key={service.id}
+                  href={serviceHref}
+                  className={cardClassName}
+                >
+                  {cardContent}
+                </Link>
+              ) : (
+                <div
+                  key={service.id}
+                  className={cardClassName}
+                >
+                  {cardContent}
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
 
           {showBookButton && (

@@ -4,6 +4,7 @@ import {
   seedSiteTheme,
   seedBusinessInfo,
   seedSystemPages,
+  seedShopSettings,
   seedLogo,
   seedHeader,
   seedFooter,
@@ -80,10 +81,41 @@ export async function seedMagazin(payload: Payload) {
     stats: magazinData.business.stats,
     googleMapsEmbed:
       'https://www.google.com/maps?q=Bulevardul+Magheru+50,+Sector+1,+Bucuresti,+Romania&output=embed',
+    whatsappFloat: {
+      enabled: true,
+      position: 'bottom-right',
+      showOnMobile: true,
+      defaultMessage: 'Buna! Doresc informatii despre produsele din magazin.',
+      tooltipText: 'Scrie-ne pe WhatsApp',
+      pulseAnimation: true,
+    },
+    floatingCta: {
+      enabled: true,
+      text: 'Vezi Produsele',
+      href: '/produse',
+      variant: 'gradient',
+      icon: 'arrow',
+      position: 'bottom-center',
+      shape: 'pill',
+      showOnMobile: true,
+      pulseAnimation: true,
+      dismissible: true,
+      showAfterScroll: 300,
+    },
   })
 
   console.log('\n📄 Setting up system pages (shop config)...')
   await seedSystemPages(payload)
+
+  console.log('\n🛒 Enabling ecommerce (shop settings)...')
+  await seedShopSettings(payload, {
+    enabled: true,
+    shopName: 'EcoShop',
+    currency: 'RON',
+    currencySymbol: 'lei',
+    vatEnabled: true,
+    pricesIncludeVat: true,
+  })
 
   console.log('\n🏷️ Setting up logo...')
   await seedLogo(payload, { type: 'text', text: 'EcoShop' })
@@ -289,7 +321,7 @@ function buildHomepageLayout(variant: DesignVariant, getImageId: (filename: stri
       },
       backgroundColor: 'default',
     },
-    // NEW: Newsletter for shop - using with-pattern variant for visual impact
+    // Newsletter for shop - using with-pattern variant for visual impact
     newsletter: {
       blockType: 'newsletter',
       variant: 'with-pattern',
@@ -305,6 +337,16 @@ function buildHomepageLayout(variant: DesignVariant, getImageId: (filename: stri
         { text: 'Sfaturi eco' },
       ],
       backgroundColor: 'primary',
+      // Pattern configuration - diagonal flowing lines like before but configurable
+      pattern: {
+        enabled: true,
+        type: 'diagonal-lines',
+        position: 'full',
+        color: 'white',
+        opacity: '10',
+        size: 'md',
+        animated: false,
+      },
     },
     // NEW: Opening Hours - program magazin/showroom
     openingHours: {

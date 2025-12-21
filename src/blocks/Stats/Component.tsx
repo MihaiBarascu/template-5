@@ -139,9 +139,9 @@ export function StatsBlock({
                   'text-center p-6 rounded-[var(--radius-card)]',
                   variant === 'with-icons' && 'flex flex-col items-center',
                   backgroundColor === 'primary' && 'bg-white/10',
-                  backgroundColor === 'dark' && 'bg-white/5',
-                  backgroundColor === 'light' && 'bg-white shadow-sm border border-theme-border',
-                  backgroundColor === 'default' && 'bg-theme-light'
+                  backgroundColor === 'dark' && 'card-gradient-subtle-dark',
+                  backgroundColor === 'light' && 'card-gradient-subtle shadow-sm border border-theme-border',
+                  backgroundColor === 'default' && 'card-gradient-subtle'
                 )}
               >
                 <div className="text-4xl md:text-5xl font-bold mb-2">

@@ -117,7 +117,7 @@ export const VideoHeroBlock: Block = {
       type: 'array',
       label: 'Trust Badges (imagini)',
       admin: {
-        description: 'Imagini de incredere (certificari, parteneri, etc.)',
+        description: 'Imagini de incredere (certificari, garantii, parteneri, etc.) - ex: Money-back guarantee, Patent',
       },
       fields: [
         {
@@ -137,6 +137,20 @@ export const VideoHeroBlock: Block = {
           label: 'Link (optional)',
         },
       ],
+    },
+    {
+      name: 'trustBadgesPosition',
+      type: 'select',
+      label: 'Poziție trust badges',
+      defaultValue: 'below',
+      options: [
+        { label: 'Sub text (recomandat)', value: 'below' },
+        { label: 'Deasupra titlului', value: 'above' },
+      ],
+      admin: {
+        condition: (_, siblingData) => siblingData?.trustBadges && siblingData.trustBadges.length > 0,
+        description: 'Plasturi style: sub textul principal cu badge-uri de garantie',
+      },
     },
     {
       name: 'showSocialLinks',

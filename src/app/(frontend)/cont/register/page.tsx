@@ -6,6 +6,8 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { redirect } from 'next/navigation'
 import { RegisterForm } from '@/components/account/RegisterForm'
+import { PageWrapper } from '@/components/PageWrapper'
+import { getCachedGlobal } from '@/utilities/getGlobals'
 import type { SystemPage } from '@/payload-types'
 
 export default async function RegisterPage() {
@@ -17,33 +19,44 @@ export default async function RegisterPage() {
     redirect('/cont')
   }
 
-  // Fetch system pages config
-  const systemPages = await payload.findGlobal({ slug: 'system-pages' }).catch(() => null) as SystemPage | null
+  // Fetch header globals + system pages config
+  const [headerData, logoData, businessInfo, systemPages] = await Promise.all([
+    getCachedGlobal('header'),
+    getCachedGlobal('logo'),
+    getCachedGlobal('business-info'),
+    payload.findGlobal({ slug: 'system-pages' }).catch(() => null) as Promise<SystemPage | null>,
+  ])
   const account = systemPages?.accountPages || {}
 
   return (
-    <section className="py-16 bg-theme-surface min-h-screen">
-      <div className="container mx-auto px-4">
-        <div className="max-w-md mx-auto">
-          <div className="p-8 rounded-[var(--radius-card)] bg-theme-surface-secondary border border-theme-border">
-            <h1 className="text-2xl font-bold mb-2 text-theme-text">
-              {account.registerTitle || 'Creează cont'}
-            </h1>
-            <p className="text-theme-text-muted mb-8">
-              {account.registerDescription || 'Creează un cont pentru a salva adresele, a vedea istoricul comenzilor și a finaliza comenzile mai rapid.'}
-            </p>
-            <RegisterForm buttonText={account.registerButton || 'Creează cont'} />
-          </div>
+    <PageWrapper
+      headerData={headerData}
+      logoData={logoData}
+      businessInfoData={businessInfo}
+    >
+      <section className="py-16 bg-theme-surface min-h-screen">
+        <div className="container mx-auto px-4">
+          <div className="max-w-md mx-auto">
+            <div className="p-8 rounded-[var(--radius-card)] bg-theme-surface-secondary border border-theme-border">
+              <h1 className="text-2xl font-bold mb-2 text-theme-text">
+                {account.registerTitle || 'Creează cont'}
+              </h1>
+              <p className="text-theme-text-muted mb-8">
+                {account.registerDescription || 'Creează un cont pentru a salva adresele, a vedea istoricul comenzilor și a finaliza comenzile mai rapid.'}
+              </p>
+              <RegisterForm buttonText={account.registerButton || 'Creează cont'} />
+            </div>
 
-          <p className="text-center mt-6 text-sm text-theme-text-muted">
-            Ai deja un cont?{' '}
-            <Link href="/cont/login" className="text-theme-primary hover:underline">
-              Autentifică-te
-            </Link>
-          </p>
+            <p className="text-center mt-6 text-sm text-theme-text-muted">
+              Ai deja un cont?{' '}
+              <Link href="/cont/login" className="text-theme-primary hover:underline">
+                Autentifică-te
+              </Link>
+            </p>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </PageWrapper>
   )
 }
 

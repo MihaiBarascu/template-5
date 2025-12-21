@@ -73,6 +73,27 @@ export async function seedAutoService(payload: Payload) {
     stats: autoServiceData.business.stats,
     googleMapsEmbed:
       'https://www.google.com/maps?q=Soseaua+Colentina+250,+Sector+2,+Bucuresti,+Romania&output=embed',
+    whatsappFloat: {
+      enabled: true,
+      position: 'bottom-right',
+      showOnMobile: true,
+      defaultMessage: 'Buna! Doresc sa fac o programare pentru service auto.',
+      tooltipText: 'Programeaza-te pe WhatsApp',
+      pulseAnimation: true,
+    },
+    floatingCta: {
+      enabled: true,
+      text: 'Programează-te',
+      href: '/programare',
+      variant: 'gradient',
+      icon: 'calendar',
+      position: 'bottom-center',
+      shape: 'pill',
+      showOnMobile: true,
+      pulseAnimation: true,
+      dismissible: true,
+      showAfterScroll: 300,
+    },
   })
 
   console.log('\n🏷️ Setting up logo...')

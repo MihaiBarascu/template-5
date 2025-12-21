@@ -280,7 +280,7 @@ export function ContactBlock({
 
   // Standard variant (default) - vertical list with icons
   return (
-    <div className={cn('py-8 md:py-12', bgClass)}>
+    <div className={cn('pt-8 pb-16 md:pt-12 md:pb-20', bgClass)}>
       {(heading || subheading) && (
         <div className="mb-6">
           {heading && <h2 className="text-xl font-bold mb-2">{heading}</h2>}

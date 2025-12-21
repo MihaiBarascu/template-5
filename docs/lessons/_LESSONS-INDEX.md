@@ -2,7 +2,7 @@
 status: ACTIVE
 type: lesson
 created: 2025-12-08
-updated: 2025-12-20
+updated: 2025-12-21
 tags: [lessons, bugs, fixes, tips]
 ---
 
@@ -10,6 +10,40 @@ tags: [lessons, bugs, fixes, tips]
 
 > Acest fisier indexeaza toate lectiile invatate in proiect.
 > Pentru detalii complete, vezi [LESSONS-LEARNED.md](../LESSONS-LEARNED.md)
+
+---
+
+## ECOMMERCE CONTROL (2025-12-21) - NOU!
+
+| Data | Problema | Solutie |
+|------|----------|---------|
+| 2025-12-21 | Cart apare pe site-uri non-ecommerce | `shopSettings.enabled` = master switch; ecommerce pages use `showCart={shopSettings?.enabled ?? false}` |
+| 2025-12-21 | Ecommerce persista intre seeders | `clearData()` reseteaza `shop-settings.enabled = false`; doar `magazin` seeder activeaza explicit |
+| 2025-12-21 | Header shows cart by accident | Header verifica `showCart` prop SI `ctaButton?.link === '/cos'` |
+
+**Fisiere modificate:**
+- `src/seed/helpers.ts` - `seedShopSettings()` function
+- `src/seed/index.ts` - reset in `clearData()`
+- `src/seed/businesses/magazin.ts` - explicit enable
+- `src/app/(frontend)/produse/page.tsx` etc - check `shopSettings?.enabled`
+
+---
+
+## PER-PAGE HEADER (2025-12-21) - NOU!
+
+| Data | Problema | Solutie |
+|------|----------|---------|
+| 2025-12-21 | Header diferit per pagina | `headerSettings` group in Pages collection cu `inherit` default |
+| 2025-12-21 | Transparent header pe anumite pagini | `headerTransparency: 'solid'` sau `'transparent'` override |
+| 2025-12-21 | TopBar per pagina | `headerTopBar: 'show'` / `'hide'` / `'inherit'` |
+
+**Flux:**
+```
+layout.tsx -> PageWrapper -> Header(mergedSettings)
+                    ^
+                    |
+       mergeHeaderSettings(global, page.headerSettings)
+```
 
 ---
 
@@ -54,6 +88,32 @@ tags: [lessons, bugs, fixes, tips]
 | 2025-12-01 | Text invizibil pe fundal dark | Pattern `isDark ? 'text-white' : 'text-theme-text'` |
 | 2025-12-01 | Border invizibil | `isDark ? 'border-white/10' : 'border-theme-border'` |
 | 2025-12-01 | Culori hardcodate nu respecta tema | NICIODATA `text-gray-600`, INTOTDEAUNA `text-theme-text-light` |
+
+---
+
+## HEADER & NAVIGATION (2025-12-21)
+
+| Data | Problema | Solutie |
+|------|----------|---------|
+| 2025-12-21 | Header transparent peste VideoHero | `isTransparent: true` + `fixed top-0` in loc de `sticky` |
+| 2025-12-21 | Header transform la scroll | useState `isScrolled` + scroll event listener cu `passive: true` |
+| 2025-12-21 | TopBar dispare la scroll | `opacity-0 -translate-y-full h-0 overflow-hidden` cu `transition-all duration-300` |
+| 2025-12-21 | Hydration mismatch la scroll | `isScrolled` diferă server/client - funcționalitatea merge, warning ignorat |
+| 2025-12-21 | TopBar layout break | Container trebuie `flex items-center justify-between` mereu |
+
+> Vezi [STICKY-HEADER-TRANSPARENT.md](./STICKY-HEADER-TRANSPARENT.md) pentru implementare completă
+
+---
+
+## VIDEO HERO (2025-12-21)
+
+| Data | Problema | Solutie |
+|------|----------|---------|
+| 2025-12-21 | Text centrat vs stânga | `textAlignment: 'left'` în seed/admin pentru stil plasturi.ro |
+| 2025-12-21 | Butoane/badges nu se aliniază | `justify-center` doar când `textAlignment === 'center'` |
+| 2025-12-21 | Trust badges poziție | `trustBadgesPosition: 'above'` sau `'below'` headline |
+
+> Vezi [VIDEO-HERO-TEXT-ALIGNMENT.md](./VIDEO-HERO-TEXT-ALIGNMENT.md) pentru detalii
 
 ---
 

@@ -23,7 +23,7 @@ interface CTAButton {
 }
 
 interface ProcessStepsBlockProps {
-  variant?: 'zigzag' | 'timeline' | 'horizontal' | 'grid'
+  variant?: 'zigzag' | 'timeline' | 'horizontal' | 'grid' | 'carousel'
   heading?: string | null
   subheading?: string | null
   steps?: Step[]
@@ -352,6 +352,101 @@ export function ProcessStepsBlock({
     </div>
   )
 
+  // Render carousel variant (plasturi style benefits)
+  const renderCarousel = () => (
+    <div className="relative -mx-4 px-4">
+      {/* Horizontal scrollable container */}
+      <div className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-theme-primary/30 scrollbar-track-transparent">
+        {steps.map((step, index) => {
+          const hasImage = typeof step.image === 'object' && step.image !== null
+          const IconComponent = step.icon ? getLucideIconComponent(step.icon) : null
+
+          return (
+            <div
+              key={index}
+              className={cn(
+                'flex-shrink-0 w-[280px] md:w-[320px] snap-center',
+                'p-6 rounded-[var(--radius-card)]',
+                isDark ? 'bg-white/5 border border-white/10' : 'bg-theme-surface border border-theme-border shadow-sm'
+              )}
+            >
+              {/* Image */}
+              {hasImage && (
+                <div className="relative aspect-square rounded-lg overflow-hidden mb-4">
+                  <Media
+                    resource={step.image as MediaType}
+                    fill
+                    size="320px"
+                    imgClassName="object-cover"
+                  />
+                </div>
+              )}
+
+              {/* Icon fallback */}
+              {!hasImage && IconComponent && (
+                <div className={cn(
+                  'aspect-square rounded-lg flex items-center justify-center mb-4',
+                  isDark ? 'bg-theme-primary/20' : 'bg-theme-primary/10'
+                )}>
+                  <IconComponent className={cn(
+                    'w-16 h-16',
+                    isDark ? 'text-theme-primary-light' : 'text-theme-primary'
+                  )} />
+                </div>
+              )}
+
+              {/* Badge/Number */}
+              {(showNumbers || step.badge) && (
+                <div className="mb-2">
+                  {step.badge ? (
+                    <span className={cn(
+                      'inline-block px-3 py-1 rounded-full text-xs font-medium',
+                      isDark ? 'bg-theme-primary/20 text-theme-primary-light' : 'bg-theme-primary/10 text-theme-primary'
+                    )}>
+                      {step.badge}
+                    </span>
+                  ) : showNumbers && (
+                    <span className={cn(
+                      'inline-block px-2.5 py-0.5 rounded-full text-xs font-bold',
+                      'bg-theme-primary text-white'
+                    )}>
+                      {index + 1}
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {/* Title */}
+              <h3 className={cn(
+                'text-lg font-semibold mb-2',
+                isDark ? 'text-white' : 'text-theme-text'
+              )}>
+                {step.title}
+              </h3>
+
+              {/* Description */}
+              {step.description && (
+                <p className={cn(
+                  'text-sm line-clamp-4',
+                  isDark ? 'text-white/70' : 'text-theme-text-light'
+                )}>
+                  {step.description}
+                </p>
+              )}
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Scroll hint gradient */}
+      <div className={cn(
+        'absolute top-0 right-0 bottom-4 w-12 pointer-events-none',
+        'bg-gradient-to-l',
+        isDark ? 'from-theme-dark' : 'from-theme-surface'
+      )} />
+    </div>
+  )
+
   // Choose render function based on variant
   const renderContent = () => {
     switch (variant) {
@@ -361,6 +456,8 @@ export function ProcessStepsBlock({
         return renderHorizontal()
       case 'grid':
         return renderGrid()
+      case 'carousel':
+        return renderCarousel()
       default:
         return renderZigzag()
     }

@@ -40,6 +40,7 @@ import { FormBlock } from './Form/config'
 import { VideoHeroBlock } from './VideoHero/config'
 import { ProcessStepsBlock } from './ProcessSteps/config'
 import { PricingKitsBlock } from './PricingKits/config'
+import { DownloadLinksBlock } from './DownloadLinks/config'
 
 export const blocks = [
   HeroBlock,
@@ -84,6 +85,7 @@ export const blocks = [
   VideoHeroBlock,
   ProcessStepsBlock,
   PricingKitsBlock,
+  DownloadLinksBlock,
 ]
 
 export {
@@ -129,4 +131,5 @@ export {
   VideoHeroBlock,
   ProcessStepsBlock,
   PricingKitsBlock,
+  DownloadLinksBlock,
 }

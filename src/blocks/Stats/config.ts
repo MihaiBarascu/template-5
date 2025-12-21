@@ -1,4 +1,5 @@
 import type { Block } from 'payload'
+import { patternField } from '@/fields/patternField'
 
 export const StatsBlock: Block = {
   slug: 'stats',
@@ -23,6 +24,8 @@ export const StatsBlock: Block = {
         { label: 'Minimal', value: 'minimal' },
       ],
     },
+    // Pattern configuration - always available for Stats
+    ...patternField(),
     {
       name: 'heading',
       type: 'text',

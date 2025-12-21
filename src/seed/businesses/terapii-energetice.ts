@@ -7,6 +7,7 @@ import {
   seedLogo,
   seedHeader,
   seedFooter,
+  seedServiceCategories,
   seedServices,
   seedTestimonials,
   seedFAQ,
@@ -37,7 +38,7 @@ export async function seedTerapiiEnergetice(payload: Payload) {
     ...terapiiEnergeticeImages.hero,
     terapiiEnergeticeImages.banner,
     ...terapiiEnergeticeImages.services,
-    ...terapiiEnergeticeImages.courses,
+    ...terapiiEnergeticeImages.courseImages,
     terapiiEnergeticeImages.logo,
     ...terapiiEnergeticeImages.team,
     ...terapiiEnergeticeImages.gallery,
@@ -57,19 +58,39 @@ export async function seedTerapiiEnergetice(payload: Payload) {
     }
   }
 
+  // Create course image map by course title
+  const courseImageMap = new Map<string, string>()
+  for (const course of terapiiEnergeticeImages.courseImages) {
+    const imageId = getImageId(course.filename)
+    if (imageId) {
+      courseImageMap.set(course.courseTitle, imageId)
+    }
+  }
+
   // Configure theme using design variant - Gold & Navy colors from terapiienergetice.ro
+  // PLASTURI DESIGN: Prompt font, light heading weight (400), pill buttons
   console.log('\n🎨 Configuring site theme (Gold & Navy - Plasturi Design)...')
   await seedSiteTheme(payload, {
     variant: 'revital-harmony',
     borderRadius: variant.theme.borderRadius,
-    shadows: variant.theme.shadows,
+    shadows: 'none', // Plasturi design - flat, no shadows
     sectionSpacing: 'spacious',
-    headingScale: 'large',
+    headingScale: 'small',
     bodyTextSize: 'large',
     cardGap: 'spacious',
     animations: 'moderate',
-    headingFont: variant.theme.headingFont,
-    bodyFont: variant.theme.bodyFont,
+    // Plasturi fonts - Prompt for headings, Open Sans for body
+    headingFont: 'Prompt',
+    bodyFont: 'Open_Sans',
+    // Plasturi heading weight - light (400) for clean/flat look
+    headingWeight: '400',
+    // Plasturi button styling - pill buttons
+    useCustomButtons: true,
+    buttonRounding: 'pill',
+    buttonTextTransform: 'none',
+    buttonFontWeight: '500',
+    buttonPadding: 'normal',
+    // Colors
     useCustomColors: true,
     colors: variant.theme.colors,
   })
@@ -100,6 +121,19 @@ export async function seedTerapiiEnergetice(payload: Payload) {
     announcementBar: {
       enabled: false,
     },
+    floatingCta: {
+      enabled: true,
+      text: 'Abonează-te Acum',
+      href: '/contact',
+      variant: 'gradient',
+      icon: 'arrow',
+      position: 'bottom-center',
+      shape: 'rectangle', // Similar cu Plasturi - colțuri rotunjite, nu pill
+      showOnMobile: true,
+      pulseAnimation: true,
+      dismissible: false, // Fără X, ca pe plasturi
+      showAfterScroll: 300,
+    },
   })
 
   console.log('\n📄 Setting up system pages...')
@@ -108,11 +142,22 @@ export async function seedTerapiiEnergetice(payload: Payload) {
   console.log('\n🏷️ Setting up logo...')
   await seedLogo(payload, { type: 'text', text: 'Revital Harmony' })
 
-  console.log('\n📋 Setting up header navigation...')
+  console.log('\n📋 Setting up header navigation (PLASTURI DESIGN full-width + Transparent)...')
   await seedHeader(payload, {
-    variant: 'standard',
+    variant: 'full-width', // Full-width header fără container, ca pe plasturi
+    isTransparent: true, // Header transparent overlay peste Video Hero
+    transparentTextColor: 'white', // Text alb pe fundal video întunecat
     navItems: terapiiEnergeticeData.navigation,
-    ctaButton: { enabled: true, label: 'Programează-te', link: '/contact', variant: 'default' },
+    ctaButton: { enabled: false }, // Fără buton CTA în header, ca pe plasturi
+    topBar: {
+      backgroundColor: 'dark',
+      layout: 'social-left',
+      showPhone: true,
+      showEmail: true,
+      showSocial: true,
+      showWorkingHours: false,
+      customText: '', // Explicitly clear any custom text
+    },
   })
 
   console.log('\n📋 Setting up footer...')
@@ -143,14 +188,58 @@ export async function seedTerapiiEnergetice(payload: Payload) {
     ],
   })
 
+  // Create service categories (Terapii and Cursuri)
+  console.log('\n📁 Creating service categories...')
+  const categoryMap = await seedServiceCategories(payload, [
+    { title: 'Terapii', description: 'Terapii energetice pentru echilibru și vindecare', icon: 'Heart', order: 1 },
+    { title: 'Cursuri', description: 'Cursuri de certificare internațională', icon: 'GraduationCap', order: 2 },
+  ])
+  const terapiiCategoryId = categoryMap.get('Terapii')
+  const cursuriCategoryId = categoryMap.get('Cursuri')
+
   console.log('\n🛠️ Creating services (therapies)...')
-  // Map services to include their images and set displayStyle to card-image
+  // Map services to include their images, category, and set displayStyle to card-image
   const servicesWithImages = terapiiEnergeticeData.services.map((service) => ({
     ...service,
+    categoryId: terapiiCategoryId,
     imageId: therapyImageMap.get(service.title),
     displayStyle: 'card-image' as const, // Show service images in cards
+    backLabel: '← Înapoi la terapii',
+    backLink: '/terapii',
   }))
   await seedServices(payload, servicesWithImages)
+
+  // Create course services from courses data (uses rich text description like therapies)
+  console.log('\n📚 Creating services (courses)...')
+  const courseServices = terapiiEnergeticeData.courses.map((course, index) => ({
+    title: course.title,
+    shortDescription: course.shortDescription,
+    // Rich text description (same format as therapies via getter)
+    description: course.description,
+    icon: course.title.includes('Bars') ? 'Brain' : 'Sparkles',
+    // Course image from original site
+    imageId: courseImageMap.get(course.title),
+    price: `${course.price} RON`,
+    duration: course.duration,
+    featured: course.featured,
+    order: 100 + index, // After therapies
+    categoryId: cursuriCategoryId,
+    displayStyle: 'card-image' as const, // Show course images in cards
+    // Course-specific attributes for pricing variations
+    attributes: [
+      ...(course.priceRepeat ? [{ label: 'Preț reluare', value: `${course.priceRepeat} RON`, icon: 'RefreshCw' }] : []),
+      ...('priceAdolescent' in course && course.priceAdolescent ? [{ label: 'Adolescenți (16-18 ani)', value: `${course.priceAdolescent} RON`, icon: 'User' }] : []),
+      ...('priceChild' in course && course.priceChild !== undefined ? [{ label: 'Copii (sub 16 ani)', value: course.priceChild === 0 ? 'GRATUIT' : `${course.priceChild} RON`, icon: 'Baby' }] : []),
+      { label: 'Certificare', value: course.certification, icon: 'Award' },
+    ],
+    // Course features directly from data file
+    features: course.features,
+    ctaLabel: 'Înscrie-te la curs',
+    ctaLink: '/contact',
+    backLabel: '← Înapoi la cursuri',
+    backLink: '/cursuri',
+  }))
+  await seedServices(payload, courseServices)
 
   console.log('\n⭐ Creating testimonials...')
   await seedTestimonials(payload, terapiiEnergeticeData.testimonials)
@@ -163,7 +252,7 @@ export async function seedTerapiiEnergetice(payload: Payload) {
 
   // Create homepage with PLASTURI DESIGN - VideoHero + ProcessSteps + Timeline
   console.log('\n🏠 Creating homepage with PLASTURI DESIGN...')
-  await createPlasturiHomepage(payload, variant, getImageId)
+  await createPlasturiHomepage(payload, variant, getImageId, terapiiCategoryId, cursuriCategoryId)
 
   // Create forms
   console.log('\n📝 Creating forms...')
@@ -177,7 +266,10 @@ export async function seedTerapiiEnergetice(payload: Payload) {
   ])
 
   console.log('\n📄 Creating additional pages...')
-  await createAdditionalPages(payload, variant, formsMap, getImageId)
+  await createAdditionalPages(payload, variant, formsMap, getImageId, {
+    terapiiCategoryId,
+    cursuriCategoryId,
+  })
 
   console.log('\n' + '━'.repeat(50))
   console.log('✅ Terapii Energetice seeding complete!')
@@ -193,7 +285,9 @@ export async function seedTerapiiEnergetice(payload: Payload) {
 async function createPlasturiHomepage(
   payload: Payload,
   variant: DesignVariant,
-  getImageId: (filename: string) => string | undefined
+  getImageId: (filename: string) => string | undefined,
+  terapiiCategoryId: string | undefined,
+  cursuriCategoryId: string | undefined
 ) {
   // Layout array with all Plasturi design blocks
   const plasturiLayout = [
@@ -210,9 +304,17 @@ async function createPlasturiHomepage(
         { label: 'Programează o Ședință', link: '/contact', variant: 'primary', pillShape: true },
         { label: 'Descoperă Terapiile', link: '/terapii', variant: 'secondary', pillShape: true },
       ],
-      textAlignment: 'center',
+      textAlignment: 'left',
       height: 'fullscreen',
       showScrollIndicator: true,
+    },
+
+    // 1.1 TRUST BADGES - PLASTURI DESIGN feature (sub VideoHero)
+    {
+      blockType: 'trust-badges' as const,
+      variant: 'minimal',
+      presets: ['certified', 'non-invasive', 'money-back-30'],
+      backgroundColor: 'default',
     },
 
     // 2. ABOUT SECTION - Team featured
@@ -266,21 +368,45 @@ async function createPlasturiHomepage(
       backgroundColor: 'light',
     },
 
-    // 4. SERVICES GRID - Terapii principale
+    // 3.1 DOWNLOAD LINKS - Materiale informative (Plasturi style)
+    {
+      blockType: 'download-links' as const,
+      variant: 'buttons',
+      links: [
+        {
+          label: 'Descarcă Ghidul Terapiilor',
+          linkType: 'external',
+          url: '#', // TODO: Add actual PDF URL
+          icon: 'pdf',
+          openInNewTab: true,
+        },
+        {
+          label: 'Descarcă Ghidul Cursurilor',
+          linkType: 'external',
+          url: '#', // TODO: Add actual PDF URL
+          icon: 'pdf',
+          openInNewTab: true,
+        },
+      ],
+      alignment: 'center',
+      backgroundColor: 'default',
+    },
+
+    // 4. SERVICES GRID - Terapii principale (filtered by Terapii category)
     {
       blockType: 'services' as const,
       variant: 'grid-3',
       heading: 'Terapii Energetice',
       subheading: 'Descoperă terapiile care te pot ajuta să-ți regăsești echilibrul',
       source: 'collection',
+      filterByCategory: terapiiCategoryId ? [terapiiCategoryId] : undefined,
       onlyFeatured: true,
       limit: 6,
       showPrices: true,
-      showIcons: true,
+      showIcons: false,
       showDuration: true,
-      showBookButton: true,
-      bookButtonText: 'Programează-te',
-      bookButtonLink: '/contact',
+      showBookButton: false,
+      detailBasePath: '/terapii',
       ctaButton: {
         enabled: true,
         label: 'Vezi toate terapiile',
@@ -397,46 +523,26 @@ async function createPlasturiHomepage(
       backgroundColor: 'dark',
     },
 
-    // 9. PRICING KITS - Cursuri
+    // 9. COURSES SECTION - List alternating style (same as /cursuri page)
     {
-      blockType: 'pricing-kits' as const,
-      variant: 'highlighted',
+      blockType: 'services' as const,
+      variant: 'list-alternating',
       heading: 'Cursuri de Certificare',
       subheading: 'Devino practician certificat internațional',
-      kits: [
-        {
-          name: 'Curs Access Bars',
-          price: 1460,
-          priceLabel: 'RON',
-          description: 'Curs de o zi cu certificare internațională Access Consciousness',
-          badge: 'popular',
-          features: [
-            { text: 'Tehnici practice pentru auto-aplicare', included: true },
-            { text: 'Înțelegerea celor 32 de puncte energetice', included: true },
-            { text: 'Certificat Internațional', included: true },
-            { text: 'Acces la comunitatea Access Bars', included: true },
-          ],
-          cta: { label: 'Înscrie-te', link: '/cursuri' },
-          highlighted: true,
-        },
-        {
-          name: 'Curs Facelift Energetic',
-          price: 1875,
-          priceLabel: 'RON',
-          description: 'Curs de 2 zile pentru tratament anti-îmbătrânire',
-          badge: 'none',
-          features: [
-            { text: 'Două ședințe în care primești tratamentul', included: true },
-            { text: 'Două ședințe în care oferi tratamentul', included: true },
-            { text: 'Manual Access Facelift', included: true },
-            { text: 'Diplomă Internațională Practician', included: true },
-          ],
-          cta: { label: 'Înscrie-te', link: '/cursuri' },
-          highlighted: false,
-        },
-      ],
-      columns: '2',
-      showCompareFeatures: false,
+      source: 'collection',
+      filterByCategory: cursuriCategoryId ? [cursuriCategoryId] : undefined,
+      limit: 4,
+      showPrices: true,
+      showIcons: true,
+      showDuration: true,
+      showBookButton: false,
+      detailBasePath: '/cursuri',
+      ctaButton: {
+        enabled: true,
+        label: 'Vezi toate cursurile',
+        link: '/cursuri',
+      },
+      hoverEffect: 'lift',
       backgroundColor: 'light',
     },
 
@@ -452,16 +558,105 @@ async function createPlasturiHomepage(
       backgroundColor: 'default',
     },
 
-    // 11. CONTACT SECTION
+    // 11. CONTACT SECTION - wrapped in Content block for extra padding
     {
-      blockType: 'contact' as const,
-      variant: 'full',
-      heading: 'Programează o Ședință',
-      subheading: 'Contactează-ne pentru o programare sau pentru mai multe informații',
+      blockType: 'content' as const,
+      columns: [
+        {
+          width: '100',
+          alignment: 'top',
+          contentType: 'blocks',
+          blocks: [
+            {
+              blockType: 'contact' as const,
+              variant: 'full',
+              heading: 'Programează o Ședință',
+              subheading: 'Contactează-ne pentru o programare sau pentru mai multe informații',
+            },
+          ],
+        },
+      ],
+      backgroundColor: 'light',
+      paddingTop: 'large',
+      paddingBottom: 'large',
+    },
+
+    // 12. BENEFITS CAROUSEL - ProcessSteps carousel variant (PLASTURI DESIGN)
+    {
+      blockType: 'process-steps' as const,
+      variant: 'carousel', // Horizontal scrollable cards
+      heading: 'Beneficiile Terapiilor Energetice',
+      subheading: 'Descoperă cum te pot ajuta terapiile noastre',
+      steps: [
+        {
+          title: 'Reducerea Stresului',
+          description: 'Eliberează tensiunea acumulată și experimentează o stare profundă de relaxare și calm interior.',
+          icon: 'Leaf',
+          badge: 'Popular',
+        },
+        {
+          title: 'Ameliorarea Durerii',
+          description: 'Tehnicile noastre ajută la reducerea durerii cronice și acute fără medicamente sau intervenții invazive.',
+          icon: 'Heart',
+        },
+        {
+          title: 'Claritate Mentală',
+          description: 'Eliberează blocajele mentale și experimentează o gândire mai clară și o concentrare îmbunătățită.',
+          icon: 'Lightbulb',
+        },
+        {
+          title: 'Energie Crescută',
+          description: 'Reechilibrează fluxul energetic și simte-te mai energic și vital pe tot parcursul zilei.',
+          icon: 'Zap',
+        },
+        {
+          title: 'Echilibru Emoțional',
+          description: 'Procesează și eliberează emoțiile negative pentru o stare de bine durabilă.',
+          icon: 'Sun',
+        },
+        {
+          title: 'Somn Îmbunătățit',
+          description: 'Experimentează un somn mai profund și odihnitor după ședințele de terapie.',
+          icon: 'Clock',
+        },
+      ],
+      showNumbers: false,
+      showConnectors: false,
       backgroundColor: 'light',
     },
 
-    // 12. FINAL CTA
+    // 13. NEWSLETTER - Cu GDPR checkbox și pattern organic (ca plasturi.ro)
+    {
+      blockType: 'newsletter' as const,
+      variant: 'with-pattern',
+      heading: 'Abonează-te la Newsletter',
+      subheading: 'Primește sfaturi despre sănătate, noutăți despre cursuri și oferte speciale direct în inbox.',
+      placeholder: 'Adresa ta de email',
+      buttonText: 'Abonează-te',
+      successMessage: 'Mulțumim! Te-ai abonat cu succes la newsletter.',
+      privacyText: 'Datele tale sunt în siguranță. Nu facem spam.',
+      showPrivacyLink: true,
+      // GDPR checkbox - nou adăugat
+      requireConsent: true,
+      consentText: 'Da, sunt de acord să primesc newsletter-ul și accept politica de confidențialitate.',
+      benefits: [
+        { text: 'Sfaturi săptămânale despre sănătate' },
+        { text: 'Reduceri exclusive la cursuri' },
+        { text: 'Noutăți despre terapii' },
+      ],
+      // Pattern bubbles organic - ca pe plasturi.ro
+      pattern: {
+        enabled: true,
+        type: 'bubbles',
+        position: 'left',
+        color: 'white',
+        opacity: '40', // Increased to 40% for better visibility
+        size: 'lg',
+        animated: false,
+      },
+    },
+
+    // 14. FINAL CTA
     {
       blockType: 'cta' as const,
       variant: 'centered',
@@ -482,6 +677,7 @@ async function createPlasturiHomepage(
     data: {
       title: 'Acasă',
       slug: 'home',
+      _status: 'published',
       heroType: 'none', // No traditional hero, using video-hero block instead
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       layout: plasturiLayout as any,
@@ -498,10 +694,15 @@ async function createAdditionalPages(
   payload: Payload,
   variant: DesignVariant,
   formsMap: Map<string, string>,
-  getImageId: (filename: string) => string | undefined
+  getImageId: (filename: string) => string | undefined,
+  categoryIds: {
+    terapiiCategoryId: string | undefined
+    cursuriCategoryId: string | undefined
+  }
 ) {
   const contactFormId = formsMap.get('Formular de contact')
   const bookingFormId = formsMap.get('Formular de programare')
+  const { terapiiCategoryId, cursuriCategoryId } = categoryIds
 
   // Terapii (Services) page - PLASTURI DESIGN with ProcessSteps
   await payload.create({
@@ -509,6 +710,7 @@ async function createAdditionalPages(
     data: {
       title: 'Terapii',
       slug: 'terapii',
+      _status: 'published',
       heroType: 'none',
       layout: [
         // Mini video hero for services page (Local MP4)
@@ -526,6 +728,13 @@ async function createAdditionalPages(
           textAlignment: 'center',
           height: 'medium',
           showScrollIndicator: true,
+        },
+        // Trust badges pentru Terapii page (separate block)
+        {
+          blockType: 'trust-badges' as const,
+          variant: 'minimal',
+          presets: ['non-invasive', 'patented', 'certified'],
+          backgroundColor: 'default',
         },
         // Process steps explaining how therapies work
         {
@@ -563,13 +772,14 @@ async function createAdditionalPages(
           },
           backgroundColor: 'light',
         },
-        // All services in grid
+        // All therapies in grid (filtered by Terapii category)
         {
           blockType: 'services' as const,
           variant: 'grid-3',
           heading: 'Toate Terapiile Noastre',
           subheading: 'Selectează terapia care rezonează cu nevoile tale',
           source: 'collection',
+          filterByCategory: terapiiCategoryId ? [terapiiCategoryId] : undefined,
           limit: 20,
           showPrices: true,
           showIcons: true,
@@ -578,6 +788,7 @@ async function createAdditionalPages(
           bookButtonText: 'Programează-te',
           bookButtonLink: '/contact',
           hoverEffect: 'lift',
+          detailBasePath: '/terapii',
           backgroundColor: 'default',
         },
         // FAQ specific to therapies
@@ -612,228 +823,64 @@ async function createAdditionalPages(
     },
   })
 
-  // Cursuri page - PLASTURI DESIGN with video-hero and PricingKits
+  // Cursuri page - uses services block filtered by Cursuri category (data from seeder)
   await payload.create({
     collection: 'pages',
     data: {
       title: 'Cursuri',
       slug: 'cursuri',
+      _status: 'published',
       heroType: 'none',
       layout: [
         // Video hero for courses page (Local MP4)
         {
           blockType: 'video-hero' as const,
           videoSource: 'url',
-          videoUrl: '/videos/hero-cursuri.mp4', // Local candles video from Mixkit
+          videoUrl: '/videos/hero-cursuri.mp4',
           overlayColor: 'rgba(26, 26, 46, 0.7)',
           overlayOpacity: 70,
-          headline: 'Cursuri de Certificare',
-          subheadline: 'Învață să practici terapii energetice și obține certificare internațională recunoscută în 173 de țări',
+          headline: terapiiEnergeticeData.navigation.find(n => n.label === 'Cursuri')?.label || 'Cursuri de Certificare',
+          subheadline: 'Învață să practici terapii energetice și obține certificare internațională',
           ctaButtons: [
-            { label: 'Curs Access Bars - 1460 RON', link: '#access-bars', variant: 'primary', pillShape: true },
-            { label: 'Curs Facelift - 1875 RON', link: '#facelift', variant: 'secondary', pillShape: true },
+            { label: 'Vezi Cursurile', link: '#cursuri', variant: 'primary', pillShape: true },
           ],
           textAlignment: 'center',
           height: 'medium',
           showScrollIndicator: true,
         },
-        // Process steps for courses
+        // Trust badges pentru cursuri - certificare internațională
         {
-          blockType: 'process-steps' as const,
-          variant: 'horizontal',
-          heading: 'De Ce Să Devii Practician Certificat',
-          subheading: 'Beneficiile certificării internaționale',
-          steps: [
-            {
-              title: 'Carieră Flexibilă',
-              description: 'Poți practica independent sau în colaborare cu centre de wellness. Certificatul este recunoscut în 173 de țări.',
-              icon: 'Rocket',
-            },
-            {
-              title: 'Venituri Suplimentare',
-              description: 'O ședință Access Bars se tarifează între 150-300 RON. Poți practica full-time sau part-time.',
-              icon: 'CreditCard',
-            },
-            {
-              title: 'Dezvoltare Personală',
-              description: 'Învățând să ajuți pe alții, te vindeci și pe tine. Terapia începe cu cel care o practică.',
-              icon: 'Heart',
-            },
-          ],
-          showNumbers: false,
-          showConnectors: false,
-          backgroundColor: 'light',
-        },
-        // ACCESS BARS - Pricing Kit
-        {
-          blockType: 'pricing-kits' as const,
-          variant: 'highlighted',
-          heading: 'Curs Access Bars',
-          subheading: 'Access Bars este o tehnică de medicină alternativă practicată în peste 173 de țări. Metoda se concentrează pe 32 de puncte de pe cap care, atunci când sunt atinse, eliberează blocajele și emoțiile negative.',
-          kits: [
-            {
-              name: 'Prima Participare',
-              price: 1460,
-              priceLabel: 'RON',
-              description: 'Curs complet de o zi cu certificare internațională',
-              badge: 'popular',
-              features: [
-                { text: 'Tehnici practice pentru auto-aplicare', included: true },
-                { text: 'Înțelegerea celor 32 de puncte energetice', included: true },
-                { text: 'Instrumente de lucru și materiale', included: true },
-                { text: 'Training pentru facilitare clienți', included: true },
-                { text: 'Certificat Internațional Access Consciousness', included: true },
-                { text: 'Acces la comunitatea Access Bars', included: true },
-              ],
-              cta: { label: 'Înscrie-te Acum', link: '/contact' },
-              highlighted: true,
-            },
-            {
-              name: 'Reluare Curs',
-              price: 730,
-              priceLabel: 'RON',
-              description: 'Pentru practicieni certificați',
-              badge: 'none',
-              features: [
-                { text: 'Tehnici practice pentru auto-aplicare', included: true },
-                { text: 'Înțelegerea celor 32 de puncte energetice', included: true },
-                { text: 'Instrumente de lucru și materiale', included: true },
-                { text: 'Training pentru facilitare clienți', included: true },
-                { text: 'Actualizare certificat', included: true },
-                { text: 'Acces la comunitatea Access Bars', included: true },
-              ],
-              cta: { label: 'Înscrie-te', link: '/contact' },
-              highlighted: false,
-            },
-            {
-              name: 'Adolescenți (16-18 ani)',
-              price: 730,
-              priceLabel: 'RON',
-              description: 'Preț special pentru tineri',
-              badge: 'new',
-              features: [
-                { text: 'Tehnici practice pentru auto-aplicare', included: true },
-                { text: 'Înțelegerea celor 32 de puncte energetice', included: true },
-                { text: 'Instrumente de lucru și materiale', included: true },
-                { text: 'Training pentru facilitare', included: true },
-                { text: 'Certificat Internațional', included: true },
-                { text: 'Acces la comunitate', included: true },
-              ],
-              cta: { label: 'Înscrie-te', link: '/contact' },
-              highlighted: false,
-            },
-            {
-              name: 'Copii (sub 16 ani)',
-              price: 0,
-              priceLabel: 'GRATUIT',
-              description: 'Însoțiți de un adult participant',
-              badge: 'best-value',
-              features: [
-                { text: 'Tehnici practice pentru auto-aplicare', included: true },
-                { text: 'Înțelegerea punctelor energetice', included: true },
-                { text: 'Materiale de lucru', included: true },
-                { text: 'Însoțit de adult participant', included: true },
-                { text: 'Certificat de participare', included: true },
-                { text: 'Acces la comunitate', included: true },
-              ],
-              cta: { label: 'Contactează-ne', link: '/contact' },
-              highlighted: false,
-            },
-          ],
-          columns: 'auto',
-          showCompareFeatures: false,
+          blockType: 'trust-badges' as const,
+          variant: 'minimal',
+          presets: ['certified', 'patented'],
           backgroundColor: 'default',
         },
-        // Date cursuri Access Bars
+        // All courses as services (filtered by Cursuri category)
         {
-          blockType: 'cta' as const,
-          variant: 'minimal',
-          headline: 'Date Curs Access Bars 2025-2026',
-          subheadline: '20 Decembrie 2025 • 17 Ianuarie 2026 • 21 Februarie 2026 • 14 Martie 2026',
-          buttons: [{ label: 'Rezervă Locul', link: '/contact', variant: 'default' }],
-          backgroundColor: 'primary',
-        },
-        // FACELIFT - Pricing Kit
-        {
-          blockType: 'pricing-kits' as const,
-          variant: 'highlighted',
-          heading: 'Curs Facelift Energetic',
-          subheading: 'Facelift Energetic Access este un proces revoluționar care încorporează 30 de energii pentru a elibera tensiunea și a inversa semnele îmbătrânirii fără intervenție fizică. Curs de 2 zile.',
-          kits: [
-            {
-              name: 'Prima Participare',
-              price: 1875,
-              priceLabel: 'RON',
-              description: 'Curs complet de 2 zile cu diplomă internațională',
-              badge: 'popular',
-              features: [
-                { text: 'Două ședințe în care primești tratamentul', included: true },
-                { text: 'Două ședințe în care oferi tratamentul', included: true },
-                { text: 'Manual Access Facelift cu poziții și tehnici', included: true },
-                { text: 'Fișă de lucru și instrumente Access', included: true },
-                { text: 'Prezentare video de la Dr. Dain Heer', included: true },
-                { text: 'Diplomă Internațională Practician', included: true },
-              ],
-              cta: { label: 'Înscrie-te Acum', link: '/contact' },
-              highlighted: true,
-            },
-            {
-              name: 'Reluare Curs',
-              price: 935,
-              priceLabel: 'RON',
-              description: 'Pentru practicieni certificați',
-              badge: 'none',
-              features: [
-                { text: 'Două ședințe în care primești tratamentul', included: true },
-                { text: 'Două ședințe în care oferi tratamentul', included: true },
-                { text: 'Actualizare manual și tehnici', included: true },
-                { text: 'Instrumente noi Access Consciousness', included: true },
-                { text: 'Prezentare video actualizată', included: true },
-                { text: 'Reînnoire diplomă', included: true },
-              ],
-              cta: { label: 'Înscrie-te', link: '/contact' },
-              highlighted: false,
-            },
-          ],
-          columns: '2',
-          showCompareFeatures: false,
+          blockType: 'services' as const,
+          variant: 'list-alternating',
+          heading: 'Cursuri de Certificare',
+          subheading: 'Devino practician certificat internațional',
+          source: 'collection',
+          filterByCategory: cursuriCategoryId ? [cursuriCategoryId] : undefined,
+          limit: 10,
+          showPrices: true,
+          showIcons: true,
+          showDuration: true,
+          showBookButton: false,
+          hoverEffect: 'lift',
+          detailBasePath: '/cursuri',
           backgroundColor: 'default',
         },
-        // Date cursuri Facelift
-        {
-          blockType: 'cta' as const,
-          variant: 'minimal',
-          headline: 'Date Curs Facelift Energetic 2025-2026',
-          subheadline: '21-22 Decembrie 2025 • 18-19 Ianuarie 2026 • 22-23 Februarie 2026',
-          buttons: [{ label: 'Rezervă Locul', link: '/contact', variant: 'default' }],
-          backgroundColor: 'primary',
-        },
-        // Video testimoniale cursuri
+        // Video testimoniale cursuri (from data file)
         {
           blockType: 'videoGallery' as const,
           variant: 'grid-3',
           heading: 'Experiențe de la Cursuri',
           subheading: 'Ascultă ce spun participanții despre cursurile noastre',
-          videos: [
-            {
-              videoUrl: 'https://www.youtube.com/watch?v=kUydjMCBAe8',
-              title: 'Dereglare hormonală remediată prin Terapie Access Bars',
-              category: 'Access Bars',
-              duration: '12:30',
-            },
-            {
-              videoUrl: 'https://www.youtube.com/watch?v=NYZ6-VitAJo',
-              title: 'Facelift Energetic - Experiența mea',
-              category: 'Facelift',
-              duration: '10:00',
-            },
-            {
-              videoUrl: 'https://www.youtube.com/watch?v=6M8ZbT9Ycqs',
-              title: 'Terapia Access Bars pentru blocajele mentale',
-              category: 'Access Bars',
-              duration: '15:00',
-            },
-          ],
+          videos: terapiiEnergeticeData.videos
+            .filter(v => v.category === 'Access Bars' || v.category === 'Facelift Energetic')
+            .slice(0, 3),
           showTitles: true,
           showDuration: true,
           showCategories: true,
@@ -850,23 +897,41 @@ async function createAdditionalPages(
           showRating: true,
           backgroundColor: 'light',
         },
+        // Newsletter pentru cursuri cu GDPR
+        {
+          blockType: 'newsletter' as const,
+          variant: 'dark',
+          heading: 'Fii la Curent cu Cursurile Noastre',
+          subheading: 'Primește notificări despre noi date de cursuri, oferte speciale și materiale gratuite.',
+          placeholder: 'Email-ul tău',
+          buttonText: 'Înscriere Newsletter',
+          successMessage: 'Perfect! Vei primi notificări despre cursurile viitoare.',
+          privacyText: 'Respectăm confidențialitatea datelor tale.',
+          showPrivacyLink: true,
+          requireConsent: true,
+          consentText: 'Accept să primesc informații despre cursuri și oferte.',
+          benefits: [
+            { text: 'Notificări despre noi cursuri' },
+            { text: 'Oferte early-bird' },
+            { text: 'Materiale educaționale gratuite' },
+          ],
+        },
         // CTA final
         {
           blockType: 'cta' as const,
           variant: 'centered',
           headline: 'Pregătit să Devii Practician Certificat?',
-          subheadline: 'Locurile sunt limitate. Rezervă-ți locul acum pentru următorul curs.',
+          subheadline: 'Contactează-ne pentru înscriere și detalii.',
           buttons: [
             { label: 'Contactează-ne', link: '/contact', variant: 'default' },
-            { label: 'Sună: 0722 000 000', link: 'tel:+40722000000', variant: 'outline' },
+            { label: `Sună: ${terapiiEnergeticeData.business.phone}`, link: `tel:${terapiiEnergeticeData.business.phone.replace(/\s/g, '')}`, variant: 'outline' },
           ],
-          backgroundColor: 'dark',
+          backgroundColor: 'primary',
         },
       ],
       meta: {
-        title: 'Cursuri Access Bars (1460 RON) și Facelift Energetic (1875 RON) | Revital Harmony București',
-        description:
-          'Cursuri de certificare Access Bars și Facelift Energetic cu certificare internațională recunoscută în 173 de țări. Date: decembrie 2025, ianuarie, februarie 2026.',
+        title: 'Cursuri de Certificare | Revital Harmony București',
+        description: 'Cursuri de certificare Access Bars și Facelift Energetic cu certificare internațională.',
       },
     },
   })
@@ -877,6 +942,13 @@ async function createAdditionalPages(
     data: {
       title: 'Media',
       slug: 'media',
+      _status: 'published',
+      headerSettings: {
+        headerVariant: 'inherit',
+        headerTransparency: 'solid',
+        headerTextColor: 'inherit',
+        headerTopBar: 'inherit',
+      },
       heroType: 'minimal',
       hero: {
         headline: 'Media',
@@ -907,6 +979,13 @@ async function createAdditionalPages(
     data: {
       title: 'Testimoniale',
       slug: 'testimoniale',
+      _status: 'published',
+      headerSettings: {
+        headerVariant: 'inherit',
+        headerTransparency: 'solid',
+        headerTextColor: 'inherit',
+        headerTopBar: 'inherit',
+      },
       heroType: 'minimal',
       hero: {
         headline: 'Testimoniale',
@@ -936,6 +1015,7 @@ async function createAdditionalPages(
     data: {
       title: 'Despre Mine',
       slug: 'despre',
+      _status: 'published',
       heroType: 'none',
       layout: [
         // Video hero for about page (Local MP4)
@@ -953,6 +1033,13 @@ async function createAdditionalPages(
           textAlignment: 'center',
           height: 'medium',
           showScrollIndicator: true,
+        },
+        // Trust badges sub video hero
+        {
+          blockType: 'trust-badges' as const,
+          variant: 'minimal',
+          presets: ['certified', 'money-back-30'],
+          backgroundColor: 'default',
         },
         // About section with Team featured
         {
@@ -1090,6 +1177,13 @@ async function createAdditionalPages(
     data: {
       title: 'Contact',
       slug: 'contact',
+      _status: 'published',
+      headerSettings: {
+        headerVariant: 'inherit',
+        headerTransparency: 'solid',
+        headerTextColor: 'inherit',
+        headerTopBar: 'inherit',
+      },
       heroType: 'minimal',
       hero: {
         headline: 'Contactează-ne',
@@ -1103,3 +1197,4 @@ async function createAdditionalPages(
     },
   })
 }
+

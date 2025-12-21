@@ -31,6 +31,7 @@ interface VideoHeroBlockProps {
   subheadline?: string | null
   ctaButtons?: CTAButton[]
   trustBadges?: TrustBadge[]
+  trustBadgesPosition?: 'above' | 'below'
   showSocialLinks?: boolean
   textAlignment?: 'center' | 'left' | 'right'
   height?: 'fullscreen' | 'large' | 'medium' | 'small'
@@ -70,6 +71,7 @@ export function VideoHeroBlock({
   subheadline,
   ctaButtons = [],
   trustBadges = [],
+  trustBadgesPosition = 'below',
   showSocialLinks = false,
   textAlignment = 'center',
   height = 'fullscreen',
@@ -202,8 +204,8 @@ export function VideoHeroBlock({
           'flex flex-col gap-6 max-w-4xl',
           textAlignment === 'center' && 'mx-auto'
         )}>
-          {/* Trust Badges - Top */}
-          {trustBadges && trustBadges.length > 0 && (
+          {/* Trust Badges - Above (if position is 'above') */}
+          {trustBadgesPosition === 'above' && trustBadges && trustBadges.length > 0 && (
             <div className={cn(
               'flex flex-wrap gap-4 mb-4',
               textAlignment === 'center' && 'justify-center'
@@ -241,6 +243,35 @@ export function VideoHeroBlock({
             <p className="text-lg md:text-xl text-white/90 max-w-2xl">
               {subheadline}
             </p>
+          )}
+
+          {/* Trust Badges - Below (if position is 'below' - Plasturi style) */}
+          {trustBadgesPosition === 'below' && trustBadges && trustBadges.length > 0 && (
+            <div className={cn(
+              'flex flex-wrap gap-4 mt-2',
+              textAlignment === 'center' && 'justify-center'
+            )}>
+              {trustBadges.map((badge, index) => {
+                const BadgeContent = (
+                  <div className="relative h-14 w-auto opacity-90 hover:opacity-100 transition-opacity">
+                    {typeof badge.image === 'object' && (
+                      <Media
+                        resource={badge.image}
+                        imgClassName="h-14 w-auto object-contain"
+                      />
+                    )}
+                  </div>
+                )
+
+                return badge.link ? (
+                  <Link key={index} href={badge.link} target="_blank" rel="noopener noreferrer">
+                    {BadgeContent}
+                  </Link>
+                ) : (
+                  <div key={index}>{BadgeContent}</div>
+                )
+              })}
+            </div>
           )}
 
           {/* CTA Buttons */}

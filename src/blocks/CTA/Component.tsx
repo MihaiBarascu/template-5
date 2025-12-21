@@ -98,7 +98,7 @@ export function CTABlock({
           backgroundPosition: 'center',
         }}
       >
-        <div className="absolute inset-0 bg-black/60" />
+        <div className="absolute inset-0 overlay-gradient-cta" />
         <div className={cn('relative container mx-auto px-4', alignClass)}>
           <h2 className="heading-h2 font-bold text-white mb-4">{headline}</h2>
           {subheadline && (

@@ -482,6 +482,161 @@ export const BusinessInfo: GlobalConfig = {
               ],
             },
             {
+              name: 'floatingCta',
+              type: 'group',
+              label: 'Buton CTA Flotant',
+              admin: {
+                description: 'Buton call-to-action flotant (stil Plasturi)',
+              },
+              fields: [
+                {
+                  name: 'enabled',
+                  type: 'checkbox',
+                  label: 'Activează buton CTA flotant',
+                  defaultValue: false,
+                },
+                {
+                  type: 'row',
+                  admin: {
+                    condition: (_, siblingData) => siblingData?.enabled,
+                  },
+                  fields: [
+                    {
+                      name: 'text',
+                      type: 'text',
+                      label: 'Text buton',
+                      defaultValue: 'Programează-te Acum',
+                      admin: { width: '50%' },
+                    },
+                    {
+                      name: 'href',
+                      type: 'text',
+                      label: 'Link (URL)',
+                      defaultValue: '/contact',
+                      admin: { width: '50%' },
+                    },
+                  ],
+                },
+                {
+                  type: 'row',
+                  admin: {
+                    condition: (_, siblingData) => siblingData?.enabled,
+                  },
+                  fields: [
+                    {
+                      name: 'variant',
+                      type: 'select',
+                      label: 'Variantă culoare',
+                      defaultValue: 'primary',
+                      options: [
+                        { label: 'Primary', value: 'primary' },
+                        { label: 'Accent', value: 'accent' },
+                        { label: 'Secondary', value: 'secondary' },
+                        { label: 'Dark', value: 'dark' },
+                        { label: 'Gradient (Primary → Accent)', value: 'gradient' },
+                      ],
+                      admin: { width: '50%' },
+                    },
+                    {
+                      name: 'icon',
+                      type: 'select',
+                      label: 'Iconiță',
+                      defaultValue: 'arrow',
+                      options: [
+                        { label: 'Săgeată', value: 'arrow' },
+                        { label: 'Telefon', value: 'phone' },
+                        { label: 'Mesaj', value: 'message' },
+                        { label: 'Calendar', value: 'calendar' },
+                        { label: 'Fără', value: 'none' },
+                      ],
+                      admin: { width: '50%' },
+                    },
+                  ],
+                },
+                {
+                  type: 'row',
+                  admin: {
+                    condition: (_, siblingData) => siblingData?.enabled,
+                  },
+                  fields: [
+                    {
+                      name: 'position',
+                      type: 'select',
+                      label: 'Poziție',
+                      defaultValue: 'bottom-center',
+                      options: [
+                        { label: 'Jos dreapta', value: 'bottom-right' },
+                        { label: 'Jos stânga', value: 'bottom-left' },
+                        { label: 'Jos centru', value: 'bottom-center' },
+                        { label: 'Dreapta centru (vertical)', value: 'right-center' },
+                        { label: 'Stânga centru (vertical)', value: 'left-center' },
+                      ],
+                      admin: { width: '50%' },
+                    },
+                    {
+                      name: 'shape',
+                      type: 'select',
+                      label: 'Formă buton',
+                      defaultValue: 'pill',
+                      options: [
+                        { label: 'Pill (rotunjit complet)', value: 'pill' },
+                        { label: 'Dreptunghi (colțuri rotunjite)', value: 'rectangle' },
+                      ],
+                      admin: { width: '50%' },
+                    },
+                  ],
+                },
+                {
+                  type: 'row',
+                  admin: {
+                    condition: (_, siblingData) => siblingData?.enabled,
+                  },
+                  fields: [
+                    {
+                      name: 'showOnMobile',
+                      type: 'checkbox',
+                      label: 'Afișează pe mobil',
+                      defaultValue: true,
+                      admin: { width: '50%' },
+                    },
+                    {
+                      name: 'pulseAnimation',
+                      type: 'checkbox',
+                      label: 'Animație puls',
+                      defaultValue: true,
+                      admin: { width: '50%' },
+                    },
+                    {
+                      name: 'dismissible',
+                      type: 'checkbox',
+                      label: 'Permite închiderea',
+                      defaultValue: true,
+                      admin: { width: '50%' },
+                    },
+                  ],
+                },
+                {
+                  name: 'showAfterScroll',
+                  type: 'number',
+                  label: 'Afișează după scroll (px)',
+                  defaultValue: 500,
+                  admin: {
+                    condition: (_, siblingData) => siblingData?.enabled,
+                    description: 'Butonul apare după ce utilizatorul derulează X pixeli',
+                  },
+                },
+                {
+                  name: 'hideOnPaths',
+                  type: 'text',
+                  label: 'Ascunde pe pagini (căi separate prin virgulă)',
+                  admin: {
+                    condition: (_, siblingData) => siblingData?.enabled,
+                    description: 'Ex: /contact, /programare - pagini unde butonul nu apare',
+                  },
+                },
+              ],
+            },
+            {
               name: 'cookieConsent',
               type: 'group',
               label: 'Cookie Consent (GDPR)',

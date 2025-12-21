@@ -396,6 +396,14 @@ export async function seedSiteTheme(
     // Typography
     headingFont?: SiteTheme['headingFont'];
     bodyFont?: SiteTheme['bodyFont'];
+    headingWeight?: SiteTheme['headingWeight'];
+    // Button styling
+    useCustomButtons?: boolean;
+    buttonRounding?: SiteTheme['buttonRounding'];
+    buttonTextTransform?: SiteTheme['buttonTextTransform'];
+    buttonFontWeight?: SiteTheme['buttonFontWeight'];
+    buttonPadding?: SiteTheme['buttonPadding'];
+    buttonLetterSpacing?: SiteTheme['buttonLetterSpacing'];
   },
 ) {
   await payload.updateGlobal({
@@ -415,9 +423,17 @@ export async function seedSiteTheme(
       // Typography - if not provided, uses variant defaults from generateThemeStyles
       headingFont: options.headingFont,
       bodyFont: options.bodyFont,
+      headingWeight: options.headingWeight,
+      // Button styling
+      useCustomButtons: options.useCustomButtons || false,
+      buttonRounding: options.buttonRounding,
+      buttonTextTransform: options.buttonTextTransform,
+      buttonFontWeight: options.buttonFontWeight,
+      buttonPadding: options.buttonPadding,
+      buttonLetterSpacing: options.buttonLetterSpacing,
     },
   });
-  console.log(`   Site theme configured: ${options.variant}${options.headingFont ? ` (fonts: ${options.headingFont}/${options.bodyFont})` : ''}`);
+  console.log(`   Site theme configured: ${options.variant}${options.headingFont ? ` (fonts: ${options.headingFont}/${options.bodyFont})` : ''}${options.headingWeight ? ` (weight: ${options.headingWeight})` : ''}${options.buttonRounding ? ` (btn: ${options.buttonRounding})` : ''}`);
 }
 
 // Alias for backwards compatibility
@@ -467,6 +483,19 @@ export async function seedBusinessInfo(
       linkText?: string;
       linkUrl?: string;
     };
+    floatingCta?: {
+      enabled?: boolean;
+      text?: string;
+      href?: string;
+      variant?: 'primary' | 'accent' | 'secondary' | 'dark' | 'gradient';
+      icon?: 'arrow' | 'phone' | 'message' | 'calendar' | 'none';
+      position?: 'bottom-right' | 'bottom-left' | 'bottom-center' | 'right-center' | 'left-center';
+      shape?: 'pill' | 'rectangle';
+      showOnMobile?: boolean;
+      pulseAnimation?: boolean;
+      dismissible?: boolean;
+      showAfterScroll?: number;
+    };
   },
 ) {
   await payload.updateGlobal({
@@ -488,6 +517,7 @@ export async function seedBusinessInfo(
       googleMapsLink: data.googleMapsLink,
       whatsappFloat: data.whatsappFloat,
       announcementBar: data.announcementBar,
+      floatingCta: data.floatingCta,
     },
   });
   console.log('   Business info configured');
@@ -542,13 +572,29 @@ export async function seedHeader(
       | 'centered'
       | 'standard'
       | 'with-topbar'
-      | 'transparent';
+      | 'full-width';
+    isTransparent?: boolean;
+    transparentTextColor?: 'white' | 'dark' | 'auto';
     navItems: NavItem[];
     ctaButton?: {
       enabled: boolean;
-      label: string;
-      link: string;
+      label?: string;
+      link?: string;
       variant?: 'default' | 'outline' | 'ghost';
+    };
+    showTopBar?: boolean;
+    topBar?: {
+      backgroundColor?: 'dark' | 'primary' | 'transparent' | 'light';
+      layout?: 'social-left' | 'message-left' | 'contact-left' | 'centered';
+      showPhone?: boolean;
+      showEmail?: boolean;
+      showSocial?: boolean;
+      showWorkingHours?: boolean;
+      customText?: string;
+      customSocialLinks?: Array<{
+        platform: 'youtube' | 'facebook' | 'instagram' | 'tiktok' | 'twitter' | 'linkedin' | 'whatsapp';
+        url: string;
+      }>;
     };
   },
 ) {
@@ -563,7 +609,20 @@ export async function seedHeader(
         link: '/contact',
         variant: 'default',
       },
+      showTopBar: data.showTopBar ?? !!data.topBar,
+      topBar: data.topBar ? {
+        backgroundColor: data.topBar.backgroundColor || 'dark',
+        layout: data.topBar.layout || 'social-left',
+        showPhone: data.topBar.showPhone ?? true,
+        showEmail: data.topBar.showEmail ?? true,
+        showSocial: data.topBar.showSocial ?? true,
+        showWorkingHours: data.topBar.showWorkingHours ?? false,
+        customText: data.topBar.customText,
+        customSocialLinks: data.topBar.customSocialLinks,
+      } : undefined,
       sticky: true,
+      isTransparent: data.isTransparent ?? false,
+      transparentTextColor: data.transparentTextColor || 'white',
     },
   });
   console.log('   Header configured');
@@ -687,6 +746,51 @@ export async function seedFooter(
   console.log('   Footer configured');
 }
 
+// Helper to create service categories
+export async function seedServiceCategories(
+  payload: Payload,
+  categories: Array<{
+    title: string;
+    description?: string;
+    icon?: string;
+    order?: number;
+  }>,
+): Promise<Map<string, string>> {
+  const createdCategories: Map<string, string> = new Map();
+
+  for (const category of categories) {
+    // Check if category already exists by title
+    const existing = await payload.find({
+      collection: 'service-categories',
+      where: { title: { equals: category.title } },
+      limit: 1,
+    });
+
+    if (existing.docs.length > 0) {
+      // Use existing category
+      createdCategories.set(category.title, existing.docs[0].id);
+      console.log(`   ⏭️ Category "${category.title}" already exists`);
+    } else {
+      // Create new category (slug will be formatted by hook from title)
+      const slug = category.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+      const created = await payload.create({
+        collection: 'service-categories',
+        draft: false,
+        data: {
+          title: category.title,
+          slug,
+          description: category.description,
+          icon: category.icon,
+          order: category.order || 0,
+        },
+      });
+      createdCategories.set(category.title, created.id);
+      console.log(`   ✅ Created category "${category.title}"`);
+    }
+  }
+  return createdCategories;
+}
+
 // Helper to create services (universal - works for any business type)
 // Supports both dynamic attributes AND advanced fields (schedule, difficulty, etc.)
 export async function seedServices(
@@ -702,6 +806,8 @@ export async function seedServices(
     active?: boolean;
     order?: number;
     features?: string[];
+    // Category
+    categoryId?: string;
     // Price and duration (dedicated fields)
     price?: string | number;
     duration?: string;
@@ -752,6 +858,8 @@ export async function seedServices(
         featured: service.featured || false,
         active: service.active !== false,
         order: service.order || 0,
+        // Category
+        category: service.categoryId || undefined,
         // Price and duration
         price: service.price != null ? `${service.price}${typeof service.price === 'number' ? ' RON' : ''}` : undefined,
         duration: service.duration,
@@ -1260,7 +1368,7 @@ export async function seedProducts(
 }
 
 // Helper to create rich text node
-function createTextNode(text: string, format: number = 0) {
+export function createTextNode(text: string, format: number = 0) {
   return {
     type: 'text',
     text,
@@ -1273,7 +1381,7 @@ function createTextNode(text: string, format: number = 0) {
 }
 
 // Helper to create paragraph node
-function createParagraph(text: string) {
+export function createParagraph(text: string) {
   return {
     type: 'paragraph',
     children: [createTextNode(text)],
@@ -1286,7 +1394,7 @@ function createParagraph(text: string) {
 }
 
 // Helper to create heading node
-function createHeading(text: string, tag: 'h1' | 'h2' | 'h3' | 'h4' = 'h2') {
+export function createHeading(text: string, tag: 'h1' | 'h2' | 'h3' | 'h4' = 'h2') {
   return {
     type: 'heading',
     children: [createTextNode(text)],
@@ -1299,7 +1407,7 @@ function createHeading(text: string, tag: 'h1' | 'h2' | 'h3' | 'h4' = 'h2') {
 }
 
 // Helper to create banner block
-function createBanner(text: string, style: 'info' | 'warning' | 'success' | 'error' = 'info') {
+export function createBanner(text: string, style: 'info' | 'warning' | 'success' | 'error' = 'info') {
   return {
     type: 'block',
     fields: {
@@ -1323,7 +1431,7 @@ function createBanner(text: string, style: 'info' | 'warning' | 'success' | 'err
 }
 
 // Helper to create media block
-function createMediaBlock(mediaId: string) {
+export function createMediaBlock(mediaId: string) {
   return {
     type: 'block',
     fields: {
@@ -1333,6 +1441,48 @@ function createMediaBlock(mediaId: string) {
     },
     format: '',
     version: 2,
+  };
+}
+
+// Helper to create list item node
+export function createListItem(text: string) {
+  return {
+    type: 'listitem',
+    children: [createTextNode(text)],
+    direction: 'ltr',
+    format: '',
+    indent: 0,
+    value: 1,
+    version: 1,
+  };
+}
+
+// Helper to create unordered list node
+export function createList(items: string[], ordered: boolean = false) {
+  return {
+    type: 'list',
+    children: items.map(item => createListItem(item)),
+    direction: 'ltr',
+    format: '',
+    indent: 0,
+    listType: ordered ? 'number' : 'bullet',
+    start: 1,
+    tag: ordered ? 'ol' : 'ul',
+    version: 1,
+  };
+}
+
+// Helper to create rich text root structure
+export function createRichTextRoot(children: unknown[]) {
+  return {
+    root: {
+      type: 'root',
+      children,
+      direction: 'ltr',
+      format: '',
+      indent: 0,
+      version: 1,
+    },
   };
 }
 
@@ -2233,4 +2383,40 @@ export async function seedSystemPages(
     data: mergedData,
   })
   console.log('   System pages configured')
+}
+
+// Helper to configure shop settings (ecommerce master switch)
+export async function seedShopSettings(
+  payload: Payload,
+  data: {
+    enabled: boolean
+    shopName?: string
+    currency?: 'RON' | 'EUR' | 'USD'
+    currencySymbol?: string
+    vatEnabled?: boolean
+    pricesIncludeVat?: boolean
+    shippingCost?: number
+    freeShippingThreshold?: number
+  },
+) {
+  await payload.updateGlobal({
+    slug: 'shop-settings',
+    data: {
+      enabled: data.enabled,
+      shopName: data.shopName || 'Magazin',
+      currency: data.currency || 'RON',
+      currencySymbol: data.currencySymbol || 'lei',
+      pricePosition: 'after',
+      vatEnabled: data.vatEnabled ?? true,
+      pricesIncludeVat: data.pricesIncludeVat ?? true,
+      displayPricesWithVat: true,
+      vatRates: {
+        standard: 19,
+        reduced: 9,
+        zero: 0,
+      },
+      defaultVatRate: 'standard',
+    },
+  })
+  console.log(`   Shop settings configured (enabled: ${data.enabled})`)
 }

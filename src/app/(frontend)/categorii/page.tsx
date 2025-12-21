@@ -2,6 +2,8 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { PageWrapper } from '@/components/PageWrapper'
+import { getCachedGlobal } from '@/utilities/getGlobals'
 
 // Revalidate page every 60 seconds for ISR
 export const revalidate = 60
@@ -13,6 +15,14 @@ export const metadata: Metadata = {
 
 export default async function CategoriesPage() {
   const payload = await getPayload({ config: configPromise })
+
+  // Fetch header globals and shop settings
+  const [headerData, logoData, businessInfo, shopSettings] = await Promise.all([
+    getCachedGlobal('header'),
+    getCachedGlobal('logo'),
+    getCachedGlobal('business-info'),
+    getCachedGlobal('shop-settings'),
+  ])
 
   // Get all product categories
   const categories = await payload.find({
@@ -41,9 +51,15 @@ export default async function CategoriesPage() {
   )
 
   return (
-    <main className="py-8">
-      {/* Hero */}
-      <div className="bg-gray-50 py-16">
+    <PageWrapper
+      headerData={headerData}
+      logoData={logoData}
+      businessInfoData={businessInfo}
+      showCart={shopSettings?.enabled ?? false}
+    >
+      <main className="py-8">
+        {/* Hero */}
+        <div className="bg-gray-50 py-16">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             Categorii Produse
@@ -98,7 +114,8 @@ export default async function CategoriesPage() {
             <p className="text-gray-500">Nu exista categorii momentan.</p>
           </div>
         )}
-      </div>
-    </main>
+        </div>
+      </main>
+    </PageWrapper>
   )
 }

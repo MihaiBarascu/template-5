@@ -128,7 +128,7 @@ export function PricingKitsBlock({
             className={cn(
               'relative flex flex-col rounded-[var(--radius-card)] overflow-hidden transition-all duration-300',
               isDark ? 'bg-white/5 border border-white/10' : 'bg-theme-surface border border-theme-border',
-              isHighlighted && 'ring-2 ring-theme-primary scale-105 z-10 shadow-xl',
+              isHighlighted && 'ring-2 ring-theme-primary scale-105 z-10 card-glow-primary',
               !isHighlighted && 'hover-lift shadow-sm hover:shadow-lg'
             )}
           >
@@ -241,7 +241,7 @@ export function PricingKitsBlock({
                   className={cn(
                     'mt-auto w-full text-center py-3 px-6 rounded-full font-medium transition-all',
                     isHighlighted
-                      ? 'bg-theme-primary text-white hover:bg-theme-primary-dark shadow-lg hover:shadow-xl'
+                      ? 'btn-gradient shadow-lg hover:shadow-xl'
                       : isDark
                       ? 'bg-white/10 text-white hover:bg-white/20'
                       : 'bg-theme-primary/10 text-theme-primary hover:bg-theme-primary hover:text-white'

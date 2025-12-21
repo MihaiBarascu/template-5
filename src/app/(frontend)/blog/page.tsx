@@ -4,6 +4,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import type { Metadata } from 'next'
 import { Calendar, User, Tag, ArrowRight } from 'lucide-react'
+import { PageWrapper } from '@/components/PageWrapper'
+import { getCachedGlobal } from '@/utilities/getGlobals'
 
 // Static generation with ISR - revalidated on-demand via hooks + fallback after 10 minutes
 export const dynamic = 'force-static'
@@ -50,6 +52,13 @@ function formatDate(dateString: string | null | undefined): string {
 export default async function BlogPage() {
   const payload = await getPayload({ config: configPromise })
 
+  // Fetch header globals
+  const [headerData, logoData, businessInfo] = await Promise.all([
+    getCachedGlobal('header'),
+    getCachedGlobal('logo'),
+    getCachedGlobal('business-info'),
+  ])
+
   // Get all published posts
   const posts = await payload.find({
     collection: 'posts',
@@ -69,9 +78,14 @@ export default async function BlogPage() {
   })
 
   return (
-    <main className="py-8">
-      {/* Hero */}
-      <div className="bg-theme-light py-16">
+    <PageWrapper
+      headerData={headerData}
+      logoData={logoData}
+      businessInfoData={businessInfo}
+    >
+      <main className="py-8">
+        {/* Hero */}
+        <div className="bg-theme-light py-16">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-theme-text mb-4">Blog</h1>
           <p className="text-lg text-theme-text-light max-w-2xl mx-auto">
@@ -184,7 +198,8 @@ export default async function BlogPage() {
             <p className="text-theme-text-light">Revino mai tarziu pentru articole noi.</p>
           </div>
         )}
-      </div>
-    </main>
+        </div>
+      </main>
+    </PageWrapper>
   )
 }

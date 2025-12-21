@@ -58,9 +58,11 @@ export const ServicesBlock: Block = {
     {
       name: 'filterByCategory',
       type: 'relationship',
-      relationTo: 'categories',
-      label: 'Filtreaza dupa categorie',
+      relationTo: 'service-categories',
+      hasMany: true,
+      label: 'Filtrează după categorie',
       admin: {
+        description: 'Selectează una sau mai multe categorii pentru a filtra serviciile',
         condition: (_, siblingData) => siblingData?.source === 'collection',
       },
     },

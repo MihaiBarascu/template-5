@@ -7,6 +7,7 @@ import {
   letterSpacingPresets,
   buttonPaddingPresets,
   buttonLetterSpacingPresets,
+  buttonRoundingPresets,
   animationPresets,
   headingScalePresets,
   bodyTextSizePresets,
@@ -17,6 +18,9 @@ import {
   generateContrastColors,
   hexToOklchCss,
   oklchToHex,
+  hexToOklch,
+  lighten,
+  darken,
 } from '@/utilities/colors'
 
 // Re-export for backward compatibility
@@ -131,6 +135,21 @@ export function generateThemeStyles(siteTheme: SiteTheme | null): string {
     'Source_Sans_3': 'var(--font-source-sans)',
     'Work Sans': 'var(--font-work-sans)',
     'Work_Sans': 'var(--font-work-sans)',
+    // Modern agency/tech fonts
+    'Space Grotesk': 'var(--font-space-grotesk)',
+    'Space_Grotesk': 'var(--font-space-grotesk)',
+    'Sora': 'var(--font-sora)',
+    'Outfit': 'var(--font-outfit)',
+    'Plus Jakarta Sans': 'var(--font-plus-jakarta-sans)',
+    'Plus_Jakarta_Sans': 'var(--font-plus-jakarta-sans)',
+    'Manrope': 'var(--font-manrope)',
+    'DM Sans': 'var(--font-dm-sans)',
+    'DM_Sans': 'var(--font-dm-sans)',
+    'DM Serif Display': 'var(--font-dm-serif-display)',
+    'DM_Serif_Display': 'var(--font-dm-serif-display)',
+    'Raleway': 'var(--font-raleway)',
+    // Clean/flat design fonts
+    'Prompt': 'var(--font-prompt)',
   }
 
   // Font fallbacks based on font type (serif vs sans-serif)
@@ -173,6 +192,13 @@ export function generateThemeStyles(siteTheme: SiteTheme | null): string {
   const buttonLetterSpacing = siteTheme?.useCustomButtons
     ? buttonLetterSpacingPresets[siteTheme?.buttonLetterSpacing || 'normal'] || '0'
     : '0'
+  // Button rounding: use custom if set, otherwise inherit from theme's radius.button
+  const buttonRounding = siteTheme?.useCustomButtons && siteTheme?.buttonRounding
+    ? buttonRoundingPresets[siteTheme.buttonRounding] || radius.button
+    : radius.button
+
+  // Heading weight for typography (plasturi uses 400 for clean/flat look)
+  const headingWeight = siteTheme?.headingWeight || '600'
 
   // Apply animations - use override if set, otherwise use moderate as default
   const animationsKey = siteTheme?.animations || 'moderate'
@@ -203,15 +229,53 @@ export function generateThemeStyles(siteTheme: SiteTheme | null): string {
     }
   }
 
+  // Generate primary light/dark variants for gradients
+  const generatePrimaryVariants = (primaryHex: string) => {
+    try {
+      const primaryOklch = hexToOklch(primaryHex)
+      const lightVariant = lighten(primaryOklch, 0.12) // 12% lighter
+      const darkVariant = darken(primaryOklch, 0.15) // 15% darker
+      return {
+        light: oklchToHex(lightVariant),
+        dark: oklchToHex(darkVariant),
+      }
+    } catch {
+      // Fallback if color conversion fails
+      return {
+        light: primaryHex,
+        dark: primaryHex,
+      }
+    }
+  }
+
+  const primaryVariants = generatePrimaryVariants(colors.primary)
+
+  // Generate surface-secondary (slightly darker than surface for subtle contrast)
+  const generateSurfaceSecondary = (surfaceHex: string) => {
+    try {
+      const surfaceOklch = hexToOklch(surfaceHex)
+      // Make it slightly darker/more muted
+      const secondary = darken(surfaceOklch, 0.02)
+      return oklchToHex(secondary)
+    } catch {
+      return surfaceHex
+    }
+  }
+
+  const surfaceSecondary = generateSurfaceSecondary(colors.surface)
+
   // Base CSS variables
   const baseStyles = `
     :root {
       --theme-primary: ${colors.primary};
+      --theme-primary-light: ${primaryVariants.light};
+      --theme-primary-dark: ${primaryVariants.dark};
       --theme-secondary: ${colors.secondary};
       --theme-accent: ${colors.accent};
       --theme-dark: ${colors.dark};
       --theme-light: ${colors.light};
       --theme-surface: ${colors.surface};
+      --theme-surface-secondary: ${surfaceSecondary};
       --theme-text: ${colors.text};
       --theme-text-light: ${colors.textLight};
       --theme-border: ${colors.border};
@@ -228,7 +292,7 @@ export function generateThemeStyles(siteTheme: SiteTheme | null): string {
       --radius-md: ${radius.md};
       --radius-lg: ${radius.lg};
       --radius-xl: ${radius.xl};
-      --radius-button: ${radius.button};
+      --radius-button: ${buttonRounding};
       --radius-card: ${radius.card};
       --radius-input: ${radius.input};
       --radius-container: ${radius.container};
@@ -242,6 +306,7 @@ export function generateThemeStyles(siteTheme: SiteTheme | null): string {
       --container-max: ${containerWidth};
       --font-heading: ${headingFont}, ${headingFallback};
       --font-body: ${bodyFont}, ${bodyFallback};
+      --heading-weight: ${headingWeight};
       --letter-spacing: ${letterSpacing};
       --heading-line-height: ${headingLineHeight};
       --body-line-height: ${bodyLineHeight};

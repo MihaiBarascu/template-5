@@ -5,6 +5,14 @@
  * Design inspirat de: https://www.plasturifototerapeutici.ro/
  */
 
+import {
+  createHeading,
+  createParagraph,
+  createList,
+  createBanner,
+  createRichTextRoot,
+} from './helpers'
+
 // =============================================================================
 // BUSINESS INFO (Date reale de pe site)
 // =============================================================================
@@ -95,6 +103,82 @@ export const terapiiEnergeticeData = {
         'Detoxifiere și reducerea inflamației',
         'Tratament pentru dureri de spate, sciatică, migrene',
       ],
+      // Rich text description
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      get description(): any {
+        return createRichTextRoot([
+          // Introducere
+          createHeading('Ce este Terapia Bowen?', 'h2'),
+          createParagraph(
+            'Terapia Bowen, denumită după creatorul său Tom Bowen, este o formă de terapie manuală non-invazivă originară din Geelong, Australia. Această metodă holistică utilizează mișcări blânde și precise pe mușchi, tendoane, ligamente și fascie pentru a stimula capacitatea naturală de vindecare a corpului.',
+          ),
+          createParagraph(
+            'Spre deosebire de alte terapii manuale, Bowen nu implică manipulări forțate sau presiune intensă. Mișcările sunt delicate, dar profund eficiente, adresându-se corpului la nivel fizic, emoțional și energetic.',
+          ),
+
+          // Cum funcționează
+          createHeading('Cum Funcționează Terapia Bowen?', 'h2'),
+          createParagraph(
+            'Terapia operează prin mai multe mecanisme complementare care lucrează sinergic pentru a restabili echilibrul corpului:',
+          ),
+          createList([
+            'Reflexul de stretching - țintește celulele Golgi din mușchi și tendoane pentru a modifica răspunsul corpului la durere și spasm',
+            'Activarea proprioceptorilor articulari - influențează funcția articulațiilor și ligamentelor fără manipulare forțată',
+            'Impactul asupra fasciei - afectează țesutul conjunctiv pentru a îmbunătăți postura și mobilitatea',
+            'Reechilibrarea sistemului nervos - tranziție de la starea de stres (simpatic) la relaxare (parasimpatic)',
+            'Alinierea cu meridianele energetice - corespunde punctelor de acupunctură pentru echilibrul organelor interne',
+            'Recuperarea memoriei celulare - ajută la restaurarea stării naturale de sănătate a corpului',
+            'Detoxifiere - susține regenerarea sistemului limfatic și imunitar',
+          ]),
+          createBanner(
+            'Terapia Bowen este unică prin faptul că include pauze de 2-3 minute între seturile de mișcări, permițând corpului să proceseze și să răspundă la stimuli.',
+            'info',
+          ),
+
+          // Beneficii
+          createHeading('Beneficiile Terapiei Bowen', 'h2'),
+          createParagraph(
+            'Terapia Bowen oferă o gamă largă de beneficii terapeutice, fiind eficientă pentru diverse condiții:',
+          ),
+          createList([
+            'Ameliorarea durerii musculare și articulare',
+            'Reducerea tensiunii și îmbunătățirea circulației limfatice',
+            'Diminuarea stresului și anxietății',
+            'Suport pentru echilibrul hormonal',
+            'Accelerarea vindecării post-traumă sau post-operatorie',
+            'Îmbunătățirea funcției respiratorii și imunitare',
+            'Gestionarea condițiilor neurologice și a alergiilor',
+            'Tratament eficient pentru dureri de spate, sciatică și migrene',
+          ]),
+
+          // Pentru cine este
+          createHeading('Cine Poate Beneficia?', 'h2'),
+          createParagraph(
+            'Terapia Bowen este accesibilă tuturor, indiferent de vârstă sau starea de sănătate. Este potrivită pentru:',
+          ),
+          createList([
+            'Sugari și copii cu diverse afecțiuni',
+            'Adulți cu dureri cronice sau acute',
+            'Sportivi pentru recuperare și performanță',
+            'Vârstnici pentru mobilitate și confort',
+            'Persoane cu condiții cronice diverse',
+            'Gravide (cu precauții specifice)',
+          ]),
+
+          // Desfășurarea ședinței
+          createHeading('Cum se Desfășoară o Ședință?', 'h3'),
+          createParagraph(
+            'O ședință de Terapia Bowen durează între 30 și 60 de minute, personalizată în funcție de nevoile pacientului. Mișcările blânde și precise sunt aplicate direct pe piele sau peste haine subțiri, într-un mediu confortabil și igienic.',
+          ),
+          createParagraph(
+            'Între seturile de mișcări se acordă pauze de 2-3 minute, timp în care terapeutul părăsește camera, permițând corpului să integreze informațiile primite și să inițieze procesul de autovindecare.',
+          ),
+          createBanner(
+            'Programează-te pentru o ședință de Terapia Bowen și descoperă cum această metodă blândă poate aduce schimbări profunde în starea ta de sănătate.',
+            'success',
+          ),
+        ])
+      },
     },
     {
       title: 'Terapia Access Bars',
@@ -113,6 +197,91 @@ export const terapiiEnergeticeData = {
         'Suport pentru depresie și atacuri de panică',
         'Practicată în peste 173 de țări',
       ],
+      // Rich text description
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      get description(): any {
+        return createRichTextRoot([
+          // Introducere
+          createHeading('Ce este Terapia Access Bars?', 'h2'),
+          createParagraph(
+            'Terapia Access Bars este o metodă inovatoare de vindecare și eliberare energetică care țintește 32 de puncte specifice dispuse pe cap. Aceste puncte, numite "bare", sunt asociate cu diferite aspecte ale vieții, incluzând vindecarea, creativitatea, conștiința și multe altele.',
+          ),
+          createParagraph(
+            'Dezvoltată ca parte a sistemului Access Consciousness, această terapie este practicată în peste 173 de țări la nivel mondial, ajutând milioane de oameni să experimenteze o stare profundă de relaxare și eliberare.',
+          ),
+
+          // Cum funcționează
+          createHeading('Cum Funcționează Access Bars?', 'h2'),
+          createParagraph(
+            'Terapeutul aplică o presiune blândă pe canalele energetice numite "bare" de pe cap. Acest proces eliberează tensiunea acumulată și blocajele energetice din sistemul nervos, permițându-i să se relaxeze și să funcționeze mai eficient.',
+          ),
+          createParagraph(
+            'Efectul poate fi comparat cu defragmentarea unui hard disk supraîncărcat - mintea devine mai clară, mai organizată și mai capabilă să proceseze informațiile.',
+          ),
+          createBanner(
+            'În timpul tratamentului, undele cerebrale încetinesc, facilitând eliberarea tiparelor mentale limitative și a credințelor depășite.',
+            'info',
+          ),
+
+          // Cele 32 de puncte
+          createHeading('Cele 32 de Puncte Energetice', 'h3'),
+          createParagraph(
+            'Fiecare dintre cele 32 de puncte corespunde unor aspecte specifice ale experienței umane:',
+          ),
+          createList([
+            'Vindecarea - capacitatea corpului de a se regenera',
+            'Bucuria și tristețea - echilibrul emoțional',
+            'Conștiința - nivelul de prezență și awareness',
+            'Creativitatea - fluxul ideilor și inspirației',
+            'Banii - relația cu abundența și prosperitatea',
+            'Controlul - eliberarea nevoii de a controla',
+            'Comunicarea - expresia autentică',
+            'Timpul și spațiul - percepția realității',
+          ]),
+
+          // Beneficii
+          createHeading('Beneficiile Terapiei Access Bars', 'h2'),
+          createParagraph(
+            'Access Bars oferă multiple beneficii pentru sănătatea mentală, emoțională și fizică:',
+          ),
+          createList([
+            'Reducerea profundă a stresului, anxietății și oboselii',
+            'Ameliorarea confuziei, atacurilor de panică și traumelor',
+            'Îmbunătățirea clarității mentale, memoriei și concentrării',
+            'Echilibrarea energetică și vitalitate fizică crescută',
+            'Armonizarea chakrelor pentru relații interpersonale mai bune',
+            'Eliberarea credințelor limitative și a tiparelor negative',
+            'Somn mai profund și odihnitor',
+            'Stare generală de bine și pace interioară',
+          ]),
+
+          // Experiența ședinței
+          createHeading('Ce se Întâmplă în Timpul unei Ședințe?', 'h2'),
+          createParagraph(
+            'În timpul ședinței de Access Bars, vei sta întins confortabil în timp ce terapeutul atinge ușor punctele de pe capul tău. Mulți clienți descriu experiența ca fiind profund relaxantă, unii adormindu-se chiar în timpul sesiunii.',
+          ),
+          createParagraph(
+            'Procesul de relaxare profundă crește conștientizarea în viața personală și profesională, ajutându-te să vezi noi posibilități și să faci alegeri mai înțelepte.',
+          ),
+
+          // Pentru cine este
+          createHeading('Cine Poate Beneficia?', 'h2'),
+          createParagraph(
+            'Access Bars este potrivită pentru oricine dorește să experimenteze o stare profundă de relaxare și eliberare energetică. Este deosebit de benefică pentru:',
+          ),
+          createList([
+            'Persoane care se confruntă cu stres cronic sau anxietate',
+            'Cei care doresc să îmbunătățească sănătatea mentală și fizică',
+            'Oameni care caută claritate și concentrare sporită',
+            'Persoane în căutare de dezvoltare personală și spirituală',
+            'Cei care doresc să elibereze traume sau blocaje vechi',
+          ]),
+          createBanner(
+            'Cel mai rău lucru care se poate întâmpla după o ședință de Access Bars este că te vei simți ca după un masaj de relaxare extraordinar. Cel mai bun? Întreaga ta viață se poate schimba!',
+            'success',
+          ),
+        ])
+      },
     },
     {
       title: 'Facelift Energetic',
@@ -132,6 +301,84 @@ export const terapiiEnergeticeData = {
         'Stima de sine îmbunătățită',
         'Reducerea țesutului adipos',
       ],
+      // Rich text description
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      get description(): any {
+        return createRichTextRoot([
+          // Introducere
+          createHeading('Ce este Facelift-ul Energetic?', 'h2'),
+          createParagraph(
+            'Access Facelift este o metodă revoluționară de întinerire facială și corporală care inversează semnele îmbătrânirii fără intervenții chirurgicale, injecții sau tratamente costisitoare. Parte din sistemul Access Consciousness, această tehnică a fost creată de Gary Douglas acum 20 de ani și este practicată de peste 1.800 de facilitatori la nivel mondial.',
+          ),
+          createParagraph(
+            'Prin mișcări delicate și atingeri precise, Facelift-ul Energetic activează resursele celulare ale corpului, stimulând memoria celulară să elibereze limitările acumulate și să restaureze aspectul natural și tineresc.',
+          ),
+
+          // Cum funcționează
+          createHeading('Cum Funcționează Facelift-ul Energetic?', 'h2'),
+          createParagraph(
+            'Terapia utilizează 30 de energii diferite pentru a stimula sistemele musculare și a accelera vindecarea naturală. Prin angajarea energiilor din față și corp, se obține:',
+          ),
+          createList([
+            'Fermitatea pielii și contracararea efectelor gravitației',
+            'Stimularea memoriei celulare pentru eliberarea limitărilor',
+            'Activarea proceselor naturale de regenerare',
+            'Relaxare profundă care permite corpului să se vindece',
+          ]),
+          createBanner(
+            'Cercetările de la Touch Research Institute din Miami demonstrează că atingerea reduce hormonii de stres, scade ritmul cardiac și îmbunătățește digestia.',
+            'info',
+          ),
+
+          // Beneficii
+          createHeading('Beneficiile Facelift-ului Energetic', 'h2'),
+          createParagraph(
+            'Facelift-ul Energetic oferă o gamă impresionantă de beneficii vizibile și senzoriale:',
+          ),
+          createList([
+            'Luminozitate facială și claritate a ochilor',
+            'Strălucire și vitalitate a părului',
+            'Efecte de lifting pentru sâni și fese',
+            'Energie și entuziasm crescut în viața de zi cu zi',
+            'Relaxare profundă și reducerea stresului',
+            'Stimă de sine îmbunătățită și încredere sporită',
+            'Reducerea țesutului adipos',
+            'Stabilitate dentară îmbunătățită',
+            'Suport pentru recuperarea post-operatorie și post-AVC',
+          ]),
+
+          // Experiența ședinței
+          createHeading('Cum se Desfășoară o Ședință?', 'h2'),
+          createParagraph(
+            'O ședință de Facelift Energetic durează între 60 și 90 de minute. În timpul sesiunii, vei sta întins confortabil în timp ce terapeutul aplică atingeri delicate pe față, gât și corp.',
+          ),
+          createParagraph(
+            'Nu există un număr fix de ședințe recomandate - fiecare client alege frecvența în funcție de obiectivele personale de relaxare și estetice. Mulți observă îmbunătățiri vizibile chiar după prima sesiune.',
+          ),
+
+          // Pentru cine este
+          createHeading('Cine Poate Beneficia?', 'h2'),
+          createParagraph(
+            'Facelift-ul Energetic este potrivit pentru oricine caută îmbunătățiri fizice non-invazive și revitalizare. Este o alternativă excelentă la:',
+          ),
+          createList([
+            'Chirurgia estetică și procedurile invazive',
+            'Injecțiile cu botox sau acid hialuronic',
+            'Tratamentele cosmetice costisitoare',
+            'Creme și seruri anti-îmbătrânire',
+          ]),
+
+          // Rezultate
+          createHeading('Ce Rezultate Poți Aștepta?', 'h3'),
+          createParagraph(
+            'Clienții raportează frecvent că arată mai tineri, se simt mai energici și au o atitudine mai pozitivă față de viață. Efectele pot include o piele mai fermă și luminoasă, riduri mai puțin vizibile și o stare generală de bine.',
+          ),
+          createBanner(
+            'Facelift-ul Energetic nu este doar despre aspect - este despre a te simți bine în pielea ta și a radia din interior spre exterior. Programează-te pentru o ședință și descoperă transformarea!',
+            'success',
+          ),
+        ])
+      },
     },
     {
       title: 'Terapia Reiki',
@@ -150,6 +397,83 @@ export const terapiiEnergeticeData = {
         'Armonizare corp-minte-spirit',
         'Suport pentru recuperare post-operatorie',
       ],
+      // Rich text description
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      get description(): any {
+        return createRichTextRoot([
+          // Introducere
+          createHeading('Ce este Terapia Reiki?', 'h2'),
+          createParagraph(
+            'Reiki este o tehnică de vindecare spirituală care utilizează fluxul de energie universală pentru a promova echilibrul și vindecarea în corp și minte. Termenul "Reiki" provine din japoneză: "Rei" (universal) și "Ki" (energie vitală).',
+          ),
+          createParagraph(
+            'În timpul unei sesiuni Reiki, energia curge prin mâinile terapeutului, ghidată de intenție și concentrare, pentru a ajunge exact acolo unde este nevoie în corpul pacientului. Această energie nu este a terapeutului - el este doar un canal pentru energia universală.',
+          ),
+
+          // Rolul chakrelor
+          createHeading('Rolul Chakrelor în Reiki', 'h2'),
+          createParagraph(
+            'Practica Reiki implică lucrul cu cele șapte centre energetice principale ale corpului, numite chakre. Fiecare chakră corespunde unor aspecte specifice ale sănătății fizice, emoționale și spirituale:',
+          ),
+          createList([
+            'Chakra Rădăcină (Muladhara) - zona sacrală, culoare roșie - stabilitate și siguranță',
+            'Chakra Sexuală (Svadhisthana) - sub buric, culoare portocalie - creativitate și emoții',
+            'Chakra Plexului Solar (Manipura) - zona stomacului, culoare galbenă - putere personală',
+            'Chakra Inimii (Anahata) - zona inimii, culoare verde și roz - iubire și compasiune',
+            'Chakra Gâtului (Vishuddha) - zona tiroidei, culoare albastră - comunicare și expresie',
+            'Chakra Celui de-al Treilea Ochi (Ajna) - centrul frunții, culoare violet - intuiție',
+            'Chakra Coroanei (Sahasrara) - vârful capului, culoare alb-argintie - conexiune spirituală',
+          ]),
+          createBanner(
+            'Chakrele blocate sau care nu funcționează corespunzător pot cauza dezechilibre fizice și emoționale. Reiki ajută la deblocarea și armonizarea acestor centre energetice.',
+            'info',
+          ),
+
+          // Cum funcționează
+          createHeading('Cum Funcționează Reiki?', 'h2'),
+          createParagraph(
+            'Terapeutul direcționează energia universală către chakrele blocate sau slăbite pentru a restabili fluxul energetic corect și a revitaliza aspectele corespunzătoare ale sănătății. Procesul este blând, non-invaziv și profund relaxant.',
+          ),
+          createParagraph(
+            'Energia Reiki "știe" unde trebuie să meargă - inteligența universală o ghidează către zonele care au cea mai mare nevoie de vindecare și echilibrare.',
+          ),
+
+          // Beneficii
+          createHeading('Beneficiile Terapiei Reiki', 'h2'),
+          createList([
+            'Eliberarea tensiunii emoționale și fizice acumulate',
+            'Restabilirea echilibrului energetic și fizic',
+            'Susținerea proceselor naturale de vindecare ale corpului',
+            'Promovarea stării generale de bine și pace interioară',
+            'Reducerea stresului, anxietății și depresiei',
+            'Îmbunătățirea calității somnului',
+            'Sprijin pentru recuperarea după boli sau operații',
+            'Claritate mentală și echilibru emoțional',
+          ]),
+
+          // Pentru cine este
+          createHeading('Cine Poate Beneficia?', 'h2'),
+          createParagraph(
+            'Reiki este potrivit pentru oricine caută îmbunătățirea sănătății, echilibru energetic interior și suport pentru vindecarea spirituală. Nu există contraindicații - terapia este sigură pentru persoane de toate vârstele, inclusiv copii, gravide și vârstnici.',
+          ),
+
+          // Notă importantă
+          createHeading('Notă Importantă', 'h3'),
+          createBanner(
+            'Reiki completează - nu înlocuiește - tratamentul medical convențional. Este o terapie complementară care lucrează alături de medicina tradițională pentru a susține procesul de vindecare.',
+            'warning',
+          ),
+
+          // Închidere
+          createParagraph(
+            'Dacă simți că viața ta are nevoie de mai mult echilibru și armonie, Reiki poate fi calea către o stare de bine profundă și durabilă.',
+          ),
+          createBanner(
+            'Programează-te pentru o ședință de Reiki și experimentează puterea vindecătoare a energiei universale.',
+            'success',
+          ),
+        ])
+      },
     },
     {
       title: 'Corecția Bioenergetică',
@@ -168,6 +492,92 @@ export const terapiiEnergeticeData = {
         'Suport pentru depresie și insomnie',
         'Tratament pentru oboseală cronică',
       ],
+      // Rich text description
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      get description(): any {
+        return createRichTextRoot([
+          // Introducere
+          createHeading('Ce este Corecția Bioenergetică?', 'h2'),
+          createParagraph(
+            'Corecția Bioenergetică este o metodă terapeutică ce vizează normalizarea bioenergeticii corpului uman printr-o abordare integrativă a stării fizice, spirituale și psihice. Această terapie holistică tratează pacientul ca un întreg, nu doar simptomele izolate.',
+          ),
+          createParagraph(
+            'Metoda combină mai multe tehnici terapeutice pentru a restabili echilibrul energetic natural al corpului și pentru a facilita procesele de autovindecare.',
+          ),
+
+          // Cum funcționează
+          createHeading('Cum Funcționează Corecția Bioenergetică?', 'h2'),
+          createParagraph(
+            'Terapia implică mai multe etape și tehnici:',
+          ),
+          createList([
+            'Evaluarea detaliată a pacientului și analiza psihologică',
+            'Dezvoltarea unei strategii de intervenție personalizate',
+            'Masaj clasic pentru relaxarea mușchilor',
+            'Masaj punctiform pentru deblocarea punctelor energetice',
+            'Masaj terapeutic non-contact pentru lucrul cu câmpul energetic',
+            'Metode de stretching pentru flexibilitate și eliberare',
+            'Schimbarea conștiinței prin comunicare și întrebări stimulative',
+          ]),
+          createBanner(
+            'Ședința se desfășoară într-un mediu confortabil, pacientul stând întins pe patul de masaj cu ochii închiși, permițând o relaxare profundă.',
+            'info',
+          ),
+
+          // Detalii ședință
+          createHeading('Detalii despre Ședință', 'h3'),
+          createParagraph(
+            'O ședință de Corecție Bioenergetică durează între 30 și 60 de minute. Pentru rezultate optime, se recomandă ședințe zilnice timp de 7-10 zile, urmate de o pauză de 2-3 luni.',
+          ),
+
+          // Condiții tratate
+          createHeading('Pentru Ce Condiții Este Recomandată?', 'h2'),
+          createParagraph(
+            'Corecția Bioenergetică este eficientă pentru o gamă largă de condiții fizice și psihice:',
+          ),
+          createList([
+            'Stres cronic și atacuri de panică',
+            'Depresie și tulburări de dispoziție',
+            'Insomnie și tulburări de somn',
+            'Oboseală cronică și epuizare',
+            'Traume din copilărie și blocaje emoționale',
+            'Infertilitate cauzată de stres',
+            'Afecțiuni ale organelor interne',
+            'Probleme ale sistemului osos și muscular',
+            'Boli cronice diverse',
+          ]),
+
+          // Beneficii
+          createHeading('Beneficii', 'h2'),
+          createParagraph(
+            'Terapia contribuie la:',
+          ),
+          createList([
+            'Armonizarea energiilor pacientului',
+            'Îmbunătățirea condiției fizice și psihice generale',
+            'Reducerea tensiunii musculare',
+            'Facilitarea proceselor naturale de vindecare și regenerare',
+            'Echilibrarea stărilor emoționale',
+            'Creșterea vitalității și energiei',
+          ]),
+
+          // Contraindicații
+          createHeading('Contraindicații', 'h3'),
+          createBanner(
+            'Terapia nu este recomandată în următoarele situații: afecțiuni maligne ale sângelui, hemofilie, tumori active, gangrenă, tuberculoză activă, boli psihice severe, afecțiuni acute ale organelor, anevrisme cardiace, osteomielită acută.',
+            'warning',
+          ),
+
+          // Închidere
+          createParagraph(
+            'Înainte de a începe terapia, este important să discutați cu terapeutul despre starea dumneavoastră de sănătate pentru a vă asigura că această metodă este potrivită pentru nevoile dumneavoastră.',
+          ),
+          createBanner(
+            'Programează-te pentru o evaluare și descoperă cum Corecția Bioenergetică te poate ajuta să îți recâștigi echilibrul și vitalitatea.',
+            'success',
+          ),
+        ])
+      },
     },
     {
       title: 'Eliberarea Tensiunii Interioare',
@@ -175,7 +585,7 @@ export const terapiiEnergeticeData = {
         'Terapie specializată pentru eliberarea tensiunii și stresului acumulat. Contribuie la armonizarea energiilor, îmbunătățirea condiției fizice și psihologice, reducerea tensiunii musculare și facilitarea proceselor naturale de vindecare.',
       icon: 'Wind',
       price: 180,
-      duration: '60 min',
+      duration: '30-60 min',
       featured: false,
       order: 6,
       features: [
@@ -186,6 +596,113 @@ export const terapiiEnergeticeData = {
         'Facilitarea proceselor naturale de vindecare',
         'Stare de relaxare profundă',
       ],
+      // Rich text description - eslint-disable needed for complex object structure
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      get description(): any {
+        return createRichTextRoot([
+          // Introducere
+          createHeading('Ce este Terapia de Eliberare a Tensiunii Interioare?', 'h2'),
+          createParagraph(
+            'Terapia de Eliberare a Tensiunii Interioare (TRE - Trauma Releasing Exercises) este o metodă terapeutică dezvoltată de Dr. David Berceli, bazată pe înțelegerea profundă a conexiunii dintre corp și psihic. Această tehnică revoluționară activează mecanismul natural al corpului de eliberare a stresului și tensiunii acumulate în mușchi.',
+          ),
+          createParagraph(
+            'Metoda se bazează pe faptul că corpul nostru păstrează amintirea tuturor experiențelor traumatice și stresante, manifestându-se prin tensiune musculară cronică, dureri și disconfort. Prin exerciții specifice și tehnici de relaxare, corpul este ghidat să elibereze aceste tensiuni într-un mod sigur și controlat.',
+          ),
+
+          // Rolul unității dintre suflet și corp
+          createHeading('Rolul Unității dintre Suflet și Corp', 'h2'),
+          createParagraph(
+            'Suntem ființe complexe în care corpul fizic, mintea și spiritul funcționează ca un întreg. Când sufletul nostru trece prin experiențe dificile - fie că este vorba de stres cronic, traumă sau emoții reprimate - corpul reacționează prin contractarea mușchilor și crearea unor tipare de tensiune.',
+          ),
+          createParagraph(
+            'Această tensiune acumulată afectează nu doar starea fizică, ci și cea emoțională și mentală. De aceea, eliberarea tensiunii din corp are efecte profunde asupra întregii noastre ființe, aducând claritate mentală, echilibru emoțional și o stare generală de bine.',
+          ),
+
+          // Cum funcționează
+          createHeading('Cum Funcționează Terapia?', 'h2'),
+          createParagraph(
+            'În timpul ședinței de terapie, clientul este ghidat printr-o serie de exerciții ușoare care activează un tremur muscular natural. Acest tremur, cunoscut și sub numele de "tremurul neurogen", este răspunsul natural al corpului pentru eliberarea tensiunii acumulate.',
+          ),
+          createParagraph(
+            'Procesul se desfășoară într-un mediu sigur și relaxant, pe un pat de masaj, acompaniat de muzică de relaxare. Terapeutul ghidează întregul proces, asigurându-se că experiența este confortabilă și eficientă.',
+          ),
+          createBanner(
+            'Tremurul neurogen este complet natural și sigur - este același mecanism pe care corpul îl folosește după un șoc sau o experiență stresantă pentru a reveni la echilibru.',
+            'info',
+          ),
+
+          // Procesul terapeutic
+          createHeading('Procesul Terapeutic', 'h3'),
+          createList([
+            'Ședința durează între 30 și 60 de minute',
+            'Se desfășoară pe un pat de masaj confortabil',
+            'Muzica de relaxare creează o atmosferă liniștitoare',
+            'Terapeutul vă ghidează prin exerciții simple',
+            'Corpul intră în mod natural în starea de eliberare',
+            'Nu este necesară discutarea experiențelor traumatice',
+          ]),
+
+          // Durata și frecvența
+          createHeading('Durata și Frecvența Recomandată', 'h2'),
+          createParagraph(
+            'Pentru rezultate optime, se recomandă un ciclu de 7-10 ședințe consecutive sau distribuite pe parcursul a 2-3 săptămâni. După acest ciclu inițial, se poate face o pauză de 2-3 luni, urmată de ședințe de întreținere după necesitate.',
+          ),
+          createParagraph(
+            'Frecvența și numărul de ședințe pot varia în funcție de nevoile individuale ale fiecărui client și de severitatea tensiunii acumulate. Terapeutul va recomanda un plan personalizat după evaluarea inițială.',
+          ),
+
+          // Beneficii
+          createHeading('Beneficiile Terapiei', 'h2'),
+          createParagraph(
+            'Terapia de Eliberare a Tensiunii Interioare oferă o gamă largă de beneficii pentru corp și minte:',
+          ),
+          createList([
+            'Reducerea semnificativă a stresului și anxietății',
+            'Îmbunătățirea calității somnului',
+            'Ameliorarea simptomelor depresiei',
+            'Reducerea tensiunii musculare cronice',
+            'Îmbunătățirea flexibilității și mobilității',
+            'Creșterea nivelului de energie',
+            'Echilibrarea sistemului nervos',
+            'Îmbunătățirea concentrării și clarității mentale',
+            'Reducerea durerilor cronice',
+            'Stare generală de calm și relaxare',
+          ]),
+
+          // Cine poate beneficia
+          createHeading('Cine Poate Beneficia?', 'h2'),
+          createParagraph(
+            'Această terapie este potrivită pentru persoane de toate vârstele care se confruntă cu:',
+          ),
+          createList([
+            'Stres cronic sau anxietate',
+            'Tensiune musculară și dureri de spate',
+            'Tulburări de somn sau insomnie',
+            'Depresie sau stări depresive',
+            'Oboseală cronică sau epuizare',
+            'Atacuri de panică',
+            'Traume emoționale sau fizice',
+            'Sindrom post-traumatic (PTSD)',
+            'Dureri cronice de cap sau migrene',
+          ]),
+
+          // Contraindicații
+          createHeading('Contraindicații', 'h3'),
+          createBanner(
+            'Terapia nu este recomandată în următoarele situații: febră sau infecții acute, răni deschise, afecțiuni maligne active, boli psihiatrice severe necontrolate, sarcină (trimestrul I), intervenții chirurgicale recente.',
+            'warning',
+          ),
+
+          // Închidere
+          createParagraph(
+            'Înainte de a începe terapia, este recomandat să discutați cu terapeutul despre starea dumneavoastră de sănătate pentru a vă asigura că această metodă este potrivită pentru dumneavoastră.',
+          ),
+          createBanner(
+            'Programează-te pentru o ședință și descoperă beneficiile eliberării tensiunii interioare. Corpul tău are capacitatea naturală de a se vindeca - noi doar îl ajutăm să o facă.',
+            'success',
+          ),
+        ])
+      },
     },
     {
       title: 'Terapia cu Lumină',
@@ -204,6 +721,82 @@ export const terapiiEnergeticeData = {
         'Detoxifiere și regenerare celulară',
         'Tehnologie brevetată LifeWave',
       ],
+      // Rich text description
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      get description(): any {
+        return createRichTextRoot([
+          // Introducere
+          createHeading('Ce este Terapia cu Lumină?', 'h2'),
+          createParagraph(
+            'Terapia cu Lumină utilizează plasturi fototerapeutici - dispozitive mici și discrete care emit lumină în spectrul infraroșu și vizibil. Această metodă inovatoare bazată pe nanotehnologie folosește lumina corpului pentru a activa procesele naturale de vindecare și regenerare celulară.',
+          ),
+          createParagraph(
+            'Plasturii sunt aplicați pe piele, stimulând punctele de acupunctură strategice pentru a declanșa procesele naturale de vindecare și regenerare ale corpului.',
+          ),
+
+          // Cum funcționează
+          createHeading('Cum Funcționează?', 'h2'),
+          createParagraph(
+            'Plasturii fototerapeutici emit lumină care penetrează pielea și stimulează puncte strategice de acupunctură. Această activare declanșează procese naturale de vindecare și regenerare la nivel celular.',
+          ),
+          createParagraph(
+            'Un aspect cheie al terapiei este stimularea producției de celule stem proprii. Celulele stem joacă un rol crucial în regenerarea țesuturilor și menținerea sănătății optime, fiind esențiale pentru procesele de reparare ale corpului.',
+          ),
+          createBanner(
+            'Tehnologia este non-invazivă, fără efecte secundare și poate fi combinată cu alte tratamente pentru rezultate îmbunătățite.',
+            'info',
+          ),
+
+          // Beneficii
+          createHeading('Beneficiile Terapiei cu Lumină', 'h2'),
+          createList([
+            'Stimularea celulelor stem proprii pentru regenerare tisulară',
+            'Reducerea durerii acute și cronice prin activarea vindecării naturale',
+            'Creșterea energiei și vitalității fără stimulanți',
+            'Îmbunătățirea calității somnului pentru o odihnă mai profundă',
+            'Accelerarea vindecării rănilor și recuperării țesutului cicatricial',
+            'Detoxifiere și regenerare celulară la nivel profund',
+            'Reducerea inflamației cronice',
+            'Suport pentru sistemul imunitar',
+          ]),
+
+          // Tehnologie
+          createHeading('Tehnologie Avansată LifeWave', 'h3'),
+          createParagraph(
+            'Plasturii folosesc tehnologia brevetată LifeWave, care a fost testată clinic și este folosită de milioane de oameni la nivel mondial. Această tehnologie nu introduce substanțe în corp - funcționează exclusiv prin stimularea punctelor energetice ale corpului.',
+          ),
+
+          // Rezultate
+          createHeading('Ce Rezultate Poți Aștepta?', 'h2'),
+          createParagraph(
+            'Mulți pacienți raportează ameliorări semnificative după doar câteva sesiuni. Efectele pot include:',
+          ),
+          createList([
+            'Reducerea vizibilă a durerii în primele zile',
+            'Somn mai profund și odihnitor',
+            'Energie crescută pe parcursul zilei',
+            'Îmbunătățirea stării generale de bine',
+            'Recuperare mai rapidă după efort fizic',
+          ]),
+
+          // Pentru cine este
+          createHeading('Cine Poate Beneficia?', 'h2'),
+          createParagraph(
+            'Terapia cu Lumină este potrivită pentru persoane de toate vârstele care caută o metodă naturală și non-invazivă de îmbunătățire a sănătății. Este deosebit de benefică pentru:',
+          ),
+          createList([
+            'Persoane cu dureri cronice sau acute',
+            'Sportivi care doresc recuperare accelerată',
+            'Cei care caută îmbunătățirea calității somnului',
+            'Persoane cu oboseală cronică sau energie scăzută',
+            'Oricine dorește să susțină procesele naturale de regenerare',
+          ]),
+          createBanner(
+            'Descoperă puterea vindecătoare a luminii! Programează-te pentru o consultație și află cum plasturii fototerapeutici te pot ajuta să îți recapeți vitalitatea.',
+            'success',
+          ),
+        ])
+      },
     },
     {
       title: 'Termo Masaj Ceragem',
@@ -222,6 +815,91 @@ export const terapiiEnergeticeData = {
         'Stimularea circulației sanguine',
         'Reducerea tensiunii musculare',
       ],
+      // Rich text description
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      get description(): any {
+        return createRichTextRoot([
+          // Introducere
+          createHeading('Ce este Termo Masajul Ceragem?', 'h2'),
+          createParagraph(
+            'Termo Masajul Ceragem reprezintă o terapie inovatoare care combină masajul tradițional cu beneficiile pietrelor de jad încălzite. Tratamentul folosește un pat de masaj specializat echipat cu role din piatră de jad care se încălzesc la temperaturi optime pentru efect terapeutic.',
+          ),
+          createParagraph(
+            'Această metodă unică îmbină înțelepciunea terapiilor orientale tradiționale cu tehnologia modernă pentru a oferi o experiență de relaxare profundă și vindecare.',
+          ),
+
+          // Cum funcționează
+          createHeading('Cum Funcționează?', 'h2'),
+          createParagraph(
+            'Rolele din piatră de jad se deplasează de-a lungul coloanei vertebrale, urmând curbura naturală a corpului. Căldura din pietre penetrează profund în mușchi și articulații, activând proprietățile de emisie infraroșie care ajung la straturile tisulare de sub suprafață.',
+          ),
+          createList([
+            'Pietrele de jad emit raze infraroșii cu lungime de undă benefică',
+            'Căldura penetrează până la 5-7 cm adâncime în țesuturi',
+            'Masajul urmărește automat curbura coloanei vertebrale',
+            'Temperatura este controlată și ajustabilă pentru confort optim',
+          ]),
+          createBanner(
+            'Jadul este cunoscut din antichitate pentru proprietățile sale vindecătoare și capacitatea de a echilibra energiile corpului.',
+            'info',
+          ),
+
+          // Beneficii
+          createHeading('Beneficiile Termo Masajului', 'h2'),
+          createParagraph(
+            'Terapia oferă multiple beneficii pentru sănătatea fizică și starea de bine:',
+          ),
+          createList([
+            'Ameliorarea durerii și reducerea tensiunii musculare',
+            'Relaxare profundă a mușchilor contracturați',
+            'Stimularea circulației sanguine și oxigenarea țesuturilor',
+            'Detoxifierea prin activarea sistemului limfatic',
+            'Reducerea stresului și anxietății',
+            'Îmbunătățirea posturii și corectarea problemelor de coloană',
+            'Somn mai profund și odihnitor',
+            'Creșterea flexibilității și mobilității',
+          ]),
+
+          // Experiența sesiunii
+          createHeading('Experiența unei Sesiuni', 'h3'),
+          createParagraph(
+            'O sesiune de Termo Masaj Ceragem durează aproximativ 45 de minute. Te vei întinde confortabil pe patul de masaj, iar tehnologia avansată va face restul - rolele de jad încălzite se vor deplasa de-a lungul coloanei tale, oferind un masaj precis și eficient.',
+          ),
+          createParagraph(
+            'Mulți clienți descriu experiența ca fiind extrem de relaxantă, unii adormindu-se în timpul sesiunii. Efectele benefice sunt resimțite imediat după sesiune și continuă să se amplifice în zilele următoare.',
+          ),
+
+          // Rezultate
+          createHeading('Ce Rezultate Poți Aștepta?', 'h2'),
+          createParagraph(
+            'Mulți dintre clienții noștri simt o ameliorare semnificativă imediat după primele sesiuni. Efectele includ:',
+          ),
+          createList([
+            'Reducerea imediată a tensiunii din spate și gât',
+            'Senzație de ușurare și relaxare profundă',
+            'Flexibilitate îmbunătățită a coloanei vertebrale',
+            'Energie crescută și vitalitate',
+            'Somn mai bun în noaptea după sesiune',
+          ]),
+
+          // Pentru cine este
+          createHeading('Cine Poate Beneficia?', 'h2'),
+          createParagraph(
+            'Termo Masajul Ceragem este potrivit pentru persoane de toate vârstele care caută relaxare și ameliorarea durerii. Este deosebit de benefic pentru:',
+          ),
+          createList([
+            'Persoane cu dureri de spate sau probleme de coloană',
+            'Cei care petrec mult timp stând sau la birou',
+            'Sportivi pentru recuperare musculară',
+            'Persoane cu stres cronic sau tensiune musculară',
+            'Oricine caută o metodă naturală de relaxare',
+          ]),
+          createBanner(
+            'Experimentează puterea vindecătoare a jadului încălzit! Programează-te pentru o sesiune de Termo Masaj Ceragem și descoperă relaxarea profundă.',
+            'success',
+          ),
+        ])
+      },
     },
   ],
 
@@ -232,16 +910,8 @@ export const terapiiEnergeticeData = {
   courses: [
     {
       title: 'Curs Access Bars',
-      description: `Access Bars este o ramură a Access Consciousness, o tehnică de medicină alternativă practicată în peste 173 de țări. Metoda se concentrează pe 32 de puncte de pe cap care, atunci când sunt atinse, eliberează unde electromagnetice pentru a curăța blocajele și emoțiile negative.
-
-Ce primești la curs:
-• Tehnici practice pentru auto-aplicare și lucrul cu clienții
-• Înțelegerea celor 32 de puncte energetice de pe cap
-• Instrumente de lucru și informații valoroase
-• Training pentru a facilita vindecarea pentru tine și alții
-• Acces la experiența și cunoștințele facilitatorului Monica Batir
-
-Cursul durează o zi și include transfer eficient de informații la nivel vibrațional.`,
+      shortDescription:
+        'Curs de o zi pentru a deveni practician certificat Access Bars. Învață să aplici tehnica celor 32 de puncte energetice pe tine și pe alții, cu certificare internațională recunoscută în 173 de țări.',
       price: 1460,
       priceRepeat: 730,
       priceAdolescent: 730,
@@ -249,27 +919,164 @@ Cursul durează o zi și include transfer eficient de informații la nivel vibra
       duration: '1 zi',
       certification: 'Certificat Internațional Access Consciousness',
       featured: true,
-      nextDates: ['20 Decembrie 2025', '17 Ianuarie 2026', '21 Februarie 2026'],
+      nextDates: ['20 Decembrie 2025 – București', '17 Ianuarie 2026 – București', '21 Februarie 2026 – București'],
+      features: [
+        'Tehnici practice pentru auto-aplicare și lucrul cu clienții',
+        'Înțelegerea celor 32 de puncte energetice de pe cap',
+        'Instrumente de lucru și informații valoroase',
+        'Training pentru a facilita vindecarea pentru tine și alții',
+        'Certificat Internațional Access Consciousness',
+        'Acces la comunitatea globală Access Bars',
+      ],
+      // Rich text description
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      get description(): any {
+        return createRichTextRoot([
+          // Introducere
+          createHeading('Ce este Access Bars?', 'h2'),
+          createParagraph(
+            'Access Bars este o ramură a Access Consciousness, o tehnică de medicină alternativă practicată în peste 173 de țări. Metoda se concentrează pe 32 de puncte de pe cap care, atunci când sunt atinse, eliberează unde electromagnetice pentru a curăța blocajele și emoțiile negative.',
+          ),
+          createParagraph(
+            'Conform cercetărilor, oamenii sunt „90% subconștient și doar 10% conștient". Access Bars permite accesarea nivelurilor mentale mai profunde, unde informațiile stocate pot fi procesate și eliberate.',
+          ),
+
+          // Ce înveți
+          createHeading('Ce Înveți la Curs?', 'h2'),
+          createParagraph(
+            'Cursul Access Bars îți oferă toate cunoștințele și abilitățile practice pentru a deveni practician certificat:',
+          ),
+          createList([
+            'Să aplici tehnica pe tine și pe alții',
+            'Să facilitezi fluxul de energie și să elimini constrângerile mentale/emoționale',
+            'Să abordezi probleme precum depresia, tulburările de somn, anxietatea, dificultățile de relație',
+            'Să obții rezultate comparabile cu terapiile pe termen lung, într-un format de o singură zi',
+          ]),
+
+          // Ce primești
+          createHeading('Ce Primești la Curs?', 'h2'),
+          createList([
+            'Tehnici practice pentru auto-aplicare și lucrul cu clienții',
+            'Înțelegerea celor 32 de puncte energetice de pe cap',
+            'Instrumente de lucru și informații valoroase',
+            'Training pentru a facilita vindecarea pentru tine și alții',
+            'Acces la experiența și cunoștințele facilitatorului Monica Batir',
+            'Certificat Internațional Access Consciousness',
+          ]),
+
+          createBanner(
+            'Cursul durează o zi și include transfer eficient de informații la nivel vibrațional. La finalul cursului primești Certificat Internațional Access Consciousness, recunoscut în 173 de țări.',
+            'info',
+          ),
+
+          // Opțiuni de preț
+          createHeading('Opțiuni de Preț', 'h2'),
+          createList([
+            'Prima participare: 1.460 RON',
+            'Reluare curs (pentru practicieni certificați): 730 RON',
+            'Adolescenți (16-18 ani): 730 RON',
+            'Copii (sub 16 ani, însoțiți de adult participant): GRATUIT',
+          ]),
+
+          // Date următoare
+          createHeading('Date Următoare', 'h2'),
+          createList([
+            '20 Decembrie 2025 – București',
+            '17 Ianuarie 2026 – București',
+            '21 Februarie 2026 – București',
+          ]),
+
+          createBanner(
+            'Locurile sunt limitate! Rezervă-ți locul acum pentru următorul curs Access Bars.',
+            'success',
+          ),
+        ])
+      },
     },
     {
       title: 'Curs Facelift Energetic',
-      description: `Facelift Energetic Access este un proces revoluționar care încorporează 30 de energii pentru a elibera tensiunea și a inversa semnele îmbătrânirii fără intervenție fizică.
-
-Ce primești la curs:
-• Două ședințe în care primești tratamentul Facelift Energetic
-• Două ședințe în care oferi tratamentul altui participant
-• Manual Access Facelift cu poziții și tehnici
-• Fișă de lucru și instrumente Access Consciousness
-• Prezentare video de la Dr. Heer (fondatorul Access Consciousness)
-• Diplomă Internațională de Practician Access Facelift (recunoscută global)
-
-Cursul se desfășoară pe parcursul a două zile de training intensiv.`,
+      shortDescription:
+        'Curs de 2 zile pentru a deveni practician certificat Access Facelift. Învață procesul revoluționar care încorporează 30 de energii pentru a inversa semnele îmbătrânirii, cu diplomă internațională.',
       price: 1875,
       priceRepeat: 935,
       duration: '2 zile',
       certification: 'Diplomă Internațională Practician Access Facelift',
       featured: true,
-      nextDates: ['21 Decembrie 2025', '18 Ianuarie 2026', '22 Februarie 2026'],
+      nextDates: ['21 Decembrie 2025 – București', '18 Ianuarie 2026 – București', '22 Februarie 2026 – București'],
+      features: [
+        'Două ședințe în care primești tratamentul Facelift',
+        'Două ședințe în care oferi tratamentul altui participant',
+        'Manual Access Facelift cu poziții și tehnici',
+        'Fișă de lucru și instrumente Access Consciousness',
+        'Prezentare video de la Dr. Dain Heer',
+        'Diplomă Internațională Practician Access Facelift',
+      ],
+      // Rich text description
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      get description(): any {
+        return createRichTextRoot([
+          // Introducere
+          createHeading('Ce este Facelift Energetic Access?', 'h2'),
+          createParagraph(
+            'Facelift Energetic Access este un proces revoluționar care încorporează 30 de energii pentru a debloca tensiunile din mușchii faciali și corporali. Terapia inversează semnele îmbătrânirii, promovează vindecarea celulară și elimină emoțiile negative - fără intervenție chirurgicală sau produse scumpe.',
+          ),
+
+          // Cum funcționează
+          createHeading('Cum Funcționează?', 'h2'),
+          createParagraph(
+            'Practicianul folosește atingeri delicate pe față și gât pentru a facilita curgerea energiei și a elibera blocajele și tensiunile musculare. Acest lucru reactivează celulele pentru regenerare, pe măsură ce convingerile limitative sunt eliberate.',
+          ),
+
+          // Beneficii
+          createHeading('Beneficii Cheie', 'h2'),
+          createList([
+            'Îmbunătățirea ridurilor și a liniilor fine',
+            'Fermitate și elasticitate a pielii',
+            'Strălucire îmbunătățită a părului',
+            'Niveluri crescute de energie',
+            'Efecte de lifting pentru sâni și fese',
+            'Recuperare rapidă post-operatorie',
+            'Prevenirea degradării celulare',
+            'Hidratare îmbunătățită a pielii și vedere mai clară',
+          ]),
+
+          // Ce primești
+          createHeading('Ce Primești la Curs?', 'h2'),
+          createList([
+            'Două ședințe în care primești tratamentul Facelift Energetic',
+            'Două ședințe în care oferi tratamentul altui participant',
+            'Manual Access Facelift cu poziții și tehnici',
+            'Fișă de lucru și instrumente Access Consciousness',
+            'Prezentare video de la Dr. Dain Heer (fondatorul Access Consciousness)',
+            'Diplomă Internațională de Practician Access Facelift (recunoscută global)',
+          ]),
+
+          createBanner(
+            'Cursul se desfășoară pe parcursul a două zile de training intensiv. La finalul cursului primești Diplomă Internațională Practician Access Facelift.',
+            'info',
+          ),
+
+          // Opțiuni de preț
+          createHeading('Opțiuni de Preț', 'h2'),
+          createList([
+            'Prima participare: 1.875 RON',
+            'Reluare curs (pentru practicieni certificați): 935 RON',
+          ]),
+
+          // Date următoare
+          createHeading('Date Următoare', 'h2'),
+          createList([
+            '21 Decembrie 2025 – București',
+            '18 Ianuarie 2026 – București',
+            '22 Februarie 2026 – București',
+          ]),
+
+          createBanner(
+            'Locurile sunt limitate! Rezervă-ți locul acum pentru următorul curs Facelift Energetic.',
+            'success',
+          ),
+        ])
+      },
     },
   ],
 
@@ -619,9 +1426,10 @@ export const terapiiEnergeticeImages = {
     { filename: 'service-eliberare.png', alt: 'Eliberare Emoțională' },
     { filename: 'service-bowen-alt.png', alt: 'Terapia Bowen' },
   ],
-  courses: [
-    { filename: 'curs-access-bars.png', alt: 'Curs Access Bars' },
-    { filename: 'curs-facelift.png', alt: 'Curs Facelift Energetic' },
+  // Course images - mapped by course title
+  courseImages: [
+    { filename: 'curs-access-bars.png', alt: 'Curs Access Bars', courseTitle: 'Curs Access Bars' },
+    { filename: 'curs-facelift.png', alt: 'Curs Facelift Energetic', courseTitle: 'Curs Facelift Energetic' },
   ],
   logo: { filename: 'logo.png', alt: 'Revital Harmony Logo' },
   team: [{ filename: 'hero-1.png', alt: 'Monica Batir - Terapeut' }],

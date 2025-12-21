@@ -175,6 +175,15 @@ async function clearData(payload: Payload, clearMedia: boolean = false) {
     },
   });
 
+  // Reset shop-settings - disable ecommerce by default (magazin seeder will enable it)
+  await payload.updateGlobal({
+    slug: 'shop-settings',
+    data: {
+      enabled: false, // IMPORTANT: disable cart/ecommerce for non-shop seeders
+    },
+  });
+  console.log('   Shop settings reset (ecommerce disabled)');
+
   // Reset Footer badges when clearing media (to remove orphaned references)
   if (clearMedia) {
     await payload.updateGlobal({

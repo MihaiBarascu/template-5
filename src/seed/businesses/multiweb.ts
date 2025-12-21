@@ -74,6 +74,29 @@ export async function seedMultiweb(payload: Payload) {
     workingHours: multiwebData.business.workingHours,
     social: multiwebData.business.social,
     stats: multiwebData.business.stats,
+    // WhatsApp Float settings
+    whatsappFloat: {
+      enabled: true,
+      position: 'bottom-right',
+      showOnMobile: true,
+      defaultMessage: 'Buna! Doresc informatii despre serviciile de web development.',
+      tooltipText: 'Scrie-ne pe WhatsApp',
+      pulseAnimation: true,
+    },
+    // Floating CTA Button
+    floatingCta: {
+      enabled: true,
+      text: 'Solicită Ofertă',
+      href: '/contact',
+      variant: 'gradient',
+      icon: 'arrow',
+      position: 'bottom-center',
+      shape: 'pill',
+      showOnMobile: true,
+      pulseAnimation: true,
+      dismissible: true,
+      showAfterScroll: 400,
+    },
   })
 
   console.log('\n📄 Setting up system pages...')

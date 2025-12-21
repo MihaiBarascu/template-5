@@ -52,6 +52,7 @@ import { PortfolioBlock } from './Portfolio/Component'
 import { VideoHeroBlock } from './VideoHero/Component'
 import { ProcessStepsBlock } from './ProcessSteps/Component'
 import { PricingKitsBlock } from './PricingKits/Component'
+import { DownloadLinksBlock } from './DownloadLinks/Component'
 
 type LayoutBlock = NonNullable<Page['layout']>[number]
 
@@ -86,7 +87,7 @@ interface BlockParams {
   limit?: number | null
   onlyFeatured?: boolean | null
   onlySale?: boolean | null
-  filterByCategory?: string | null
+  filterByCategory?: string | string[] | null
 }
 
 interface RenderBlocksProps {
@@ -94,12 +95,26 @@ interface RenderBlocksProps {
 }
 
 // Fetch services data
-async function getServices(block: BlockParams) {
+async function getServices(block: BlockParams & { filterByCategory?: string | string[] | null }) {
   const payload = await getPayload({ config: configPromise })
 
-  const where: Where = {}
+  const where: Where = {
+    active: { equals: true },
+  }
   if (block.onlyFeatured) {
     where.featured = { equals: true }
+  }
+  // Filter by service category (can be single ID or array of IDs)
+  if (block.filterByCategory) {
+    const categoryIds = Array.isArray(block.filterByCategory)
+      ? block.filterByCategory
+      : [block.filterByCategory]
+
+    if (categoryIds.length === 1) {
+      where.category = { equals: categoryIds[0] }
+    } else if (categoryIds.length > 1) {
+      where.category = { in: categoryIds }
+    }
   }
 
   const services = await payload.find({
@@ -107,6 +122,7 @@ async function getServices(block: BlockParams) {
     where,
     limit: block.limit || 6,
     sort: 'order',
+    depth: 2,
   })
 
   return services.docs
@@ -427,9 +443,18 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
 
           switch (blockType) {
             case 'services': {
+              // Extract filterByCategory - can be array of IDs from relationship field
+              const filterByCategory = (block as { filterByCategory?: string | { id: string }[] | null }).filterByCategory
+              const categoryIds: string[] | undefined = filterByCategory
+                ? Array.isArray(filterByCategory)
+                  ? filterByCategory.map(c => typeof c === 'string' ? c : c.id)
+                  : [filterByCategory as string]
+                : undefined
+
               const services = await getServices({
                 limit: block.limit,
                 onlyFeatured: block.onlyFeatured,
+                filterByCategory: categoryIds,
               })
 
               const detailBasePath = (block as { detailBasePath?: string | null }).detailBasePath ?? '/clase'
@@ -899,7 +924,10 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   backgroundImage={block.backgroundImage ?? undefined}
                   privacyText={block.privacyText ?? undefined}
                   showPrivacyLink={block.showPrivacyLink ?? undefined}
+                  requireConsent={block.requireConsent ?? undefined}
+                  consentText={block.consentText ?? undefined}
                   benefits={block.benefits ?? undefined}
+                  pattern={block.pattern ?? undefined}
                 />
               )
             }
@@ -1382,6 +1410,7 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   subheadline={block.subheadline ?? undefined}
                   ctaButtons={block.ctaButtons ?? undefined}
                   trustBadges={block.trustBadges ?? undefined}
+                  trustBadgesPosition={block.trustBadgesPosition ?? undefined}
                   showSocialLinks={block.showSocialLinks ?? undefined}
                   textAlignment={block.textAlignment ?? undefined}
                   height={block.height ?? undefined}
@@ -1417,6 +1446,19 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   kits={block.kits ?? undefined}
                   columns={block.columns ?? undefined}
                   showCompareFeatures={block.showCompareFeatures ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
+                />
+              )
+            }
+
+            case 'download-links': {
+              return (
+                <DownloadLinksBlock
+                  key={block.id || index}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
+                  links={block.links ?? undefined}
+                  alignment={block.alignment ?? undefined}
                   backgroundColor={block.backgroundColor ?? undefined}
                 />
               )

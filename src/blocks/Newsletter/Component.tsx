@@ -4,6 +4,8 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import { cn } from '@/utilities/cn'
 import { Media } from '@/components/Media'
+import { SectionPattern } from '@/components/SectionPattern'
+import { getPatternProps, type PatternConfig } from '@/fields/patternField'
 import type { Media as MediaType } from '@/payload-types'
 
 interface Benefit {
@@ -21,7 +23,10 @@ interface NewsletterBlockProps {
   backgroundImage?: MediaType | string | null
   privacyText?: string | null
   showPrivacyLink?: boolean | null
+  requireConsent?: boolean | null
+  consentText?: string | null
   benefits?: Benefit[] | null
+  pattern?: PatternConfig | null
 }
 
 export function NewsletterBlock({
@@ -34,9 +39,13 @@ export function NewsletterBlock({
   backgroundImage,
   privacyText = 'Datele tale sunt in siguranta. Nu facem spam.',
   showPrivacyLink = true,
+  requireConsent = false,
+  consentText = 'Da, ma abonez la newsletter',
   benefits = [],
+  pattern,
 }: NewsletterBlockProps) {
   const [email, setEmail] = useState('')
+  const [consent, setConsent] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -47,6 +56,11 @@ export function NewsletterBlock({
 
     if (!email || !email.includes('@')) {
       setError('Te rugam introdu o adresa de email valida.')
+      return
+    }
+
+    if (requireConsent && !consent) {
+      setError('Te rugam sa confirmi ca esti de acord cu abonarea.')
       return
     }
 
@@ -100,28 +114,8 @@ export function NewsletterBlock({
     }
   }
 
-  // Pattern overlay for with-pattern variant
-  const PatternOverlay = () => (
-    <div className="absolute inset-0 opacity-10">
-      <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <pattern
-            id="diagonal-lines"
-            patternUnits="userSpaceOnUse"
-            width="40"
-            height="40"
-          >
-            <path
-              d="M-10,10 l20,-20 M0,40 l40,-40 M30,50 l20,-20"
-              stroke="white"
-              strokeWidth="2"
-            />
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#diagonal-lines)" />
-      </svg>
-    </div>
-  )
+  // Get pattern props for SectionPattern component
+  const patternProps = getPatternProps(pattern)
 
   if (variant === 'inline') {
     return (
@@ -190,8 +184,16 @@ export function NewsletterBlock({
         </div>
       )}
 
-      {/* Pattern overlay */}
-      {variant === 'with-pattern' && <PatternOverlay />}
+      {/* Pattern overlay - now configurable */}
+      {variant === 'with-pattern' && patternProps && (
+        <SectionPattern {...patternProps} />
+      )}
+      {/* Fallback diagonal lines if no pattern configured */}
+      {variant === 'with-pattern' && !patternProps && (
+        <div className="absolute inset-0 opacity-10">
+          <div className="w-full h-full pattern-diagonal-flowing text-white" />
+        </div>
+      )}
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-2xl mx-auto text-center">
@@ -362,6 +364,28 @@ export function NewsletterBlock({
                   )}
                 </button>
               </div>
+
+              {/* Consent checkbox (GDPR) */}
+              {requireConsent && (
+                <label className={cn(
+                  'flex items-center gap-3 cursor-pointer max-w-md mx-auto',
+                  isDark || variant === 'with-pattern' ? 'text-white/80' : 'text-theme-text-light'
+                )}>
+                  <input
+                    type="checkbox"
+                    checked={consent}
+                    onChange={(e) => setConsent(e.target.checked)}
+                    className={cn(
+                      'w-5 h-5 rounded border-2 appearance-none cursor-pointer transition-all',
+                      'checked:bg-theme-primary checked:border-theme-primary',
+                      isDark || variant === 'with-pattern'
+                        ? 'border-white/40 bg-white/10'
+                        : 'border-theme-border bg-white'
+                    )}
+                  />
+                  <span className="text-sm">{consentText}<span className="text-red-400">*</span></span>
+                </label>
+              )}
 
               {/* Error message */}
               {error && (

@@ -473,6 +473,17 @@ export const buttonLetterSpacingPresets: Record<string, string> = {
   'extra-wide': '2px',
 }
 
+// Button border radius presets
+export const buttonRoundingPresets: Record<string, string> = {
+  none: '0',
+  small: '4px',
+  default: '8px',
+  medium: '12px',
+  large: '16px',
+  pill: '24px',      // ← Stil plasturi - butoane rotunjite
+  full: '9999px',
+}
+
 // Heading scale presets (separate from body text)
 // Reference: Tailwind text-4xl=2.25rem, text-5xl=3rem, text-6xl=3.75rem, text-7xl=4.5rem
 export const headingScalePresets = {
@@ -569,16 +580,6 @@ export const cardGapPresets = {
 // =============================================================================
 // ADVANCED TYPOGRAPHY PRESETS
 // =============================================================================
-
-// Heading weight presets - for controlling heading font weight
-export const headingWeightPresets: Record<string, string> = {
-  light: '300',
-  normal: '400',    // ← Stil plasturi - elegant, nu agresiv
-  medium: '500',
-  semibold: '600',
-  bold: '700',
-  extrabold: '800',
-}
 
 // Line height presets for headings
 export const headingLineHeightPresets: Record<string, string> = {

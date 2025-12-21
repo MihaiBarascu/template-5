@@ -73,6 +73,10 @@ export const TrustBadgesBlock: Block = {
         { label: 'Eco-friendly', value: 'eco-friendly' },
         { label: 'Consultatie gratuita', value: 'free-consultation' },
         { label: 'Programare online', value: 'online-booking' },
+        { label: 'Garantie 30 zile banii inapoi', value: 'money-back-30' },
+        { label: 'Tehnologie patentata', value: 'patented' },
+        { label: 'Produs certificat', value: 'certified' },
+        { label: 'Non-invaziv', value: 'non-invasive' },
       ],
     },
     {

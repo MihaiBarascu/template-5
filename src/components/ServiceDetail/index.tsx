@@ -60,6 +60,8 @@ interface ServiceDetailProps {
   backLabel?: string
   ctaLabel?: string
   ctaLink?: string
+  relatedServices?: Service[]
+  relatedServicesTitle?: string
 }
 
 export function ServiceDetail({
@@ -68,6 +70,8 @@ export function ServiceDetail({
   backLabel = 'Înapoi la servicii',
   ctaLabel,
   ctaLink = '/contact',
+  relatedServices = [],
+  relatedServicesTitle = 'Terapii recomandate',
 }: ServiceDetailProps) {
   // Safely extract related data
   const image = typeof service.image === 'object' ? (service.image as Media) : null
@@ -168,20 +172,15 @@ export function ServiceDetail({
                 )}
               </div>
 
-              {/* Features preview */}
+              {/* Features - all displayed with theme color */}
               {service.features && service.features.length > 0 && (
                 <div className="space-y-3">
-                  {service.features.slice(0, 4).map((item, index) => (
+                  {service.features.map((item, index) => (
                     <div key={item.id || index} className="flex items-start gap-3">
-                      <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <Check className="w-5 h-5 text-theme-accent flex-shrink-0 mt-0.5" />
                       <span className="text-theme-text">{item.feature}</span>
                     </div>
                   ))}
-                  {service.features.length > 4 && (
-                    <p className="text-sm text-theme-text-light ml-8">
-                      + {service.features.length - 4} mai multe beneficii
-                    </p>
-                  )}
                 </div>
               )}
 
@@ -199,12 +198,11 @@ export function ServiceDetail({
         </div>
       </section>
 
-      {/* Content Section */}
-      <section className="py-12 md:py-16">
-        <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-3 gap-12">
-            {/* Main Content */}
-            <div className="lg:col-span-2 space-y-8">
+      {/* Content Section - Full width, no sidebar */}
+      {(service.description || (service.attributes && service.attributes.length > 0) || hasSchedule || instructor) && (
+        <section className="py-12 md:py-16">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto space-y-8">
               {/* Full Description */}
               {service.description && (
                 <div className="prose prose-lg max-w-none">
@@ -231,21 +229,6 @@ export function ServiceDetail({
                       </div>
                     ))}
                   </div>
-                </div>
-              )}
-
-              {/* Features */}
-              {service.features && service.features.length > 0 && (
-                <div>
-                  <h2 className="text-2xl font-bold text-theme-text mb-6">Ce include</h2>
-                  <ul className="grid md:grid-cols-2 gap-4">
-                    {service.features.map((item, index) => (
-                      <li key={item.id || index} className="flex items-start gap-3">
-                        <Check className="w-5 h-5 text-theme-primary flex-shrink-0 mt-0.5" />
-                        <span className="text-theme-text">{item.feature}</span>
-                      </li>
-                    ))}
-                  </ul>
                 </div>
               )}
 
@@ -280,40 +263,11 @@ export function ServiceDetail({
                   </div>
                 </div>
               )}
-            </div>
 
-            {/* Sidebar */}
-            <div className="space-y-6">
-              {/* Pricing Card */}
-              <div className="bg-theme-surface border border-theme-border rounded-2xl p-6 shadow-sm sticky top-24">
-                {/* Main Price */}
-                {service.price && (
-                  <div className="mb-6">
-                    <div className="text-3xl font-bold text-theme-primary">
-                      {service.price}
-                    </div>
-                    {service.duration && (
-                      <div className="text-theme-text-muted flex items-center gap-1 mt-1">
-                        <Clock className="w-4 h-4" />
-                        {service.duration}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* CTA Button */}
-                <Link
-                  href={service.ctaLink || ctaLink}
-                  className="w-full inline-flex items-center justify-center px-6 py-3 bg-theme-primary text-white font-semibold rounded-xl hover:bg-theme-secondary transition-colors"
-                >
-                  {buttonLabel}
-                </Link>
-              </div>
-
-              {/* Instructor Card */}
+              {/* Instructor */}
               {instructor && (
                 <div className="bg-theme-surface border border-theme-border rounded-2xl p-6 shadow-sm">
-                  <h3 className="text-lg font-semibold text-theme-text mb-4">Instructor</h3>
+                  <h3 className="text-lg font-semibold text-theme-text mb-4">Terapeut</h3>
                   <div className="flex items-center gap-4">
                     {instructorImage?.url ? (
                       <Image
@@ -344,8 +298,67 @@ export function ServiceDetail({
               )}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
+
+      {/* Related Services */}
+      {relatedServices.length > 0 && (
+        <section className="py-12 md:py-16 bg-theme-light">
+          <div className="container mx-auto px-4">
+            <h2 className="text-2xl md:text-3xl font-bold text-theme-text text-center mb-8">
+              {relatedServicesTitle}
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+              {relatedServices.map((related) => {
+                const relatedImage = typeof related.image === 'object' ? (related.image as Media) : null
+                return (
+                  <Link
+                    key={related.id}
+                    href={`${backLink}/${related.slug}`}
+                    className="group bg-white rounded-xl overflow-hidden shadow-sm border border-theme-border hover:shadow-lg transition-all duration-300"
+                  >
+                    {relatedImage?.url ? (
+                      <div className="relative h-48 overflow-hidden">
+                        <Image
+                          src={relatedImage.url}
+                          alt={relatedImage.alt || related.title}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                    ) : (
+                      <div className="h-48 bg-gradient-to-br from-theme-primary/20 to-theme-primary/5 flex items-center justify-center">
+                        {getIcon(related.icon, 'w-16 h-16 text-theme-primary/30')}
+                      </div>
+                    )}
+                    <div className="p-5">
+                      <h3 className="font-semibold text-theme-text group-hover:text-theme-primary transition-colors text-lg mb-2">
+                        {related.title}
+                      </h3>
+                      {related.shortDescription && (
+                        <p className="text-sm text-theme-text-light line-clamp-2 mb-3">
+                          {related.shortDescription}
+                        </p>
+                      )}
+                      <div className="flex items-center justify-between">
+                        {related.price && (
+                          <span className="text-theme-primary font-bold">{related.price}</span>
+                        )}
+                        {related.duration && (
+                          <span className="text-sm text-theme-text-muted flex items-center gap-1">
+                            <Clock className="w-4 h-4" />
+                            {related.duration}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+        </section>
+      )}
     </main>
   )
 }

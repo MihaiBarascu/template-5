@@ -7,9 +7,189 @@ import { Cart } from '@/components/cart'
 import { useAuth } from '@/providers/Auth'
 import { cn } from '@/utilities/cn'
 import type { Header as HeaderType, Logo as LogoType, BusinessInfo, Page } from '@/payload-types'
+import { SocialIcons, PhoneIcon, EmailIcon } from '@/blocks/_shared/iconComponents'
 
 type NavItem = NonNullable<HeaderType['navItems']>[number]
 type SubmenuItem = NonNullable<NavItem['submenu']>[number]
+type TopBarType = NonNullable<HeaderType['topBar']>
+
+// TopBar Component - uses all admin configuration
+function TopBarContent({
+  topBar,
+  businessInfo,
+  isHeaderTransparent,
+  hideTopBar,
+  useContainer,
+}: {
+  topBar: TopBarType
+  businessInfo: BusinessInfo | null
+  isHeaderTransparent: boolean
+  hideTopBar: boolean
+  useContainer: boolean
+}) {
+  const layout = topBar.layout || 'social-left'
+  const bgColor = topBar.backgroundColor || 'dark'
+
+  // Background color classes based on admin setting
+  const getBgClass = () => {
+    if (isHeaderTransparent) return 'bg-transparent'
+    switch (bgColor) {
+      case 'primary': return 'bg-theme-primary'
+      case 'transparent': return 'bg-transparent'
+      case 'light': return 'bg-theme-light text-theme-text'
+      default: return 'bg-theme-dark'
+    }
+  }
+
+  // Get social links - use custom if provided, otherwise from businessInfo
+  const getSocialLinks = () => {
+    if (topBar.customSocialLinks && topBar.customSocialLinks.length > 0) {
+      return topBar.customSocialLinks.map(link => ({
+        platform: link.platform,
+        url: link.url,
+      }))
+    }
+    // Fall back to businessInfo social
+    if (!businessInfo?.social) return []
+    const links: { platform: string; url: string }[] = []
+    if (businessInfo.social.facebook) links.push({ platform: 'facebook', url: businessInfo.social.facebook })
+    if (businessInfo.social.instagram) links.push({ platform: 'instagram', url: businessInfo.social.instagram })
+    if (businessInfo.social.youtube) links.push({ platform: 'youtube', url: businessInfo.social.youtube })
+    if (businessInfo.social.tiktok) links.push({ platform: 'tiktok', url: businessInfo.social.tiktok })
+    if (businessInfo.social.twitter) links.push({ platform: 'twitter', url: businessInfo.social.twitter })
+    if (businessInfo.social.linkedin) links.push({ platform: 'linkedin', url: businessInfo.social.linkedin })
+    return links
+  }
+
+  // Social Icons renderer
+  const SocialIconsBlock = () => {
+    if (!topBar.showSocial) return null
+    const links = getSocialLinks()
+    if (links.length === 0) return null
+
+    return (
+      <div className="flex items-center gap-3">
+        {links.map((link, idx) => {
+          const icon = SocialIcons[link.platform as keyof typeof SocialIcons]
+          if (!icon) return null
+          return (
+            <a
+              key={idx}
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center hover:opacity-80 [&_svg]:w-4 [&_svg]:h-4"
+              aria-label={link.platform}
+            >
+              {icon}
+            </a>
+          )
+        })}
+      </div>
+    )
+  }
+
+  // Contact Info renderer (phone, email)
+  const ContactBlock = () => {
+    const hasPhone = topBar.showPhone && businessInfo?.phone
+    const hasEmail = topBar.showEmail && businessInfo?.email
+    if (!hasPhone && !hasEmail) return null
+
+    return (
+      <div className="flex items-center gap-4">
+        {hasPhone && (
+          <a href={`tel:${businessInfo?.phone}`} className="hover:opacity-80 flex items-center gap-1.5">
+            <PhoneIcon className="w-4 h-4" />
+            <span>{businessInfo?.phone}</span>
+          </a>
+        )}
+        {hasEmail && (
+          <a href={`mailto:${businessInfo?.email}`} className="hover:opacity-80 hidden md:flex items-center gap-1.5">
+            <EmailIcon className="w-4 h-4" />
+            <span>{businessInfo?.email}</span>
+          </a>
+        )}
+      </div>
+    )
+  }
+
+  // Custom text/message renderer
+  const MessageBlock = () => {
+    if (!topBar.customText) return null
+    return <span className="hidden sm:block">{topBar.customText}</span>
+  }
+
+  // Render based on layout configuration
+  const renderContent = () => {
+    switch (layout) {
+      case 'social-left':
+        // Social left, contact + message right
+        return (
+          <>
+            <SocialIconsBlock />
+            <div className="flex items-center gap-4">
+              <MessageBlock />
+              <ContactBlock />
+            </div>
+          </>
+        )
+      case 'message-left':
+        // Message + contact left, social right
+        return (
+          <>
+            <div className="flex items-center gap-4">
+              <MessageBlock />
+              <ContactBlock />
+            </div>
+            <SocialIconsBlock />
+          </>
+        )
+      case 'contact-left':
+        // Contact left, social + message right
+        return (
+          <>
+            <ContactBlock />
+            <div className="flex items-center gap-4">
+              <MessageBlock />
+              <SocialIconsBlock />
+            </div>
+          </>
+        )
+      case 'centered':
+        // Everything centered
+        return (
+          <div className="flex items-center justify-center gap-6 w-full">
+            <SocialIconsBlock />
+            <ContactBlock />
+            <MessageBlock />
+          </div>
+        )
+      default:
+        return (
+          <>
+            <SocialIconsBlock />
+            <ContactBlock />
+          </>
+        )
+    }
+  }
+
+  return (
+    <div className={cn(
+      "text-white py-2 text-sm transition-all duration-300",
+      getBgClass(),
+      hideTopBar && "h-0 py-0 overflow-hidden opacity-0"
+    )}>
+      <div className={cn(
+        "flex items-center",
+        layout === 'centered' ? "justify-center" : "justify-between",
+        useContainer ? "container mx-auto px-4" : "px-6 md:px-12"
+      )}>
+        {renderContent()}
+      </div>
+    </div>
+  )
+}
 
 interface HeaderProps {
   data: HeaderType | null
@@ -23,9 +203,23 @@ export function Header({ data, logo, businessInfo, showCart = false }: HeaderPro
   const [mobileOpenSubmenu, setMobileOpenSubmenu] = useState<number | null>(null)
   const [openDropdown, setOpenDropdown] = useState<number | null>(null)
   const [focusedSubmenuIndex, setFocusedSubmenuIndex] = useState<number>(-1)
+  const [scrolled, setScrolled] = useState(false)
   const dropdownRefs = useRef<(HTMLDivElement | null)[]>([])
   const submenuRefs = useRef<(HTMLAnchorElement | null)[]>([])
   const { user, status } = useAuth()
+
+  // Scroll detection for header state changes
+  useEffect(() => {
+    const handleScroll = () => {
+      const isScrolled = window.scrollY > 50
+      setScrolled(isScrolled)
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    handleScroll() // Check initial state
+
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -137,7 +331,16 @@ export function Header({ data, logo, businessInfo, showCart = false }: HeaderPro
   const variant = data?.variant || 'standard'
   const navItems = data?.navItems || []
   const ctaButton = data?.ctaButton
-  const showTopBar = variant === 'with-topbar'
+  // TopBar shows when enabled via checkbox in admin
+  const showTopBar = data?.showTopBar === true && !!data?.topBar
+  const useContainer = variant !== 'full-width'
+  const isTransparentSetting = data?.isTransparent || false
+
+  // Header state based on transparency and scroll
+  // TopBar always hides on scroll
+  // Header becomes solid on scroll when transparent setting is enabled
+  const isHeaderTransparent = isTransparentSetting && !scrolled
+  const hideTopBar = scrolled // TopBar hides on scroll in all cases
 
   const getItemHref = (item: NavItem | SubmenuItem): string => {
     if (item.type === 'reference' && item.reference) {
@@ -150,54 +353,33 @@ export function Header({ data, logo, businessInfo, showCart = false }: HeaderPro
 
   return (
     <header className={cn(
-      'w-full',
-      data?.sticky && 'sticky top-0 z-50'
+      'w-full transition-all duration-300',
+      data?.sticky && 'sticky top-0 z-50',
+      // When transparent and not scrolled, position absolute to overlay content
+      isHeaderTransparent && 'absolute left-0 right-0'
     )}>
-      {/* Top Bar */}
+      {/* Top Bar - fully configurable from admin */}
       {showTopBar && data?.topBar && (
-        <div className="bg-theme-dark text-white py-2 text-sm">
-          <div className="container mx-auto px-4 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              {data.topBar.showPhone && businessInfo?.phone && (
-                <a href={`tel:${businessInfo.phone}`} className="hover:opacity-80">
-                  {businessInfo.phone}
-                </a>
-              )}
-              {data.topBar.showEmail && businessInfo?.email && (
-                <a href={`mailto:${businessInfo.email}`} className="hover:opacity-80 hidden md:block">
-                  {businessInfo.email}
-                </a>
-              )}
-            </div>
-            <div className="flex items-center gap-4">
-              {data.topBar.customText && (
-                <span>{data.topBar.customText}</span>
-              )}
-              {data.topBar.showSocial && businessInfo?.social && (
-                <div className="flex items-center gap-2">
-                  {businessInfo.social.facebook && (
-                    <a href={businessInfo.social.facebook} target="_blank" rel="noopener noreferrer">
-                      FB
-                    </a>
-                  )}
-                  {businessInfo.social.instagram && (
-                    <a href={businessInfo.social.instagram} target="_blank" rel="noopener noreferrer">
-                      IG
-                    </a>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+        <TopBarContent
+          topBar={data.topBar}
+          businessInfo={businessInfo}
+          isHeaderTransparent={isHeaderTransparent}
+          hideTopBar={hideTopBar}
+          useContainer={useContainer}
+        />
       )}
 
       {/* Main Header */}
       <div className={cn(
-        'bg-theme-surface border-b border-theme-border',
-        variant === 'transparent' && 'bg-transparent border-transparent absolute w-full'
+        'transition-all duration-300',
+        // Background based on transparent state
+        isHeaderTransparent
+          ? 'bg-transparent border-transparent'
+          : 'bg-theme-surface border-b border-theme-border shadow-sm'
       )}>
-        <div className="container mx-auto px-4">
+        <div className={cn(
+          useContainer ? 'container mx-auto px-4' : 'px-6 md:px-12'
+        )}>
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
             <Link href="/" className="flex-shrink-0 flex items-center">
@@ -205,7 +387,7 @@ export function Header({ data, logo, businessInfo, showCart = false }: HeaderPro
             </Link>
 
             {/* Navigation - Desktop */}
-            <nav className="hidden md:flex items-center gap-1">
+            <nav className="hidden md:flex flex-1 items-center justify-end gap-1">
               {navItems.map((item: NavItem, index: number) => {
                 const hasSubmenu = item.hasSubmenu && (item.submenu?.length ?? 0) > 0
 
@@ -229,7 +411,7 @@ export function Header({ data, logo, businessInfo, showCart = false }: HeaderPro
                         type="button"
                         className={cn(
                           "flex items-center gap-1 px-3 py-2 rounded-lg transition-colors font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary focus-visible:ring-offset-2",
-                          variant === 'transparent'
+                          isHeaderTransparent
                             ? "text-white hover:text-white/80 hover:bg-white/10"
                             : "text-theme-text hover:text-theme-primary hover:bg-gray-50"
                         )}
@@ -299,7 +481,7 @@ export function Header({ data, logo, businessInfo, showCart = false }: HeaderPro
                     href={getItemHref(item)}
                     className={cn(
                       "px-3 py-2 rounded-lg transition-colors font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary focus-visible:ring-offset-2",
-                      variant === 'transparent'
+                      isHeaderTransparent
                         ? "text-white hover:text-white/80 hover:bg-white/10"
                         : "text-theme-text hover:text-theme-primary hover:bg-gray-50"
                     )}
@@ -319,7 +501,7 @@ export function Header({ data, logo, businessInfo, showCart = false }: HeaderPro
                   href={status === 'loggedIn' ? '/cont' : '/cont/login'}
                   className={cn(
                     "hidden sm:flex items-center gap-2 p-2 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary focus-visible:ring-offset-2",
-                    variant === 'transparent'
+                    isHeaderTransparent
                       ? "text-white hover:bg-white/10"
                       : "text-theme-text hover:bg-gray-100"
                   )}
@@ -360,7 +542,7 @@ export function Header({ data, logo, businessInfo, showCart = false }: HeaderPro
               <button
                 className={cn(
                   "md:hidden p-2 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary focus-visible:ring-offset-2",
-                  variant === 'transparent'
+                  isHeaderTransparent
                     ? "text-white hover:bg-white/10"
                     : "hover:bg-gray-100"
                 )}

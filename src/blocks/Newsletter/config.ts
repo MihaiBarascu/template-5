@@ -1,4 +1,5 @@
 import type { Block } from 'payload'
+import { patternField } from '@/fields/patternField'
 
 export const NewsletterBlock: Block = {
   slug: 'newsletter',
@@ -16,10 +17,14 @@ export const NewsletterBlock: Block = {
         { label: 'Simplu', value: 'simple' },
         { label: 'Cu imagine de fundal', value: 'with-image' },
         { label: 'Inchis (dark)', value: 'dark' },
-        { label: 'Cu pattern', value: 'with-pattern' },
+        { label: 'Cu pattern configurabil', value: 'with-pattern' },
         { label: 'Inline (compact)', value: 'inline' },
       ],
     },
+    // Pattern configuration - visible when variant is 'with-pattern'
+    ...patternField({
+      condition: (_, siblingData) => (siblingData as Record<string, unknown>)?.variant === 'with-pattern',
+    }),
     {
       name: 'heading',
       type: 'text',
@@ -70,6 +75,24 @@ export const NewsletterBlock: Block = {
       type: 'checkbox',
       label: 'Afiseaza link politica confidentialitate',
       defaultValue: true,
+    },
+    {
+      name: 'requireConsent',
+      type: 'checkbox',
+      label: 'Necesita acord explicit (checkbox GDPR)',
+      defaultValue: false,
+      admin: {
+        description: 'Afiseaza un checkbox pe care utilizatorul trebuie sa-l bifeze inainte de abonare',
+      },
+    },
+    {
+      name: 'consentText',
+      type: 'text',
+      label: 'Text checkbox acord',
+      defaultValue: 'Da, ma abonez la newsletter',
+      admin: {
+        condition: (_, siblingData) => siblingData?.requireConsent,
+      },
     },
     {
       name: 'benefits',
