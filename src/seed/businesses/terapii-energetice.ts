@@ -9,6 +9,7 @@ import {
   seedFooter,
   seedServiceCategories,
   seedServices,
+  seedTestimonialCategories,
   seedTestimonials,
   seedFAQ,
   seedTeam,
@@ -241,14 +242,57 @@ export async function seedTerapiiEnergetice(payload: Payload) {
   }))
   await seedServices(payload, courseServices)
 
+  // Create testimonial categories (for grouping testimonials by therapy type)
+  console.log('\n📁 Creating testimonial categories...')
+  const testimonialCategoryMap = await seedTestimonialCategories(payload, [
+    { title: 'Facelift Energetic', icon: 'Sparkles', order: 1 },
+    { title: 'Terapia Reiki', icon: 'Heart', order: 2 },
+    { title: 'Eliberarea Tensiunii Interioare', icon: 'Leaf', order: 3 },
+    { title: 'Access Bars', icon: 'Brain', order: 4 },
+    { title: 'Corecție Bioenergetică', icon: 'Zap', order: 5 },
+    { title: 'Terapia Bowen', icon: 'Hand', order: 6 },
+  ])
+
   console.log('\n⭐ Creating testimonials...')
-  await seedTestimonials(payload, terapiiEnergeticeData.testimonials)
+  // Map testimonials with their category IDs based on therapy field
+  const testimonialsWithCategories = terapiiEnergeticeData.testimonials.map((testimonial) => {
+    // Find category ID based on therapy name
+    let categoryId: string | undefined
+    if (testimonial.therapy) {
+      // Try exact match first
+      categoryId = testimonialCategoryMap.get(testimonial.therapy)
+      // If no exact match, try partial match
+      if (!categoryId) {
+        for (const [categoryName, id] of testimonialCategoryMap.entries()) {
+          if (testimonial.therapy.toLowerCase().includes(categoryName.toLowerCase()) ||
+              categoryName.toLowerCase().includes(testimonial.therapy.toLowerCase())) {
+            categoryId = id
+            break
+          }
+        }
+      }
+    }
+    return {
+      name: testimonial.name,
+      role: testimonial.role,
+      content: testimonial.content,
+      rating: testimonial.rating,
+      featured: testimonial.featured,
+      categoryId,
+    }
+  })
+  await seedTestimonials(payload, testimonialsWithCategories)
 
   console.log('\n❓ Creating FAQ...')
   await seedFAQ(payload, terapiiEnergeticeData.faq)
 
   console.log('\n👥 Creating team...')
-  await seedTeam(payload, terapiiEnergeticeData.team)
+  // Map team members with their images
+  const teamWithImages = terapiiEnergeticeData.team.map((member, index) => ({
+    ...member,
+    imageId: getImageId(terapiiEnergeticeImages.team[index]?.filename),
+  }))
+  await seedTeam(payload, teamWithImages)
 
   // Create homepage with PLASTURI DESIGN - VideoHero + ProcessSteps + Timeline
   console.log('\n🏠 Creating homepage with PLASTURI DESIGN...')
@@ -291,19 +335,45 @@ async function createPlasturiHomepage(
 ) {
   // Layout array with all Plasturi design blocks
   const plasturiLayout = [
-    // 1. VIDEO HERO SECTION - Fullscreen with overlay (Local MP4)
+    // 1. VIDEO HERO SECTION - Carousel layout pentru Terapii + Cursuri
     {
       blockType: 'video-hero' as const,
+      variant: 'carousel', // Carousel Hero pentru slideshow content
       videoSource: 'url',
       videoUrl: '/videos/hero-home.mp4', // Local meditation video from Mixkit
-      overlayColor: 'rgba(26, 26, 46, 0.6)', // Navy overlay
-      overlayOpacity: 60,
-      headline: terapiiEnergeticeData.hero.headline,
-      subheadline: terapiiEnergeticeData.hero.subheadline,
-      ctaButtons: [
-        { label: 'Programează o Ședință', link: '/contact', variant: 'primary', pillShape: true },
-        { label: 'Descoperă Terapiile', link: '/terapii', variant: 'secondary', pillShape: true },
+      overlayColor: 'rgba(26, 26, 46, 0.7)', // Navy overlay (mai intens pentru lizibilitate)
+      overlayOpacity: 70,
+      carouselSlides: [
+        {
+          headline: 'Cursuri Terapii Energetice',
+          subheadline: 'Descopera Cursurile sustinute de Monica Batir! Suna Acum pentru Rezervare!',
+          ctaButtons: [
+            {
+              label: 'Contacteaza-ne',
+              link: '/contact',
+              variant: 'primary',
+              pillShape: true,
+            },
+          ],
+        },
+        {
+          headline: 'Descopera Terapiile Energetice',
+          subheadline: 'Descopera Terapiile Energetice aplicate de Monica Batir! Suna Acum pentru Programare!',
+          ctaButtons: [
+            {
+              label: 'Mai Multe Informatii',
+              link: '/terapii',
+              variant: 'secondary',
+              pillShape: true,
+            },
+          ],
+        },
       ],
+      // Carousel settings
+      carouselAutoplay: true,
+      carouselSpeed: 6000, // ms între slide-uri
+      carouselShowNavigation: true, // ← → Săgeți stânga/dreapta
+      carouselShowDots: false, // ● ○ ○ Indicatori jos (dezactivat)
       textAlignment: 'left',
       height: 'fullscreen',
       showScrollIndicator: true,
@@ -326,6 +396,7 @@ async function createPlasturiHomepage(
       source: 'collection',
       onlyFeatured: true,
       backgroundColor: 'default',
+      detailBasePath: '/echipa',
     },
 
     // 3. PROCESS STEPS - Zigzag layout (Plasturi signature)
@@ -973,7 +1044,7 @@ async function createAdditionalPages(
     },
   })
 
-  // Testimoniale page
+  // Testimoniale page - Grupate pe categorii (ca pe site-ul original)
   await payload.create({
     collection: 'pages',
     data: {
@@ -994,10 +1065,14 @@ async function createAdditionalPages(
       layout: [
         {
           blockType: 'testimonials' as const,
-          variant: 'masonry',
+          variant: 'grid', // Grid variant works best with groupByCategory
+          heading: 'Ce spun clienții noștri',
           source: 'collection',
-          limit: 50,
+          limit: 100, // Higher limit to get all testimonials for grouping
+          onlyFeatured: false, // Afișează TOATE testimonialele, nu doar cele featured
           showRating: true,
+          showAvatar: true,
+          groupByCategory: true, // Grupează testimonialele pe categorii
           backgroundColor: 'default',
         },
       ],
@@ -1050,6 +1125,7 @@ async function createAdditionalPages(
           source: 'collection',
           onlyFeatured: true,
           backgroundColor: 'default',
+          detailBasePath: '/echipa',
         },
         // Stats
         {

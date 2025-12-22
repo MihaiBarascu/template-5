@@ -163,7 +163,7 @@ export function ScheduleTableBlock({
                 onClick={() => setSelectedCategory('all')}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                   selectedCategory === 'all'
-                    ? 'bg-theme-primary text-white'
+                    ? 'bg-theme-primary text-theme-text-on-primary'
                     : 'bg-theme-light text-theme-text hover:bg-theme-primary/10'
                 }`}
               >
@@ -175,7 +175,7 @@ export function ScheduleTableBlock({
                   onClick={() => setSelectedCategory(cat || 'all')}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-colors capitalize ${
                     selectedCategory === cat
-                      ? 'bg-theme-primary text-white'
+                      ? 'bg-theme-primary text-theme-text-on-primary'
                       : 'bg-theme-light text-theme-text hover:bg-theme-primary/10'
                   }`}
                 >
@@ -195,7 +195,7 @@ export function ScheduleTableBlock({
                   <h3 className={`text-xl font-bold mb-4 ${highlightToday && today === day.key ? 'text-theme-primary' : ''}`}>
                     {day.label}
                     {highlightToday && today === day.key && (
-                      <span className="ml-2 text-sm font-normal bg-theme-primary text-white px-2 py-1 rounded">{todayBadgeLabel}</span>
+                      <span className="ml-2 text-sm font-normal bg-theme-primary text-theme-text-on-primary px-2 py-1 rounded">{todayBadgeLabel}</span>
                     )}
                   </h3>
                   <div className="space-y-3">
@@ -291,7 +291,7 @@ export function ScheduleTableBlock({
                   className={`
                     px-4 py-2 rounded-full font-medium transition-all duration-200
                     ${isSelected
-                      ? 'bg-theme-primary text-white shadow-lg scale-105'
+                      ? 'bg-theme-primary text-theme-text-on-primary shadow-lg scale-105'
                       : isToday
                         ? 'bg-theme-primary/20 text-theme-primary hover:bg-theme-primary/30'
                         : 'bg-theme-light text-theme-text hover:bg-theme-primary/10'
@@ -310,7 +310,7 @@ export function ScheduleTableBlock({
 
           {/* Selected day content */}
           <div className="bg-white rounded-2xl shadow-[var(--shadow-card)] overflow-hidden max-w-2xl mx-auto">
-            <div className="bg-theme-primary text-white px-6 py-4">
+            <div className="bg-theme-primary text-theme-text-on-primary px-6 py-4">
               <h3 className="heading-h3 font-bold text-center">
                 {selectedDay?.label}
                 {highlightToday && today === selectedDay?.key && (
@@ -408,7 +408,7 @@ export function ScheduleTableBlock({
               onClick={() => setSelectedCategory('all')}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                 selectedCategory === 'all'
-                  ? 'bg-theme-primary text-white'
+                  ? 'bg-theme-primary text-theme-text-on-primary'
                   : 'bg-theme-light text-theme-text hover:bg-theme-primary/10'
               }`}
             >
@@ -420,7 +420,7 @@ export function ScheduleTableBlock({
                 onClick={() => setSelectedCategory(cat || 'all')}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors capitalize ${
                   selectedCategory === cat
-                    ? 'bg-theme-primary text-white'
+                    ? 'bg-theme-primary text-theme-text-on-primary'
                     : 'bg-theme-light text-theme-text hover:bg-theme-primary/10'
                 }`}
               >
@@ -446,7 +446,7 @@ export function ScheduleTableBlock({
                       onClick={() => setSelectedDayIndex(isSelected ? null : dayIndex)}
                       className={`p-3 text-center cursor-pointer transition-all duration-200 ${
                         isSelected
-                          ? 'bg-theme-primary text-white'
+                          ? 'bg-theme-primary text-theme-text-on-primary'
                           : isToday
                             ? 'bg-theme-primary/30 text-theme-primary hover:bg-theme-primary/40'
                             : 'bg-theme-light hover:bg-theme-primary/10'

@@ -196,7 +196,7 @@ export function CookieModal({
                           {category.title}
                         </h3>
                         {category.required && (
-                          <span className="px-2 py-0.5 text-xs font-medium bg-theme-primary text-white rounded-full">
+                          <span className="px-2 py-0.5 text-xs font-medium bg-theme-primary text-theme-text-on-primary rounded-full">
                             Obligatoriu
                           </span>
                         )}
@@ -244,7 +244,7 @@ export function CookieModal({
             onClick={handleSave}
             className={cn(
               'w-full px-6 py-3 text-base font-semibold',
-              'bg-theme-primary text-white',
+              'bg-theme-primary text-theme-text-on-primary',
               'rounded-[var(--radius-button)]',
               'hover:bg-theme-secondary',
               'transition-all duration-200',

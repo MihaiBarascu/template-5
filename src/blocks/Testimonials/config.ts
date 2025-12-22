@@ -70,6 +70,27 @@ export const TestimonialsBlock: Block = {
         condition: (_, siblingData) => siblingData?.source === 'collection',
       },
     },
+    {
+      name: 'filterByCategory',
+      type: 'relationship',
+      relationTo: 'testimonial-categories',
+      hasMany: true,
+      label: 'Filtrează după categorie',
+      admin: {
+        description: 'Selectează una sau mai multe categorii pentru a filtra testimonialele',
+        condition: (_, siblingData) => siblingData?.source === 'collection',
+      },
+    },
+    {
+      name: 'groupByCategory',
+      type: 'checkbox',
+      label: 'Grupează pe categorii',
+      defaultValue: false,
+      admin: {
+        description: 'Afișează testimonialele grupate pe secțiuni pentru fiecare categorie',
+        condition: (_, siblingData) => siblingData?.source === 'collection',
+      },
+    },
     showRatingField,
     showAvatarField,
     {

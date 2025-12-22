@@ -325,7 +325,7 @@ export function PortfolioBlock({
               href={ctaButton.link}
               className={cn(
                 'inline-flex items-center gap-2 px-8 py-3',
-                'bg-theme-primary text-white font-semibold',
+                'bg-theme-primary text-theme-text-on-primary font-semibold',
                 'rounded-[var(--radius-button)] transition-all duration-300',
                 'hover:bg-theme-secondary hover:scale-105'
               )}

@@ -13,6 +13,138 @@ tags: [lessons, bugs, fixes, tips]
 
 ---
 
+## PLAYWRIGHT MCP ADMIN TESTING (2025-12-21) - NOU!
+
+### Ce am învățat despre testarea admin-ului cu Playwright MCP
+
+| Lecție | Detalii | Utilitate viitoare |
+|--------|---------|-------------------|
+| **browser_snapshot vs screenshot** | `browser_snapshot` returnează accessibility tree (YAML), mai util pentru automatizare decât screenshots | Folosește snapshot pentru navigare, screenshot pentru verificare vizuală |
+| **Refs sunt dinamice** | Referințele elementelor (ref=e1234) se schimbă la fiecare snapshot - trebuie luat snapshot fresh înainte de click | Nu hardcoda refs, ia snapshot înainte de fiecare interacțiune |
+| **Timeout la pagini mari** | Pagini cu multe blocuri (Home) pot genera output > 100k caractere | Folosește Grep pe fișierul salvat sau scroll incremental |
+| **Erori 500 non-blocking** | Erori 500 pentru thumbnail optimization (Sharp) nu afectează funcționalitatea | Ignoră erorile de optimizare imagine în teste |
+| **CRUD complet testat** | Create, Read, Update funcționează pentru Pages, Services, Globals | Testele CRUD pot fi replicate pentru orice collection |
+
+### Pattern de testare Playwright MCP
+
+```
+1. browser_navigate -> URL
+2. browser_snapshot -> verifică structura
+3. browser_click -> element ref
+4. browser_type -> completează câmpuri
+5. browser_click -> Save
+6. browser_snapshot -> verifică succes (toast, status)
+```
+
+### Collections testate și funcționale
+
+| Collection | CRUD | Observații |
+|------------|------|------------|
+| Pages | ✅ | Create, Publish, Edit OK |
+| Services | ✅ | Edit price, categories OK |
+| Media | ✅ | Gallery, upload form OK |
+| Site Theme | ✅ | 14 variante, switch OK |
+| Header | ✅ | Nav items, TopBar config |
+| Footer | ✅ | 4 coloane, badges ANPC |
+
+> Vezi [QA-ADMIN-COMPLETE-REPORT.md](../QA-ADMIN-COMPLETE-REPORT.md) pentru raport complet
+
+---
+
+## PAYLOAD MULTITENANT RESEARCH (2025-12-21) - NOU!
+
+### Decizie: ❌ NU migra la Payload Multitenant
+
+| Factor | Evaluare | Motiv |
+|--------|----------|-------|
+| **Schema diversity** | ❌ Incompatibil | 11 business types cu scheme diferite (frizerie vs avocat vs magazin) |
+| **Field flexibility** | ❌ Rigid | Multitenant cere schema identică pentru toți tenants |
+| **Collection variety** | ❌ Problematic | Frizerie: Appointments, Avocat: Cases, Magazin: Products |
+| **Deployment** | ✅ Alternativă | Automatizare deploy (Docker/Coolify) mai potrivită |
+
+### Alternativa recomandată: Deployment Automation
+
+```
+Template-5 (bază) -> Fork per client -> Deploy independent
+                          |
+                          v
+                   Personalizare seed + env
+```
+
+**Beneficii:**
+- Fiecare client poate avea schema diferită
+- Update-uri se pot propaga selectiv
+- Izolare completă a datelor
+- Flexibilitate maximă
+
+---
+
+## THEME VARIANTS SYSTEM (2025-12-21) - NOU!
+
+### Cum să adaugi o nouă variantă de temă
+
+**Fișiere de modificat:**
+1. `src/theme/variants.ts` - definiție completă variant
+2. `src/globals/SiteTheme.ts` - opțiune în select
+
+**Structura unei variante:**
+
+```typescript
+'purple-wellness': {
+  colors: {
+    primary: '#AD50F2',      // Culoare principală
+    secondary: '#27BECF',    // Accent secundar
+    accent: '#0088CB',       // Highlight
+    dark: '#1A1A2E',
+    light: '#EEEEEE',
+    surface: '#ffffff',
+    text: '#000000',
+    textLight: '#4F4F4F',
+    border: '#E0E0E0',
+    textOnPrimary: '#ffffff',  // Contrast colors
+    textOnSecondary: '#ffffff',
+    // ... etc
+  },
+  fonts: {
+    heading: 'Prompt',       // Font titluri
+    body: 'Open_Sans',       // Font text
+  },
+  borderRadius: 'none',      // Stil colțuri
+  shadows: 'none',           // Umbre (flat design = none)
+}
+```
+
+### Variante disponibile (14+1 purple-wellness)
+
+| # | Varianta | Stil | Use Case |
+|---|----------|------|----------|
+| 1 | dark-gold | Premium, elegant | Barbershop, restaurant |
+| 2 | modern-red | Bold, energic | Fitness, auto |
+| 3 | classic-blue | Profesional | Avocat, medical |
+| 4 | fresh-green | Natural, eco | Wellness, bio |
+| 5 | minimal-black | Clean, modern | Tech, agency |
+| 14 | revital-harmony | Gold/Navy | Terapii energetice |
+| 15 | purple-wellness | Mov/Cyan flat | Plasturi, wellness |
+
+---
+
+## DOCUMENTATIE DESIGN (2025-12-21) - NOU!
+
+**Analiza Completa UI Components:**
+- [PLASTURI-UI-COMPONENTS-ANALYSIS.md](../PLASTURI-UI-COMPONENTS-ANALYSIS.md) - Analiza senior-level a tuturor componentelor de pe plasturifototerapeutici.ro
+- [PLASTURI-DESIGN-SYSTEM.md](../PLASTURI-DESIGN-SYSTEM.md) - Design tokens si widgeturi identificate
+- [PLASTURI-WIDGETS-COMPARISON.md](../PLASTURI-WIDGETS-COMPARISON.md) - Mapare completa Plasturi → Template-5
+
+**Structura Analizei:**
+- HTML structure pentru fiecare componenta
+- CSS techniques folosite (flat design, pill buttons, zero shadows)
+- JavaScript interactions (carousel, accordion, video players)
+- Accessibility considerations (ARIA, keyboard nav, focus states)
+- Performance optimizations (lazy loading, Intersection Observer)
+- Template-5 implementation mapping (100% implementat)
+
+---
+
 ## ECOMMERCE CONTROL (2025-12-21) - NOU!
 
 | Data | Problema | Solutie |

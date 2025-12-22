@@ -116,7 +116,7 @@ export function CartModal() {
               <Link
                 href="/produse"
                 onClick={() => setIsOpen(false)}
-                className="mt-4 px-6 py-3 bg-theme-primary text-white rounded-[var(--radius-button)] hover:bg-theme-primary-dark transition-colors"
+                className="mt-4 px-6 py-3 bg-theme-primary text-theme-text-on-primary rounded-[var(--radius-button)] hover:bg-theme-primary-dark transition-colors"
               >
                 Vezi produsele
               </Link>
@@ -231,7 +231,7 @@ export function CartModal() {
                 <Link
                   href="/checkout"
                   onClick={() => setIsOpen(false)}
-                  className="block w-full py-4 text-center bg-theme-primary text-white font-medium rounded-[var(--radius-button)] hover:bg-theme-primary-dark transition-colors"
+                  className="block w-full py-4 text-center bg-theme-primary text-theme-text-on-primary font-medium rounded-[var(--radius-button)] hover:bg-theme-primary-dark transition-colors"
                 >
                   Finalizeaza comanda
                 </Link>

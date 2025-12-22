@@ -168,7 +168,7 @@ export function LatestPostsBlock({
               imgClassName="object-cover transition-transform duration-500 group-hover:scale-105"
             />
             {showCategory && category && (
-              <span className="absolute top-4 left-4 px-3 py-1 bg-theme-primary text-white text-xs font-medium rounded-full">
+              <span className="absolute top-4 left-4 px-3 py-1 bg-theme-primary text-theme-text-on-primary text-xs font-medium rounded-full">
                 {category.title}
               </span>
             )}
@@ -410,7 +410,7 @@ export function LatestPostsBlock({
                 'inline-flex items-center gap-2 px-6 py-3 rounded-[var(--radius-button)] font-medium transition-colors',
                 isDark
                   ? 'bg-white text-theme-dark hover:bg-white/90'
-                  : 'bg-theme-primary text-white hover:bg-theme-secondary',
+                  : 'bg-theme-primary text-theme-text-on-primary hover:bg-theme-secondary',
               )}
             >
               {ctaButton.label || 'Vezi toate articolele'}

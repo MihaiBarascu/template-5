@@ -311,7 +311,7 @@ export function GalleryBlock({
                   'px-5 py-2.5 rounded-full text-sm font-medium',
                   'transition-all duration-300',
                   activeFilter === category
-                    ? 'bg-theme-primary text-white shadow-lg scale-105'
+                    ? 'bg-theme-primary text-theme-text-on-primary shadow-lg scale-105'
                     : cn(
                         'hover:scale-105',
                         isDark
@@ -374,7 +374,7 @@ export function GalleryBlock({
           <div className="text-center mt-8">
             <button className={cn(
               'inline-flex items-center gap-2 px-8 py-3',
-              'bg-theme-primary text-white font-semibold',
+              'bg-theme-primary text-theme-text-on-primary font-semibold',
               'rounded-[var(--radius-button)] transition-all duration-300',
               'hover:bg-theme-secondary hover:scale-105'
             )}>

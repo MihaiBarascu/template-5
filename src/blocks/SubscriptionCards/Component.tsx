@@ -57,7 +57,7 @@ export function SubscriptionCardsBlock({
       case 'border':
         return 'border-2 border-theme-primary';
       case 'background':
-        return 'bg-theme-primary text-white';
+        return 'bg-theme-primary text-theme-text-on-primary';
       case 'elevated':
         return 'scale-105 shadow-xl z-10';
       case 'badge':
@@ -277,7 +277,7 @@ export function SubscriptionCardsBlock({
                 {isHighlighted &&
                   highlightStyle === 'badge' &&
                   subscription.highlightLabel && (
-                    <div className="bg-theme-primary text-white text-center py-2 text-sm font-bold">
+                    <div className="bg-theme-primary text-theme-text-on-primary text-center py-2 text-sm font-bold">
                       {subscription.highlightLabel}
                     </div>
                   )}

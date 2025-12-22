@@ -157,7 +157,7 @@ export function FAQBlock({
               >
                 <div className={cn(
                   'w-10 h-10 rounded-full flex items-center justify-center font-bold flex-shrink-0',
-                  isDark ? 'bg-white/10 text-white' : 'bg-theme-primary text-white'
+                  isDark ? 'bg-white/10 text-white' : 'bg-theme-primary text-theme-text-on-primary'
                 )}>
                   {index + 1}
                 </div>

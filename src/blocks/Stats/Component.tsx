@@ -90,8 +90,9 @@ export function StatsBlock({
   animated = true,
   backgroundColor = 'primary',
 }: StatsBlockProps) {
-  const bgClass = getBgClasses(backgroundColor) || 'bg-theme-primary text-white'
-  const isDark = isDarkBackground(backgroundColor)
+  const bgClass = getBgClasses(backgroundColor) || 'bg-theme-primary text-theme-text-on-primary'
+  const isDark = backgroundColor === 'dark'
+  const isPrimary = backgroundColor === 'primary'
 
   if (stats.length === 0) {
     return null
@@ -124,7 +125,10 @@ export function StatsBlock({
                 <div className="text-4xl md:text-5xl font-bold mb-2">
                   {animated ? <AnimatedNumber value={stat.value} suffix={stat.suffix} /> : stat.value}
                 </div>
-                <div className={cn('text-sm uppercase tracking-wide', isDark ? 'text-white/80' : 'text-theme-text-light')}>
+                <div className={cn(
+                  'text-sm uppercase tracking-wide',
+                  isDark ? 'text-theme-text-on-dark/80' : isPrimary ? 'text-theme-text-on-primary/80' : 'text-theme-text-light'
+                )}>
                   {stat.label}
                 </div>
               </div>
@@ -138,7 +142,7 @@ export function StatsBlock({
                 className={cn(
                   'text-center p-6 rounded-[var(--radius-card)]',
                   variant === 'with-icons' && 'flex flex-col items-center',
-                  backgroundColor === 'primary' && 'bg-white/10',
+                  backgroundColor === 'primary' && 'bg-theme-text-on-primary/10',
                   backgroundColor === 'dark' && 'card-gradient-subtle-dark',
                   backgroundColor === 'light' && 'card-gradient-subtle shadow-sm border border-theme-border',
                   backgroundColor === 'default' && 'card-gradient-subtle'
@@ -147,7 +151,10 @@ export function StatsBlock({
                 <div className="text-4xl md:text-5xl font-bold mb-2">
                   {animated ? <AnimatedNumber value={stat.value} suffix={stat.suffix} /> : stat.value}
                 </div>
-                <div className={cn('text-sm uppercase tracking-wide', isDark ? 'text-white/80' : 'text-theme-text-light')}>
+                <div className={cn(
+                  'text-sm uppercase tracking-wide',
+                  isDark ? 'text-theme-text-on-dark/80' : isPrimary ? 'text-theme-text-on-primary/80' : 'text-theme-text-light'
+                )}>
                   {stat.label}
                 </div>
               </div>

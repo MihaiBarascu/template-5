@@ -14,8 +14,8 @@ export function getBgClasses(backgroundColor?: BackgroundColor): string {
     transparent: '',
     default: 'bg-theme-surface',
     light: 'bg-theme-light',
-    dark: 'bg-theme-dark text-white',
-    primary: 'bg-theme-primary text-white',
+    dark: 'bg-theme-dark text-theme-text-on-dark',
+    primary: 'bg-theme-primary text-theme-text-on-primary',
   }
   return bgMap[backgroundColor || 'transparent'] || ''
 }
@@ -32,9 +32,9 @@ export function isDarkBackground(backgroundColor?: BackgroundColor): boolean {
  */
 export function getTextColor(isDark: boolean, variant: 'primary' | 'muted' | 'heading' = 'primary'): string {
   const colorMap = {
-    primary: isDark ? 'text-white' : 'text-theme-text',
-    muted: isDark ? 'text-white/70' : 'text-theme-text-muted',
-    heading: isDark ? 'text-white' : 'text-theme-text',
+    primary: isDark ? 'text-theme-text-on-dark' : 'text-theme-text',
+    muted: isDark ? 'text-theme-text-on-dark/70' : 'text-theme-text-muted',
+    heading: isDark ? 'text-theme-text-on-dark' : 'text-theme-text',
   }
   return colorMap[variant]
 }

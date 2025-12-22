@@ -177,7 +177,7 @@ function SliderComparison({
         <div className="absolute px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-black/70 text-white backdrop-blur-sm top-4 left-4">
           Inainte
         </div>
-        <div className="absolute px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-theme-primary text-white backdrop-blur-sm top-4 right-4">
+        <div className="absolute px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-theme-primary text-theme-text-on-primary backdrop-blur-sm top-4 right-4">
           Dupa
         </div>
 
@@ -239,7 +239,7 @@ function GridComparison({
             sizes="(max-width: 768px) 50vw, 25vw"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-          <div className="absolute bottom-4 left-4 bg-theme-primary text-white text-sm font-medium px-3 py-1 rounded-full">
+          <div className="absolute bottom-4 left-4 bg-theme-primary text-theme-text-on-primary text-sm font-medium px-3 py-1 rounded-full">
             Dupa
           </div>
         </div>

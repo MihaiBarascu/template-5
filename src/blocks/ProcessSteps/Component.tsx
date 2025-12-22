@@ -242,7 +242,7 @@ export function ProcessStepsBlock({
             )}
           >
             {showNumbers && (
-              <span className="absolute -top-3 -left-3 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold bg-theme-primary text-white">
+              <span className="absolute -top-3 -left-3 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold bg-theme-primary text-theme-text-on-primary">
                 {index + 1}
               </span>
             )}
@@ -408,7 +408,7 @@ export function ProcessStepsBlock({
                   ) : showNumbers && (
                     <span className={cn(
                       'inline-block px-2.5 py-0.5 rounded-full text-xs font-bold',
-                      'bg-theme-primary text-white'
+                      'bg-theme-primary text-theme-text-on-primary'
                     )}>
                       {index + 1}
                     </span>
@@ -496,7 +496,7 @@ export function ProcessStepsBlock({
           <div className="mt-12 md:mt-16 text-center">
             <Link
               href={ctaButton.link}
-              className="inline-flex items-center justify-center px-8 py-3 rounded-full font-medium transition-all bg-theme-primary text-white hover:bg-theme-primary-dark shadow-lg hover:shadow-xl"
+              className="inline-flex items-center justify-center px-8 py-3 rounded-full font-medium transition-all bg-theme-primary text-theme-text-on-primary hover:bg-theme-primary-dark shadow-lg hover:shadow-xl"
             >
               {ctaButton.label || 'Incepe acum'}
             </Link>

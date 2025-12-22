@@ -165,6 +165,7 @@ export default async function Page({ params }: PageProps) {
           headerData={headerData}
           logoData={logoData}
           businessInfoData={businessInfo}
+          pageHeaderSettings={{ headerTransparency: 'solid' }}
         >
           <ServiceDetail
             service={service}
@@ -197,6 +198,7 @@ export default async function Page({ params }: PageProps) {
           headerData={headerData}
           logoData={logoData}
           businessInfoData={businessInfo}
+          pageHeaderSettings={{ headerTransparency: 'solid' }}
         >
           <TeamDetail
             member={teamMember}
@@ -220,6 +222,7 @@ export default async function Page({ params }: PageProps) {
           headerData={headerData}
           logoData={logoData}
           businessInfoData={businessInfo}
+          pageHeaderSettings={{ headerTransparency: 'solid' }}
         >
           <ServiceDetail
             service={service}
@@ -242,6 +245,7 @@ export default async function Page({ params }: PageProps) {
           headerData={headerData}
           logoData={logoData}
           businessInfoData={businessInfo}
+          pageHeaderSettings={{ headerTransparency: 'solid' }}
         >
           <TeamDetail
             member={teamMember}

@@ -27,7 +27,7 @@ export function CookieButton() {
       className={cn(
         'fixed bottom-6 left-6 z-[90]',
         'p-4 rounded-full',
-        'bg-theme-primary text-white',
+        'bg-theme-primary text-theme-text-on-primary',
         'shadow-lg hover:shadow-xl',
         'hover:scale-110 active:scale-95',
         'transition-all duration-200',

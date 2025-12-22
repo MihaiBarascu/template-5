@@ -148,7 +148,7 @@ async function getTeamMembers(block: BlockParams) {
 }
 
 // Fetch testimonials
-async function getTestimonials(block: BlockParams) {
+async function getTestimonials(block: BlockParams & { filterByCategory?: string | string[] | null }) {
   const payload = await getPayload({ config: configPromise })
 
   const where: Where = {}
@@ -156,13 +156,42 @@ async function getTestimonials(block: BlockParams) {
     where.featured = { equals: true }
   }
 
+  // Filter by testimonial category (can be single ID or array of IDs)
+  if (block.filterByCategory) {
+    const categoryIds = Array.isArray(block.filterByCategory)
+      ? block.filterByCategory
+      : [block.filterByCategory]
+
+    if (categoryIds.length === 1) {
+      where.category = { equals: categoryIds[0] }
+    } else if (categoryIds.length > 1) {
+      where.category = { in: categoryIds }
+    }
+  }
+
   const testimonials = await payload.find({
     collection: 'testimonials',
     where,
     limit: block.limit || 6,
+    sort: 'order',
+    depth: 2,
   })
 
   return testimonials.docs
+}
+
+// Fetch testimonial categories
+async function getTestimonialCategories() {
+  const payload = await getPayload({ config: configPromise })
+
+  const categories = await payload.find({
+    collection: 'testimonial-categories',
+    limit: 50,
+    sort: 'order',
+    depth: 0,
+  })
+
+  return categories.docs
 }
 
 // Fetch FAQs
@@ -524,10 +553,26 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
             }
 
             case 'testimonials': {
+              // Extract filterByCategory - can be array of IDs from relationship field
+              const filterByCategory = (block as { filterByCategory?: string | { id: string }[] | null }).filterByCategory
+              const categoryIds: string[] | undefined = filterByCategory
+                ? Array.isArray(filterByCategory)
+                  ? filterByCategory.map(c => typeof c === 'string' ? c : c.id)
+                  : [filterByCategory as string]
+                : undefined
+
+              const groupByCategory = (block as { groupByCategory?: boolean }).groupByCategory
+
+              // Fetch testimonials with optional category filter
               const testimonials = await getTestimonials({
-                limit: block.limit,
+                limit: groupByCategory ? 100 : block.limit, // Get more if grouping
                 onlyFeatured: block.onlyFeatured,
+                filterByCategory: categoryIds,
               })
+
+              // Fetch categories if grouping is enabled
+              const categories = groupByCategory ? await getTestimonialCategories() : undefined
+
               return (
                 <TestimonialsBlock
                   key={block.id || index}
@@ -539,6 +584,8 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   autoplay={block.autoplay ?? undefined}
                   backgroundColor={block.backgroundColor ?? undefined}
                   testimonials={testimonials}
+                  groupByCategory={groupByCategory}
+                  categories={categories}
                 />
               )
             }
@@ -1400,15 +1447,24 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
               return (
                 <VideoHeroBlock
                   key={block.id || index}
+                  variant={block.variant ?? undefined}
                   videoSource={block.videoSource ?? undefined}
                   videoUrl={block.videoUrl ?? undefined}
                   videoFile={block.videoFile ?? undefined}
                   videoPoster={block.videoPoster ?? undefined}
                   overlayColor={block.overlayColor ?? undefined}
                   overlayOpacity={block.overlayOpacity ?? undefined}
-                  headline={block.headline}
+                  headline={block.headline ?? undefined}
                   subheadline={block.subheadline ?? undefined}
                   ctaButtons={block.ctaButtons ?? undefined}
+                  splitTagline={block.splitTagline ?? undefined}
+                  splitColumns={block.splitColumns ?? undefined}
+                  splitDivider={block.splitDivider ?? undefined}
+                  carouselSlides={block.carouselSlides ?? undefined}
+                  carouselAutoplay={block.carouselAutoplay ?? undefined}
+                  carouselSpeed={block.carouselSpeed ?? undefined}
+                  carouselShowNavigation={block.carouselShowNavigation ?? undefined}
+                  carouselShowDots={block.carouselShowDots ?? undefined}
                   trustBadges={block.trustBadges ?? undefined}
                   trustBadgesPosition={block.trustBadgesPosition ?? undefined}
                   showSocialLinks={block.showSocialLinks ?? undefined}

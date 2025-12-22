@@ -92,7 +92,7 @@ export function PricingKitsBlock({
       case 'limited':
         return 'pricing-badge bg-red-500 text-white'
       case 'recommended':
-        return 'pricing-badge bg-theme-secondary text-white'
+        return 'pricing-badge bg-theme-secondary text-theme-text-on-secondary'
       default:
         return ''
     }
@@ -244,7 +244,7 @@ export function PricingKitsBlock({
                       ? 'btn-gradient shadow-lg hover:shadow-xl'
                       : isDark
                       ? 'bg-white/10 text-white hover:bg-white/20'
-                      : 'bg-theme-primary/10 text-theme-primary hover:bg-theme-primary hover:text-white'
+                      : 'bg-theme-primary/10 text-theme-primary hover:bg-theme-primary hover:text-theme-text-on-primary'
                   )}
                 >
                   {kit.cta.label || 'Comanda'}
@@ -291,7 +291,7 @@ export function PricingKitsBlock({
                   {kit.badge && kit.badge !== 'none' && (
                     <span className={cn(
                       'px-2 py-0.5 rounded text-xs font-medium',
-                      kit.badge === 'popular' ? 'bg-theme-primary text-white' : 'bg-theme-accent text-white'
+                      kit.badge === 'popular' ? 'bg-theme-primary text-theme-text-on-primary' : 'bg-theme-accent text-theme-text-on-accent'
                     )}>
                       {getBadgeText(kit.badge)}
                     </span>
@@ -344,7 +344,7 @@ export function PricingKitsBlock({
                     href={kit.cta.link}
                     className={cn(
                       'inline-flex items-center justify-center px-4 py-2 rounded-full text-sm font-medium transition-all',
-                      'bg-theme-primary text-white hover:bg-theme-primary-dark'
+                      'bg-theme-primary text-theme-text-on-primary hover:bg-theme-primary-dark'
                     )}
                   >
                     {kit.cta.label || 'Comanda'}

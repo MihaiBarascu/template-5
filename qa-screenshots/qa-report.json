@@ -1,0 +1,185 @@
+{
+  "startTime": "2025-12-21T19:57:34.179Z",
+  "tests": [
+    {
+      "name": "Navigate to admin page",
+      "status": "PASS",
+      "timestamp": "2025-12-21T19:57:36.945Z",
+      "responseTime": "2478ms",
+      "notes": "Admin page loaded successfully"
+    },
+    {
+      "name": "Login form elements present",
+      "status": "PASS",
+      "timestamp": "2025-12-21T19:57:36.970Z",
+      "notes": "Email, password inputs and submit button found"
+    },
+    {
+      "name": "Login with credentials",
+      "status": "PASS",
+      "timestamp": "2025-12-21T19:57:40.252Z",
+      "responseTime": "42ms",
+      "notes": "Successfully authenticated and redirected to dashboard"
+    },
+    {
+      "name": "Dashboard loaded",
+      "status": "PASS",
+      "timestamp": "2025-12-21T19:57:40.252Z",
+      "notes": "Current URL: http://localhost:3100/admin"
+    },
+    {
+      "name": "List sidebar collections",
+      "status": "PASS",
+      "timestamp": "2025-12-21T19:57:41.658Z",
+      "notes": "Found 32 collections: Redirects, Forms, Form Submissions, Search Results, Header, Footer, Logo, Informatii Business, Pagini, Media, Intrebari frecvente, Articole, Categorii Blog, Utilizatori, Servicii, Categorii Servicii, Echipa, Portofoliu, Testimoniale, Abonamente, Programari, Comenzi Abonamente, Categorii Produse, Tag-uri Produse, Products, Comenzi, Setari Magazin, Abonati Newsletter, Carts, Transactions, Tema Site, Pagini Sistem"
+    },
+    {
+      "name": "Navigate to Pages collection",
+      "status": "PASS",
+      "timestamp": "2025-12-21T19:57:43.783Z",
+      "notes": "Pages collection loaded"
+    },
+    {
+      "name": "Count pages in collection",
+      "status": "PASS",
+      "timestamp": "2025-12-21T19:57:43.786Z",
+      "notes": "Found approximately 7 pages (or rows in list)"
+    },
+    {
+      "name": "Open page for editing",
+      "status": "PASS",
+      "timestamp": "2025-12-21T19:57:47.452Z",
+      "notes": "Page editor loaded successfully"
+    },
+    {
+      "name": "Verify blocks visible in editor",
+      "status": "PASS",
+      "timestamp": "2025-12-21T19:57:47.460Z",
+      "notes": "Editor loaded with block interface visible"
+    },
+    {
+      "name": "Add new block attempt",
+      "status": "PASS",
+      "timestamp": "2025-12-21T19:58:48.540Z",
+      "notes": "Editor interface visible, add functionality present"
+    },
+    {
+      "name": "Verify save functionality present",
+      "status": "PASS",
+      "timestamp": "2025-12-21T19:58:48.559Z",
+      "notes": "Save button visible and accessible"
+    },
+    {
+      "name": "Navigate to Services collection",
+      "status": "PASS",
+      "timestamp": "2025-12-21T19:58:50.996Z",
+      "notes": "Services collection loaded"
+    },
+    {
+      "name": "Count services in collection",
+      "status": "PASS",
+      "timestamp": "2025-12-21T19:58:51.003Z",
+      "notes": "Found approximately 10 services (or rows in list)"
+    },
+    {
+      "name": "Open service for editing",
+      "status": "PASS",
+      "timestamp": "2025-12-21T19:58:53.435Z",
+      "notes": "Service editor loaded successfully"
+    },
+    {
+      "name": "Verify service fields present",
+      "status": "PASS",
+      "timestamp": "2025-12-21T19:58:53.462Z",
+      "notes": "Service editor loaded with field structure visible"
+    },
+    {
+      "name": "Verify fields are modifiable",
+      "status": "PASS",
+      "timestamp": "2025-12-21T19:58:53.823Z",
+      "notes": "Input fields present and accessible"
+    },
+    {
+      "name": "Verify save functionality for services",
+      "status": "PASS",
+      "timestamp": "2025-12-21T19:58:54.185Z",
+      "notes": "Save button visible and ready"
+    }
+  ],
+  "screenshots": [
+    {
+      "name": "1-before-login",
+      "description": "Login page before authentication",
+      "filename": "1766347056810-1-before-login.png",
+      "timestamp": "2025-12-21T19:57:36.945Z"
+    },
+    {
+      "name": "2-credentials-entered",
+      "description": "Login form with credentials filled",
+      "filename": "1766347058017-2-credentials-entered.png",
+      "timestamp": "2025-12-21T19:57:38.080Z"
+    },
+    {
+      "name": "3-after-login",
+      "description": "Dashboard after successful login",
+      "filename": "1766347060122-3-after-login.png",
+      "timestamp": "2025-12-21T19:57:40.252Z"
+    },
+    {
+      "name": "4-dashboard-sidebar",
+      "description": "Dashboard showing sidebar collections",
+      "filename": "1766347061494-4-dashboard-sidebar.png",
+      "timestamp": "2025-12-21T19:57:41.658Z"
+    },
+    {
+      "name": "5-pages-list",
+      "description": "Pages collection list view",
+      "filename": "1766347063712-5-pages-list.png",
+      "timestamp": "2025-12-21T19:57:43.783Z"
+    },
+    {
+      "name": "6-page-editor",
+      "description": "Page editor view with blocks",
+      "filename": "1766347065859-6-page-editor.png",
+      "timestamp": "2025-12-21T19:57:47.452Z"
+    },
+    {
+      "name": "7-add-block",
+      "description": "After clicking add block button",
+      "filename": "1766347127514-7-add-block.png",
+      "timestamp": "2025-12-21T19:58:48.540Z"
+    },
+    {
+      "name": "8-services-list",
+      "description": "Services collection list view",
+      "filename": "1766347130909-8-services-list.png",
+      "timestamp": "2025-12-21T19:58:50.996Z"
+    },
+    {
+      "name": "9-service-editor",
+      "description": "Service editor with fields visible",
+      "filename": "1766347133094-9-service-editor.png",
+      "timestamp": "2025-12-21T19:58:53.435Z"
+    },
+    {
+      "name": "10-service-fields",
+      "description": "Service editor fields detail",
+      "filename": "1766347133465-10-service-fields.png",
+      "timestamp": "2025-12-21T19:58:53.823Z"
+    },
+    {
+      "name": "11-service-save",
+      "description": "Service editor with save options",
+      "filename": "1766347133833-11-service-save.png",
+      "timestamp": "2025-12-21T19:58:54.185Z"
+    },
+    {
+      "name": "12-final-dashboard",
+      "description": "Final dashboard view after all tests",
+      "filename": "1766347136529-12-final-dashboard.png",
+      "timestamp": "2025-12-21T19:58:56.738Z"
+    }
+  ],
+  "endTime": "2025-12-21T19:58:56.773Z",
+  "duration": 82594
+}

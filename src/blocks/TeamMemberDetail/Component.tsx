@@ -113,7 +113,7 @@ export function TeamMemberDetailBlock({
     )
   }
 
-  const bgClass = getBgClasses(backgroundColor) || 'bg-theme-light'
+  const bgClass = getBgClasses(backgroundColor) || 'bg-theme-surface'
 
   const image = memberData.image as MediaType | null
   const firstName = memberData.name?.split(' ')[0] || ''
@@ -158,7 +158,7 @@ export function TeamMemberDetailBlock({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           {/* Left Column - Image & Quick Info */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl shadow-lg overflow-hidden sticky top-8">
+            <div className="bg-theme-surface border border-theme-border rounded-xl shadow-sm overflow-hidden sticky top-8">
               {image?.url ? (
                 <div className="relative h-96 lg:h-[450px]">
                   <Media
@@ -186,6 +186,13 @@ export function TeamMemberDetailBlock({
                     </p>
                   )}
                 </div>
+
+                {/* Short Bio */}
+                {memberData.bio && (
+                  <p className="text-sm text-theme-text-light text-center leading-relaxed">
+                    {memberData.bio}
+                  </p>
+                )}
 
                 {/* Experience Badge */}
                 {showExperience && experienceYears && (
@@ -233,7 +240,7 @@ export function TeamMemberDetailBlock({
                           href={memberData.social.facebook}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-primary/10 hover:bg-theme-primary hover:text-white transition-all"
+                          className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-primary/10 hover:bg-theme-primary hover:text-theme-text-on-primary transition-all"
                           aria-label="Facebook"
                         >
                           <Facebook className="w-5 h-5" />
@@ -244,7 +251,7 @@ export function TeamMemberDetailBlock({
                           href={memberData.social.instagram}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-primary/10 hover:bg-theme-primary hover:text-white transition-all"
+                          className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-primary/10 hover:bg-theme-primary hover:text-theme-text-on-primary transition-all"
                           aria-label="Instagram"
                         >
                           <Instagram className="w-5 h-5" />
@@ -255,7 +262,7 @@ export function TeamMemberDetailBlock({
                           href={memberData.social.linkedin}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-primary/10 hover:bg-theme-primary hover:text-white transition-all"
+                          className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-primary/10 hover:bg-theme-primary hover:text-theme-text-on-primary transition-all"
                           aria-label="LinkedIn"
                         >
                           <Linkedin className="w-5 h-5" />
@@ -266,7 +273,7 @@ export function TeamMemberDetailBlock({
                           href={memberData.social.twitter}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-primary/10 hover:bg-theme-primary hover:text-white transition-all"
+                          className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-primary/10 hover:bg-theme-primary hover:text-theme-text-on-primary transition-all"
                           aria-label="Twitter/X"
                         >
                           <Twitter className="w-5 h-5" />
@@ -281,31 +288,32 @@ export function TeamMemberDetailBlock({
 
           {/* Right Column - Bio & Details */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Main Bio Section */}
-            <div className="bg-white rounded-xl shadow-lg p-8">
-              {/* Rich Text Content */}
-              {memberData.bio && (
-                <div className="prose prose-lg max-w-none prose-headings:text-theme-dark prose-headings:font-bold prose-p:text-theme-text-light prose-p:leading-relaxed prose-strong:text-theme-dark prose-a:text-theme-primary hover:prose-a:text-theme-primary/80">
-                  <RichText data={memberData.bio} />
+            {/* Main Description Section */}
+            {memberData.description && (
+              <div className="bg-theme-surface border border-theme-border rounded-xl shadow-sm p-8">
+                <div className="prose prose-lg max-w-none prose-headings:text-theme-text prose-headings:font-bold prose-p:text-theme-text-light prose-p:leading-relaxed prose-strong:text-theme-text prose-a:text-theme-primary hover:prose-a:text-theme-primary/80">
+                  <RichText data={memberData.description} />
                 </div>
-              )}
-            </div>
+              </div>
+            )}
 
             {/* Specializations Card */}
             {showSpecializations && memberData.specializations && memberData.specializations.length > 0 && (
-              <div className="bg-white rounded-xl shadow-lg p-8">
+              <div className="bg-theme-surface border border-theme-border rounded-xl shadow-sm p-8">
                 <div className="flex items-center gap-3 mb-6">
-                  <Target className="w-6 h-6 text-theme-primary" />
-                  <h2 className="heading-h2 font-bold text-theme-dark">{l.specializationsTitle}</h2>
+                  <div className="p-2 rounded-lg bg-theme-primary/10">
+                    <Target className="w-5 h-5 text-theme-primary" />
+                  </div>
+                  <h2 className="text-xl font-semibold text-theme-text">{l.specializationsTitle}</h2>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <div className="flex flex-wrap gap-2">
                   {memberData.specializations.map((spec, index) => (
-                    <div
+                    <span
                       key={index}
-                      className="px-4 py-3 bg-gradient-to-r from-theme-primary/10 to-transparent text-theme-dark rounded-lg font-medium border border-theme-primary/20 hover:border-theme-primary/40 transition-colors"
+                      className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-theme-primary/10 text-theme-primary border border-theme-primary/20 hover:bg-theme-primary/20 transition-colors"
                     >
                       {spec.specialization}
-                    </div>
+                    </span>
                   ))}
                 </div>
               </div>
@@ -313,10 +321,12 @@ export function TeamMemberDetailBlock({
 
             {/* Schedule Card */}
             {showSchedule && memberData.schedule && memberData.schedule.length > 0 && (
-              <div className="bg-white rounded-xl shadow-lg p-8">
+              <div className="bg-theme-surface border border-theme-border rounded-xl shadow-sm p-8">
                 <div className="flex items-center gap-3 mb-6">
-                  <Calendar className="w-6 h-6 text-theme-primary" />
-                  <h2 className="heading-h2 font-bold text-theme-dark">{l.scheduleTitle}</h2>
+                  <div className="p-2 rounded-lg bg-theme-primary/10">
+                    <Calendar className="w-5 h-5 text-theme-primary" />
+                  </div>
+                  <h2 className="text-xl font-semibold text-theme-text">{l.scheduleTitle}</h2>
                 </div>
                 <div className="space-y-3">
                   {memberData.schedule.map((item, index) => (
@@ -324,10 +334,10 @@ export function TeamMemberDetailBlock({
                       key={index}
                       className="flex justify-between items-center py-3 border-b border-theme-border last:border-0"
                     >
-                      <span className="font-medium text-theme-dark capitalize">
+                      <span className="font-medium text-theme-text capitalize">
                         {item.day}
                       </span>
-                      <span className="text-theme-primary font-bold">{item.hours}</span>
+                      <span className="text-theme-primary font-semibold">{item.hours}</span>
                     </div>
                   ))}
                 </div>
@@ -335,27 +345,31 @@ export function TeamMemberDetailBlock({
             )}
 
             {/* CTA Section */}
-            {showCTA && (
-              <div className="bg-gradient-to-r from-theme-primary to-theme-primary/90 rounded-xl shadow-lg p-8 text-white">
-                <h3 className="heading-h2 font-bold mb-4">
-                  {ctaTitleFormatted}
-                </h3>
-                <p className="mb-6 text-white/90">
-                  {l.ctaDescription}
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Link
-                    href={`${paths.bookingPath}?antrenor=${encodeURIComponent(memberData.name || '')}`}
-                    className="inline-flex items-center justify-center px-6 py-3 bg-white text-theme-primary font-bold rounded-lg hover:bg-theme-light transition-colors"
-                  >
-                    {l.ctaButtonText}
-                  </Link>
-                  <Link
-                    href={paths.classesPath}
-                    className="inline-flex items-center justify-center px-6 py-3 bg-transparent text-white font-bold rounded-lg border-2 border-white hover:bg-white/10 transition-colors"
-                  >
-                    {l.ctaSecondaryButtonText}
-                  </Link>
+            {showCTA && memberData.showCTAOnDetailPage !== false && (
+              <div className="bg-theme-surface border border-theme-border rounded-xl shadow-sm p-8">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-semibold text-theme-text">
+                      {ctaTitleFormatted}
+                    </h3>
+                    <p className="text-theme-text-light">
+                      {l.ctaDescription}
+                    </p>
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-3 flex-shrink-0">
+                    <Link
+                      href={`${paths.bookingPath}?antrenor=${encodeURIComponent(memberData.name || '')}`}
+                      className="btn-primary inline-flex items-center justify-center px-6 py-3 text-sm font-semibold"
+                    >
+                      {l.ctaButtonText}
+                    </Link>
+                    <Link
+                      href={paths.classesPath}
+                      className="inline-flex items-center justify-center px-6 py-3 text-sm font-semibold text-theme-text border border-theme-border rounded-lg hover:bg-theme-light transition-colors"
+                    >
+                      {l.ctaSecondaryButtonText}
+                    </Link>
+                  </div>
                 </div>
               </div>
             )}
@@ -365,7 +379,7 @@ export function TeamMemberDetailBlock({
         {/* Related Members Section */}
         {showRelatedMembers && relatedMembers.length > 0 && (
           <div className="mt-16">
-            <h2 className="heading-h2 font-bold text-theme-dark mb-8">{relatedMembersTitle}</h2>
+            <h2 className="text-2xl font-bold text-theme-text mb-8">{relatedMembersTitle}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {relatedMembers.map((member) => {
                 const memberImage = member.image as MediaType | null
@@ -373,7 +387,7 @@ export function TeamMemberDetailBlock({
                 return (
                   <div
                     key={member.id}
-                    className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow group"
+                    className="bg-theme-surface border border-theme-border rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow group"
                   >
                     <Link href={`${paths.teamBasePath}/${member.slug}`}>
                       <div className="relative h-64">
@@ -403,13 +417,13 @@ export function TeamMemberDetailBlock({
                             {member.specializations.slice(0, 2).map((spec, idx) => (
                               <span
                                 key={idx}
-                                className="text-xs px-2 py-1 bg-theme-primary/10 text-theme-primary rounded-full"
+                                className="text-xs px-3 py-1 bg-theme-primary/10 text-theme-primary rounded-full border border-theme-primary/20"
                               >
                                 {spec.specialization}
                               </span>
                             ))}
                             {member.specializations.length > 2 && (
-                              <span className="text-xs px-2 py-1 bg-theme-light text-theme-text-light rounded-full">
+                              <span className="text-xs px-3 py-1 bg-theme-light text-theme-text-muted rounded-full">
                                 +{member.specializations.length - 2}
                               </span>
                             )}
@@ -426,7 +440,7 @@ export function TeamMemberDetailBlock({
             <div className="text-center mt-8">
               <Link
                 href={paths.teamBasePath}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-theme-primary text-white font-bold rounded-lg hover:bg-theme-primary/90 transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-theme-primary text-theme-text-on-primary font-bold rounded-lg hover:bg-theme-primary/90 transition-colors"
               >
                 {l.viewAllTeamText}
                 <ChevronRight className="w-5 h-5" />

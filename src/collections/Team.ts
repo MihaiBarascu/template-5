@@ -1,6 +1,17 @@
 import type { CollectionConfig } from 'payload'
+import {
+  BlocksFeature,
+  FixedToolbarFeature,
+  HeadingFeature,
+  HorizontalRuleFeature,
+  InlineToolbarFeature,
+  lexicalEditor,
+} from '@payloadcms/richtext-lexical'
 import { anyone, authenticated } from '@/access'
 import { slugField } from '@/fields/slug'
+import { Banner } from '@/blocks/Banner/config'
+import { MediaBlock } from '@/blocks/MediaBlock/config'
+import { revalidateTeamAfterChange, revalidateTeamAfterDelete } from '@/hooks/revalidateTeam'
 
 export const Team: CollectionConfig = {
   slug: 'team',
@@ -18,6 +29,10 @@ export const Team: CollectionConfig = {
     defaultColumns: ['name', 'role', 'featured', 'order'],
     useAsTitle: 'name',
     group: 'Business',
+  },
+  hooks: {
+    afterChange: [revalidateTeamAfterChange],
+    afterDelete: [revalidateTeamAfterDelete],
   },
   fields: [
     {
@@ -41,8 +56,31 @@ export const Team: CollectionConfig = {
     },
     {
       name: 'bio',
+      type: 'textarea',
+      label: 'Biografie scurtă',
+      admin: {
+        description: '2-3 propoziții pentru carduri și liste (text simplu)',
+      },
+    },
+    {
+      name: 'description',
       type: 'richText',
-      label: 'Biografie',
+      label: 'Descriere detaliată',
+      admin: {
+        description: 'Conținut complet pentru pagina individuală - cu titluri, imagini, liste și formatare avansată',
+      },
+      editor: lexicalEditor({
+        features: ({ rootFeatures }) => {
+          return [
+            ...rootFeatures,
+            HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] }),
+            BlocksFeature({ blocks: [Banner, MediaBlock] }),
+            FixedToolbarFeature(),
+            InlineToolbarFeature(),
+            HorizontalRuleFeature(),
+          ]
+        },
+      }),
     },
     {
       name: 'experience',
@@ -141,6 +179,16 @@ export const Team: CollectionConfig = {
           },
         },
       ],
+    },
+    {
+      name: 'showCTAOnDetailPage',
+      type: 'checkbox',
+      label: 'Afișează CTA pe pagina individuală',
+      defaultValue: true,
+      admin: {
+        position: 'sidebar',
+        description: 'Activează/dezactivează secțiunea "Vrei să programezi?"',
+      },
     },
     {
       name: 'featured',

@@ -293,7 +293,7 @@ export function ServicesBlock({
                   'transition-all duration-300 hover:scale-105',
                   isDark
                     ? 'bg-white text-theme-dark hover:bg-theme-accent hover:text-white'
-                    : 'bg-theme-primary text-white hover:bg-theme-secondary'
+                    : 'bg-theme-primary text-theme-text-on-primary hover:bg-theme-secondary'
                 )}
               >
                 {bookButtonText}
@@ -380,7 +380,7 @@ export function ServicesBlock({
                         )}>
                           {service.title}
                           {service.featured && (
-                            <span className="ml-2 inline-flex items-center px-2 py-0.5 text-xs font-medium bg-theme-accent text-white rounded-full">
+                            <span className="ml-2 inline-flex items-center px-2 py-0.5 text-xs font-medium bg-theme-accent text-theme-text-on-accent rounded-full">
                               Popular
                             </span>
                           )}
@@ -441,7 +441,7 @@ export function ServicesBlock({
                   'transition-all duration-300 hover:scale-105',
                   isDark
                     ? 'bg-white text-theme-dark hover:bg-theme-accent hover:text-white'
-                    : 'bg-theme-primary text-white hover:bg-theme-secondary'
+                    : 'bg-theme-primary text-theme-text-on-primary hover:bg-theme-secondary'
                 )}
               >
                 {bookButtonText}
@@ -514,7 +514,7 @@ export function ServicesBlock({
                   {/* Featured Badge */}
                   {service.featured && (
                     <div className="absolute -top-px -right-px z-10">
-                      <div className="bg-theme-accent text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
+                      <div className="bg-theme-accent text-theme-text-on-accent text-xs font-bold px-3 py-1 rounded-bl-lg">
                         Popular
                       </div>
                     </div>
@@ -621,7 +621,7 @@ export function ServicesBlock({
                 'transition-all duration-300 hover:scale-105 hover:shadow-xl',
                 isDark
                   ? 'bg-white text-theme-dark hover:bg-theme-accent hover:text-white'
-                  : 'bg-theme-primary text-white hover:bg-theme-secondary'
+                  : 'bg-theme-primary text-theme-text-on-primary hover:bg-theme-secondary'
               )}
             >
               {bookButtonText}

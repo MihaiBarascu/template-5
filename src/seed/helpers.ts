@@ -1,4 +1,4 @@
-import type { Page, SiteTheme, Service, Product, Post, Form, SystemPage } from '@/payload-types';
+import type { Page, SiteTheme, Service, Product, Post, Form, SystemPage, Team } from '@/payload-types';
 import fs from 'fs';
 import path from 'path';
 import type { Payload } from 'payload';
@@ -897,34 +897,123 @@ export async function seedTeam(
   members: Array<{
     name: string;
     role: string;
+    bio?: string; // Short bio for cards (plain text)
+    description?: Team['description']; // Detailed description for individual page (Lexical rich text)
     experience?: string;
     featured?: boolean;
     order?: number;
-    specializations?: string[];
+    specializations?: Array<{ specialization: string }> | string[];
+    contact?: {
+      email?: string;
+      phone?: string;
+      whatsapp?: string;
+    };
+    social?: {
+      facebook?: string | null;
+      instagram?: string | null;
+      linkedin?: string | null;
+      twitter?: string | null;
+    };
+    schedule?: Array<{
+      day: 'luni' | 'marti' | 'miercuri' | 'joi' | 'vineri' | 'sambata' | 'duminica';
+      hours: string;
+    }>;
     imageId?: string; // Optional media ID for photo
   }>,
 ) {
+  // Delete existing team members first to avoid duplicates
+  await payload.delete({
+    collection: 'team',
+    where: { id: { exists: true } },
+  });
+
   for (const member of members) {
+    // Handle specializations - can be array of strings or array of objects
+    const specializations = member.specializations?.map(s => {
+      if (typeof s === 'string') {
+        return { specialization: s };
+      }
+      return s;
+    });
+
     await payload.create({
       collection: 'team',
       data: {
         name: member.name,
         slug: member.name
           .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
           .replace(/\s+/g, '-')
           .replace(/[^\w-]/g, ''),
         role: member.role,
+        bio: member.bio,
+        description: member.description,
         experience: member.experience,
         featured: member.featured || false,
         order: member.order || 0,
-        specializations: member.specializations?.map(s => ({
-          specialization: s,
-        })),
+        specializations,
+        contact: member.contact || undefined,
+        social: member.social ? {
+          facebook: member.social.facebook || undefined,
+          instagram: member.social.instagram || undefined,
+          linkedin: member.social.linkedin || undefined,
+          twitter: member.social.twitter || undefined,
+        } : undefined,
+        schedule: member.schedule,
         image: member.imageId || undefined,
       },
     });
   }
   console.log(`   Created ${members.length} team members`);
+}
+
+// Helper to create testimonial categories
+export async function seedTestimonialCategories(
+  payload: Payload,
+  categories: Array<{
+    title: string;
+    description?: string;
+    icon?: string;
+    order?: number;
+  }>,
+): Promise<Map<string, string>> {
+  const categoryMap = new Map<string, string>();
+
+  // Delete existing testimonial categories first to avoid duplicates
+  await payload.delete({
+    collection: 'testimonial-categories',
+    where: { id: { exists: true } },
+  });
+
+  for (const category of categories) {
+    // Generate slug with proper Romanian diacritics handling
+    const slug = category.title
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
+      .replace(/ț/g, 't')
+      .replace(/ș/g, 's')
+      .replace(/ă/g, 'a')
+      .replace(/â/g, 'a')
+      .replace(/î/g, 'i')
+      .replace(/\s+/g, '-')
+      .replace(/[^\w-]/g, '');
+
+    const created = await payload.create({
+      collection: 'testimonial-categories',
+      data: {
+        title: category.title,
+        slug,
+        description: category.description,
+        icon: category.icon,
+        order: category.order || 0,
+      },
+    });
+    categoryMap.set(category.title, created.id);
+  }
+  console.log(`   Created ${categories.length} testimonial categories`);
+  return categoryMap;
 }
 
 // Helper to create testimonials
@@ -936,6 +1025,7 @@ export async function seedTestimonials(
     content: string;
     rating?: string;
     featured?: boolean;
+    categoryId?: string; // Optional testimonial category ID
   }>,
 ) {
   type RatingType = '1' | '2' | '3' | '4' | '5';
@@ -947,7 +1037,8 @@ export async function seedTestimonials(
         role: testimonial.role,
         content: testimonial.content,
         rating: (testimonial.rating || '5') as RatingType,
-        featured: testimonial.featured || true,
+        featured: testimonial.featured ?? true,
+        category: testimonial.categoryId || undefined,
       },
     });
   }
@@ -1380,11 +1471,52 @@ export function createTextNode(text: string, format: number = 0) {
   };
 }
 
+// Helper to create link node
+export function createLink(text: string, url: string, newTab: boolean = false) {
+  return {
+    type: 'link',
+    children: [createTextNode(text)],
+    direction: 'ltr',
+    fields: {
+      linkType: 'custom',
+      newTab,
+      url,
+    },
+    format: '',
+    indent: 0,
+    version: 2,
+  };
+}
+
 // Helper to create paragraph node
 export function createParagraph(text: string) {
   return {
     type: 'paragraph',
     children: [createTextNode(text)],
+    direction: 'ltr',
+    format: '',
+    indent: 0,
+    textFormat: 0,
+    version: 1,
+  };
+}
+
+// Helper to create paragraph with link
+export function createParagraphWithLink(
+  textBefore: string,
+  linkText: string,
+  linkUrl: string,
+  textAfter: string = '',
+  newTab: boolean = false
+) {
+  const children: unknown[] = [];
+  if (textBefore) children.push(createTextNode(textBefore));
+  children.push(createLink(linkText, linkUrl, newTab));
+  if (textAfter) children.push(createTextNode(textAfter));
+
+  return {
+    type: 'paragraph',
+    children,
     direction: 'ltr',
     format: '',
     indent: 0,

@@ -35,6 +35,15 @@ function parseVideoUrl(url: string): { type: 'youtube' | 'vimeo' | 'direct'; emb
   return null
 }
 
+interface TestimonialCategory {
+  id: string
+  title: string
+  slug?: string | null
+  description?: string | null
+  icon?: string | null
+  order?: number | null
+}
+
 interface Testimonial {
   id: string
   name: string
@@ -53,6 +62,7 @@ interface Testimonial {
     url?: string | null
     alt?: string | null
   } | string | null
+  category?: TestimonialCategory | string | null
 }
 
 interface TestimonialsBlockProps {
@@ -70,6 +80,8 @@ interface TestimonialsBlockProps {
   autoplaySpeed?: number
   backgroundColor?: string
   testimonials?: Testimonial[]
+  groupByCategory?: boolean
+  categories?: TestimonialCategory[]
 }
 
 
@@ -85,6 +97,8 @@ export function TestimonialsBlock({
   autoplaySpeed = 6000,
   backgroundColor = 'light',
   testimonials = [],
+  groupByCategory = false,
+  categories = [],
 }: TestimonialsBlockProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
@@ -131,6 +145,45 @@ export function TestimonialsBlock({
         </div>
       </section>
     )
+  }
+
+  // Helper to get category from testimonial
+  const getTestimonialCategoryId = (testimonial: Testimonial): string | null => {
+    if (!testimonial.category) return null
+    if (typeof testimonial.category === 'string') return testimonial.category
+    return testimonial.category.id
+  }
+
+  // Group testimonials by category
+  const groupTestimonialsByCategory = () => {
+    const grouped: Map<string, { category: TestimonialCategory; items: Testimonial[] }> = new Map()
+    const uncategorized: Testimonial[] = []
+
+    for (const testimonial of testimonials) {
+      const categoryId = getTestimonialCategoryId(testimonial)
+      if (categoryId) {
+        const category = categories.find(c => c.id === categoryId)
+        if (category) {
+          const existing = grouped.get(categoryId)
+          if (existing) {
+            existing.items.push(testimonial)
+          } else {
+            grouped.set(categoryId, { category, items: [testimonial] })
+          }
+        } else {
+          uncategorized.push(testimonial)
+        }
+      } else {
+        uncategorized.push(testimonial)
+      }
+    }
+
+    // Sort by category order
+    const sortedGroups = Array.from(grouped.values()).sort((a, b) =>
+      (a.category.order ?? 0) - (b.category.order ?? 0)
+    )
+
+    return { groups: sortedGroups, uncategorized }
   }
 
   // Testimonial Card Component
@@ -246,6 +299,97 @@ export function TestimonialsBlock({
     </div>
   )
 
+  // Grouped by Category Variant
+  if (groupByCategory && categories.length > 0) {
+    const { groups, uncategorized } = groupTestimonialsByCategory()
+
+    return (
+      <section className={cn('py-section', bgClass)}>
+        <div className="container mx-auto px-4">
+          {/* Header */}
+          {(heading || subheading) && (
+            <div className="text-center mb-12">
+              {heading && (
+                <h2 className={cn(
+                  'heading-h2 font-bold mb-4',
+                  isDark ? 'text-white' : 'text-theme-text'
+                )}>
+                  {heading}
+                </h2>
+              )}
+              {subheading && (
+                <p className={cn('text-lg max-w-2xl mx-auto', isDark ? 'text-white/70' : 'text-theme-text-light')}>
+                  {subheading}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Grouped Testimonials */}
+          <div className="space-y-16">
+            {groups.map(({ category, items }) => (
+              <div key={category.id} className="animate-fade-in-up">
+                {/* Category Header */}
+                <div className="flex items-center gap-4 mb-8">
+                  <div className={cn(
+                    'h-px flex-1',
+                    isDark ? 'bg-white/20' : 'bg-theme-border'
+                  )} />
+                  <h3 className={cn(
+                    'heading-h3 font-semibold px-4',
+                    isDark ? 'text-white' : 'text-theme-text'
+                  )}>
+                    {category.title}
+                  </h3>
+                  <div className={cn(
+                    'h-px flex-1',
+                    isDark ? 'bg-white/20' : 'bg-theme-border'
+                  )} />
+                </div>
+
+
+                {/* Testimonials Grid */}
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-cards">
+                  {items.map((testimonial, index) => (
+                    <TestimonialCard key={testimonial.id} testimonial={testimonial} index={index} />
+                  ))}
+                </div>
+              </div>
+            ))}
+
+            {/* Uncategorized Testimonials */}
+            {uncategorized.length > 0 && (
+              <div className="animate-fade-in-up">
+                <div className="flex items-center gap-4 mb-8">
+                  <div className={cn(
+                    'h-px flex-1',
+                    isDark ? 'bg-white/20' : 'bg-theme-border'
+                  )} />
+                  <h3 className={cn(
+                    'heading-h3 font-semibold px-4',
+                    isDark ? 'text-white' : 'text-theme-text'
+                  )}>
+                    Alte testimoniale
+                  </h3>
+                  <div className={cn(
+                    'h-px flex-1',
+                    isDark ? 'bg-white/20' : 'bg-theme-border'
+                  )} />
+                </div>
+
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-cards">
+                  {uncategorized.map((testimonial, index) => (
+                    <TestimonialCard key={testimonial.id} testimonial={testimonial} index={index} />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
   // Carousel Variant
   if (variant === 'carousel') {
     return (
@@ -296,7 +440,7 @@ export function TestimonialsBlock({
                     'p-3 rounded-full transition-all duration-300 hover:scale-110',
                     isDark
                       ? 'bg-white/10 text-white hover:bg-white/20'
-                      : 'bg-white shadow-lg text-theme-text hover:bg-theme-primary hover:text-white'
+                      : 'bg-white shadow-lg text-theme-text hover:bg-theme-primary hover:text-theme-text-on-primary'
                   )}
                   aria-label="Previous testimonial"
                 >
@@ -311,7 +455,7 @@ export function TestimonialsBlock({
                     'p-3 rounded-full transition-all duration-300 hover:scale-110',
                     isDark
                       ? 'bg-white/10 text-white hover:bg-white/20'
-                      : 'bg-white shadow-lg text-theme-text hover:bg-theme-primary hover:text-white'
+                      : 'bg-white shadow-lg text-theme-text hover:bg-theme-primary hover:text-theme-text-on-primary'
                   )}
                   aria-label="Next testimonial"
                 >

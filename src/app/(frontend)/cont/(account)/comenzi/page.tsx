@@ -96,7 +96,7 @@ export default async function OrdersPage() {
           </p>
           <Link
             href="/produse"
-            className="inline-flex items-center gap-2 bg-theme-primary text-white px-6 py-3 rounded-[var(--radius-button)] hover:bg-theme-primary-dark transition-colors"
+            className="inline-flex items-center gap-2 bg-theme-primary text-theme-text-on-primary px-6 py-3 rounded-[var(--radius-button)] hover:bg-theme-primary-dark transition-colors"
           >
             Descoperă produsele
             <span>→</span>

@@ -296,7 +296,7 @@ export function HowItWorksBlock({
           <div className="mt-10 md:mt-12 text-center">
             <Link
               href={ctaButton.link}
-              className="inline-flex items-center justify-center px-8 py-3 rounded-[var(--radius-button)] font-medium transition-all bg-theme-primary text-white hover:bg-theme-secondary"
+              className="inline-flex items-center justify-center px-8 py-3 rounded-[var(--radius-button)] font-medium transition-all bg-theme-primary text-theme-text-on-primary hover:bg-theme-secondary"
             >
               {ctaButton.label || 'Incepe acum'}
             </Link>

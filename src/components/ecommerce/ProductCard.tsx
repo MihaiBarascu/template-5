@@ -196,7 +196,7 @@ export function ProductCard({
           <div className="absolute top-2 left-2 flex flex-col gap-1.5">
             {/* Badge from product (e.g., "-20%", "Nou", etc.) */}
             {badge && (
-              <span className="inline-flex items-center px-2 py-1 text-xs font-semibold bg-theme-primary text-white rounded">
+              <span className="inline-flex items-center px-2 py-1 text-xs font-semibold bg-theme-primary text-theme-text-on-primary rounded">
                 {badge}
               </span>
             )}
@@ -226,7 +226,7 @@ export function ProductCard({
               {showWishlist && (
                 <button
                   type="button"
-                  className="p-2 bg-white rounded-full shadow-md hover:bg-theme-primary hover:text-white transition-colors"
+                  className="p-2 bg-white rounded-full shadow-md hover:bg-theme-primary hover:text-theme-text-on-primary transition-colors"
                   aria-label="Adaugă la favorite"
                 >
                   <Heart className="w-4 h-4" />
@@ -235,7 +235,7 @@ export function ProductCard({
               {showQuickView && (
                 <button
                   type="button"
-                  className="p-2 bg-white rounded-full shadow-md hover:bg-theme-primary hover:text-white transition-colors"
+                  className="p-2 bg-white rounded-full shadow-md hover:bg-theme-primary hover:text-theme-text-on-primary transition-colors"
                   aria-label="Vizualizare rapidă"
                 >
                   <Eye className="w-4 h-4" />

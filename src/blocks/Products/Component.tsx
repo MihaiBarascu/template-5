@@ -197,7 +197,7 @@ export function ProductsBlock({
                       className={`mt-3 w-full py-2 px-4 rounded-md transition-colors text-sm font-medium flex items-center justify-center gap-2 ${
                         isOutOfStock || isAddingThis
                           ? 'bg-theme-border text-theme-text-muted cursor-not-allowed'
-                          : 'bg-theme-primary text-white hover:bg-theme-primary/90'
+                          : 'bg-theme-primary text-theme-text-on-primary hover:bg-theme-primary/90'
                       }`}
                     >
                       {isAddingThis ? (
@@ -225,7 +225,7 @@ export function ProductsBlock({
               className={`inline-flex items-center gap-2 px-6 py-3 rounded-md font-medium transition-colors ${
                 isDark
                   ? 'bg-white text-theme-text hover:bg-theme-light'
-                  : 'bg-theme-primary text-white hover:bg-theme-primary/90'
+                  : 'bg-theme-primary text-theme-text-on-primary hover:bg-theme-primary/90'
               }`}
             >
               {ctaButton.label || 'Vezi toate produsele'}

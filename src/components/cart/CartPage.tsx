@@ -108,7 +108,7 @@ export function CartPage() {
             </p>
             <Link
               href="/produse"
-              className="inline-flex items-center gap-2 bg-theme-primary text-white py-3 px-6 rounded-[var(--radius-button)] font-medium hover:bg-theme-primary-dark transition-colors"
+              className="inline-flex items-center gap-2 bg-theme-primary text-theme-text-on-primary py-3 px-6 rounded-[var(--radius-button)] font-medium hover:bg-theme-primary-dark transition-colors"
             >
               Vezi produsele
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -252,7 +252,7 @@ export function CartPage() {
 
               <Link
                 href="/checkout"
-                className="w-full bg-theme-primary text-white py-3 px-6 rounded-[var(--radius-button)] font-medium hover:bg-theme-primary-dark transition-colors text-center block"
+                className="w-full bg-theme-primary text-theme-text-on-primary py-3 px-6 rounded-[var(--radius-button)] font-medium hover:bg-theme-primary-dark transition-colors text-center block"
               >
                 Finalizează comanda
               </Link>

@@ -166,10 +166,16 @@ export function TeamDetail({
                 </div>
               )}
 
-              {/* Bio */}
-              {member.bio && (
+              {/* Short Bio (plain text) */}
+              {member.bio && !member.description && (
+                <p className="text-lg text-muted-foreground leading-relaxed">
+                  {member.bio}
+                </p>
+              )}
+              {/* Description (rich text) */}
+              {member.description && (
                 <div className="prose prose-lg max-w-none">
-                  <RichText data={member.bio} enableGutter={false} />
+                  <RichText data={member.description} enableGutter={false} />
                 </div>
               )}
 

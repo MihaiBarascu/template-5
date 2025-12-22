@@ -1999,7 +1999,9 @@ export const fitnessVariants: DesignVariant[] = [
 // =============================================================================
 
 export const terapiiEnergeticeVariants: DesignVariant[] = [
-  // VARIANTA 1 - Gold & Navy (Original terapiienergetice.ro)
+  // VARIANTA 1 - Gold & Navy (EXACT colors from terapiienergetice.ro)
+  // Primary: #FFE468 = rgba(255, 228, 104) = hsl(49, 100, 70)
+  // Secondary: #272630 = rgba(39, 38, 48) = hsl(246, 12, 17)
   {
     id: 'terapii-v1',
     name: 'Gold & Navy Healing',
@@ -2007,22 +2009,22 @@ export const terapiiEnergeticeVariants: DesignVariant[] = [
     theme: {
       preset: 'elegant',
       colors: {
-        primary: '#F5C518',      // Gold
-        secondary: '#1a1a2e',    // Dark Navy
-        accent: '#FFD700',       // Gold accent
-        dark: '#0d0d1a',         // Darker Navy
-        light: '#faf9f6',        // Warm white
+        primary: '#FFE468',      // Gold EXACT - rgb(255, 228, 104)
+        secondary: '#272630',    // Dark Navy EXACT - rgb(39, 38, 48)
+        accent: '#FFE468',       // Gold accent (same as primary)
+        dark: '#272630',         // Dark navy pentru fundal
+        light: '#F2F2F2',        // Light gray exact - rgb(242, 242, 242)
         surface: '#ffffff',
-        text: '#1a1a2e',
+        text: '#54595F',         // Text principal exact - rgb(84, 89, 95)
         textLight: '#666666',
-        border: '#e5e5e5',
+        border: '#CCCCCC',       // Border gri - rgb(204, 204, 204)
         // Contrast colors
-        textOnPrimary: '#1a1a2e',     // Dark on gold
-        textOnSecondary: '#F5C518',   // Gold on navy
-        textOnAccent: '#1a1a2e',      // Dark on gold
+        textOnPrimary: '#272630',     // Dark navy on gold
+        textOnSecondary: '#FFE468',   // Gold on navy
+        textOnAccent: '#272630',      // Dark navy on gold
         textOnDark: '#ffffff',        // White on dark
-        textOnLight: '#1a1a2e',       // Dark on light
-        textOnSurface: '#1a1a2e',     // Dark on white
+        textOnLight: '#54595F',       // Text gri on light
+        textOnSurface: '#54595F',     // Text gri on white
       },
       headingFont: 'Playfair_Display',  // Elegant serif
       bodyFont: 'Open_Sans',            // Friendly sans

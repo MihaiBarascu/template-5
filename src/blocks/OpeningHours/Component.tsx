@@ -121,7 +121,7 @@ export function OpeningHoursBlock({
       default: 'bg-white',
       light: 'bg-theme-light',
       dark: 'bg-theme-dark text-white',
-      primary: 'bg-theme-primary text-white',
+      primary: 'bg-theme-primary text-theme-text-on-primary',
     }[backgroundColor || 'default'] || 'bg-white'
 
   const status = showCurrentStatus && schedule.length > 0 ? isCurrentlyOpen(schedule) : null
@@ -315,7 +315,7 @@ export function OpeningHoursBlock({
                   'inline-flex items-center gap-2 px-8 py-3 rounded-lg font-medium transition-colors',
                   backgroundColor === 'primary'
                     ? 'bg-white text-theme-primary hover:bg-theme-light'
-                    : 'bg-theme-primary text-white hover:bg-theme-primary-dark'
+                    : 'bg-theme-primary text-theme-text-on-primary hover:bg-theme-primary-dark'
                 )}
               >
                 {ctaButton.label}

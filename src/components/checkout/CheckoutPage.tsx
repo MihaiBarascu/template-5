@@ -232,7 +232,7 @@ export const CheckoutPage: React.FC = () => {
           </p>
           <Link
             href="/"
-            className="inline-flex items-center gap-2 bg-theme-primary text-white px-6 py-3 rounded-[var(--radius-button)] hover:bg-theme-primary-dark transition-colors"
+            className="inline-flex items-center gap-2 bg-theme-primary text-theme-text-on-primary px-6 py-3 rounded-[var(--radius-button)] hover:bg-theme-primary-dark transition-colors"
           >
             Înapoi la pagina principală
           </Link>
@@ -254,7 +254,7 @@ export const CheckoutPage: React.FC = () => {
           </p>
           <Link
             href="/produse"
-            className="inline-flex items-center gap-2 bg-theme-primary text-white px-6 py-3 rounded-[var(--radius-button)] hover:bg-theme-primary-dark transition-colors"
+            className="inline-flex items-center gap-2 bg-theme-primary text-theme-text-on-primary px-6 py-3 rounded-[var(--radius-button)] hover:bg-theme-primary-dark transition-colors"
           >
             Vezi produsele
             <span>→</span>

@@ -145,7 +145,7 @@ export function BookingBlock({
                   'inline-flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors',
                   backgroundColor === 'primary'
                     ? 'bg-white text-theme-primary hover:bg-theme-light'
-                    : 'bg-theme-primary text-white hover:bg-theme-primary-dark'
+                    : 'bg-theme-primary text-theme-text-on-primary hover:bg-theme-primary-dark'
                 )}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -379,7 +379,7 @@ export function BookingBlock({
                 disabled={isSubmitting}
                 className={cn(
                   'w-full py-3 px-6 rounded-lg font-medium transition-all',
-                  'bg-theme-primary text-white hover:bg-theme-primary-dark',
+                  'bg-theme-primary text-theme-text-on-primary hover:bg-theme-primary-dark',
                   'disabled:opacity-50 disabled:cursor-not-allowed'
                 )}
               >

@@ -8,6 +8,7 @@
 import {
   createHeading,
   createParagraph,
+  createParagraphWithLink,
   createList,
   createBanner,
   createRichTextRoot,
@@ -1085,7 +1086,7 @@ export const terapiiEnergeticeData = {
   // =============================================================================
 
   testimonials: [
-    // FACELIFT ENERGETIC
+    // ==================== FACELIFT ENERGETIC ====================
     {
       content:
         'Pentru mine cursul de Facelift a fost extrem de interesant, un curs în care am găsit răspunsuri la multe întrebări. Am observat schimbări vizibile la nivelul tenului și o stare de bine extraordinară.',
@@ -1095,7 +1096,44 @@ export const terapiiEnergeticeData = {
       featured: true,
       therapy: 'Facelift Energetic',
     },
-    // REIKI
+    {
+      content:
+        'Experiențe extraordinare în care am descoperit o altă abordare a vieții cu mai multă prezență, calm și conștiință interioară. Recomand cu căldură!',
+      name: 'Aida Ciobanu',
+      role: 'Terapeut Bowen, Bacău',
+      rating: '5',
+      featured: false,
+      therapy: 'Facelift Energetic',
+    },
+    {
+      content:
+        'Am adormit în timpul fiecărei ședințe și m-am trezit foarte relaxată. Tenul a devenit mai luminos și starea interioară s-a schimbat complet.',
+      name: 'Irina P.',
+      role: 'Profesoară, București',
+      rating: '5',
+      featured: false,
+      therapy: 'Facelift Energetic',
+    },
+    {
+      content:
+        'După câteva ședințe de Facelift energetic, am observat că ridurile fine de pe gât și decolteu s-au estompat vizibil, tenul a devenit mai plin de viață. Starea interioară s-a schimbat.',
+      name: 'Raluca I.',
+      role: 'Chimist, București',
+      rating: '5',
+      featured: false,
+      therapy: 'Facelift Energetic',
+    },
+    {
+      content:
+        'Terapia Facelift m-a ajutat să am mai multă încredere în mine. Tenul meu s-a schimbat complet. Am devenit mult mai veselă, mai plină de viață.',
+      name: 'Ioana P.',
+      role: 'Consilier Juridic, București',
+      rating: '5',
+      featured: false,
+      therapy: 'Facelift Energetic',
+    },
+
+    // ==================== TERAPIA REIKI ====================
     {
       content:
         'În timpul ședinței de Reiki m-am relaxat profund. Am simțit cum plutesc, iar apăsarea pe care o simțeam la început în piept, a dispărut complet. O experiență transformatoare.',
@@ -1105,7 +1143,17 @@ export const terapiiEnergeticeData = {
       featured: true,
       therapy: 'Terapia Reiki',
     },
-    // ELIBERARE TENSIUNE
+    {
+      content:
+        'Terapia Reiki m-a ajutat într-un moment critic din viață. Monica m-a adus înapoi la viață când eram complet blocată. Sunt recunoscătoare pentru această experiență.',
+      name: 'Ionela S.',
+      role: 'Economist, București',
+      rating: '5',
+      featured: false,
+      therapy: 'Terapia Reiki',
+    },
+
+    // ==================== ELIBERAREA TENSIUNII INTERIOARE ====================
     {
       content:
         'În urma ședinței de terapie de eliberare a tensiunii interioare, m-am simțit mult mai ușoară, eliberată de stress, foarte liniștită, conectată la corpul meu. Recomand din suflet!',
@@ -1115,7 +1163,26 @@ export const terapiiEnergeticeData = {
       featured: true,
       therapy: 'Eliberarea Tensiunii Interioare',
     },
-    // ACCESS BARS
+    {
+      content:
+        'După 5 ședințe de eliberare emoțională, nu am mai avut atacuri de panică, am reușit să adorm noaptea fără medicamente. Parcă sunt un alt om.',
+      name: 'Sorina B.',
+      role: 'Referent',
+      rating: '5',
+      featured: false,
+      therapy: 'Eliberarea Tensiunii Interioare',
+    },
+    {
+      content:
+        'Înainte de terapie făcusem un atac de panică. Eram foarte obosit și irascibil. În timpul terapiei am simțit cum tot stresul se dizolvă. Am plecat un alt om.',
+      name: 'Radu A.',
+      role: 'Manager Vânzări',
+      rating: '5',
+      featured: false,
+      therapy: 'Eliberarea Tensiunii Interioare',
+    },
+
+    // ==================== ACCESS BARS ====================
     {
       content:
         'Am înțeles că totul este despre vibrație și energie. Access Bars m-a ajutat să eliberez blocaje pe care le aveam de ani de zile. Transformarea a fost incredibilă.',
@@ -1125,7 +1192,91 @@ export const terapiiEnergeticeData = {
       featured: true,
       therapy: 'Access Bars',
     },
-    // BOWEN
+    {
+      content:
+        'După cursul Access Bars, am completat 25 de zile de auto-terapie și am înțeles cât de important este să fii prezent și conștient în viață.',
+      name: 'Andreea',
+      role: 'Barcelona',
+      rating: '5',
+      featured: false,
+      therapy: 'Access Bars',
+    },
+    {
+      content:
+        'Access Bars mi-a deschis o lume nouă. Prin această metodă, am descoperit că sunt creatorul propriei mele realități și pot elibera emoțiile stocate.',
+      name: 'Ioana Matei',
+      role: 'Terapeut Maseor, Brașov',
+      rating: '5',
+      featured: false,
+      therapy: 'Access Bars',
+    },
+    {
+      content:
+        'După 25 de ședințe de terapie, am deschis două cabinete de terapie și am ajutat un pacient cu tulburare bipolară să renunțe la medicația psihiatrică.',
+      name: 'Gigi Peagu',
+      role: 'Terapeut, București',
+      rating: '5',
+      featured: false,
+      therapy: 'Access Bars',
+    },
+    {
+      content:
+        'După terapie, am simțit o pace profundă, relaxare și o stare de bine. M-am simțit mai puternică și recomand acest tratament cu căldură.',
+      name: 'Adelina B.',
+      role: 'Economist, București',
+      rating: '5',
+      featured: false,
+      therapy: 'Access Bars',
+    },
+    {
+      content:
+        'Am început să merg la terapie Access Bars, în perioada când atacurile de panică s-au întetit, în special noaptea. După 5 ședințe de terapie, au dispărut complet. Somnul este profund.',
+      name: 'Mihaela R.',
+      role: 'Antreprenor, București',
+      rating: '5',
+      featured: false,
+      therapy: 'Access Bars',
+    },
+    {
+      content:
+        'Aveam un examen de dat și foarte multe emoții. Eram convinsă că nu o să reușesc. După 3 ședințe de terapie, ceva s-a schimbat în interiorul meu. Rezultatul? Am luat examenul, a 2-a pe listă.',
+      name: 'Carmen S.',
+      role: 'Asistentă Medicală, București',
+      rating: '5',
+      featured: false,
+      therapy: 'Access Bars',
+    },
+    {
+      content:
+        'Mă luptam cu depresia de 2 ani. Am început să merg regulat la terapia Access Bars. În 4 luni am renunțat la medicație. Zilnic îmi fac singură autoterapie. Mă simt extraordinar!',
+      name: 'Simina V.',
+      role: 'Artist Plastic, București',
+      rating: '5',
+      featured: false,
+      therapy: 'Access Bars',
+    },
+
+    // ==================== CORECȚIE BIOENERGETICĂ ====================
+    {
+      content:
+        'O cunosc pe doamna Monica Batir de ceva timp. Când am venit la ea, eram într-o stare emoțională precară. Terapia m-a ajutat să-mi recapăt echilibrul și energia.',
+      name: 'Elena M.',
+      role: 'Profesoară, București',
+      rating: '5',
+      featured: true,
+      therapy: 'Corecție Bioenergetică',
+    },
+
+    // ==================== TERAPIA BOWEN ====================
+    {
+      content:
+        'Îi mulțumesc lui Dumnezeu că a pus în calea mea o persoană atât de minunată ca Mona Batir. Deși nu știam nimic despre terapia Bowen, a funcționat extraordinar.',
+      name: 'Maria T.',
+      role: 'Pensionară, București',
+      rating: '5',
+      featured: true,
+      therapy: 'Terapia Bowen',
+    },
     {
       content:
         'Terapia Bowen mi-a redus atacurile de panică de la 2 pe zi la 2 pe săptămână, și m-a ajutat să fac față mult mai eficient episoadelor depresive. Simt că starea mea de bine se îmbunătățește de la o zi la alta.',
@@ -1170,69 +1321,6 @@ export const terapiiEnergeticeData = {
       rating: '5',
       featured: false,
       therapy: 'Terapia Bowen',
-    },
-    {
-      content:
-        'Am început să merg la terapie Access Bars, în perioada când atacurile de panică s-au întetit, în special noaptea. După 5 ședințe de terapie, au dispărut complet. Somnul este profund.',
-      name: 'Mihaela R.',
-      role: 'Antreprenor',
-      rating: '5',
-      featured: false,
-      therapy: 'Access Bars',
-    },
-    {
-      content:
-        'Aveam un examen de dat și foarte multe emoții. Eram convinsă că nu o să reușesc. După 3 ședințe de terapie, ceva s-a schimbat în interiorul meu. Rezultatul? Am luat examenul, a 2-a pe listă.',
-      name: 'Carmen S.',
-      role: 'Asistentă Medicală',
-      rating: '5',
-      featured: false,
-      therapy: 'Access Bars',
-    },
-    {
-      content:
-        'Mă luptam cu depresia de 2 ani. Am început să merg regulat la terapia Access Bars. În 4 luni am renunțat la medicație. Zilnic îmi fac singură autoterapie. Mă simt extraordinar!',
-      name: 'Simina V.',
-      role: 'Artist Plastic',
-      rating: '5',
-      featured: false,
-      therapy: 'Access Bars',
-    },
-    {
-      content:
-        'După câteva ședințe de Facelift energetic, am observat că ridurile fine de pe gât și decolteu s-au estompat vizibil, tenul a devenit mai plin de viață. Starea interioară s-a schimbat.',
-      name: 'Raluca I.',
-      role: 'Chimist',
-      rating: '5',
-      featured: false,
-      therapy: 'Facelift Energetic',
-    },
-    {
-      content:
-        'Terapia Facelift m-a ajutat să am mai multă încredere în mine. Tenul meu s-a schimbat complet. Am devenit mult mai veselă, mai plină de viață.',
-      name: 'Ioana P.',
-      role: 'Consilier Juridic',
-      rating: '5',
-      featured: false,
-      therapy: 'Facelift Energetic',
-    },
-    {
-      content:
-        'După 5 ședințe de eliberare emoțională, nu am mai avut atacuri de panică, am reușit să adorm noaptea fără medicamente. Parcă sunt un alt om.',
-      name: 'Sorina B.',
-      role: 'Referent',
-      rating: '5',
-      featured: false,
-      therapy: 'Eliberarea Tensiunii',
-    },
-    {
-      content:
-        'Înainte de terapie făcusem un atac de panică. Eram foarte obosit și irascibil. În timpul terapiei am simțit cum tot stresul se dizolvă. Am plecat un alt om.',
-      name: 'Radu A.',
-      role: 'Manager Vânzări',
-      rating: '5',
-      featured: false,
-      therapy: 'Eliberarea Tensiunii',
     },
   ],
 
@@ -1391,22 +1479,94 @@ export const terapiiEnergeticeData = {
     {
       name: 'Monica Batir',
       role: 'Fondator & Terapeut Principal',
-      bio: `Monica Batir este fondatoarea centrului de terapii energetice Revital Harmony din București, creat pentru a ajuta clienții să-și recâștige echilibrul interior - fizic, mental, emoțional și spiritual.
+      // Bio scurt pentru carduri și liste
+      bio: 'Psiholog, terapeut holistic și Reiki Master cu peste 15 ani experiență. Fondatoarea centrului Revital Harmony, specializată în terapii energetice pentru echilibrarea corpului, minții și sufletului.',
+      // Descriere detaliată pentru pagina individuală (Lexical rich text)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      get description(): any {
+        return createRichTextRoot([
+          // Introducere
+          createHeading('Despre Mine', 'h2'),
+          createParagraph(
+            'Am creat Centrul Revital Harmony de Terapii Energetice pentru a vă oferi soluții practice de regăsire a echilibrului interior, atât fizic cât și mental, emoțional și spiritual, pentru a trăi zi de zi în armonie cu voi înșivă și cu cei din jur.',
+          ),
+          createParagraph(
+            'Cu o experiență vastă în domenii multiple - de la psihologie la terapii holistice și nutriție - am capacitatea de a aborda nevoile clienților mei atât la nivel fiziologic, cât și la nivel subtil, acolo unde are loc vindecarea profundă.',
+          ),
 
-Calificări și Certificări:
-• Psiholog Licențiat
-• Terapeut Holistic și Trainer (Terapia Bowen, eliberare emoțională, corecție bioenergetică)
-• Reiki Master
-• Fototerapeut
-• Specialist Access Bars (eliberare blocaje emoționale, mentale și fizice)
-• Specialist Facelift Access Energetic
-• Absolventă Academia Internațională Access Consciousness
-• Facilitator Access Bars și Facelift Access Energetic
-• Nutriționist cu specializare în medicină Ayurvedică
-• Practicant Yoga
+          // Filozofie personală
+          createHeading('Ce Mă Definește', 'h2'),
+          createParagraph(
+            'Dincolo de toate calificările și certificările mele, ceea ce mă definește cel mai bine este că sunt un om pentru care iubirea este motorul tuturor activităților mele. Cred cu tărie că fiecare dintre noi are capacitatea de a se vindeca și de a-și transforma viața.',
+          ),
+          createBanner(
+            '"Rolul meu este să ghidez și să facilitez procesul de redescoperire a echilibrului interior. Fiecare client este unic, și abordarea mea este întotdeauna personalizată."',
+            'info',
+          ),
 
-"Sunt o persoană pentru care iubirea este forța motrice a tuturor activităților mele."`,
+          // Calificări și certificări
+          createHeading('Calificări și Certificări', 'h2'),
+          createList([
+            'Psiholog Licențiat',
+            'Terapeut Holistic și Trainer (Terapia Bowen, eliberare emoțională, corecție bioenergetică)',
+            'Reiki Master',
+            'Fototerapeut',
+            'Specialist Access Bars (eliberare blocaje emoționale, mentale și fizice)',
+            'Specialist Facelift Energetic Access',
+            'Absolventă Academia Internațională Access Consciousness',
+            'Facilitator Access Bars și Facelift Access Energetic',
+            'Nutriționist cu specializare în medicină Ayurvedică',
+            'Practicant Yoga',
+          ]),
+
+          // De ce să alegi Revital Harmony
+          createHeading('De Ce Să Alegi Revital Harmony?', 'h2'),
+          createParagraph(
+            'Centrul Revital Harmony se angajează să ofere ședințe personalizate care abordează nevoile individuale ale fiecărui client. Toate serviciile sunt oferite de practicieni calificați cu experiență vastă în terapii energetice.',
+          ),
+          createList([
+            'Abordare holistică - tratăm persoana, nu doar simptomele',
+            'Experiență de peste 15 ani în domeniul terapiilor energetice',
+            'Certificări internaționale recunoscute în 173 de țări',
+            'Mediu relaxant și profesionist',
+            'Program flexibil adaptat nevoilor clienților',
+          ]),
+
+          // Cum să începi
+          createHeading('Cum Să Începi?', 'h2'),
+          createParagraph(
+            'Primul pas este să mă contactezi pentru o discuție despre nevoile tale. Împreună vom stabili ce tip de terapie este cel mai potrivit pentru situația ta și vom programa prima ședință.',
+          ),
+          createParagraphWithLink(
+            '',
+            'Programează-te acum pentru o consultație',
+            '/contact',
+            ' și descoperă cum terapiile energetice te pot ajuta să îți recapeți echilibrul și vitalitatea.',
+          ),
+        ])
+      },
+      experience: '15+ ani',
       featured: true,
+      specializations: [
+        { specialization: 'Terapia Bowen' },
+        { specialization: 'Access Bars' },
+        { specialization: 'Facelift Energetic' },
+        { specialization: 'Reiki Master' },
+        { specialization: 'Eliberare Emoțională' },
+        { specialization: 'Corecție Bioenergetică' },
+        { specialization: 'Nutriție Ayurvedică' },
+      ],
+      contact: {
+        email: 'office@terapiienergetice.ro',
+        phone: '0774 512 905',
+        whatsapp: '+40774512905',
+      },
+      social: {
+        facebook: 'https://www.facebook.com/MonicaBatir.Terapeut/',
+        instagram: 'https://www.instagram.com/monicabatir/',
+        linkedin: null,
+        twitter: null,
+      },
     },
   ],
 }
@@ -1432,7 +1592,7 @@ export const terapiiEnergeticeImages = {
     { filename: 'curs-facelift.png', alt: 'Curs Facelift Energetic', courseTitle: 'Curs Facelift Energetic' },
   ],
   logo: { filename: 'logo.png', alt: 'Revital Harmony Logo' },
-  team: [{ filename: 'hero-1.png', alt: 'Monica Batir - Terapeut' }],
+  team: [{ filename: 'team/monica-batir.jpg', alt: 'Monica Batir - Fondator și Terapeut Principal' }],
   gallery: [
     { filename: 'hero-1.png', alt: 'Cabinet de terapie' },
     { filename: 'hero-2.png', alt: 'Sala de tratament' },

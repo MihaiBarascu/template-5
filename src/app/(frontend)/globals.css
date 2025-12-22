@@ -184,6 +184,7 @@
     --theme-text-muted: #999999;
     --theme-border: #e5e5e5;
     --theme-border-light: #f0f0f0;
+    --theme-link: #000000;
 
     /* Contrast text colors - for text on colored backgrounds */
     --theme-text-on-primary: #ffffff;
@@ -323,7 +324,7 @@
   h6 { font-size: var(--font-size-h6); }
 
   a {
-    color: var(--theme-primary);
+    color: var(--theme-link, var(--theme-primary));
     transition: opacity var(--animation-duration) var(--animation-timing);
   }
   a:hover {

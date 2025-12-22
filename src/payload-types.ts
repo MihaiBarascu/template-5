@@ -82,6 +82,7 @@ export interface Config {
     team: Team;
     portfolio: Portfolio;
     testimonials: Testimonial;
+    'testimonial-categories': TestimonialCategory;
     bookings: Booking;
     faq: Faq;
     'product-categories': ProductCategory;
@@ -117,6 +118,9 @@ export interface Config {
     'service-categories': {
       services: 'services';
     };
+    'testimonial-categories': {
+      testimonials: 'testimonials';
+    };
     variantTypes: {
       options: 'variantOptions';
     };
@@ -135,6 +139,7 @@ export interface Config {
     team: TeamSelect<false> | TeamSelect<true>;
     portfolio: PortfolioSelect<false> | PortfolioSelect<true>;
     testimonials: TestimonialsSelect<false> | TestimonialsSelect<true>;
+    'testimonial-categories': TestimonialCategoriesSelect<false> | TestimonialCategoriesSelect<true>;
     bookings: BookingsSelect<false> | BookingsSelect<true>;
     faq: FaqSelect<false> | FaqSelect<true>;
     'product-categories': ProductCategoriesSelect<false> | ProductCategoriesSelect<true>;
@@ -798,7 +803,14 @@ export interface Team {
   slug: string;
   role: string;
   image?: (string | null) | Media;
-  bio?: {
+  /**
+   * 2-3 propoziții pentru carduri și liste (text simplu)
+   */
+  bio?: string | null;
+  /**
+   * Conținut complet pentru pagina individuală - cu titluri, imagini, liste și formatare avansată
+   */
+  description?: {
     root: {
       type: string;
       children: {
@@ -844,6 +856,10 @@ export interface Team {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Activează/dezactivează secțiunea "Vrei să programezi?"
+   */
+  showCTAOnDetailPage?: boolean | null;
   featured?: boolean | null;
   order?: number | null;
   updatedAt: string;
@@ -937,6 +953,14 @@ export interface TestimonialsBlock {
   selectedTestimonials?: (string | Testimonial)[] | null;
   limit?: number | null;
   onlyFeatured?: boolean | null;
+  /**
+   * Selectează una sau mai multe categorii pentru a filtra testimonialele
+   */
+  filterByCategory?: (string | TestimonialCategory)[] | null;
+  /**
+   * Afișează testimonialele grupate pe secțiuni pentru fiecare categorie
+   */
+  groupByCategory?: boolean | null;
   showRating?: boolean | null;
   showAvatar?: boolean | null;
   showSource?: boolean | null;
@@ -1007,7 +1031,14 @@ export interface Testimonial {
   image?: (string | null) | Media;
   content: string;
   rating?: ('5' | '4' | '3' | '2' | '1') | null;
+  /**
+   * Opțional - link direct la un serviciu specific
+   */
   service?: (string | null) | Service;
+  /**
+   * Categorie pentru grupare (ex: Access Bars, Terapia Bowen)
+   */
+  category?: (string | null) | TestimonialCategory;
   source?: ('google' | 'facebook' | 'website' | 'other') | null;
   /**
    * YouTube, Vimeo sau URL direct la video. Optional - doar pentru varianta video-grid.
@@ -1018,6 +1049,39 @@ export interface Testimonial {
    */
   videoPoster?: (string | null) | Media;
   featured?: boolean | null;
+  order?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Categorii pentru organizarea testimonialelor (ex: Access Bars, Terapia Bowen, Reiki)
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "testimonial-categories".
+ */
+export interface TestimonialCategory {
+  id: string;
+  title: string;
+  /**
+   * URL-ul paginii (generat automat din titlu)
+   */
+  slug: string;
+  /**
+   * Descriere scurtă a categoriei (opțional)
+   */
+  description?: string | null;
+  /**
+   * Numele iconului Lucide (ex: Heart, Sparkles, Zap)
+   */
+  icon?: string | null;
+  /**
+   * Lista testimonialelor asociate acestei categorii
+   */
+  testimonials?: {
+    docs?: (string | Testimonial)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   order?: number | null;
   updatedAt: string;
   createdAt: string;
@@ -3455,6 +3519,10 @@ export interface ServiceDetailBlock {
  * via the `definition` "VideoHeroBlock".
  */
 export interface VideoHeroBlock {
+  /**
+   * Split: 2 oferte egale | Carousel: slideshow de mesaje pe acelasi video
+   */
+  variant?: ('default' | 'split' | 'centered' | 'carousel') | null;
   videoSource?: ('url' | 'upload') | null;
   /**
    * YouTube, Vimeo sau link direct la fisier .mp4
@@ -3470,7 +3538,7 @@ export interface VideoHeroBlock {
    */
   overlayColor?: string | null;
   overlayOpacity?: number | null;
-  headline: string;
+  headline?: string | null;
   subheadline?: string | null;
   ctaButtons?:
     | {
@@ -3481,6 +3549,62 @@ export interface VideoHeroBlock {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Text mic deasupra coloanelor, ex: "Revital Harmony" sau "Vindecă · Învață · Transformă"
+   */
+  splitTagline?: string | null;
+  /**
+   * Exact 2 coloane pentru varianta split
+   */
+  splitColumns?:
+    | {
+        headline: string;
+        subheadline?: string | null;
+        ctaButton: {
+          label: string;
+          link: string;
+          variant?: ('primary' | 'secondary' | 'accent' | 'ghost') | null;
+          pillShape?: boolean | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  splitDivider?: boolean | null;
+  /**
+   * Minim 2 slide-uri, maxim 6. Fiecare slide are titlu, descriere și butoane.
+   */
+  carouselSlides?:
+    | {
+        headline: string;
+        subheadline?: string | null;
+        ctaButtons?:
+          | {
+              label: string;
+              link: string;
+              variant?: ('primary' | 'secondary' | 'accent' | 'ghost') | null;
+              pillShape?: boolean | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Schimbă automat slide-urile
+   */
+  carouselAutoplay?: boolean | null;
+  /**
+   * Interval între slide-uri în milisecunde (6000 = 6 secunde)
+   */
+  carouselSpeed?: number | null;
+  /**
+   * Butoanele stânga/dreapta pentru schimbarea manuală a slide-urilor
+   */
+  carouselShowNavigation?: boolean | null;
+  /**
+   * Cercurile de jos care arată slide-ul activ și permit navigarea directă
+   */
+  carouselShowDots?: boolean | null;
   /**
    * Imagini de incredere (certificari, garantii, parteneri, etc.) - ex: Money-back guarantee, Patent
    */
@@ -4025,6 +4149,10 @@ export interface PayloadLockedDocument {
         value: string | Testimonial;
       } | null)
     | ({
+        relationTo: 'testimonial-categories';
+        value: string | TestimonialCategory;
+      } | null)
+    | ({
         relationTo: 'bookings';
         value: string | Booking;
       } | null)
@@ -4486,6 +4614,8 @@ export interface TestimonialsBlockSelect<T extends boolean = true> {
   selectedTestimonials?: T;
   limit?: T;
   onlyFeatured?: T;
+  filterByCategory?: T;
+  groupByCategory?: T;
   showRating?: T;
   showAvatar?: T;
   showSource?: T;
@@ -5684,6 +5814,7 @@ export interface ServiceDetailBlockSelect<T extends boolean = true> {
  * via the `definition` "VideoHeroBlock_select".
  */
 export interface VideoHeroBlockSelect<T extends boolean = true> {
+  variant?: T;
   videoSource?: T;
   videoUrl?: T;
   videoFile?: T;
@@ -5701,6 +5832,43 @@ export interface VideoHeroBlockSelect<T extends boolean = true> {
         pillShape?: T;
         id?: T;
       };
+  splitTagline?: T;
+  splitColumns?:
+    | T
+    | {
+        headline?: T;
+        subheadline?: T;
+        ctaButton?:
+          | T
+          | {
+              label?: T;
+              link?: T;
+              variant?: T;
+              pillShape?: T;
+            };
+        id?: T;
+      };
+  splitDivider?: T;
+  carouselSlides?:
+    | T
+    | {
+        headline?: T;
+        subheadline?: T;
+        ctaButtons?:
+          | T
+          | {
+              label?: T;
+              link?: T;
+              variant?: T;
+              pillShape?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  carouselAutoplay?: T;
+  carouselSpeed?: T;
+  carouselShowNavigation?: T;
+  carouselShowDots?: T;
   trustBadges?:
     | T
     | {
@@ -6063,6 +6231,7 @@ export interface TeamSelect<T extends boolean = true> {
   role?: T;
   image?: T;
   bio?: T;
+  description?: T;
   experience?: T;
   specializations?:
     | T
@@ -6092,6 +6261,7 @@ export interface TeamSelect<T extends boolean = true> {
         hours?: T;
         id?: T;
       };
+  showCTAOnDetailPage?: T;
   featured?: T;
   order?: T;
   updatedAt?: T;
@@ -6142,10 +6312,25 @@ export interface TestimonialsSelect<T extends boolean = true> {
   content?: T;
   rating?: T;
   service?: T;
+  category?: T;
   source?: T;
   videoUrl?: T;
   videoPoster?: T;
   featured?: T;
+  order?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "testimonial-categories_select".
+ */
+export interface TestimonialCategoriesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  description?: T;
+  icon?: T;
+  testimonials?: T;
   order?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -6984,7 +7169,8 @@ export interface SiteTheme {
     | 'fitness-orange'
     | 'fitness-dark'
     | 'gold-navy-healing'
-    | 'revital-harmony';
+    | 'revital-harmony'
+    | 'purple-wellness';
   /**
    * Lasa gol pentru default din varianta
    */

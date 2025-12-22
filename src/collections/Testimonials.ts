@@ -60,6 +60,19 @@ export const Testimonials: CollectionConfig = {
       type: 'relationship',
       relationTo: 'services',
       label: 'Serviciu utilizat',
+      admin: {
+        description: 'Opțional - link direct la un serviciu specific',
+      },
+    },
+    {
+      name: 'category',
+      type: 'relationship',
+      relationTo: 'testimonial-categories',
+      label: 'Categorie',
+      admin: {
+        description: 'Categorie pentru grupare (ex: Access Bars, Terapia Bowen)',
+      },
+      index: true,
     },
     {
       name: 'source',

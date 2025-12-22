@@ -72,7 +72,7 @@ export function TimelineBlock({
           {/* Quote icon */}
           <div className={cn(
             'absolute -top-4 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full flex items-center justify-center',
-            'bg-theme-primary text-white'
+            'bg-theme-primary text-theme-text-on-primary'
           )}>
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h4v10h-10z"/>
@@ -137,7 +137,7 @@ export function TimelineBlock({
                   <div
                     className={cn(
                       'w-12 h-12 rounded-full flex items-center justify-center z-10',
-                      'bg-theme-primary text-white font-bold text-sm'
+                      'bg-theme-primary text-theme-text-on-primary font-bold text-sm'
                     )}
                   >
                     {event.year}
@@ -285,7 +285,7 @@ export function TimelineBlock({
                 <div
                   className={cn(
                     'flex-shrink-0 w-16 h-16 rounded-full flex items-center justify-center z-10',
-                    'bg-theme-primary text-white font-bold'
+                    'bg-theme-primary text-theme-text-on-primary font-bold'
                   )}
                 >
                   {event.year}

@@ -125,7 +125,7 @@ export function ServiceDetail({
               {/* Badges */}
               <div className="flex flex-wrap gap-3">
                 {service.featured && (
-                  <span className="px-3 py-1 text-sm font-medium rounded-full bg-theme-accent text-white">
+                  <span className="px-3 py-1 text-sm font-medium rounded-full bg-theme-accent text-theme-text-on-accent">
                     Popular
                   </span>
                 )}
@@ -290,9 +290,9 @@ export function ServiceDetail({
                     </div>
                   </div>
                   {instructor.bio && (
-                    <div className="mt-4 text-sm text-theme-text-muted line-clamp-3">
-                      <RichText data={instructor.bio} enableGutter={false} enableProse={false} />
-                    </div>
+                    <p className="mt-4 text-sm text-theme-text-muted line-clamp-3">
+                      {instructor.bio}
+                    </p>
                   )}
                 </div>
               )}

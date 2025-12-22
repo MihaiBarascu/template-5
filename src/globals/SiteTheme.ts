@@ -113,6 +113,10 @@ export const SiteTheme: GlobalConfig = {
                   label: '14. Revital Harmony - Gold/Navy exact de pe terapiienergetice.ro',
                   value: 'revital-harmony',
                 },
+                {
+                  label: '15. Purple Wellness - Mov/Cyan de pe plasturi (flat design)',
+                  value: 'purple-wellness',
+                },
               ],
             },
             {

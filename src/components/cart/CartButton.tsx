@@ -65,8 +65,8 @@ export function CartButton({
   }, [])
 
   const variantClasses = {
-    default: 'bg-theme-primary text-white hover:bg-theme-primary/90',
-    outline: 'border-2 border-theme-primary text-theme-primary hover:bg-theme-primary hover:text-white',
+    default: 'bg-theme-primary text-theme-text-on-primary hover:bg-theme-primary/90',
+    outline: 'border-2 border-theme-primary text-theme-primary hover:bg-theme-primary hover:text-theme-text-on-primary',
     ghost: 'text-theme-text hover:bg-theme-primary/10 hover:text-theme-primary',
   }
 
@@ -108,7 +108,7 @@ export function CartButton({
           className={cn(
             'absolute -top-1.5 -right-1.5 flex items-center justify-center',
             'min-w-[20px] h-5 px-1.5 rounded-full text-xs font-bold',
-            'bg-theme-accent text-white',
+            'bg-theme-accent text-theme-text-on-accent',
             'transform transition-transform duration-200',
             isAnimating && 'scale-125'
           )}

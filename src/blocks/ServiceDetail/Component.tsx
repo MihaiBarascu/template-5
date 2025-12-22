@@ -297,7 +297,7 @@ export function ServiceDetailBlock({
               {/* Badges */}
               <div className="flex flex-wrap items-center gap-3">
                 {serviceData.featured && (
-                  <span className="px-3 py-1 rounded-full text-sm font-medium bg-theme-accent text-white">
+                  <span className="px-3 py-1 rounded-full text-sm font-medium bg-theme-accent text-theme-text-on-accent">
                     Popular
                   </span>
                 )}

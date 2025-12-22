@@ -77,12 +77,12 @@ export function CTABlock({
       return cn(buttonBaseClass, 'bg-white text-theme-dark hover:bg-theme-light')
     } else {
       if (btnVariant === 'outline') {
-        return cn(buttonBaseClass, 'border-2 border-theme-primary text-theme-primary hover:bg-theme-primary hover:text-white')
+        return cn(buttonBaseClass, 'border-2 border-theme-primary text-theme-primary hover:bg-theme-primary hover:text-theme-text-on-primary')
       }
       if (btnVariant === 'ghost') {
         return cn(buttonBaseClass, 'text-theme-primary hover:bg-theme-primary/10')
       }
-      return cn(buttonBaseClass, 'bg-theme-primary text-white hover:bg-theme-secondary')
+      return cn(buttonBaseClass, 'bg-theme-primary text-theme-text-on-primary hover:bg-theme-secondary')
     }
   }
 

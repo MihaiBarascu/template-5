@@ -206,7 +206,7 @@ export const FormBlockComponent: React.FC<
             disabled={isSubmitting}
             className={cn(
               'w-full py-3 px-6 rounded-lg font-medium transition-all',
-              'bg-theme-primary text-white hover:bg-theme-primary-dark',
+              'bg-theme-primary text-theme-text-on-primary hover:bg-theme-primary-dark',
               'disabled:opacity-50 disabled:cursor-not-allowed',
             )}
           >

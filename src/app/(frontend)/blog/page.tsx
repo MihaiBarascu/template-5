@@ -100,7 +100,7 @@ export default async function BlogPage() {
           <div className="flex flex-wrap gap-2 mb-12 justify-center">
             <Link
               href="/blog"
-              className="px-4 py-2 rounded-full text-sm font-medium bg-theme-primary text-white"
+              className="px-4 py-2 rounded-full text-sm font-medium bg-theme-primary text-theme-text-on-primary"
             >
               Toate
             </Link>
@@ -139,7 +139,7 @@ export default async function BlogPage() {
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                       {category && (
-                        <span className="absolute top-4 left-4 px-3 py-1 bg-theme-primary text-white text-xs font-medium rounded-full">
+                        <span className="absolute top-4 left-4 px-3 py-1 bg-theme-primary text-theme-text-on-primary text-xs font-medium rounded-full">
                           {category.title}
                         </span>
                       )}

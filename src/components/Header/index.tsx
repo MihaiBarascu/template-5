@@ -36,10 +36,21 @@ function TopBarContent({
     switch (bgColor) {
       case 'primary': return 'bg-theme-primary'
       case 'transparent': return 'bg-transparent'
-      case 'light': return 'bg-theme-light text-theme-text'
+      case 'light': return 'bg-theme-light'
       default: return 'bg-theme-dark'
     }
   }
+
+  // Get text/icon color class based on background for proper contrast
+  const getTextColorClass = () => {
+    switch (bgColor) {
+      case 'primary': return 'text-theme-text-on-primary' // Contrast on primary bg
+      case 'light': return 'text-theme-text' // Dark text on light bg
+      default: return 'text-theme-primary' // Primary (gold) on dark/transparent bg
+    }
+  }
+
+  const textColorClass = getTextColorClass()
 
   // Get social links - use custom if provided, otherwise from businessInfo
   const getSocialLinks = () => {
@@ -78,7 +89,7 @@ function TopBarContent({
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center hover:opacity-80 [&_svg]:w-4 [&_svg]:h-4"
+              className={cn("flex items-center justify-center hover:opacity-80 [&_svg]:w-4 [&_svg]:h-4", textColorClass)}
               aria-label={link.platform}
             >
               {icon}
@@ -98,13 +109,13 @@ function TopBarContent({
     return (
       <div className="flex items-center gap-4">
         {hasPhone && (
-          <a href={`tel:${businessInfo?.phone}`} className="hover:opacity-80 flex items-center gap-1.5">
+          <a href={`tel:${businessInfo?.phone}`} className={cn("hover:opacity-80 flex items-center gap-1.5", textColorClass)}>
             <PhoneIcon className="w-4 h-4" />
             <span>{businessInfo?.phone}</span>
           </a>
         )}
         {hasEmail && (
-          <a href={`mailto:${businessInfo?.email}`} className="hover:opacity-80 hidden md:flex items-center gap-1.5">
+          <a href={`mailto:${businessInfo?.email}`} className={cn("hover:opacity-80 hidden md:flex items-center gap-1.5", textColorClass)}>
             <EmailIcon className="w-4 h-4" />
             <span>{businessInfo?.email}</span>
           </a>
@@ -116,7 +127,7 @@ function TopBarContent({
   // Custom text/message renderer
   const MessageBlock = () => {
     if (!topBar.customText) return null
-    return <span className="hidden sm:block">{topBar.customText}</span>
+    return <span className={cn("hidden sm:block", textColorClass)}>{topBar.customText}</span>
   }
 
   // Render based on layout configuration
@@ -176,7 +187,7 @@ function TopBarContent({
 
   return (
     <div className={cn(
-      "text-white py-2 text-sm transition-all duration-300",
+      "py-2 text-sm transition-all duration-300",
       getBgClass(),
       hideTopBar && "h-0 py-0 overflow-hidden opacity-0"
     )}>
@@ -387,7 +398,11 @@ export function Header({ data, logo, businessInfo, showCart = false }: HeaderPro
             </Link>
 
             {/* Navigation - Desktop */}
-            <nav className="hidden md:flex flex-1 items-center justify-end gap-1">
+            {/* Center nav when CTA exists, right-align when no CTA */}
+            <nav className={cn(
+              "hidden md:flex flex-1 items-center gap-1",
+              (ctaButton?.enabled || showCart) ? "justify-center" : "justify-end"
+            )}>
               {navItems.map((item: NavItem, index: number) => {
                 const hasSubmenu = item.hasSubmenu && (item.submenu?.length ?? 0) > 0
 
@@ -413,7 +428,7 @@ export function Header({ data, logo, businessInfo, showCart = false }: HeaderPro
                           "flex items-center gap-1 px-3 py-2 rounded-lg transition-colors font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary focus-visible:ring-offset-2",
                           isHeaderTransparent
                             ? "text-white hover:text-white/80 hover:bg-white/10"
-                            : "text-theme-text hover:text-theme-primary hover:bg-gray-50"
+                            : "text-theme-text hover:text-theme-dark hover:bg-theme-surface-secondary"
                         )}
                         aria-expanded={isOpen}
                         aria-haspopup="true"
@@ -444,15 +459,15 @@ export function Header({ data, logo, businessInfo, showCart = false }: HeaderPro
                         role="menu"
                         aria-orientation="vertical"
                       >
-                        <div className="min-w-[200px] bg-white rounded-lg shadow-lg border border-gray-100 py-2">
+                        <div className="min-w-[200px] bg-theme-surface rounded-lg shadow-lg border border-theme-border py-2">
                           {submenuItems.map((subItem: SubmenuItem, subIndex: number) => (
                             <Link
                               key={subIndex}
                               ref={(el) => { submenuRefs.current[subIndex] = el }}
                               href={getItemHref(subItem)}
                               className={cn(
-                                "block px-4 py-2 text-gray-700 hover:text-theme-primary hover:bg-gray-50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-theme-primary",
-                                focusedSubmenuIndex === subIndex && "bg-gray-50 text-theme-primary"
+                                "block px-4 py-2 text-theme-text-light hover:text-theme-dark hover:bg-theme-surface-secondary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-theme-primary",
+                                focusedSubmenuIndex === subIndex && "bg-theme-surface-secondary text-theme-dark"
                               )}
                               target={subItem.newTab ? '_blank' : undefined}
                               role="menuitem"
@@ -465,7 +480,7 @@ export function Header({ data, logo, businessInfo, showCart = false }: HeaderPro
                             >
                               <span className="font-medium">{subItem.label}</span>
                               {subItem.description && (
-                                <span className="block text-sm text-gray-500 mt-0.5">{subItem.description}</span>
+                                <span className="block text-sm text-theme-text-muted mt-0.5">{subItem.description}</span>
                               )}
                             </Link>
                           ))}
@@ -483,7 +498,7 @@ export function Header({ data, logo, businessInfo, showCart = false }: HeaderPro
                       "px-3 py-2 rounded-lg transition-colors font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary focus-visible:ring-offset-2",
                       isHeaderTransparent
                         ? "text-white hover:text-white/80 hover:bg-white/10"
-                        : "text-theme-text hover:text-theme-primary hover:bg-gray-50"
+                        : "text-theme-text hover:text-theme-dark hover:bg-theme-surface-secondary"
                     )}
                     target={item.newTab ? '_blank' : undefined}
                   >
@@ -503,7 +518,7 @@ export function Header({ data, logo, businessInfo, showCart = false }: HeaderPro
                     "hidden sm:flex items-center gap-2 p-2 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary focus-visible:ring-offset-2",
                     isHeaderTransparent
                       ? "text-white hover:bg-white/10"
-                      : "text-theme-text hover:bg-gray-100"
+                      : "text-theme-text hover:bg-theme-surface-secondary"
                   )}
                   aria-label={status === 'loggedIn' ? 'Contul meu' : 'Autentificare'}
                 >
@@ -528,10 +543,10 @@ export function Header({ data, logo, businessInfo, showCart = false }: HeaderPro
                   className={cn(
                     'hidden sm:inline-flex items-center px-4 py-2 rounded-theme-button font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
                     ctaButton.variant === 'outline'
-                      ? 'border-2 border-theme-primary text-theme-primary hover:bg-theme-primary hover:text-white focus-visible:ring-theme-primary'
+                      ? 'border-2 border-theme-primary text-theme-primary hover:bg-theme-primary hover:text-theme-text-on-primary focus-visible:ring-theme-primary'
                       : ctaButton.variant === 'ghost'
                         ? 'text-theme-primary hover:bg-theme-primary/10 focus-visible:ring-theme-primary'
-                        : 'bg-theme-primary text-white hover:opacity-90 focus-visible:ring-theme-primary'
+                        : 'bg-theme-primary text-theme-text-on-primary hover:opacity-90 focus-visible:ring-theme-primary'
                   )}
                 >
                   {ctaButton.label || 'Contact'}
@@ -606,7 +621,7 @@ export function Header({ data, logo, businessInfo, showCart = false }: HeaderPro
                     {hasParentLink ? (
                       <Link
                         href={itemHref}
-                        className="flex-1 py-2 px-3 rounded-lg text-theme-text hover:text-theme-primary hover:bg-gray-50 transition-colors font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary focus-visible:ring-inset"
+                        className="flex-1 py-2 px-3 rounded-lg text-theme-text hover:text-theme-dark hover:bg-theme-surface-secondary transition-colors font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary focus-visible:ring-inset"
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         {item.label}
@@ -621,8 +636,8 @@ export function Header({ data, logo, businessInfo, showCart = false }: HeaderPro
                     <button
                       onClick={() => setMobileOpenSubmenu(isOpen ? null : index)}
                       className={cn(
-                        'p-2 rounded-lg text-theme-text hover:text-theme-primary hover:bg-gray-50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary focus-visible:ring-offset-2',
-                        isOpen && 'text-theme-primary bg-gray-50'
+                        'p-2 rounded-lg text-theme-text hover:text-theme-dark hover:bg-theme-surface-secondary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary focus-visible:ring-offset-2',
+                        isOpen && 'text-theme-dark bg-theme-surface-secondary'
                       )}
                       aria-label={isOpen ? 'Inchide submeniu' : 'Deschide submeniu'}
                       aria-expanded={isOpen}
@@ -651,7 +666,7 @@ export function Header({ data, logo, businessInfo, showCart = false }: HeaderPro
                         <Link
                           key={subIndex}
                           href={getItemHref(subItem)}
-                          className="block py-2 px-3 rounded-lg text-gray-600 hover:text-theme-primary hover:bg-gray-50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary focus-visible:ring-inset"
+                          className="block py-2 px-3 rounded-lg text-theme-text-light hover:text-theme-dark hover:bg-theme-surface-secondary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary focus-visible:ring-inset"
                           onClick={() => {
                             setMobileMenuOpen(false)
                             setMobileOpenSubmenu(null)
@@ -671,7 +686,7 @@ export function Header({ data, logo, businessInfo, showCart = false }: HeaderPro
               <Link
                 key={index}
                 href={getItemHref(item)}
-                className="py-2 px-3 rounded-lg text-theme-text hover:text-theme-primary hover:bg-gray-50 transition-colors font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary focus-visible:ring-inset"
+                className="py-2 px-3 rounded-lg text-theme-text hover:text-theme-dark hover:bg-theme-surface-secondary transition-colors font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary focus-visible:ring-inset"
                 target={item.newTab ? '_blank' : undefined}
                 onClick={() => setMobileMenuOpen(false)}
               >
@@ -684,7 +699,7 @@ export function Header({ data, logo, businessInfo, showCart = false }: HeaderPro
           {(showCart || ctaButton?.link === '/cos') && (
             <Link
               href={status === 'loggedIn' ? '/cont' : '/cont/login'}
-              className="mt-2 flex items-center justify-center gap-2 px-4 py-3 rounded-theme-button font-medium border-2 border-theme-primary text-theme-primary hover:bg-theme-primary hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-theme-primary"
+              className="mt-2 flex items-center justify-center gap-2 px-4 py-3 rounded-theme-button font-medium border-2 border-theme-primary text-theme-primary hover:bg-theme-primary hover:text-theme-text-on-primary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-theme-primary"
               onClick={() => setMobileMenuOpen(false)}
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -698,7 +713,7 @@ export function Header({ data, logo, businessInfo, showCart = false }: HeaderPro
           {(showCart || ctaButton?.link === '/cos') && (
             <Link
               href="/cos"
-              className="mt-2 flex items-center justify-center gap-2 px-4 py-3 rounded-theme-button font-medium bg-theme-primary text-white hover:bg-theme-primary/90 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-theme-primary"
+              className="mt-2 flex items-center justify-center gap-2 px-4 py-3 rounded-theme-button font-medium bg-theme-primary text-theme-text-on-primary hover:bg-theme-primary/90 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-theme-primary"
               onClick={() => setMobileMenuOpen(false)}
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -715,10 +730,10 @@ export function Header({ data, logo, businessInfo, showCart = false }: HeaderPro
               className={cn(
                 'mt-2 text-center px-4 py-3 rounded-theme-button font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
                 ctaButton.variant === 'outline'
-                  ? 'border-2 border-theme-primary text-theme-primary hover:bg-theme-primary hover:text-white focus-visible:ring-theme-primary'
+                  ? 'border-2 border-theme-primary text-theme-primary hover:bg-theme-primary hover:text-theme-text-on-primary focus-visible:ring-theme-primary'
                   : ctaButton.variant === 'ghost'
                     ? 'text-theme-primary hover:bg-theme-primary/10 focus-visible:ring-theme-primary'
-                    : 'bg-theme-primary text-white hover:opacity-90 focus-visible:ring-theme-primary'
+                    : 'bg-theme-primary text-theme-text-on-primary hover:opacity-90 focus-visible:ring-theme-primary'
               )}
               onClick={() => setMobileMenuOpen(false)}
             >

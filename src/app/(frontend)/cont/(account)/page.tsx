@@ -117,7 +117,7 @@ export default async function AccountPage() {
             <p className="text-theme-text-muted mb-4">{account.noOrdersMessage || 'Nu ai comenzi încă.'}</p>
             <Link
               href="/produse"
-              className="inline-flex items-center gap-2 bg-theme-primary text-white px-4 py-2 rounded-[var(--radius-button)] hover:bg-theme-primary-dark transition-colors"
+              className="inline-flex items-center gap-2 bg-theme-primary text-theme-text-on-primary px-4 py-2 rounded-[var(--radius-button)] hover:bg-theme-primary-dark transition-colors"
             >
               Descoperă produsele
             </Link>

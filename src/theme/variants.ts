@@ -22,6 +22,8 @@ export interface ThemeColors {
   textOnDark: string
   textOnLight: string
   textOnSurface: string
+  // Link/interactive color - auto-generated for contrast on light backgrounds
+  linkColor?: string
 }
 
 export interface ThemeVariant {
@@ -395,6 +397,33 @@ export const THEME_VARIANTS: Record<string, ThemeVariant> = {
     fonts: { heading: 'Playfair_Display', body: 'Open_Sans' },
     borderRadius: 'medium',
     shadows: 'subtle',
+  },
+  // =============================================================================
+  // 15. PURPLE WELLNESS - Culorile de pe plasturifototerapeutici.ro
+  // Pentru business-uri wellness/healing cu branding mov
+  // Stil flat: fără umbre, carduri fără raze, butoane pill (24px)
+  // =============================================================================
+  'purple-wellness': {
+    colors: {
+      primary: '#AD50F2',       // Purple exact - healing, premium
+      secondary: '#27BECF',     // Cyan - energie, vitalitate
+      accent: '#0088CB',        // Blue - încredere, medical
+      dark: '#1A1A2E',          // Dark pentru fundal
+      light: '#EEEEEE',         // Light gray pentru secțiuni alternate
+      surface: '#ffffff',       // Alb pur
+      text: '#000000',          // Text negru (contrast maxim)
+      textLight: '#4F4F4F',     // Text secundar gri
+      border: '#E0E0E0',        // Border gri subtil
+      textOnPrimary: '#ffffff', // Alb pe purple
+      textOnSecondary: '#ffffff', // Alb pe cyan
+      textOnAccent: '#ffffff',  // Alb pe blue
+      textOnDark: '#ffffff',    // Alb pe dark
+      textOnLight: '#000000',   // Negru pe light
+      textOnSurface: '#000000', // Negru pe surface
+    },
+    fonts: { heading: 'Prompt', body: 'Open_Sans' },
+    borderRadius: 'none',       // Flat design - carduri fără raze
+    shadows: 'none',            // Flat design - fără umbre
   },
 }
 
