@@ -3,6 +3,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { cn } from '@/utilities/cn'
+import { getBgClasses, isDarkBackground } from '@/blocks/_shared/themeHelpers'
 
 interface Category {
   id: string
@@ -33,11 +34,8 @@ export function CategoriesBlock({
   backgroundColor = 'default',
   categories,
 }: CategoriesBlockProps) {
-  const bgClasses = {
-    default: 'bg-white',
-    light: 'bg-theme-light',
-    dark: 'bg-theme-dark text-white',
-  }
+  const bgClass = getBgClasses(backgroundColor)
+  const isDark = isDarkBackground(backgroundColor)
 
   const gridCols = {
     2: 'md:grid-cols-2',
@@ -50,18 +48,18 @@ export function CategoriesBlock({
   }
 
   return (
-    <section className={cn('py-16', bgClasses[backgroundColor])}>
+    <section className={cn('py-16', bgClass)}>
       <div className="container mx-auto px-4">
         {/* Header */}
         {(heading || subheading) && (
           <div className="text-center mb-12">
             {heading && (
-              <h2 className={cn('heading-h2 font-bold mb-4', backgroundColor === 'dark' ? 'text-white' : 'text-theme-text')}>
+              <h2 className={cn('heading-h2 font-bold mb-4', isDark ? 'text-white' : 'text-theme-text')}>
                 {heading}
               </h2>
             )}
             {subheading && (
-              <p className={cn('text-lg max-w-2xl mx-auto', backgroundColor === 'dark' ? 'text-white/70' : 'text-theme-text-light')}>
+              <p className={cn('text-lg max-w-2xl mx-auto', isDark ? 'text-white/70' : 'text-theme-text-light')}>
                 {subheading}
               </p>
             )}
@@ -83,7 +81,7 @@ export function CategoriesBlock({
             >
               <h3 className={cn(
                 'text-xl font-semibold mb-2 group-hover:text-theme-primary transition-colors',
-                backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'
+                isDark ? 'text-white' : 'text-theme-text'
               )}>
                 {category.title}
               </h3>
@@ -91,7 +89,7 @@ export function CategoriesBlock({
               {showDescription && category.description && (
                 <p className={cn(
                   'text-sm mb-3 line-clamp-2',
-                  backgroundColor === 'dark' ? 'text-white/60' : 'text-theme-text-light'
+                  isDark ? 'text-white/60' : 'text-theme-text-light'
                 )}>
                   {category.description}
                 </p>
@@ -100,7 +98,7 @@ export function CategoriesBlock({
               {showProductCount && category.productCount !== undefined && (
                 <span className={cn(
                   'text-sm font-medium',
-                  backgroundColor === 'dark' ? 'text-white/60' : 'text-theme-text-muted'
+                  isDark ? 'text-white/60' : 'text-theme-text-muted'
                 )}>
                   {category.productCount} {category.productCount === 1 ? 'produs' : 'produse'}
                 </span>
@@ -108,7 +106,7 @@ export function CategoriesBlock({
 
               <div className={cn(
                 'mt-4 flex items-center text-sm font-medium group-hover:text-theme-primary transition-colors',
-                backgroundColor === 'dark' ? 'text-white/70' : 'text-theme-text-light'
+                isDark ? 'text-white/70' : 'text-theme-text-light'
               )}>
                 Vezi produsele
                 <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">

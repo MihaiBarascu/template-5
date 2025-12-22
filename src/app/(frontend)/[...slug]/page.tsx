@@ -5,6 +5,8 @@ import { RenderBlocks } from '@/blocks/RenderBlocks'
 import { RenderHero } from '@/heros/RenderHero'
 import { ServiceDetail } from '@/components/ServiceDetail'
 import { TeamDetail } from '@/components/TeamDetail'
+import { PageWrapper } from '@/components/PageWrapper'
+import { getCachedGlobal } from '@/utilities/getGlobals'
 import type { Metadata } from 'next'
 import type { Service, Team } from '@/payload-types'
 
@@ -97,28 +99,53 @@ async function getTeamMemberServices(payload: Awaited<ReturnType<typeof getPaylo
   return servicesResult.docs
 }
 
+// Helper to get related services (excluding current one)
+async function getRelatedServices(payload: Awaited<ReturnType<typeof getPayload>>, currentServiceId: string, limit: number = 3): Promise<Service[]> {
+  const servicesResult = await payload.find({
+    collection: 'services',
+    where: {
+      and: [
+        { id: { not_equals: currentServiceId } },
+        { active: { equals: true } },
+      ],
+    },
+    limit,
+    depth: 1,
+    sort: '-featured,order',
+  })
+
+  return servicesResult.docs
+}
+
 export default async function Page({ params }: PageProps) {
   const { slug: slugArray } = await params
   const url = getUrlFromSlug(slugArray)
   const lastSlug = slugArray[slugArray.length - 1]
   const payload = await getPayload({ config: configPromise })
 
-  // Try to find page first
-  const [pageData, businessInfo] = await Promise.all([
+  // Fetch globals for header + page data
+  const [headerData, logoData, businessInfo, pageData] = await Promise.all([
+    getCachedGlobal('header'),
+    getCachedGlobal('logo'),
+    getCachedGlobal('business-info'),
     findPage(payload, url, lastSlug, slugArray),
-    payload.findGlobal({ slug: 'business-info' }).catch(() => null),
   ])
 
-  // If page found, render it
+  // If page found, render it with PageWrapper
   if (pageData) {
     const social = businessInfo?.social || null
     return (
-      <>
+      <PageWrapper
+        headerData={headerData}
+        logoData={logoData}
+        businessInfoData={businessInfo}
+        pageHeaderSettings={pageData.headerSettings}
+      >
         {pageData.heroType && pageData.heroType !== 'none' && pageData.hero && (
           <RenderHero type={pageData.heroType as string} data={pageData.hero} social={social} />
         )}
         {pageData.layout && <RenderBlocks blocks={pageData.layout} />}
-      </>
+      </PageWrapper>
     )
   }
 
@@ -132,14 +159,23 @@ export default async function Page({ params }: PageProps) {
     const service = await findService(payload, itemSlug)
 
     if (service) {
+      const relatedServices = await getRelatedServices(payload, service.id, 3)
       return (
-        <ServiceDetail
-          service={service}
-          backLink={service.backLink || basePath}
-          backLabel={service.backLabel || 'Înapoi'}
-          ctaLabel={service.ctaLabel || undefined}
-          ctaLink={service.ctaLink || undefined}
-        />
+        <PageWrapper
+          headerData={headerData}
+          logoData={logoData}
+          businessInfoData={businessInfo}
+          pageHeaderSettings={{ headerTransparency: 'solid' }}
+        >
+          <ServiceDetail
+            service={service}
+            backLink={service.backLink || basePath}
+            backLabel={service.backLabel || 'Înapoi'}
+            ctaLabel={service.ctaLabel || undefined}
+            ctaLink={service.ctaLink || undefined}
+            relatedServices={relatedServices}
+          />
+        </PageWrapper>
       )
     }
 
@@ -158,12 +194,19 @@ export default async function Page({ params }: PageProps) {
         : 'Înapoi la echipă'
 
       return (
-        <TeamDetail
-          member={teamMember}
-          backLink={basePath}
-          backLabel={backLabel}
-          services={memberServices}
-        />
+        <PageWrapper
+          headerData={headerData}
+          logoData={logoData}
+          businessInfoData={businessInfo}
+          pageHeaderSettings={{ headerTransparency: 'solid' }}
+        >
+          <TeamDetail
+            member={teamMember}
+            backLink={basePath}
+            backLabel={backLabel}
+            services={memberServices}
+          />
+        </PageWrapper>
       )
     }
   }
@@ -173,14 +216,23 @@ export default async function Page({ params }: PageProps) {
     // Try service first
     const service = await findService(payload, lastSlug)
     if (service) {
+      const relatedServices = await getRelatedServices(payload, service.id, 3)
       return (
-        <ServiceDetail
-          service={service}
-          backLink={service.backLink || '/servicii'}
-          backLabel={service.backLabel || 'Înapoi'}
-          ctaLabel={service.ctaLabel || undefined}
-          ctaLink={service.ctaLink || undefined}
-        />
+        <PageWrapper
+          headerData={headerData}
+          logoData={logoData}
+          businessInfoData={businessInfo}
+          pageHeaderSettings={{ headerTransparency: 'solid' }}
+        >
+          <ServiceDetail
+            service={service}
+            backLink={service.backLink || '/servicii'}
+            backLabel={service.backLabel || 'Înapoi'}
+            ctaLabel={service.ctaLabel || undefined}
+            ctaLink={service.ctaLink || undefined}
+            relatedServices={relatedServices}
+          />
+        </PageWrapper>
       )
     }
 
@@ -189,12 +241,19 @@ export default async function Page({ params }: PageProps) {
     if (teamMember) {
       const memberServices = await getTeamMemberServices(payload, teamMember.id)
       return (
-        <TeamDetail
-          member={teamMember}
-          backLink="/echipa"
-          backLabel="Înapoi la echipă"
-          services={memberServices}
-        />
+        <PageWrapper
+          headerData={headerData}
+          logoData={logoData}
+          businessInfoData={businessInfo}
+          pageHeaderSettings={{ headerTransparency: 'solid' }}
+        >
+          <TeamDetail
+            member={teamMember}
+            backLink="/echipa"
+            backLabel="Înapoi la echipă"
+            services={memberServices}
+          />
+        </PageWrapper>
       )
     }
   }

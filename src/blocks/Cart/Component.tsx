@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { getBgClasses, isDarkBackground } from '@/blocks/_shared/themeHelpers'
 
 interface CartItem {
   id: string
@@ -41,11 +42,8 @@ export function CartBlock({
   const [cart, setCart] = useState<CartItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
-  const bgClasses = {
-    default: 'bg-white',
-    light: 'bg-theme-light',
-    dark: 'bg-theme-dark text-white',
-  }
+  const bgClass = getBgClasses(backgroundColor)
+  const isDark = isDarkBackground(backgroundColor)
 
   useEffect(() => {
     const loadCart = () => {
@@ -103,7 +101,7 @@ export function CartBlock({
 
   if (isLoading) {
     return (
-      <section className={`py-16 ${bgClasses[backgroundColor]}`}>
+      <section className={`py-16 ${bgClass}`}>
         <div className="container mx-auto px-4">
           <div className="animate-pulse">
             <div className="h-8 bg-theme-light rounded w-1/4 mb-6"></div>
@@ -120,18 +118,18 @@ export function CartBlock({
 
   if (cart.length === 0) {
     return (
-      <section className={`py-16 ${bgClasses[backgroundColor]}`}>
+      <section className={`py-16 ${bgClass}`}>
         <div className="container mx-auto px-4">
           {heading && (
             <h2
-              className={`heading-h2 font-bold mb-8 ${backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'}`}
+              className={`heading-h2 font-bold mb-8 ${isDark ? 'text-white' : 'text-theme-text'}`}
             >
               {heading}
             </h2>
           )}
           <div className="text-center py-12">
             <div className="text-6xl mb-4">🛒</div>
-            <p className={`text-lg mb-6 ${backgroundColor === 'dark' ? 'text-white/70' : 'text-theme-text-light'}`}>
+            <p className={`text-lg mb-6 ${isDark ? 'text-white/70' : 'text-theme-text-light'}`}>
               {emptyCartMessage}
             </p>
             <Link
@@ -148,11 +146,11 @@ export function CartBlock({
   }
 
   return (
-    <section className={`py-16 ${bgClasses[backgroundColor]}`}>
+    <section className={`py-16 ${bgClass}`}>
       <div className="container mx-auto px-4">
         {heading && (
           <h2
-            className={`heading-h2 font-bold mb-8 ${backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'}`}
+            className={`heading-h2 font-bold mb-8 ${isDark ? 'text-white' : 'text-theme-text'}`}
           >
             {heading}
           </h2>
@@ -166,7 +164,7 @@ export function CartBlock({
                 <div
                   key={item.id}
                   className={`flex items-center gap-4 p-4 rounded-lg ${
-                    backgroundColor === 'dark' ? 'bg-white/5' : 'bg-theme-light'
+                    isDark ? 'bg-white/5' : 'bg-theme-light'
                   }`}
                 >
                   {/* Image */}
@@ -184,12 +182,12 @@ export function CartBlock({
                   <div className="flex-grow min-w-0">
                     <h3
                       className={`font-semibold truncate ${
-                        backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'
+                        isDark ? 'text-white' : 'text-theme-text'
                       }`}
                     >
                       {item.title}
                     </h3>
-                    <p className={`text-sm ${backgroundColor === 'dark' ? 'text-white/60' : 'text-theme-text-muted'}`}>
+                    <p className={`text-sm ${isDark ? 'text-white/60' : 'text-theme-text-muted'}`}>
                       {formatPrice(item.price)} / buc
                     </p>
                   </div>
@@ -213,7 +211,7 @@ export function CartBlock({
                         </button>
                         <span
                           className={`w-8 text-center font-medium ${
-                            backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'
+                            isDark ? 'text-white' : 'text-theme-text'
                           }`}
                         >
                           {item.quantity}
@@ -241,7 +239,7 @@ export function CartBlock({
                   {/* Price */}
                   <div
                     className={`font-bold text-right min-w-[80px] ${
-                      backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'
+                      isDark ? 'text-white' : 'text-theme-text'
                     }`}
                   >
                     {formatPrice(item.price * item.quantity)}
@@ -264,7 +262,7 @@ export function CartBlock({
             <Link
               href={continueShoppingLink}
               className={`inline-flex items-center gap-2 mt-6 text-sm ${
-                backgroundColor === 'dark' ? 'text-white/70 hover:text-white' : 'text-theme-text-light hover:text-theme-text'
+                isDark ? 'text-white/70 hover:text-white' : 'text-theme-text-light hover:text-theme-text'
               }`}
             >
               ← Continua cumparaturile
@@ -275,12 +273,12 @@ export function CartBlock({
           {showSubtotal && variant === 'full' && (
             <div
               className={`p-6 rounded-lg h-fit ${
-                backgroundColor === 'dark' ? 'bg-white/5' : 'bg-theme-light'
+                isDark ? 'bg-white/5' : 'bg-theme-light'
               }`}
             >
               <h3
                 className={`text-lg font-semibold mb-4 ${
-                  backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'
+                  isDark ? 'text-white' : 'text-theme-text'
                 }`}
               >
                 Sumar comanda
@@ -289,7 +287,7 @@ export function CartBlock({
               <div className="space-y-2 mb-4">
                 <div
                   className={`flex justify-between ${
-                    backgroundColor === 'dark' ? 'text-white/70' : 'text-theme-text-light'
+                    isDark ? 'text-white/70' : 'text-theme-text-light'
                   }`}
                 >
                   <span>Subtotal</span>
@@ -297,7 +295,7 @@ export function CartBlock({
                 </div>
                 <div
                   className={`flex justify-between ${
-                    backgroundColor === 'dark' ? 'text-white/70' : 'text-theme-text-light'
+                    isDark ? 'text-white/70' : 'text-theme-text-light'
                   }`}
                 >
                   <span>Transport</span>
@@ -307,21 +305,21 @@ export function CartBlock({
 
               <div
                 className={`border-t pt-4 mb-6 ${
-                  backgroundColor === 'dark' ? 'border-white/10' : 'border-theme-border'
+                  isDark ? 'border-white/10' : 'border-theme-border'
                 }`}
               >
                 <div className="flex justify-between font-bold text-lg">
-                  <span className={backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'}>
+                  <span className={isDark ? 'text-white' : 'text-theme-text'}>
                     Total
                   </span>
-                  <span className={backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'}>
+                  <span className={isDark ? 'text-white' : 'text-theme-text'}>
                     {formatPrice(subtotal >= 200 ? subtotal : subtotal + 20)}
                   </span>
                 </div>
                 {subtotal < 200 && (
                   <p
                     className={`text-sm mt-2 ${
-                      backgroundColor === 'dark' ? 'text-white/60' : 'text-theme-text-muted'
+                      isDark ? 'text-white/60' : 'text-theme-text-muted'
                     }`}
                   >
                     Mai adauga {formatPrice(200 - subtotal)} pentru transport gratuit!

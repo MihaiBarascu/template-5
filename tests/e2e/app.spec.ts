@@ -86,10 +86,16 @@ test.describe('Verificare Aplicație', () => {
     // Admin panel trebuie să răspundă (200 sau redirect la login)
     expect([200, 302, 303, 307, 308]).toContain(response?.status())
 
-    // Verifică că nu e o pagină de eroare
+    // Verifică că nu e o pagină de eroare server (500 status sau mesaj explicit)
     const content = await page.content()
-    expect(content.toLowerCase()).not.toContain('500')
+    // Check for explicit error messages, not CSS values like "font-weight:500"
     expect(content.toLowerCase()).not.toContain('internal server error')
+    expect(content.toLowerCase()).not.toContain('500 error')
+    expect(content.toLowerCase()).not.toContain('error 500')
+
+    // Verify we got admin UI content (not an error page)
+    const hasPayloadUI = content.includes('payload') || content.includes('admin') || content.includes('dashboard')
+    expect(hasPayloadUI).toBe(true)
   })
 
   test('Site-ul e responsive (mobile)', async ({ page }) => {

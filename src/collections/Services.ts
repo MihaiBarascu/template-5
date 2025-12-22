@@ -1,6 +1,17 @@
 import type { CollectionConfig } from 'payload'
+import {
+  BlocksFeature,
+  FixedToolbarFeature,
+  HeadingFeature,
+  HorizontalRuleFeature,
+  InlineToolbarFeature,
+  lexicalEditor,
+} from '@payloadcms/richtext-lexical'
 import { anyone, authenticated } from '@/access'
 import { slugField } from '@/fields/slug'
+import { Banner } from '@/blocks/Banner/config'
+import { MediaBlock } from '@/blocks/MediaBlock/config'
+import { revalidateServiceAfterChange, revalidateServiceAfterDelete } from '@/hooks/revalidateService'
 
 export const Services: CollectionConfig = {
   slug: 'services',
@@ -32,6 +43,16 @@ export const Services: CollectionConfig = {
     },
     slugField('title'),
     {
+      name: 'category',
+      type: 'relationship',
+      relationTo: 'service-categories',
+      label: 'Categorie',
+      admin: {
+        description: 'Categorie pentru organizare (ex: Terapii, Cursuri)',
+      },
+      index: true,
+    },
+    {
       name: 'shortDescription',
       type: 'textarea',
       label: 'Descriere scurtă',
@@ -44,6 +65,21 @@ export const Services: CollectionConfig = {
       name: 'description',
       type: 'richText',
       label: 'Descriere detaliată',
+      admin: {
+        description: 'Conținut complet cu titluri, imagini, liste și formatare avansată',
+      },
+      editor: lexicalEditor({
+        features: ({ rootFeatures }) => {
+          return [
+            ...rootFeatures,
+            HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] }),
+            BlocksFeature({ blocks: [Banner, MediaBlock] }),
+            FixedToolbarFeature(),
+            InlineToolbarFeature(),
+            HorizontalRuleFeature(),
+          ]
+        },
+      }),
     },
     {
       type: 'row',
@@ -359,5 +395,9 @@ export const Services: CollectionConfig = {
       },
     },
   ],
+  hooks: {
+    afterChange: [revalidateServiceAfterChange],
+    afterDelete: [revalidateServiceAfterDelete],
+  },
   defaultSort: 'order',
 }

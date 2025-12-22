@@ -8,6 +8,8 @@ import { Calendar, User, ArrowLeft, ArrowRight, Share2, Facebook, Twitter, Linke
 import RichText from '@/components/RichText'
 import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical'
 import type { Post } from '@/payload-types'
+import { PageWrapper } from '@/components/PageWrapper'
+import { getCachedGlobal } from '@/utilities/getGlobals'
 import { generatePostMeta } from '@/utilities/generateMeta'
 import { getServerSideURL } from '@/utilities/getURL'
 
@@ -95,6 +97,13 @@ export async function generateStaticParams() {
 export default async function BlogPostPage({ params }: PageProps) {
   const { slug } = await params
   const payload = await getPayload({ config: configPromise })
+
+  // Fetch header globals
+  const [headerData, logoData, businessInfo] = await Promise.all([
+    getCachedGlobal('header'),
+    getCachedGlobal('logo'),
+    getCachedGlobal('business-info'),
+  ])
 
   const post = await payload.find({
     collection: 'posts',
@@ -201,7 +210,11 @@ export default async function BlogPostPage({ params }: PageProps) {
   }
 
   return (
-    <>
+    <PageWrapper
+      headerData={headerData}
+      logoData={logoData}
+      businessInfoData={businessInfo}
+    >
       {/* JSON-LD Structured Data - Article */}
       <script
         type="application/ld+json"
@@ -406,7 +419,7 @@ export default async function BlogPostPage({ params }: PageProps) {
           </div>
         </section>
       )}
-    </main>
-    </>
+      </main>
+    </PageWrapper>
   )
 }

@@ -164,7 +164,7 @@ export function ProductFilters({
                 <span className="font-medium text-theme-text">
                   {filter.label}
                   {activeValues.length > 0 && (
-                    <span className="ml-2 text-xs bg-theme-primary text-white px-2 py-0.5 rounded-full">
+                    <span className="ml-2 text-xs bg-theme-primary text-theme-text-on-primary px-2 py-0.5 rounded-full">
                       {activeValues.length}
                     </span>
                   )}
@@ -251,7 +251,7 @@ export function ProductFilters({
           <button
             type="button"
             onClick={onMobileClose}
-            className="w-full py-3 bg-theme-primary text-white font-medium rounded-[var(--radius-button)] hover:bg-theme-primary-dark transition-colors min-h-[44px]"
+            className="w-full py-3 bg-theme-primary text-theme-text-on-primary font-medium rounded-[var(--radius-button)] hover:bg-theme-primary-dark transition-colors min-h-[44px]"
           >
             Aplică filtrele
           </button>
@@ -318,7 +318,7 @@ function PriceRangeFilter({
       <button
         type="button"
         onClick={handleApply}
-        className="w-full py-2 text-sm border border-theme-primary text-theme-primary rounded-[var(--radius-button)] hover:bg-theme-primary hover:text-white transition-colors min-h-[44px]"
+        className="w-full py-2 text-sm border border-theme-primary text-theme-primary rounded-[var(--radius-button)] hover:bg-theme-primary hover:text-theme-text-on-primary transition-colors min-h-[44px]"
       >
         Aplică
       </button>
@@ -356,7 +356,7 @@ export function MobileFilterButton({
       <Filter className="w-4 h-4" />
       <span className="text-sm font-medium">Filtre</span>
       {activeCount > 0 && (
-        <span className="bg-theme-primary text-white text-xs px-2 py-0.5 rounded-full">
+        <span className="bg-theme-primary text-theme-text-on-primary text-xs px-2 py-0.5 rounded-full">
           {activeCount}
         </span>
       )}

@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // If no specific tags/paths, revalidate all common globals and root
+    // If no specific tags/paths, revalidate all common globals, collections and root
     if ((!tags || tags.length === 0) && (!paths || paths.length === 0)) {
       // Revalidate all global cache tags
       const globalTags = [
@@ -58,7 +58,20 @@ export async function POST(request: NextRequest) {
         'global_system-pages',
       ]
 
-      for (const tag of globalTags) {
+      // Revalidate common collection cache tags (pages, services, etc.)
+      const collectionTags = [
+        'pages',
+        'pages_home',
+        'services',
+        'products',
+        'posts',
+        'team',
+        'portfolio',
+        'testimonials',
+        'faq',
+      ]
+
+      for (const tag of [...globalTags, ...collectionTags]) {
         revalidateTag(tag, 'max')
         revalidated.tags.push(tag)
       }
@@ -90,23 +103,36 @@ export async function GET() {
     return NextResponse.json({ error: 'GET only allowed in development' }, { status: 403 })
   }
 
-  // Revalidate everything
-  const globalTags = [
+  // Revalidate everything (same tags as POST)
+  const allTags = [
+    // Globals
     'global_site-theme',
     'global_header',
     'global_footer',
     'global_logo',
     'global_business-info',
+    'global_shop-settings',
+    // Collections
+    'pages',
+    'pages_home',
+    'services',
+    'products',
+    'posts',
+    'team',
+    'portfolio',
+    'testimonials',
+    'faq',
   ]
 
-  for (const tag of globalTags) {
+  for (const tag of allTags) {
     revalidateTag(tag, 'max')
   }
   revalidatePath('/', 'layout')
 
   return NextResponse.json({
     success: true,
-    message: 'All globals and layout revalidated',
+    message: `Revalidated ${allTags.length} tags and layout`,
+    tags: allTags,
     timestamp: new Date().toISOString(),
   })
 }

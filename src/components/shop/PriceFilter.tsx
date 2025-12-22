@@ -69,7 +69,7 @@ export function PriceFilter({
       </div>
       <button
         onClick={applyPriceFilter}
-        className="mt-2 w-full py-2 text-sm bg-theme-primary text-white rounded hover:bg-theme-primary/90 transition-colors"
+        className="mt-2 w-full py-2 text-sm bg-theme-primary text-theme-text-on-primary rounded hover:bg-theme-primary/90 transition-colors"
       >
         Aplica
       </button>

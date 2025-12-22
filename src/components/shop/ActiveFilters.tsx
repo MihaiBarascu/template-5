@@ -78,7 +78,7 @@ export function ActiveFilters({
           <button
             key={filter.key}
             onClick={() => removeFilter(filter.key)}
-            className="inline-flex items-center gap-1 px-3 py-1 text-sm bg-theme-light rounded-full text-theme-text hover:bg-theme-primary hover:text-white transition-colors"
+            className="inline-flex items-center gap-1 px-3 py-1 text-sm bg-theme-light rounded-full text-theme-text hover:bg-theme-primary hover:text-theme-text-on-primary transition-colors"
           >
             {filter.label}
             <X className="w-3 h-3" />

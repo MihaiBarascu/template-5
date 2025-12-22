@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { cn } from '@/utilities/cn'
 import type { Media } from '@/payload-types'
+import { getBgClasses, isDarkBackground } from '@/blocks/_shared/themeHelpers'
 
 interface VideoEmbedBlockProps {
   variant?: 'centered' | 'full-width' | 'with-text' | 'custom-thumbnail' | 'lightbox' | null
@@ -106,11 +107,8 @@ export function VideoEmbedBlock({
     return `${embedUrl}${separator}${params.toString()}`
   }, [embedUrl, autoplay, isPlaying, loop, showControls, platform, videoId])
 
-  const bgClass = {
-    default: 'bg-white',
-    light: 'bg-theme-light',
-    dark: 'bg-theme-dark text-white',
-  }[backgroundColor || 'default']
+  const bgClass = getBgClasses(backgroundColor || 'default')
+  const isDark = isDarkBackground(backgroundColor || 'default')
 
   const maxWidthClass = {
     sm: 'max-w-screen-sm',
@@ -222,7 +220,7 @@ export function VideoEmbedBlock({
             {subheading && (
               <p className={cn(
                 'text-base md:text-lg max-w-2xl mx-auto',
-                backgroundColor === 'dark' ? 'text-white/70' : 'text-theme-text-light'
+                isDark ? 'text-white/70' : 'text-theme-text-light'
               )}>
                 {subheading}
               </p>
@@ -248,7 +246,7 @@ export function VideoEmbedBlock({
               {sideContent.description && (
                 <p className={cn(
                   'text-base md:text-lg',
-                  backgroundColor === 'dark' ? 'text-white/70' : 'text-theme-text-light'
+                  isDark ? 'text-white/70' : 'text-theme-text-light'
                 )}>
                   {sideContent.description}
                 </p>

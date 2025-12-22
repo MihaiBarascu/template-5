@@ -125,7 +125,7 @@ export function AddToCart({ product, className }: Props) {
       aria-label="Adauga in cos"
       className={cn(
         'inline-flex items-center justify-center gap-2 px-6 py-3 rounded-[var(--radius-button)] font-medium transition-all',
-        'bg-theme-primary text-white hover:bg-theme-primary-dark hover:opacity-90',
+        'bg-theme-primary text-theme-text-on-primary hover:bg-theme-primary-dark hover:opacity-90',
         'disabled:opacity-50 disabled:cursor-not-allowed',
         className
       )}

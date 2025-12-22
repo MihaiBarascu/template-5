@@ -1,4 +1,5 @@
 import type { Block } from 'payload'
+import { sectionWrapperFields } from '../_shared/sectionWrapperFields'
 
 /**
  * ContactInfo Block
@@ -206,5 +207,7 @@ export const ContactBlock: Block = {
         },
       ],
     },
+    // Section wrapper fields for advanced layout options
+    ...sectionWrapperFields,
   ],
 }

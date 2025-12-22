@@ -104,7 +104,7 @@ export function SplitHero({ data }: SplitHeroProps) {
 
                 {/* Stats badge */}
                 {(data?.statsBadge?.enabled !== false) && (
-                  <div className="absolute -bottom-6 -right-6 bg-theme-secondary text-white px-6 py-4 rounded-2xl shadow-2xl">
+                  <div className="absolute -bottom-6 -right-6 bg-theme-secondary text-theme-text-on-secondary px-6 py-4 rounded-2xl shadow-2xl">
                     <div className="text-3xl font-bold">{data?.statsBadge?.value || '10+'}</div>
                     <div className="text-sm opacity-90">{data?.statsBadge?.label || 'ani experienta'}</div>
                   </div>

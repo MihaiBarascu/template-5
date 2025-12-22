@@ -1,4 +1,11 @@
 import type { Block } from 'payload'
+import { sectionWrapperFields } from '../_shared/sectionWrapperFields'
+import {
+  headingFields,
+  backgroundColorField,
+  columnsSelectField,
+  toggleField,
+} from '../_shared/commonFields'
 
 export const TeamBlock: Block = {
   slug: 'team',
@@ -23,17 +30,7 @@ export const TeamBlock: Block = {
         { label: 'Cu modal la click', value: 'with-modal' },
       ],
     },
-    {
-      name: 'heading',
-      type: 'text',
-      label: 'Titlu sectiune',
-      defaultValue: 'Echipa noastra',
-    },
-    {
-      name: 'subheading',
-      type: 'textarea',
-      label: 'Subtitlu sectiune',
-    },
+    ...headingFields({ headingDefault: 'Echipa noastra' }),
     {
       name: 'source',
       type: 'select',
@@ -72,30 +69,10 @@ export const TeamBlock: Block = {
         condition: (_, siblingData) => siblingData?.source === 'collection',
       },
     },
-    {
-      name: 'showRole',
-      type: 'checkbox',
-      label: 'Afiseaza functia',
-      defaultValue: true,
-    },
-    {
-      name: 'showBio',
-      type: 'checkbox',
-      label: 'Afiseaza biografie',
-      defaultValue: false,
-    },
-    {
-      name: 'showSocial',
-      type: 'checkbox',
-      label: 'Afiseaza social media',
-      defaultValue: true,
-    },
-    {
-      name: 'showContact',
-      type: 'checkbox',
-      label: 'Afiseaza contact',
-      defaultValue: false,
-    },
+    toggleField({ name: 'showRole', label: 'Afiseaza functia', defaultValue: true }),
+    toggleField({ name: 'showBio', label: 'Afiseaza biografie', defaultValue: false }),
+    toggleField({ name: 'showSocial', label: 'Afiseaza social media', defaultValue: true }),
+    toggleField({ name: 'showContact', label: 'Afiseaza contact', defaultValue: false }),
     {
       name: 'detailBasePath',
       type: 'text',
@@ -104,27 +81,9 @@ export const TeamBlock: Block = {
         description: 'Ex: /echipa - cardurile vor deveni clickable si vor duce la /echipa/slug-membru',
       },
     },
-    {
-      name: 'columns',
-      type: 'select',
-      label: 'Coloane',
-      defaultValue: '4',
-      options: [
-        { label: '2 coloane', value: '2' },
-        { label: '3 coloane', value: '3' },
-        { label: '4 coloane', value: '4' },
-      ],
-    },
-    {
-      name: 'backgroundColor',
-      type: 'select',
-      label: 'Culoare fundal',
-      defaultValue: 'default',
-      options: [
-        { label: 'Default', value: 'default' },
-        { label: 'Light', value: 'light' },
-        { label: 'Dark', value: 'dark' },
-      ],
-    },
+    columnsSelectField({ options: ['2', '3', '4'], defaultValue: '4' }),
+    backgroundColorField({ includePrimary: false }),
+    // Section wrapper fields for advanced layout options
+    ...sectionWrapperFields,
   ],
 }

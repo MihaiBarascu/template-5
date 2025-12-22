@@ -21,6 +21,7 @@ import { ProductsBlock } from './Products/Component'
 import { CartBlock } from './Cart/Component'
 import { CheckoutBlock } from './Checkout/Component'
 import { VideoEmbedBlock } from './VideoEmbed/Component'
+import { VideoGalleryBlock } from './VideoGallery/Component'
 import { PriceListDottedBlock } from './PriceListDotted/Component'
 import { BeforeAfterBlock } from './BeforeAfter/Component'
 import { NewsletterBlock } from './Newsletter/Component'
@@ -47,6 +48,11 @@ import { FormBlockComponent } from './Form/Component'
 import { MapBlock } from './Map/Component'
 // Portfolio block
 import { PortfolioBlock } from './Portfolio/Component'
+// Premium blocks (Plasturi integration)
+import { VideoHeroBlock } from './VideoHero/Component'
+import { ProcessStepsBlock } from './ProcessSteps/Component'
+import { PricingKitsBlock } from './PricingKits/Component'
+import { DownloadLinksBlock } from './DownloadLinks/Component'
 
 type LayoutBlock = NonNullable<Page['layout']>[number]
 
@@ -81,7 +87,7 @@ interface BlockParams {
   limit?: number | null
   onlyFeatured?: boolean | null
   onlySale?: boolean | null
-  filterByCategory?: string | null
+  filterByCategory?: string | string[] | null
 }
 
 interface RenderBlocksProps {
@@ -89,12 +95,26 @@ interface RenderBlocksProps {
 }
 
 // Fetch services data
-async function getServices(block: BlockParams) {
+async function getServices(block: BlockParams & { filterByCategory?: string | string[] | null }) {
   const payload = await getPayload({ config: configPromise })
 
-  const where: Where = {}
+  const where: Where = {
+    active: { equals: true },
+  }
   if (block.onlyFeatured) {
     where.featured = { equals: true }
+  }
+  // Filter by service category (can be single ID or array of IDs)
+  if (block.filterByCategory) {
+    const categoryIds = Array.isArray(block.filterByCategory)
+      ? block.filterByCategory
+      : [block.filterByCategory]
+
+    if (categoryIds.length === 1) {
+      where.category = { equals: categoryIds[0] }
+    } else if (categoryIds.length > 1) {
+      where.category = { in: categoryIds }
+    }
   }
 
   const services = await payload.find({
@@ -102,6 +122,7 @@ async function getServices(block: BlockParams) {
     where,
     limit: block.limit || 6,
     sort: 'order',
+    depth: 2,
   })
 
   return services.docs
@@ -127,7 +148,7 @@ async function getTeamMembers(block: BlockParams) {
 }
 
 // Fetch testimonials
-async function getTestimonials(block: BlockParams) {
+async function getTestimonials(block: BlockParams & { filterByCategory?: string | string[] | null }) {
   const payload = await getPayload({ config: configPromise })
 
   const where: Where = {}
@@ -135,13 +156,42 @@ async function getTestimonials(block: BlockParams) {
     where.featured = { equals: true }
   }
 
+  // Filter by testimonial category (can be single ID or array of IDs)
+  if (block.filterByCategory) {
+    const categoryIds = Array.isArray(block.filterByCategory)
+      ? block.filterByCategory
+      : [block.filterByCategory]
+
+    if (categoryIds.length === 1) {
+      where.category = { equals: categoryIds[0] }
+    } else if (categoryIds.length > 1) {
+      where.category = { in: categoryIds }
+    }
+  }
+
   const testimonials = await payload.find({
     collection: 'testimonials',
     where,
     limit: block.limit || 6,
+    sort: 'order',
+    depth: 2,
   })
 
   return testimonials.docs
+}
+
+// Fetch testimonial categories
+async function getTestimonialCategories() {
+  const payload = await getPayload({ config: configPromise })
+
+  const categories = await payload.find({
+    collection: 'testimonial-categories',
+    limit: 50,
+    sort: 'order',
+    depth: 0,
+  })
+
+  return categories.docs
 }
 
 // Fetch FAQs
@@ -422,9 +472,18 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
 
           switch (blockType) {
             case 'services': {
+              // Extract filterByCategory - can be array of IDs from relationship field
+              const filterByCategory = (block as { filterByCategory?: string | { id: string }[] | null }).filterByCategory
+              const categoryIds: string[] | undefined = filterByCategory
+                ? Array.isArray(filterByCategory)
+                  ? filterByCategory.map(c => typeof c === 'string' ? c : c.id)
+                  : [filterByCategory as string]
+                : undefined
+
               const services = await getServices({
                 limit: block.limit,
                 onlyFeatured: block.onlyFeatured,
+                filterByCategory: categoryIds,
               })
 
               const detailBasePath = (block as { detailBasePath?: string | null }).detailBasePath ?? '/clase'
@@ -494,10 +553,26 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
             }
 
             case 'testimonials': {
+              // Extract filterByCategory - can be array of IDs from relationship field
+              const filterByCategory = (block as { filterByCategory?: string | { id: string }[] | null }).filterByCategory
+              const categoryIds: string[] | undefined = filterByCategory
+                ? Array.isArray(filterByCategory)
+                  ? filterByCategory.map(c => typeof c === 'string' ? c : c.id)
+                  : [filterByCategory as string]
+                : undefined
+
+              const groupByCategory = (block as { groupByCategory?: boolean }).groupByCategory
+
+              // Fetch testimonials with optional category filter
               const testimonials = await getTestimonials({
-                limit: block.limit,
+                limit: groupByCategory ? 100 : block.limit, // Get more if grouping
                 onlyFeatured: block.onlyFeatured,
+                filterByCategory: categoryIds,
               })
+
+              // Fetch categories if grouping is enabled
+              const categories = groupByCategory ? await getTestimonialCategories() : undefined
+
               return (
                 <TestimonialsBlock
                   key={block.id || index}
@@ -509,6 +584,8 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   autoplay={block.autoplay ?? undefined}
                   backgroundColor={block.backgroundColor ?? undefined}
                   testimonials={testimonials}
+                  groupByCategory={groupByCategory}
+                  categories={categories}
                 />
               )
             }
@@ -824,6 +901,23 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
               )
             }
 
+            case 'videoGallery': {
+              return (
+                <VideoGalleryBlock
+                  key={block.id || index}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
+                  subheading={block.subheading ?? undefined}
+                  videos={block.videos ?? undefined}
+                  showTitles={block.showTitles ?? undefined}
+                  showDuration={block.showDuration ?? undefined}
+                  showCategories={block.showCategories ?? undefined}
+                  aspectRatio={block.aspectRatio ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
+                />
+              )
+            }
+
             case 'priceListDotted': {
               const priceListServices = block.source === 'services'
                 ? await getServices({
@@ -877,7 +971,10 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   backgroundImage={block.backgroundImage ?? undefined}
                   privacyText={block.privacyText ?? undefined}
                   showPrivacyLink={block.showPrivacyLink ?? undefined}
+                  requireConsent={block.requireConsent ?? undefined}
+                  consentText={block.consentText ?? undefined}
                   benefits={block.benefits ?? undefined}
+                  pattern={block.pattern ?? undefined}
                 />
               )
             }
@@ -1342,6 +1439,83 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   height={block.height ?? undefined}
                   showDirectionsButton={block.showDirectionsButton ?? undefined}
                   businessInfo={businessInfo}
+                />
+              )
+            }
+
+            case 'video-hero': {
+              return (
+                <VideoHeroBlock
+                  key={block.id || index}
+                  variant={block.variant ?? undefined}
+                  videoSource={block.videoSource ?? undefined}
+                  videoUrl={block.videoUrl ?? undefined}
+                  videoFile={block.videoFile ?? undefined}
+                  videoPoster={block.videoPoster ?? undefined}
+                  overlayColor={block.overlayColor ?? undefined}
+                  overlayOpacity={block.overlayOpacity ?? undefined}
+                  headline={block.headline ?? undefined}
+                  subheadline={block.subheadline ?? undefined}
+                  ctaButtons={block.ctaButtons ?? undefined}
+                  splitTagline={block.splitTagline ?? undefined}
+                  splitColumns={block.splitColumns ?? undefined}
+                  splitDivider={block.splitDivider ?? undefined}
+                  carouselSlides={block.carouselSlides ?? undefined}
+                  carouselAutoplay={block.carouselAutoplay ?? undefined}
+                  carouselSpeed={block.carouselSpeed ?? undefined}
+                  carouselShowNavigation={block.carouselShowNavigation ?? undefined}
+                  carouselShowDots={block.carouselShowDots ?? undefined}
+                  trustBadges={block.trustBadges ?? undefined}
+                  trustBadgesPosition={block.trustBadgesPosition ?? undefined}
+                  showSocialLinks={block.showSocialLinks ?? undefined}
+                  textAlignment={block.textAlignment ?? undefined}
+                  height={block.height ?? undefined}
+                  showScrollIndicator={block.showScrollIndicator ?? undefined}
+                />
+              )
+            }
+
+            case 'process-steps': {
+              return (
+                <ProcessStepsBlock
+                  key={block.id || index}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
+                  subheading={block.subheading ?? undefined}
+                  steps={block.steps ?? undefined}
+                  showNumbers={block.showNumbers ?? undefined}
+                  showConnectors={block.showConnectors ?? undefined}
+                  imagePosition={block.imagePosition ?? undefined}
+                  ctaButton={block.ctaButton ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
+                />
+              )
+            }
+
+            case 'pricing-kits': {
+              return (
+                <PricingKitsBlock
+                  key={block.id || index}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
+                  subheading={block.subheading ?? undefined}
+                  kits={block.kits ?? undefined}
+                  columns={block.columns ?? undefined}
+                  showCompareFeatures={block.showCompareFeatures ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
+                />
+              )
+            }
+
+            case 'download-links': {
+              return (
+                <DownloadLinksBlock
+                  key={block.id || index}
+                  variant={block.variant ?? undefined}
+                  heading={block.heading ?? undefined}
+                  links={block.links ?? undefined}
+                  alignment={block.alignment ?? undefined}
+                  backgroundColor={block.backgroundColor ?? undefined}
                 />
               )
             }

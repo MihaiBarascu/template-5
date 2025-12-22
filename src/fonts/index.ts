@@ -25,6 +25,8 @@ import {
   DM_Sans,
   DM_Serif_Display,
   Raleway,
+  // Clean/flat design fonts
+  Prompt,
 } from 'next/font/google'
 
 // Initialize all available fonts with display: swap
@@ -148,6 +150,14 @@ const raleway = Raleway({
   weight: ['400', '500', '600', '700'],
 })
 
+// Clean/flat design fonts
+const prompt = Prompt({
+  subsets: ['latin', 'latin-ext'],
+  display: 'swap',
+  variable: '--font-prompt',
+  weight: ['300', '400', '500', '600', '700'],
+})
+
 // Map font names to font objects
 export const FONTS = {
   'Inter': inter,
@@ -176,6 +186,8 @@ export const FONTS = {
   'DM Serif Display': dmSerifDisplay,
   'DM_Serif_Display': dmSerifDisplay,
   'Raleway': raleway,
+  // Clean/flat design fonts
+  'Prompt': prompt,
 } as const
 
 export type FontName = keyof typeof FONTS
@@ -228,6 +240,8 @@ export function getAllFontVariables(): string {
     dmSans.variable,
     dmSerifDisplay.variable,
     raleway.variable,
+    // Clean/flat design fonts
+    prompt.variable,
   ].join(' ')
 }
 
@@ -251,4 +265,6 @@ export {
   dmSans,
   dmSerifDisplay,
   raleway,
+  // Clean/flat design fonts
+  prompt,
 }

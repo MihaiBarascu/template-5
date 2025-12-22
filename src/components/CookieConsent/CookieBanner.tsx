@@ -93,7 +93,7 @@ export function CookieBanner({
                 'px-6 py-3 text-sm md:text-base font-semibold',
                 'bg-transparent text-theme-primary border-2 border-theme-primary',
                 'rounded-[var(--radius-button)]',
-                'hover:bg-theme-primary hover:text-white',
+                'hover:bg-theme-primary hover:text-theme-text-on-primary',
                 'transition-all duration-200',
                 'shadow-sm hover:shadow-md',
                 'active:scale-95',
@@ -109,7 +109,7 @@ export function CookieBanner({
               onClick={acceptAll}
               className={cn(
                 'px-6 py-3 text-sm md:text-base font-semibold',
-                'bg-theme-primary text-white',
+                'bg-theme-primary text-theme-text-on-primary',
                 'rounded-[var(--radius-button)]',
                 'hover:bg-theme-secondary',
                 'transition-all duration-200',

@@ -62,7 +62,7 @@ const nextConfig = {
     qualities: [75, 85], // Next.js 16 requires explicit quality values
     // In dev mode, use short cache to allow image updates during seeding
     // In production, use 1 year cache for performance
-    minimumCacheTTL: process.env.NODE_ENV === 'development' ? 0 : 31536000
+    minimumCacheTTL: process.env.NODE_ENV === 'development' ? 0 : 31536000,
   },
   webpack: webpackConfig => {
     webpackConfig.resolve.extensionAlias = {
@@ -84,9 +84,10 @@ const nextConfig = {
         headers: [
           {
             key: 'Cache-Control',
-            value: process.env.NODE_ENV === 'development'
-              ? 'no-cache, no-store, must-revalidate'
-              : 'public, max-age=31536000, immutable',
+            value:
+              process.env.NODE_ENV === 'development'
+                ? 'no-cache, no-store, must-revalidate'
+                : 'public, max-age=31536000, immutable',
           },
         ],
       },

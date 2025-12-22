@@ -105,6 +105,18 @@ export const SiteTheme: GlobalConfig = {
                   label: '12. Fitness Dark - Dark cu accent rosu, stil gym modern',
                   value: 'fitness-dark',
                 },
+                {
+                  label: '13. Gold Navy Healing - Calm, premium, spiritual',
+                  value: 'gold-navy-healing',
+                },
+                {
+                  label: '14. Revital Harmony - Gold/Navy exact de pe terapiienergetice.ro',
+                  value: 'revital-harmony',
+                },
+                {
+                  label: '15. Purple Wellness - Mov/Cyan de pe plasturi (flat design)',
+                  value: 'purple-wellness',
+                },
               ],
             },
             {
@@ -498,6 +510,7 @@ export const SiteTheme: GlobalConfig = {
                     { label: 'DM Sans (Clean, Readable)', value: 'DM_Sans' },
                     { label: 'DM Serif Display (Elegant Display)', value: 'DM_Serif_Display' },
                     { label: 'Raleway (Elegant, Modern)', value: 'Raleway' },
+                    { label: 'Prompt (Clean, Flat Design)', value: 'Prompt' },
                   ],
                 },
                 {
@@ -526,6 +539,7 @@ export const SiteTheme: GlobalConfig = {
                     { label: 'Manrope (Bold)', value: 'Manrope' },
                     { label: 'DM Sans (Readable)', value: 'DM_Sans' },
                     { label: 'Raleway (Modern)', value: 'Raleway' },
+                    { label: 'Prompt (Clean, Flat)', value: 'Prompt' },
                   ],
                 },
               ],
@@ -541,6 +555,29 @@ export const SiteTheme: GlobalConfig = {
                   },
                 },
               },
+            },
+            // Heading Weight - for flat/clean design (like plasturi with 400 weight)
+            {
+              type: 'row',
+              fields: [
+                {
+                  name: 'headingWeight',
+                  type: 'select',
+                  label: 'Grosime Titluri',
+                  admin: {
+                    width: '50%',
+                    description: 'Font weight pentru titluri (H1-H6). "Light" pentru design clean/flat.',
+                  },
+                  options: [
+                    { label: 'Light (300)', value: '300' },
+                    { label: 'Normal (400)', value: '400' },
+                    { label: 'Medium (500)', value: '500' },
+                    { label: 'Semibold (600)', value: '600' },
+                    { label: 'Bold (700)', value: '700' },
+                  ],
+                  defaultValue: '600',
+                },
+              ],
             },
             // Advanced Typography Settings
             {
@@ -619,10 +656,26 @@ export const SiteTheme: GlobalConfig = {
               admin: { condition: (_, siblingData) => siblingData?.useCustomButtons },
               fields: [
                 {
+                  name: 'buttonRounding',
+                  type: 'select',
+                  label: 'Rotunjire Butoane',
+                  admin: { width: '25%' },
+                  options: [
+                    { label: 'None (0px)', value: 'none' },
+                    { label: 'Small (4px)', value: 'small' },
+                    { label: 'Default (8px)', value: 'default' },
+                    { label: 'Medium (12px)', value: 'medium' },
+                    { label: 'Large (16px)', value: 'large' },
+                    { label: 'Pill (24px)', value: 'pill' },
+                    { label: 'Full (9999px)', value: 'full' },
+                  ],
+                  defaultValue: 'default',
+                },
+                {
                   name: 'buttonPadding',
                   type: 'select',
                   label: 'Padding Buton',
-                  admin: { width: '33%' },
+                  admin: { width: '25%' },
                   options: [
                     { label: 'Compact (8px 16px)', value: 'compact' },
                     { label: 'Normal (12px 24px)', value: 'normal' },
@@ -635,7 +688,7 @@ export const SiteTheme: GlobalConfig = {
                   name: 'buttonTextTransform',
                   type: 'select',
                   label: 'Text Transform',
-                  admin: { width: '33%' },
+                  admin: { width: '25%' },
                   options: [
                     { label: 'None', value: 'none' },
                     { label: 'Uppercase', value: 'uppercase' },
@@ -647,7 +700,7 @@ export const SiteTheme: GlobalConfig = {
                   name: 'buttonFontWeight',
                   type: 'select',
                   label: 'Font Weight',
-                  admin: { width: '33%' },
+                  admin: { width: '25%' },
                   options: [
                     { label: 'Normal (400)', value: '400' },
                     { label: 'Medium (500)', value: '500' },

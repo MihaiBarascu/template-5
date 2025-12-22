@@ -5,53 +5,9 @@ import Link from 'next/link'
 import { cn } from '@/utilities/cn'
 import { Media } from '@/components/Media'
 import type { Media as MediaType } from '@/payload-types'
-import {
-  Search,
-  MousePointerClick,
-  Calendar,
-  CheckCircle,
-  User,
-  Store,
-  ShoppingCart,
-  CreditCard,
-  Package,
-  Truck,
-  Home,
-  Phone,
-  Mail,
-  MessageSquare,
-  Settings,
-  FileText,
-  Scissors,
-  Star,
-  Heart,
-  ClipboardCheck,
-  type LucideIcon,
-} from 'lucide-react'
-
-// Icon mapping
-const iconMap: Record<string, LucideIcon> = {
-  Search,
-  MousePointerClick,
-  Calendar,
-  CheckCircle,
-  User,
-  Store,
-  ShoppingCart,
-  CreditCard,
-  Package,
-  Truck,
-  Home,
-  Phone,
-  Mail,
-  MessageSquare,
-  Settings,
-  FileText,
-  Scissors,
-  Star,
-  Heart,
-  ClipboardCheck,
-}
+import { getBgClasses, isDarkBackground } from '@/blocks/_shared/themeHelpers'
+import { getLucideIconComponent } from '@/blocks/_shared/iconComponents'
+import { CheckCircle } from 'lucide-react'
 
 interface Step {
   title: string
@@ -87,25 +43,18 @@ export function HowItWorksBlock({
 }: HowItWorksBlockProps) {
   if (steps.length === 0) return null
 
-  // Background colors - using theme variables
-  const bgColors = {
-    default: 'bg-theme-surface',
-    light: 'bg-theme-light',
-    dark: 'bg-theme-dark text-white',
-    primary: 'bg-theme-primary/5',
-  }
-
-  const isDark = backgroundColor === 'dark'
+  const bgClass = getBgClasses(backgroundColor)
+  const isDark = isDarkBackground(backgroundColor)
 
   // Render step number or icon
   const renderStepIndicator = (step: Step, index: number) => {
     if (variant === 'icons' || variant === 'connected') {
-      const IconComponent = step.icon ? iconMap[step.icon] : CheckCircle
+      const IconComponent = step.icon ? getLucideIconComponent(step.icon) || CheckCircle : CheckCircle
       return (
         <div
           className={cn(
             'w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center shrink-0',
-            isDark ? 'bg-theme-primary text-white' : 'bg-theme-primary/10',
+            isDark ? 'step-gradient' : 'icon-gradient-bg',
           )}
         >
           <IconComponent
@@ -117,7 +66,7 @@ export function HowItWorksBlock({
 
     if (showNumbers) {
       return (
-        <div className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center font-bold text-lg shrink-0 bg-theme-primary text-white">
+        <div className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center font-bold text-lg shrink-0 step-gradient">
           {index + 1}
         </div>
       )
@@ -167,11 +116,10 @@ export function HowItWorksBlock({
   // Timeline vertical variant
   const renderTimeline = () => (
     <div className="relative max-w-2xl mx-auto">
-      {/* Vertical line */}
+      {/* Vertical line with gradient fade */}
       <div
         className={cn(
-          'absolute left-5 md:left-6 top-0 bottom-0 w-0.5',
-          isDark ? 'bg-white/20' : 'bg-theme-primary/20',
+          'absolute left-5 md:left-6 top-0 bottom-0 w-0.5 connector-gradient-v',
         )}
       />
 
@@ -207,7 +155,7 @@ export function HowItWorksBlock({
           )}
         >
           {showNumbers && (
-            <span className="absolute -top-3 -left-3 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold bg-theme-primary text-white">
+            <span className="absolute -top-3 -left-3 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold step-gradient">
               {index + 1}
             </span>
           )}
@@ -227,12 +175,9 @@ export function HowItWorksBlock({
   // Connected variant (with lines between steps)
   const renderConnected = () => (
     <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative">
-      {/* Connector line for desktop */}
+      {/* Connector line for desktop with gradient */}
       <div
-        className={cn(
-          'hidden md:block absolute top-7 left-0 right-0 h-0.5 -z-10',
-          isDark ? 'bg-white/20' : 'bg-theme-primary/20',
-        )}
+        className="hidden md:block absolute top-7 left-0 right-0 h-0.5 -z-10 connector-gradient-h"
         style={{ left: '10%', right: '10%' }}
       />
 
@@ -272,7 +217,7 @@ export function HowItWorksBlock({
             <div className="flex-1 text-center md:text-left">
               <div className="flex items-center gap-3 justify-center md:justify-start mb-3">
                 {showNumbers && (
-                  <span className="w-8 h-8 rounded-full bg-theme-primary text-white flex items-center justify-center font-bold text-sm">
+                  <span className="w-8 h-8 rounded-full step-gradient flex items-center justify-center font-bold text-sm">
                     {index + 1}
                   </span>
                 )}
@@ -329,7 +274,7 @@ export function HowItWorksBlock({
   }
 
   return (
-    <section className={cn('py-12 md:py-16', bgColors[backgroundColor])}>
+    <section className={cn('py-12 md:py-16', bgClass)}>
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-10 md:mb-12">
@@ -351,7 +296,7 @@ export function HowItWorksBlock({
           <div className="mt-10 md:mt-12 text-center">
             <Link
               href={ctaButton.link}
-              className="inline-flex items-center justify-center px-8 py-3 rounded-[var(--radius-button)] font-medium transition-all bg-theme-primary text-white hover:bg-theme-secondary"
+              className="inline-flex items-center justify-center px-8 py-3 rounded-[var(--radius-button)] font-medium transition-all bg-theme-primary text-theme-text-on-primary hover:bg-theme-secondary"
             >
               {ctaButton.label || 'Incepe acum'}
             </Link>

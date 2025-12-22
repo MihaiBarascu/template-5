@@ -87,6 +87,27 @@ export async function seedRestaurant(payload: Payload) {
     stats: restaurantData.business.stats,
     googleMapsEmbed:
       'https://www.google.com/maps?q=Strada+Lipscani+45,+Sector+3,+Bucuresti,+Romania&output=embed',
+    whatsappFloat: {
+      enabled: true,
+      position: 'bottom-right',
+      showOnMobile: true,
+      defaultMessage: 'Buna! Doresc sa fac o rezervare la restaurant.',
+      tooltipText: 'Rezerva pe WhatsApp',
+      pulseAnimation: true,
+    },
+    floatingCta: {
+      enabled: true,
+      text: 'Rezervă Masa',
+      href: '/rezervare',
+      variant: 'gradient',
+      icon: 'calendar',
+      position: 'bottom-center',
+      shape: 'pill',
+      showOnMobile: true,
+      pulseAnimation: true,
+      dismissible: true,
+      showAfterScroll: 300,
+    },
   })
 
   // 5. Logo

@@ -6,6 +6,8 @@ import { cn } from '@/utilities/cn'
 import * as LucideIcons from 'lucide-react'
 import type { Service, Media as MediaType } from '@/payload-types'
 import { Media } from '@/components/Media'
+import { getBgClasses, isDarkBackground } from '@/blocks/_shared/themeHelpers'
+import { getLucideIcon, ArrowIcon } from '@/blocks/_shared/iconComponents'
 
 interface ServicesBlockProps {
   variant?: string
@@ -19,37 +21,10 @@ interface ServicesBlockProps {
   bookButtonText?: string
   bookButtonLink?: string
   backgroundColor?: string
+  hoverEffect?: 'default' | 'lift' | 'glow' | 'scale' | 'none'
   services?: Service[]
   detailBasePath?: string
 }
-
-// Get Lucide icon by name
-function getIcon(iconName: string | null | undefined, className: string = 'w-6 h-6') {
-  if (!iconName) return null
-
-  // Capitalize first letter and handle common variations
-  const normalizedName = iconName
-    .split(/[-_\s]/)
-    .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
-    .join('')
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const IconComponent = (LucideIcons as any)[normalizedName]
-
-  if (IconComponent) {
-    return <IconComponent className={className} />
-  }
-
-  // Fallback icon
-  return <LucideIcons.Sparkles className={className} />
-}
-
-// Arrow icon for links
-const ArrowIcon = () => (
-  <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-  </svg>
-)
 
 // Render dynamic attributes
 function AttributeList({
@@ -70,7 +45,7 @@ function AttributeList({
           <div key={idx} className="flex items-center gap-2">
             {attr.icon && (
               <span className={cn('flex-shrink-0', isDark ? 'text-theme-accent' : 'text-theme-primary')}>
-                {getIcon(attr.icon, 'w-4 h-4')}
+                {getLucideIcon(attr.icon, 'w-4 h-4')}
               </span>
             )}
             <span className={cn('text-sm', isDark ? 'text-white/60' : 'text-theme-text-muted')}>
@@ -92,7 +67,7 @@ function AttributeList({
           <div key={idx} className="flex items-center gap-2">
             {attr.icon && (
               <span className={cn('flex-shrink-0', isDark ? 'text-theme-accent' : 'text-theme-primary')}>
-                {getIcon(attr.icon, 'w-4 h-4')}
+                {getLucideIcon(attr.icon, 'w-4 h-4')}
               </span>
             )}
             <div className="min-w-0">
@@ -116,7 +91,7 @@ function AttributeList({
         <div key={idx} className="flex items-center gap-1.5">
           {attr.icon && (
             <span className={cn('flex-shrink-0', isDark ? 'text-white/50' : 'text-theme-text-muted')}>
-              {getIcon(attr.icon, 'w-4 h-4')}
+              {getLucideIcon(attr.icon, 'w-4 h-4')}
             </span>
           )}
           <span className={cn('text-sm', isDark ? 'text-white/70' : 'text-theme-text-light')}>
@@ -175,18 +150,32 @@ export function ServicesBlock({
   bookButtonText = 'Programeaza-te',
   bookButtonLink = '/contact',
   backgroundColor = 'default',
+  hoverEffect = 'default',
   services = [],
   detailBasePath,
 }: ServicesBlockProps) {
-  // Background classes
-  const bgClasses: Record<string, string> = {
-    default: 'bg-theme-surface',
-    light: 'bg-theme-light',
-    dark: 'bg-theme-dark',
-    primary: 'bg-theme-primary',
+  const bgClass = getBgClasses(backgroundColor)
+  const isDark = isDarkBackground(backgroundColor)
+
+  // Hover effect classes
+  const getHoverClasses = () => {
+    switch (hoverEffect) {
+      case 'lift':
+        return 'hover:-translate-y-2 hover:shadow-2xl transition-all duration-300'
+      case 'glow':
+        return isDark
+          ? 'hover:shadow-[0_0_30px_rgba(255,255,255,0.1)] transition-all duration-300'
+          : 'hover:shadow-[0_0_30px_rgba(var(--color-primary-rgb),0.2)] transition-all duration-300'
+      case 'scale':
+        return 'hover:scale-[1.02] transition-all duration-300'
+      case 'none':
+        return ''
+      default: // 'default'
+        return 'card-hover'
+    }
   }
 
-  const isDark = backgroundColor === 'dark' || backgroundColor === 'primary'
+  const hoverClasses = getHoverClasses()
 
   const getColumns = () => {
     switch (variant) {
@@ -201,7 +190,7 @@ export function ServicesBlock({
 
   if (services.length === 0) {
     return (
-      <section className={cn('py-section', bgClasses[backgroundColor] || bgClasses.default)}>
+      <section className={cn('py-section', bgClass)}>
         <div className="container mx-auto px-4">
           <div className={cn(
             'text-center py-16 border-2 border-dashed rounded-xl',
@@ -218,7 +207,7 @@ export function ServicesBlock({
   // Price List Variant
   if (variant === 'price-list') {
     return (
-      <section className={cn('py-section', bgClasses[backgroundColor] || bgClasses.default)}>
+      <section className={cn('py-section', bgClass)}>
         <div className="container mx-auto px-4">
           {(heading || subheading) && (
             <div className="text-center mb-12">
@@ -257,7 +246,7 @@ export function ServicesBlock({
                       ? 'bg-white/10 text-theme-accent group-hover:bg-theme-accent group-hover:text-white'
                       : 'bg-theme-primary/10 text-theme-primary group-hover:bg-theme-primary group-hover:text-white'
                   )}>
-                    {getIcon(service.icon, 'w-5 h-5')}
+                    {getLucideIcon(service.icon, 'w-5 h-5')}
                   </div>
                 )}
 
@@ -304,7 +293,7 @@ export function ServicesBlock({
                   'transition-all duration-300 hover:scale-105',
                   isDark
                     ? 'bg-white text-theme-dark hover:bg-theme-accent hover:text-white'
-                    : 'bg-theme-primary text-white hover:bg-theme-secondary'
+                    : 'bg-theme-primary text-theme-text-on-primary hover:bg-theme-secondary'
                 )}
               >
                 {bookButtonText}
@@ -320,7 +309,7 @@ export function ServicesBlock({
   // List Variants
   if (variant === 'list' || variant === 'list-alternating') {
     return (
-      <section className={cn('py-section', bgClasses[backgroundColor] || bgClasses.default)}>
+      <section className={cn('py-section', bgClass)}>
         <div className="container mx-auto px-4">
           {(heading || subheading) && (
             <div className="text-center mb-12">
@@ -341,72 +330,105 @@ export function ServicesBlock({
           )}
 
           <div className="space-y-4 max-w-4xl mx-auto">
-            {services.map((service, index) => (
-              <div
-                key={service.id}
-                className={cn(
-                  'group flex items-center gap-6 p-6 rounded-[var(--radius-card)]',
-                  'animate-fade-in-up card-hover',
-                  isDark
-                    ? 'bg-white/5 hover:bg-white/10 border border-white/10'
-                    : 'bg-white hover:shadow-lg border border-theme-border hover:border-theme-primary/30',
-                  variant === 'list-alternating' && index % 2 === 1 && 'md:flex-row-reverse',
-                  index < 8 && `animation-delay-${(index % 4) * 100 + 100}`
-                )}
-              >
-                {showIcons && (
-                  <div className={cn(
-                    'flex-shrink-0 w-16 h-16 rounded-2xl flex items-center justify-center',
-                    'transition-all duration-300 group-hover:scale-110',
-                    isDark
-                      ? 'bg-theme-accent/20 text-theme-accent'
-                      : 'bg-theme-primary/10 text-theme-primary group-hover:bg-theme-primary group-hover:text-white'
-                  )}>
-                    {getIcon(service.icon, 'w-7 h-7')}
-                  </div>
-                )}
+            {services.map((service, index) => {
+              const serviceHref = detailBasePath && service.slug ? `${detailBasePath}/${service.slug}` : null
+              const imageObj = service.image && typeof service.image === 'object' ? service.image as MediaType : null
+              const hasImage = imageObj?.url
 
-                <div className="flex-grow">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <h3 className={cn(
-                        'heading-h3 font-bold mb-1',
-                        isDark ? 'text-white' : 'text-theme-text'
-                      )}>
-                        {service.title}
-                        {service.featured && (
-                          <span className="ml-2 inline-flex items-center px-2 py-0.5 text-xs font-medium bg-theme-accent text-white rounded-full">
-                            Popular
-                          </span>
+              const cardClassName = cn(
+                'group flex items-center gap-6 p-6 rounded-[var(--radius-card)]',
+                'animate-fade-in-up',
+                hoverClasses,
+                isDark
+                  ? 'bg-white/5 hover:bg-white/10 border border-white/10'
+                  : 'bg-white border border-theme-border hover:border-theme-primary/30',
+                variant === 'list-alternating' && index % 2 === 1 && 'md:flex-row-reverse',
+                serviceHref && 'cursor-pointer',
+                index < 8 && `animation-delay-${(index % 4) * 100 + 100}`
+              )
+
+              const cardContent = (
+                <>
+                  {/* Image if available, otherwise icon */}
+                  {hasImage ? (
+                    <div className="relative flex-shrink-0 w-24 h-24 md:w-32 md:h-32 rounded-xl overflow-hidden">
+                      <Media
+                        resource={imageObj}
+                        fill
+                        size="128px"
+                        imgClassName="object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
+                    </div>
+                  ) : showIcons && (
+                    <div className={cn(
+                      'flex-shrink-0 w-16 h-16 rounded-2xl flex items-center justify-center',
+                      'transition-all duration-300 group-hover:scale-110',
+                      isDark
+                        ? 'bg-theme-accent/20 text-theme-accent'
+                        : 'bg-theme-primary/10 text-theme-primary group-hover:bg-theme-primary group-hover:text-white'
+                    )}>
+                      {getLucideIcon(service.icon, 'w-7 h-7')}
+                    </div>
+                  )}
+
+                  <div className="flex-grow">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <h3 className={cn(
+                          'heading-h3 font-bold mb-1 transition-colors',
+                          isDark ? 'text-white group-hover:text-theme-accent' : 'text-theme-text group-hover:text-theme-primary'
+                        )}>
+                          {service.title}
+                          {service.featured && (
+                            <span className="ml-2 inline-flex items-center px-2 py-0.5 text-xs font-medium bg-theme-accent text-theme-text-on-accent rounded-full">
+                              Popular
+                            </span>
+                          )}
+                        </h3>
+                        {service.shortDescription && (
+                          <p className={cn('text-sm mb-2', isDark ? 'text-white/60' : 'text-theme-text-light')}>
+                            {service.shortDescription}
+                          </p>
                         )}
-                      </h3>
-                      {service.shortDescription && (
-                        <p className={cn('text-sm mb-2', isDark ? 'text-white/60' : 'text-theme-text-light')}>
-                          {service.shortDescription}
-                        </p>
-                      )}
-                      {/* Duration and additional attributes */}
-                      <div className="flex items-center gap-3">
+                        {/* Duration only - attributes shown on detail page */}
                         {service.duration && (
-                          <span className={cn('flex items-center gap-1 text-sm', isDark ? 'text-white/50' : 'text-theme-text-muted')}>
-                            <LucideIcons.Clock className="w-4 h-4" />
-                            {service.duration}
-                          </span>
+                          <div className="flex items-center gap-3">
+                            <span className={cn('flex items-center gap-1 text-sm', isDark ? 'text-white/50' : 'text-theme-text-muted')}>
+                              <LucideIcons.Clock className="w-4 h-4" />
+                              {service.duration}
+                            </span>
+                          </div>
                         )}
-                        <AttributeList attributes={service.attributes} isDark={isDark} layout="inline" />
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        {service.price && (
+                          <div className={cn('text-lg font-bold', isDark ? 'text-white' : 'text-theme-primary')}>
+                            {service.price}
+                          </div>
+                        )}
                       </div>
                     </div>
-                    <div className="text-right flex-shrink-0">
-                      {service.price && (
-                        <div className={cn('heading-h2 font-bold', isDark ? 'text-white' : 'text-theme-primary')}>
-                          {service.price}
-                        </div>
-                      )}
-                    </div>
                   </div>
+                </>
+              )
+
+              return serviceHref ? (
+                <Link
+                  key={service.id}
+                  href={serviceHref}
+                  className={cardClassName}
+                >
+                  {cardContent}
+                </Link>
+              ) : (
+                <div
+                  key={service.id}
+                  className={cardClassName}
+                >
+                  {cardContent}
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
 
           {showBookButton && (
@@ -419,7 +441,7 @@ export function ServicesBlock({
                   'transition-all duration-300 hover:scale-105',
                   isDark
                     ? 'bg-white text-theme-dark hover:bg-theme-accent hover:text-white'
-                    : 'bg-theme-primary text-white hover:bg-theme-secondary'
+                    : 'bg-theme-primary text-theme-text-on-primary hover:bg-theme-secondary'
                 )}
               >
                 {bookButtonText}
@@ -434,7 +456,7 @@ export function ServicesBlock({
 
   // Grid Variants (default)
   return (
-    <section className={cn('py-section', bgClasses[backgroundColor] || bgClasses.default)}>
+    <section className={cn('py-section', bgClass)}>
       <div className="container mx-auto px-4">
         {(heading || subheading) && (
           <div className="text-center mb-12">
@@ -462,10 +484,11 @@ export function ServicesBlock({
 
             const cardClassName = cn(
               'group relative rounded-[var(--radius-card)] overflow-hidden',
-              'animate-fade-in-up card-hover',
+              'animate-fade-in-up',
+              hoverClasses,
               isDark
                 ? 'bg-white/5 hover:bg-white/10 border border-white/10'
-                : 'bg-white hover:shadow-xl border border-theme-border hover:border-theme-primary/30',
+                : 'bg-white border border-theme-border hover:border-theme-primary/30',
               service.featured && 'ring-2 ring-theme-accent',
               serviceHref && 'cursor-pointer',
               displayStyle === 'card-image' ? 'flex flex-col' : 'p-6',
@@ -491,7 +514,7 @@ export function ServicesBlock({
                   {/* Featured Badge */}
                   {service.featured && (
                     <div className="absolute -top-px -right-px z-10">
-                      <div className="bg-theme-accent text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
+                      <div className="bg-theme-accent text-theme-text-on-accent text-xs font-bold px-3 py-1 rounded-bl-lg">
                         Popular
                       </div>
                     </div>
@@ -506,7 +529,7 @@ export function ServicesBlock({
                         ? 'bg-theme-accent/20 text-theme-accent group-hover:bg-theme-accent group-hover:text-white'
                         : 'bg-theme-primary/10 text-theme-primary group-hover:bg-theme-primary group-hover:text-white'
                     )}>
-                      {getIcon(service.icon, 'w-7 h-7')}
+                      {getLucideIcon(service.icon, 'w-7 h-7')}
                     </div>
                   )}
 
@@ -598,7 +621,7 @@ export function ServicesBlock({
                 'transition-all duration-300 hover:scale-105 hover:shadow-xl',
                 isDark
                   ? 'bg-white text-theme-dark hover:bg-theme-accent hover:text-white'
-                  : 'bg-theme-primary text-white hover:bg-theme-secondary'
+                  : 'bg-theme-primary text-theme-text-on-primary hover:bg-theme-secondary'
               )}
             >
               {bookButtonText}

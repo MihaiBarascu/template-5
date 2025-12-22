@@ -22,6 +22,8 @@ export interface ThemeColors {
   textOnDark: string
   textOnLight: string
   textOnSurface: string
+  // Link/interactive color - auto-generated for contrast on light backgrounds
+  linkColor?: string
 }
 
 export interface ThemeVariant {
@@ -344,6 +346,85 @@ export const THEME_VARIANTS: Record<string, ThemeVariant> = {
     borderRadius: 'small',
     shadows: 'none',
   },
+  // =============================================================================
+  // 13. GOLD NAVY HEALING - Terapii energetice, Wellness, Spa holistic
+  // Stil general pentru wellness/healing
+  // =============================================================================
+  'gold-navy-healing': {
+    colors: {
+      primary: '#F5C518',
+      secondary: '#1a1a2e',
+      accent: '#FFD700',
+      dark: '#0d0d1a',
+      light: '#faf9f6',
+      surface: '#ffffff',
+      text: '#1a1a2e',
+      textLight: '#666666',
+      border: '#e5e5e5',
+      textOnPrimary: '#1a1a2e',
+      textOnSecondary: '#F5C518',
+      textOnAccent: '#1a1a2e',
+      textOnDark: '#ffffff',
+      textOnLight: '#1a1a2e',
+      textOnSurface: '#1a1a2e',
+    },
+    fonts: { heading: 'Playfair_Display', body: 'Open_Sans' },
+    borderRadius: 'medium',
+    shadows: 'subtle',
+  },
+  // =============================================================================
+  // 14. REVITAL HARMONY - Culorile EXACTE de pe terapiienergetice.ro
+  // Extras direct din site-ul original folosind browser DevTools
+  // =============================================================================
+  'revital-harmony': {
+    colors: {
+      primary: '#FFE468',      // Gold exact (rgb(255, 228, 104)) - headings, separators
+      secondary: '#272630',    // Dark Navy exact (rgb(39, 38, 48)) - nav background
+      accent: '#FFE468',       // Gold accent - same as primary
+      dark: '#272630',         // Dark navy pentru fundal inchis
+      light: '#F2F2F2',        // Light gray exact (rgb(242, 242, 242))
+      surface: '#ffffff',      // Alb pur
+      text: '#54595F',         // Text principal exact (rgb(84, 89, 95))
+      textLight: '#666666',    // Text secundar
+      border: '#CCCCCC',       // Border gri (rgb(204, 204, 204))
+      textOnPrimary: '#272630', // Text inchis pe gold
+      textOnSecondary: '#FFE468', // Gold pe navy
+      textOnAccent: '#272630',  // Text inchis pe accent
+      textOnDark: '#ffffff',    // Alb pe dark
+      textOnLight: '#54595F',   // Text gri pe light
+      textOnSurface: '#54595F', // Text gri pe surface
+    },
+    fonts: { heading: 'Playfair_Display', body: 'Open_Sans' },
+    borderRadius: 'medium',
+    shadows: 'subtle',
+  },
+  // =============================================================================
+  // 15. PURPLE WELLNESS - Culorile de pe plasturifototerapeutici.ro
+  // Pentru business-uri wellness/healing cu branding mov
+  // Stil flat: fără umbre, carduri fără raze, butoane pill (24px)
+  // =============================================================================
+  'purple-wellness': {
+    colors: {
+      primary: '#AD50F2',       // Purple exact - healing, premium
+      secondary: '#27BECF',     // Cyan - energie, vitalitate
+      accent: '#0088CB',        // Blue - încredere, medical
+      dark: '#1A1A2E',          // Dark pentru fundal
+      light: '#EEEEEE',         // Light gray pentru secțiuni alternate
+      surface: '#ffffff',       // Alb pur
+      text: '#000000',          // Text negru (contrast maxim)
+      textLight: '#4F4F4F',     // Text secundar gri
+      border: '#E0E0E0',        // Border gri subtil
+      textOnPrimary: '#ffffff', // Alb pe purple
+      textOnSecondary: '#ffffff', // Alb pe cyan
+      textOnAccent: '#ffffff',  // Alb pe blue
+      textOnDark: '#ffffff',    // Alb pe dark
+      textOnLight: '#000000',   // Negru pe light
+      textOnSurface: '#000000', // Negru pe surface
+    },
+    fonts: { heading: 'Prompt', body: 'Open_Sans' },
+    borderRadius: 'none',       // Flat design - carduri fără raze
+    shadows: 'none',            // Flat design - fără umbre
+  },
 }
 
 // Border radius presets
@@ -419,6 +500,17 @@ export const buttonLetterSpacingPresets: Record<string, string> = {
   wide: '0.5px',
   wider: '1px',
   'extra-wide': '2px',
+}
+
+// Button border radius presets
+export const buttonRoundingPresets: Record<string, string> = {
+  none: '0',
+  small: '4px',
+  default: '8px',
+  medium: '12px',
+  large: '16px',
+  pill: '24px',      // ← Stil plasturi - butoane rotunjite
+  full: '9999px',
 }
 
 // Heading scale presets (separate from body text)
@@ -513,6 +605,95 @@ export const cardGapPresets = {
   normal: '24px',
   spacious: '32px',
 }
+
+// =============================================================================
+// ADVANCED TYPOGRAPHY PRESETS
+// =============================================================================
+
+// Line height presets for headings
+export const headingLineHeightPresets: Record<string, string> = {
+  tight: '1.1',
+  normal: '1.2',
+  relaxed: '1.4',    // ← Stil plasturi
+  loose: '1.6',
+}
+
+// =============================================================================
+// BUTTON HOVER EFFECT PRESETS
+// =============================================================================
+
+export interface ButtonHoverEffect {
+  transform?: string
+  boxShadow?: string
+  filter?: string
+}
+
+export const buttonHoverEffectPresets: Record<string, ButtonHoverEffect> = {
+  none: {},
+  lift: { transform: 'translateY(-2px)', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' },
+  scale: { transform: 'scale(1.05)' },
+  glow: { boxShadow: '0 0 20px var(--theme-primary)' },
+  darken: { filter: 'brightness(0.9)' },
+  brighten: { filter: 'brightness(1.1)' },
+}
+
+// =============================================================================
+// GLASS EFFECT PRESETS (Glassmorphism)
+// =============================================================================
+
+export interface GlassEffect {
+  backdropFilter: string
+  background: string
+}
+
+export const glassEffectPresets: Record<string, GlassEffect> = {
+  none: { backdropFilter: 'none', background: 'transparent' },
+  subtle: { backdropFilter: 'blur(8px)', background: 'rgba(255,255,255,0.6)' },
+  moderate: { backdropFilter: 'blur(16px)', background: 'rgba(255,255,255,0.4)' },
+  strong: { backdropFilter: 'blur(24px)', background: 'rgba(255,255,255,0.2)' },
+  dark: { backdropFilter: 'blur(16px)', background: 'rgba(0,0,0,0.4)' },
+}
+
+// =============================================================================
+// ADVANCED SHADOW STYLES
+// =============================================================================
+
+export interface ShadowStyle {
+  sm: string
+  md: string
+  lg: string
+  card?: string
+  cardHover?: string
+}
+
+export const shadowStylePresets: Record<string, ShadowStyle> = {
+  flat: { sm: 'none', md: 'none', lg: 'none', card: 'none', cardHover: 'none' },
+  soft: {
+    sm: '0 2px 8px rgba(0,0,0,0.06)',
+    md: '0 4px 16px rgba(0,0,0,0.08)',
+    lg: '0 8px 32px rgba(0,0,0,0.1)',
+    card: '0 2px 8px rgba(0,0,0,0.06)',
+    cardHover: '0 8px 24px rgba(0,0,0,0.12)',
+  },
+  sharp: {
+    sm: '2px 2px 0 rgba(0,0,0,0.15)',
+    md: '4px 4px 0 rgba(0,0,0,0.15)',
+    lg: '6px 6px 0 rgba(0,0,0,0.15)',
+    card: '3px 3px 0 rgba(0,0,0,0.1)',
+    cardHover: '5px 5px 0 rgba(0,0,0,0.15)',
+  },
+  neumorphic: {
+    sm: '4px 4px 8px rgba(0,0,0,0.1), -4px -4px 8px rgba(255,255,255,0.8)',
+    md: '6px 6px 12px rgba(0,0,0,0.1), -6px -6px 12px rgba(255,255,255,0.8)',
+    lg: '8px 8px 16px rgba(0,0,0,0.1), -8px -8px 16px rgba(255,255,255,0.8)',
+    card: '6px 6px 12px rgba(0,0,0,0.1), -6px -6px 12px rgba(255,255,255,0.8)',
+    cardHover: '8px 8px 16px rgba(0,0,0,0.12), -8px -8px 16px rgba(255,255,255,0.9)',
+  },
+}
+
+// =============================================================================
+// ANIMATION PRESETS
+// =============================================================================
 
 // Animation presets
 export interface AnimationPreset {

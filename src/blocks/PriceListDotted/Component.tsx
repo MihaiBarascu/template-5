@@ -97,7 +97,7 @@ function PriceItem({
           )}>
             {name}
             {featured && (
-              <span className="inline-flex px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-theme-accent text-white rounded">
+              <span className="inline-flex px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-theme-accent text-theme-text-on-accent rounded">
                 Popular
               </span>
             )}
@@ -285,7 +285,7 @@ export function PriceListDottedBlock({
                 'inline-flex items-center px-8 py-3 rounded-[var(--radius-button)] font-semibold transition-all duration-200',
                 isDark
                   ? 'bg-white text-theme-dark hover:bg-theme-accent hover:text-white'
-                  : 'bg-theme-primary text-white hover:bg-theme-secondary hover:scale-105'
+                  : 'bg-theme-primary text-theme-text-on-primary hover:bg-theme-secondary hover:scale-105'
               )}
             >
               {ctaButton.label}

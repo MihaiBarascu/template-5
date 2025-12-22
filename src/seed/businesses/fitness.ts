@@ -110,6 +110,19 @@ export async function seedFitness(payload: Payload) {
       tooltipText: 'Scrie-ne pe WhatsApp',
       pulseAnimation: true,
     },
+    floatingCta: {
+      enabled: true,
+      text: 'Înscrie-te Acum',
+      href: '/contact',
+      variant: 'gradient',
+      icon: 'arrow',
+      position: 'bottom-center',
+      shape: 'pill',
+      showOnMobile: true,
+      pulseAnimation: true,
+      dismissible: true,
+      showAfterScroll: 300,
+    },
   })
 
   // 5. Logo

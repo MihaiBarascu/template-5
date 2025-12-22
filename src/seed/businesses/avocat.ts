@@ -73,6 +73,27 @@ export async function seedAvocat(payload: Payload) {
     stats: avocatData.business.stats,
     googleMapsEmbed:
       'https://www.google.com/maps?q=Bulevardul+Decebal+78,+Sector+3,+Bucuresti,+Romania&output=embed',
+    whatsappFloat: {
+      enabled: true,
+      position: 'bottom-right',
+      showOnMobile: true,
+      defaultMessage: 'Buna! Doresc o consultatie juridica.',
+      tooltipText: 'Programeaza consultatie',
+      pulseAnimation: true,
+    },
+    floatingCta: {
+      enabled: true,
+      text: 'Consultație Gratuită',
+      href: '/contact',
+      variant: 'gradient',
+      icon: 'phone',
+      position: 'bottom-center',
+      shape: 'pill',
+      showOnMobile: true,
+      pulseAnimation: true,
+      dismissible: true,
+      showAfterScroll: 300,
+    },
   })
 
   console.log('\n🏷️ Setting up logo...')

@@ -103,7 +103,7 @@ export function AddToCartButton({
         disabled={disabled || isAdding}
         className={cn(
           'inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-all',
-          'bg-theme-primary text-white hover:bg-theme-primary-dark',
+          'bg-theme-primary text-theme-text-on-primary hover:bg-theme-primary-dark',
           'disabled:opacity-50 disabled:cursor-not-allowed',
           added && 'bg-green-600 hover:bg-green-700',
           error && 'bg-red-600 hover:bg-red-700',

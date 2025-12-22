@@ -78,9 +78,11 @@ export interface Config {
     categories: Category;
     users: User;
     services: Service;
+    'service-categories': ServiceCategory;
     team: Team;
     portfolio: Portfolio;
     testimonials: Testimonial;
+    'testimonial-categories': TestimonialCategory;
     bookings: Booking;
     faq: Faq;
     'product-categories': ProductCategory;
@@ -113,6 +115,12 @@ export interface Config {
       orders: 'orders';
       addresses: 'addresses';
     };
+    'service-categories': {
+      services: 'services';
+    };
+    'testimonial-categories': {
+      testimonials: 'testimonials';
+    };
     variantTypes: {
       options: 'variantOptions';
     };
@@ -127,9 +135,11 @@ export interface Config {
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     services: ServicesSelect<false> | ServicesSelect<true>;
+    'service-categories': ServiceCategoriesSelect<false> | ServiceCategoriesSelect<true>;
     team: TeamSelect<false> | TeamSelect<true>;
     portfolio: PortfolioSelect<false> | PortfolioSelect<true>;
     testimonials: TestimonialsSelect<false> | TestimonialsSelect<true>;
+    'testimonial-categories': TestimonialCategoriesSelect<false> | TestimonialCategoriesSelect<true>;
     bookings: BookingsSelect<false> | BookingsSelect<true>;
     faq: FaqSelect<false> | FaqSelect<true>;
     'product-categories': ProductCategoriesSelect<false> | ProductCategoriesSelect<true>;
@@ -239,6 +249,15 @@ export interface Page {
    * URL-ul paginii (generat automat din titlu)
    */
   slug: string;
+  /**
+   * Suprascrie setările globale de header pentru această pagină
+   */
+  headerSettings?: {
+    headerVariant?: ('inherit' | 'standard' | 'centered' | 'with-topbar' | 'full-width' | 'minimal') | null;
+    headerTransparency?: ('inherit' | 'transparent' | 'solid') | null;
+    headerTextColor?: ('inherit' | 'white' | 'dark' | 'auto') | null;
+    headerTopBar?: ('inherit' | 'show' | 'hide') | null;
+  };
   heroType?: ('none' | 'minimal' | 'centered' | 'withImage' | 'fullscreen' | 'split' | 'video' | 'slider') | null;
   hero?: {
     headline?: string | null;
@@ -313,6 +332,7 @@ export interface Page {
         | CartBlock
         | CheckoutBlock
         | VideoEmbedBlock
+        | VideoGalleryBlock
         | PriceListDottedBlock
         | BeforeAfterBlock
         | NewsletterBlock
@@ -330,6 +350,10 @@ export interface Page {
         | TeamMemberDetailBlock
         | ServiceDetailBlock
         | FormBlock
+        | VideoHeroBlock
+        | ProcessStepsBlock
+        | PricingKitsBlock
+        | DownloadLinksBlock
       )[]
     | null;
   publishedAt?: string | null;
@@ -461,6 +485,56 @@ export interface HeroBlock {
   overlayOpacity?: ('0' | '25' | '50' | '75') | null;
   textColor?: ('auto' | 'dark' | 'light') | null;
   height?: ('small' | 'medium' | 'large' | 'fullscreen') | null;
+  /**
+   * Continutul va ocupa toata latimea ecranului
+   */
+  sectionFullWidth?: boolean | null;
+  sectionContainerSize?: ('default' | 'narrow' | 'wide' | 'full') | null;
+  sectionPaddingTop?: ('none' | 'small' | 'medium' | 'large' | 'xl') | null;
+  sectionPaddingBottom?: ('none' | 'small' | 'medium' | 'large' | 'xl') | null;
+  /**
+   * Optional: imagine de fundal pentru sectiune
+   */
+  sectionBackgroundImage?: (string | null) | Media;
+  sectionBackgroundVideo?: {
+    /**
+     * Link direct catre fisierul MP4 (ex: /videos/hero.mp4 sau URL extern)
+     */
+    url?: string | null;
+    poster?: (string | null) | Media;
+    autoplay?: boolean | null;
+    loop?: boolean | null;
+    muted?: boolean | null;
+    playbackSpeed?: number | null;
+  };
+  /**
+   * Adauga un strat colorat peste imagine/video pentru lizibilitate
+   */
+  sectionOverlay?: {
+    enabled?: boolean | null;
+    type?: ('solid' | 'gradient-to-t' | 'gradient-to-b' | 'gradient-radial') | null;
+    /**
+     * rgba() sau hex
+     */
+    color?: string | null;
+    opacity?: number | null;
+  };
+  /**
+   * Fundalul se misca mai lent decat continutul
+   */
+  sectionParallax?: boolean | null;
+  sectionParallaxSpeed?: number | null;
+  /**
+   * Optional: pentru link-uri tip #sectiune
+   */
+  sectionId?: string | null;
+  sectionAnimation?: {
+    enabled?: boolean | null;
+    type?: ('fade-in-up' | 'fade-in' | 'slide-in-left' | 'slide-in-right' | 'scale-up' | 'blur-in') | null;
+    stagger?: boolean | null;
+    duration?: number | null;
+    delay?: number | null;
+  };
   id?: string | null;
   blockName?: string | null;
   blockType: 'hero';
@@ -475,7 +549,10 @@ export interface ServicesBlock {
   subheading?: string | null;
   source?: ('collection' | 'manual' | 'custom') | null;
   selectedServices?: (string | Service)[] | null;
-  filterByCategory?: (string | null) | Category;
+  /**
+   * Selectează una sau mai multe categorii pentru a filtra serviciile
+   */
+  filterByCategory?: (string | ServiceCategory)[] | null;
   limit?: number | null;
   onlyFeatured?: boolean | null;
   customServices?:
@@ -505,12 +582,63 @@ export interface ServicesBlock {
    */
   detailBasePath?: string | null;
   backgroundColor?: ('default' | 'light' | 'dark' | 'primary') | null;
+  hoverEffect?: ('default' | 'lift' | 'glow' | 'scale' | 'none') | null;
   /**
    * Customize text labels for different languages
    */
   labels?: {
     currencySymbol?: string | null;
     fromLabel?: string | null;
+  };
+  /**
+   * Continutul va ocupa toata latimea ecranului
+   */
+  sectionFullWidth?: boolean | null;
+  sectionContainerSize?: ('default' | 'narrow' | 'wide' | 'full') | null;
+  sectionPaddingTop?: ('none' | 'small' | 'medium' | 'large' | 'xl') | null;
+  sectionPaddingBottom?: ('none' | 'small' | 'medium' | 'large' | 'xl') | null;
+  /**
+   * Optional: imagine de fundal pentru sectiune
+   */
+  sectionBackgroundImage?: (string | null) | Media;
+  sectionBackgroundVideo?: {
+    /**
+     * Link direct catre fisierul MP4 (ex: /videos/hero.mp4 sau URL extern)
+     */
+    url?: string | null;
+    poster?: (string | null) | Media;
+    autoplay?: boolean | null;
+    loop?: boolean | null;
+    muted?: boolean | null;
+    playbackSpeed?: number | null;
+  };
+  /**
+   * Adauga un strat colorat peste imagine/video pentru lizibilitate
+   */
+  sectionOverlay?: {
+    enabled?: boolean | null;
+    type?: ('solid' | 'gradient-to-t' | 'gradient-to-b' | 'gradient-radial') | null;
+    /**
+     * rgba() sau hex
+     */
+    color?: string | null;
+    opacity?: number | null;
+  };
+  /**
+   * Fundalul se misca mai lent decat continutul
+   */
+  sectionParallax?: boolean | null;
+  sectionParallaxSpeed?: number | null;
+  /**
+   * Optional: pentru link-uri tip #sectiune
+   */
+  sectionId?: string | null;
+  sectionAnimation?: {
+    enabled?: boolean | null;
+    type?: ('fade-in-up' | 'fade-in' | 'slide-in-left' | 'slide-in-right' | 'scale-up' | 'blur-in') | null;
+    stagger?: boolean | null;
+    duration?: number | null;
+    delay?: number | null;
   };
   id?: string | null;
   blockName?: string | null;
@@ -530,9 +658,16 @@ export interface Service {
    */
   slug: string;
   /**
+   * Categorie pentru organizare (ex: Terapii, Cursuri)
+   */
+  category?: (string | null) | ServiceCategory;
+  /**
    * Maxim 2-3 propoziții pentru carduri
    */
   shortDescription?: string | null;
+  /**
+   * Conținut complet cu titluri, imagini, liste și formatare avansată
+   */
   description?: {
     root: {
       type: string;
@@ -623,6 +758,39 @@ export interface Service {
   createdAt: string;
 }
 /**
+ * Categorii pentru organizarea serviciilor (ex: Terapii, Cursuri, Clase)
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "service-categories".
+ */
+export interface ServiceCategory {
+  id: string;
+  title: string;
+  /**
+   * URL-ul paginii (generat automat din titlu)
+   */
+  slug: string;
+  /**
+   * Descriere scurtă a categoriei (opțional)
+   */
+  description?: string | null;
+  /**
+   * Numele iconului Lucide (ex: Heart, GraduationCap, Dumbbell)
+   */
+  icon?: string | null;
+  /**
+   * Lista serviciilor asociate acestei categorii
+   */
+  services?: {
+    docs?: (string | Service)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  order?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "team".
  */
@@ -635,7 +803,14 @@ export interface Team {
   slug: string;
   role: string;
   image?: (string | null) | Media;
-  bio?: {
+  /**
+   * 2-3 propoziții pentru carduri și liste (text simplu)
+   */
+  bio?: string | null;
+  /**
+   * Conținut complet pentru pagina individuală - cu titluri, imagini, liste și formatare avansată
+   */
+  description?: {
     root: {
       type: string;
       children: {
@@ -681,32 +856,12 @@ export interface Team {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Activează/dezactivează secțiunea "Vrei să programezi?"
+   */
+  showCTAOnDetailPage?: boolean | null;
   featured?: boolean | null;
   order?: number | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories".
- */
-export interface Category {
-  id: string;
-  title: string;
-  /**
-   * URL-ul paginii (generat automat din titlu)
-   */
-  slug: string;
-  description?: string | null;
-  parent?: (string | null) | Category;
-  breadcrumbs?:
-    | {
-        doc?: (string | null) | Category;
-        url?: string | null;
-        label?: string | null;
-        id?: string | null;
-      }[]
-    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -732,6 +887,56 @@ export interface TeamBlock {
   detailBasePath?: string | null;
   columns?: ('2' | '3' | '4') | null;
   backgroundColor?: ('default' | 'light' | 'dark') | null;
+  /**
+   * Continutul va ocupa toata latimea ecranului
+   */
+  sectionFullWidth?: boolean | null;
+  sectionContainerSize?: ('default' | 'narrow' | 'wide' | 'full') | null;
+  sectionPaddingTop?: ('none' | 'small' | 'medium' | 'large' | 'xl') | null;
+  sectionPaddingBottom?: ('none' | 'small' | 'medium' | 'large' | 'xl') | null;
+  /**
+   * Optional: imagine de fundal pentru sectiune
+   */
+  sectionBackgroundImage?: (string | null) | Media;
+  sectionBackgroundVideo?: {
+    /**
+     * Link direct catre fisierul MP4 (ex: /videos/hero.mp4 sau URL extern)
+     */
+    url?: string | null;
+    poster?: (string | null) | Media;
+    autoplay?: boolean | null;
+    loop?: boolean | null;
+    muted?: boolean | null;
+    playbackSpeed?: number | null;
+  };
+  /**
+   * Adauga un strat colorat peste imagine/video pentru lizibilitate
+   */
+  sectionOverlay?: {
+    enabled?: boolean | null;
+    type?: ('solid' | 'gradient-to-t' | 'gradient-to-b' | 'gradient-radial') | null;
+    /**
+     * rgba() sau hex
+     */
+    color?: string | null;
+    opacity?: number | null;
+  };
+  /**
+   * Fundalul se misca mai lent decat continutul
+   */
+  sectionParallax?: boolean | null;
+  sectionParallaxSpeed?: number | null;
+  /**
+   * Optional: pentru link-uri tip #sectiune
+   */
+  sectionId?: string | null;
+  sectionAnimation?: {
+    enabled?: boolean | null;
+    type?: ('fade-in-up' | 'fade-in' | 'slide-in-left' | 'slide-in-right' | 'scale-up' | 'blur-in') | null;
+    stagger?: boolean | null;
+    duration?: number | null;
+    delay?: number | null;
+  };
   id?: string | null;
   blockName?: string | null;
   blockType: 'team';
@@ -741,18 +946,76 @@ export interface TeamBlock {
  * via the `definition` "TestimonialsBlock".
  */
 export interface TestimonialsBlock {
-  variant?: ('carousel' | 'grid' | 'single-featured' | 'masonry' | 'cards-rotating' | 'minimal') | null;
+  variant?: ('carousel' | 'grid' | 'single-featured' | 'masonry' | 'cards-rotating' | 'minimal' | 'video-grid') | null;
   heading?: string | null;
   subheading?: string | null;
   source?: ('collection' | 'manual') | null;
   selectedTestimonials?: (string | Testimonial)[] | null;
   limit?: number | null;
   onlyFeatured?: boolean | null;
+  /**
+   * Selectează una sau mai multe categorii pentru a filtra testimonialele
+   */
+  filterByCategory?: (string | TestimonialCategory)[] | null;
+  /**
+   * Afișează testimonialele grupate pe secțiuni pentru fiecare categorie
+   */
+  groupByCategory?: boolean | null;
   showRating?: boolean | null;
   showAvatar?: boolean | null;
   showSource?: boolean | null;
   autoplay?: boolean | null;
   backgroundColor?: ('default' | 'light' | 'dark' | 'primary') | null;
+  /**
+   * Continutul va ocupa toata latimea ecranului
+   */
+  sectionFullWidth?: boolean | null;
+  sectionContainerSize?: ('default' | 'narrow' | 'wide' | 'full') | null;
+  sectionPaddingTop?: ('none' | 'small' | 'medium' | 'large' | 'xl') | null;
+  sectionPaddingBottom?: ('none' | 'small' | 'medium' | 'large' | 'xl') | null;
+  /**
+   * Optional: imagine de fundal pentru sectiune
+   */
+  sectionBackgroundImage?: (string | null) | Media;
+  sectionBackgroundVideo?: {
+    /**
+     * Link direct catre fisierul MP4 (ex: /videos/hero.mp4 sau URL extern)
+     */
+    url?: string | null;
+    poster?: (string | null) | Media;
+    autoplay?: boolean | null;
+    loop?: boolean | null;
+    muted?: boolean | null;
+    playbackSpeed?: number | null;
+  };
+  /**
+   * Adauga un strat colorat peste imagine/video pentru lizibilitate
+   */
+  sectionOverlay?: {
+    enabled?: boolean | null;
+    type?: ('solid' | 'gradient-to-t' | 'gradient-to-b' | 'gradient-radial') | null;
+    /**
+     * rgba() sau hex
+     */
+    color?: string | null;
+    opacity?: number | null;
+  };
+  /**
+   * Fundalul se misca mai lent decat continutul
+   */
+  sectionParallax?: boolean | null;
+  sectionParallaxSpeed?: number | null;
+  /**
+   * Optional: pentru link-uri tip #sectiune
+   */
+  sectionId?: string | null;
+  sectionAnimation?: {
+    enabled?: boolean | null;
+    type?: ('fade-in-up' | 'fade-in' | 'slide-in-left' | 'slide-in-right' | 'scale-up' | 'blur-in') | null;
+    stagger?: boolean | null;
+    duration?: number | null;
+    delay?: number | null;
+  };
   id?: string | null;
   blockName?: string | null;
   blockType: 'testimonials';
@@ -768,9 +1031,57 @@ export interface Testimonial {
   image?: (string | null) | Media;
   content: string;
   rating?: ('5' | '4' | '3' | '2' | '1') | null;
+  /**
+   * Opțional - link direct la un serviciu specific
+   */
   service?: (string | null) | Service;
+  /**
+   * Categorie pentru grupare (ex: Access Bars, Terapia Bowen)
+   */
+  category?: (string | null) | TestimonialCategory;
   source?: ('google' | 'facebook' | 'website' | 'other') | null;
+  /**
+   * YouTube, Vimeo sau URL direct la video. Optional - doar pentru varianta video-grid.
+   */
+  videoUrl?: string | null;
+  /**
+   * Imagine de preview pentru video testimonial
+   */
+  videoPoster?: (string | null) | Media;
   featured?: boolean | null;
+  order?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Categorii pentru organizarea testimonialelor (ex: Access Bars, Terapia Bowen, Reiki)
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "testimonial-categories".
+ */
+export interface TestimonialCategory {
+  id: string;
+  title: string;
+  /**
+   * URL-ul paginii (generat automat din titlu)
+   */
+  slug: string;
+  /**
+   * Descriere scurtă a categoriei (opțional)
+   */
+  description?: string | null;
+  /**
+   * Numele iconului Lucide (ex: Heart, Sparkles, Zap)
+   */
+  icon?: string | null;
+  /**
+   * Lista testimonialelor asociate acestei categorii
+   */
+  testimonials?: {
+    docs?: (string | Testimonial)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   order?: number | null;
   updatedAt: string;
   createdAt: string;
@@ -856,6 +1167,30 @@ export interface Portfolio {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: string;
+  title: string;
+  /**
+   * URL-ul paginii (generat automat din titlu)
+   */
+  slug: string;
+  description?: string | null;
+  parent?: (string | null) | Category;
+  breadcrumbs?:
+    | {
+        doc?: (string | null) | Category;
+        url?: string | null;
+        label?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "FaqBlock".
  */
 export interface FaqBlock {
@@ -889,6 +1224,56 @@ export interface FaqBlock {
     | null;
   defaultOpen?: ('none' | 'first' | 'all') | null;
   backgroundColor?: ('default' | 'light' | 'dark') | null;
+  /**
+   * Continutul va ocupa toata latimea ecranului
+   */
+  sectionFullWidth?: boolean | null;
+  sectionContainerSize?: ('default' | 'narrow' | 'wide' | 'full') | null;
+  sectionPaddingTop?: ('none' | 'small' | 'medium' | 'large' | 'xl') | null;
+  sectionPaddingBottom?: ('none' | 'small' | 'medium' | 'large' | 'xl') | null;
+  /**
+   * Optional: imagine de fundal pentru sectiune
+   */
+  sectionBackgroundImage?: (string | null) | Media;
+  sectionBackgroundVideo?: {
+    /**
+     * Link direct catre fisierul MP4 (ex: /videos/hero.mp4 sau URL extern)
+     */
+    url?: string | null;
+    poster?: (string | null) | Media;
+    autoplay?: boolean | null;
+    loop?: boolean | null;
+    muted?: boolean | null;
+    playbackSpeed?: number | null;
+  };
+  /**
+   * Adauga un strat colorat peste imagine/video pentru lizibilitate
+   */
+  sectionOverlay?: {
+    enabled?: boolean | null;
+    type?: ('solid' | 'gradient-to-t' | 'gradient-to-b' | 'gradient-radial') | null;
+    /**
+     * rgba() sau hex
+     */
+    color?: string | null;
+    opacity?: number | null;
+  };
+  /**
+   * Fundalul se misca mai lent decat continutul
+   */
+  sectionParallax?: boolean | null;
+  sectionParallaxSpeed?: number | null;
+  /**
+   * Optional: pentru link-uri tip #sectiune
+   */
+  sectionId?: string | null;
+  sectionAnimation?: {
+    enabled?: boolean | null;
+    type?: ('fade-in-up' | 'fade-in' | 'slide-in-left' | 'slide-in-right' | 'scale-up' | 'blur-in') | null;
+    stagger?: boolean | null;
+    duration?: number | null;
+    delay?: number | null;
+  };
   id?: string | null;
   blockName?: string | null;
   blockType: 'faq';
@@ -958,6 +1343,56 @@ export interface ContactBlock {
     emailLabel?: string | null;
     scheduleLabel?: string | null;
     socialLabel?: string | null;
+  };
+  /**
+   * Continutul va ocupa toata latimea ecranului
+   */
+  sectionFullWidth?: boolean | null;
+  sectionContainerSize?: ('default' | 'narrow' | 'wide' | 'full') | null;
+  sectionPaddingTop?: ('none' | 'small' | 'medium' | 'large' | 'xl') | null;
+  sectionPaddingBottom?: ('none' | 'small' | 'medium' | 'large' | 'xl') | null;
+  /**
+   * Optional: imagine de fundal pentru sectiune
+   */
+  sectionBackgroundImage?: (string | null) | Media;
+  sectionBackgroundVideo?: {
+    /**
+     * Link direct catre fisierul MP4 (ex: /videos/hero.mp4 sau URL extern)
+     */
+    url?: string | null;
+    poster?: (string | null) | Media;
+    autoplay?: boolean | null;
+    loop?: boolean | null;
+    muted?: boolean | null;
+    playbackSpeed?: number | null;
+  };
+  /**
+   * Adauga un strat colorat peste imagine/video pentru lizibilitate
+   */
+  sectionOverlay?: {
+    enabled?: boolean | null;
+    type?: ('solid' | 'gradient-to-t' | 'gradient-to-b' | 'gradient-radial') | null;
+    /**
+     * rgba() sau hex
+     */
+    color?: string | null;
+    opacity?: number | null;
+  };
+  /**
+   * Fundalul se misca mai lent decat continutul
+   */
+  sectionParallax?: boolean | null;
+  sectionParallaxSpeed?: number | null;
+  /**
+   * Optional: pentru link-uri tip #sectiune
+   */
+  sectionId?: string | null;
+  sectionAnimation?: {
+    enabled?: boolean | null;
+    type?: ('fade-in-up' | 'fade-in' | 'slide-in-left' | 'slide-in-right' | 'scale-up' | 'blur-in') | null;
+    stagger?: boolean | null;
+    duration?: number | null;
+    delay?: number | null;
   };
   id?: string | null;
   blockName?: string | null;
@@ -1158,7 +1593,45 @@ export interface Form {
  * via the `definition` "CtaBlock".
  */
 export interface CtaBlock {
-  variant?: ('centered' | 'split' | 'with-image' | 'gradient' | 'minimal' | 'floating' | 'with-form') | null;
+  variant?:
+    | ('centered' | 'split' | 'with-image' | 'gradient' | 'minimal' | 'floating' | 'with-form' | 'with-pattern')
+    | null;
+  /**
+   * Adauga un pattern decorativ profesional in fundal
+   */
+  pattern?: {
+    enabled?: boolean | null;
+    type?:
+      | (
+          | 'bubbles'
+          | 'floating-dots'
+          | 'diagonal-lines'
+          | 'waves'
+          | 'topography'
+          | 'grid'
+          | 'hexagons'
+          | 'circuit'
+          | 'diamonds'
+          | 'moroccan'
+          | 'plus'
+          | 'noise'
+          | 'crosshatch'
+        )
+      | null;
+    position?:
+      | ('full' | 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'center')
+      | null;
+    color?: ('primary' | 'accent' | 'dark' | 'light' | 'white' | 'black') | null;
+    /**
+     * Cu cat e mai mare textul, cu atat opacitatea trebuie sa fie mai mica
+     */
+    opacity?: ('3' | '5' | '8' | '10' | '15' | '20' | '25' | '30' | '40' | '50') | null;
+    size?: ('sm' | 'md' | 'lg') | null;
+    /**
+     * Adauga o animatie de pulsatie foarte subtila
+     */
+    animated?: boolean | null;
+  };
   headline: string;
   subheadline?: string | null;
   image?: (string | null) | Media;
@@ -1174,6 +1647,56 @@ export interface CtaBlock {
   backgroundColor?: ('default' | 'light' | 'dark' | 'primary' | 'accent') | null;
   textAlignment?: ('left' | 'center' | 'right') | null;
   size?: ('small' | 'medium' | 'large') | null;
+  /**
+   * Continutul va ocupa toata latimea ecranului
+   */
+  sectionFullWidth?: boolean | null;
+  sectionContainerSize?: ('default' | 'narrow' | 'wide' | 'full') | null;
+  sectionPaddingTop?: ('none' | 'small' | 'medium' | 'large' | 'xl') | null;
+  sectionPaddingBottom?: ('none' | 'small' | 'medium' | 'large' | 'xl') | null;
+  /**
+   * Optional: imagine de fundal pentru sectiune
+   */
+  sectionBackgroundImage?: (string | null) | Media;
+  sectionBackgroundVideo?: {
+    /**
+     * Link direct catre fisierul MP4 (ex: /videos/hero.mp4 sau URL extern)
+     */
+    url?: string | null;
+    poster?: (string | null) | Media;
+    autoplay?: boolean | null;
+    loop?: boolean | null;
+    muted?: boolean | null;
+    playbackSpeed?: number | null;
+  };
+  /**
+   * Adauga un strat colorat peste imagine/video pentru lizibilitate
+   */
+  sectionOverlay?: {
+    enabled?: boolean | null;
+    type?: ('solid' | 'gradient-to-t' | 'gradient-to-b' | 'gradient-radial') | null;
+    /**
+     * rgba() sau hex
+     */
+    color?: string | null;
+    opacity?: number | null;
+  };
+  /**
+   * Fundalul se misca mai lent decat continutul
+   */
+  sectionParallax?: boolean | null;
+  sectionParallaxSpeed?: number | null;
+  /**
+   * Optional: pentru link-uri tip #sectiune
+   */
+  sectionId?: string | null;
+  sectionAnimation?: {
+    enabled?: boolean | null;
+    type?: ('fade-in-up' | 'fade-in' | 'slide-in-left' | 'slide-in-right' | 'scale-up' | 'blur-in') | null;
+    stagger?: boolean | null;
+    duration?: number | null;
+    delay?: number | null;
+  };
   id?: string | null;
   blockName?: string | null;
   blockType: 'cta';
@@ -1209,6 +1732,56 @@ export interface GalleryBlock {
   labels?: {
     allFilter?: string | null;
   };
+  /**
+   * Continutul va ocupa toata latimea ecranului
+   */
+  sectionFullWidth?: boolean | null;
+  sectionContainerSize?: ('default' | 'narrow' | 'wide' | 'full') | null;
+  sectionPaddingTop?: ('none' | 'small' | 'medium' | 'large' | 'xl') | null;
+  sectionPaddingBottom?: ('none' | 'small' | 'medium' | 'large' | 'xl') | null;
+  /**
+   * Optional: imagine de fundal pentru sectiune
+   */
+  sectionBackgroundImage?: (string | null) | Media;
+  sectionBackgroundVideo?: {
+    /**
+     * Link direct catre fisierul MP4 (ex: /videos/hero.mp4 sau URL extern)
+     */
+    url?: string | null;
+    poster?: (string | null) | Media;
+    autoplay?: boolean | null;
+    loop?: boolean | null;
+    muted?: boolean | null;
+    playbackSpeed?: number | null;
+  };
+  /**
+   * Adauga un strat colorat peste imagine/video pentru lizibilitate
+   */
+  sectionOverlay?: {
+    enabled?: boolean | null;
+    type?: ('solid' | 'gradient-to-t' | 'gradient-to-b' | 'gradient-radial') | null;
+    /**
+     * rgba() sau hex
+     */
+    color?: string | null;
+    opacity?: number | null;
+  };
+  /**
+   * Fundalul se misca mai lent decat continutul
+   */
+  sectionParallax?: boolean | null;
+  sectionParallaxSpeed?: number | null;
+  /**
+   * Optional: pentru link-uri tip #sectiune
+   */
+  sectionId?: string | null;
+  sectionAnimation?: {
+    enabled?: boolean | null;
+    type?: ('fade-in-up' | 'fade-in' | 'slide-in-left' | 'slide-in-right' | 'scale-up' | 'blur-in') | null;
+    stagger?: boolean | null;
+    duration?: number | null;
+    delay?: number | null;
+  };
   id?: string | null;
   blockName?: string | null;
   blockType: 'gallery';
@@ -1219,6 +1792,42 @@ export interface GalleryBlock {
  */
 export interface StatsBlock {
   variant?: ('inline' | 'grid-4' | 'grid-3' | 'with-icons' | 'animated' | 'minimal') | null;
+  /**
+   * Adauga un pattern decorativ profesional in fundal
+   */
+  pattern?: {
+    enabled?: boolean | null;
+    type?:
+      | (
+          | 'bubbles'
+          | 'floating-dots'
+          | 'diagonal-lines'
+          | 'waves'
+          | 'topography'
+          | 'grid'
+          | 'hexagons'
+          | 'circuit'
+          | 'diamonds'
+          | 'moroccan'
+          | 'plus'
+          | 'noise'
+          | 'crosshatch'
+        )
+      | null;
+    position?:
+      | ('full' | 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'center')
+      | null;
+    color?: ('primary' | 'accent' | 'dark' | 'light' | 'white' | 'black') | null;
+    /**
+     * Cu cat e mai mare textul, cu atat opacitatea trebuie sa fie mai mica
+     */
+    opacity?: ('3' | '5' | '8' | '10' | '15' | '20' | '25' | '30' | '40' | '50') | null;
+    size?: ('sm' | 'md' | 'lg') | null;
+    /**
+     * Adauga o animatie de pulsatie foarte subtila
+     */
+    animated?: boolean | null;
+  };
   heading?: string | null;
   source?: ('businessInfo' | 'custom') | null;
   stats?:
@@ -1667,6 +2276,97 @@ export interface VideoEmbedBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "VideoGalleryBlock".
+ */
+export interface VideoGalleryBlock {
+  variant?: ('grid-2' | 'grid-3' | 'grid-4' | 'featured' | 'carousel') | null;
+  heading?: string | null;
+  subheading?: string | null;
+  videos?:
+    | {
+        source?: ('youtube' | 'vimeo') | null;
+        /**
+         * Link YouTube sau Vimeo (ex: https://www.youtube.com/watch?v=xxxxx)
+         */
+        videoUrl: string;
+        /**
+         * Optional - daca nu e setat, se foloseste thumbnail-ul de pe YouTube/Vimeo
+         */
+        thumbnail?: (string | null) | Media;
+        title?: string | null;
+        description?: string | null;
+        /**
+         * Ex: 5:30, 12:45
+         */
+        duration?: string | null;
+        /**
+         * Pentru filtrare (ex: Terapie Bowen, Access Bars)
+         */
+        category?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  showTitles?: boolean | null;
+  showDuration?: boolean | null;
+  showCategories?: boolean | null;
+  aspectRatio?: ('16-9' | '4-3' | '1-1') | null;
+  backgroundColor?: ('default' | 'light' | 'dark' | 'primary') | null;
+  /**
+   * Continutul va ocupa toata latimea ecranului
+   */
+  sectionFullWidth?: boolean | null;
+  sectionContainerSize?: ('default' | 'narrow' | 'wide' | 'full') | null;
+  sectionPaddingTop?: ('none' | 'small' | 'medium' | 'large' | 'xl') | null;
+  sectionPaddingBottom?: ('none' | 'small' | 'medium' | 'large' | 'xl') | null;
+  /**
+   * Optional: imagine de fundal pentru sectiune
+   */
+  sectionBackgroundImage?: (string | null) | Media;
+  sectionBackgroundVideo?: {
+    /**
+     * Link direct catre fisierul MP4 (ex: /videos/hero.mp4 sau URL extern)
+     */
+    url?: string | null;
+    poster?: (string | null) | Media;
+    autoplay?: boolean | null;
+    loop?: boolean | null;
+    muted?: boolean | null;
+    playbackSpeed?: number | null;
+  };
+  /**
+   * Adauga un strat colorat peste imagine/video pentru lizibilitate
+   */
+  sectionOverlay?: {
+    enabled?: boolean | null;
+    type?: ('solid' | 'gradient-to-t' | 'gradient-to-b' | 'gradient-radial') | null;
+    /**
+     * rgba() sau hex
+     */
+    color?: string | null;
+    opacity?: number | null;
+  };
+  /**
+   * Fundalul se misca mai lent decat continutul
+   */
+  sectionParallax?: boolean | null;
+  sectionParallaxSpeed?: number | null;
+  /**
+   * Optional: pentru link-uri tip #sectiune
+   */
+  sectionId?: string | null;
+  sectionAnimation?: {
+    enabled?: boolean | null;
+    type?: ('fade-in-up' | 'fade-in' | 'slide-in-left' | 'slide-in-right' | 'scale-up' | 'blur-in') | null;
+    stagger?: boolean | null;
+    duration?: number | null;
+    delay?: number | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'videoGallery';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "PriceListDottedBlock".
  */
 export interface PriceListDottedBlock {
@@ -1753,6 +2453,42 @@ export interface BeforeAfterBlock {
  */
 export interface NewsletterBlock {
   variant?: ('simple' | 'with-image' | 'dark' | 'with-pattern' | 'inline') | null;
+  /**
+   * Adauga un pattern decorativ profesional in fundal
+   */
+  pattern?: {
+    enabled?: boolean | null;
+    type?:
+      | (
+          | 'bubbles'
+          | 'floating-dots'
+          | 'diagonal-lines'
+          | 'waves'
+          | 'topography'
+          | 'grid'
+          | 'hexagons'
+          | 'circuit'
+          | 'diamonds'
+          | 'moroccan'
+          | 'plus'
+          | 'noise'
+          | 'crosshatch'
+        )
+      | null;
+    position?:
+      | ('full' | 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'center')
+      | null;
+    color?: ('primary' | 'accent' | 'dark' | 'light' | 'white' | 'black') | null;
+    /**
+     * Cu cat e mai mare textul, cu atat opacitatea trebuie sa fie mai mica
+     */
+    opacity?: ('3' | '5' | '8' | '10' | '15' | '20' | '25' | '30' | '40' | '50') | null;
+    size?: ('sm' | 'md' | 'lg') | null;
+    /**
+     * Adauga o animatie de pulsatie foarte subtila
+     */
+    animated?: boolean | null;
+  };
   heading?: string | null;
   subheading?: string | null;
   placeholder?: string | null;
@@ -1761,6 +2497,11 @@ export interface NewsletterBlock {
   backgroundImage?: (string | null) | Media;
   privacyText?: string | null;
   showPrivacyLink?: boolean | null;
+  /**
+   * Afiseaza un checkbox pe care utilizatorul trebuie sa-l bifeze inainte de abonare
+   */
+  requireConsent?: boolean | null;
+  consentText?: string | null;
   benefits?:
     | {
         text?: string | null;
@@ -1803,6 +2544,10 @@ export interface TrustBadgesBlock {
         | 'eco-friendly'
         | 'free-consultation'
         | 'online-booking'
+        | 'money-back-30'
+        | 'patented'
+        | 'certified'
+        | 'non-invasive'
       )[]
     | null;
   /**
@@ -1817,30 +2562,53 @@ export interface TrustBadgesBlock {
   badges?:
     | {
         icon:
-          | 'Truck'
+          | 'Search'
+          | 'MousePointerClick'
+          | 'Check'
+          | 'CheckCircle'
+          | 'Plus'
+          | 'Settings'
+          | 'Phone'
+          | 'Mail'
+          | 'MessageSquare'
+          | 'MessageCircle'
+          | 'Headphones'
+          | 'Store'
+          | 'ShoppingCart'
+          | 'CreditCard'
           | 'Package'
+          | 'Truck'
+          | 'Gift'
+          | 'Banknote'
+          | 'CircleDollarSign'
+          | 'Calendar'
+          | 'Clock'
+          | 'Zap'
           | 'Shield'
           | 'ShieldCheck'
-          | 'CheckCircle'
-          | 'Star'
-          | 'Heart'
-          | 'Phone'
-          | 'Clock'
-          | 'Calendar'
-          | 'CreditCard'
-          | 'Gift'
+          | 'BadgeCheck'
           | 'Award'
-          | 'Users'
+          | 'Star'
           | 'ThumbsUp'
+          | 'User'
+          | 'Users'
+          | 'Heart'
+          | 'Home'
+          | 'MapPin'
+          | 'Globe'
+          | 'FileText'
+          | 'ClipboardCheck'
+          | 'File'
           | 'Leaf'
           | 'Recycle'
+          | 'Sun'
+          | 'Scissors'
           | 'RefreshCw'
-          | 'Headphones'
-          | 'MessageCircle'
-          | 'Zap'
-          | 'BadgeCheck'
-          | 'CircleDollarSign'
-          | 'Banknote';
+          | 'Target'
+          | 'Rocket'
+          | 'Lightbulb'
+          | 'TrendingUp'
+          | 'BarChart';
         title: string;
         description?: string | null;
         id?: string | null;
@@ -1872,24 +2640,51 @@ export interface HowItWorksBlock {
           | (
               | 'Search'
               | 'MousePointerClick'
-              | 'Calendar'
+              | 'Check'
               | 'CheckCircle'
-              | 'User'
+              | 'Plus'
+              | 'Settings'
+              | 'Phone'
+              | 'Mail'
+              | 'MessageSquare'
+              | 'MessageCircle'
+              | 'Headphones'
               | 'Store'
               | 'ShoppingCart'
               | 'CreditCard'
               | 'Package'
               | 'Truck'
-              | 'Home'
-              | 'Phone'
-              | 'Mail'
-              | 'MessageSquare'
-              | 'Settings'
-              | 'FileText'
-              | 'Scissors'
+              | 'Gift'
+              | 'Banknote'
+              | 'CircleDollarSign'
+              | 'Calendar'
+              | 'Clock'
+              | 'Zap'
+              | 'Shield'
+              | 'ShieldCheck'
+              | 'BadgeCheck'
+              | 'Award'
               | 'Star'
+              | 'ThumbsUp'
+              | 'User'
+              | 'Users'
               | 'Heart'
+              | 'Home'
+              | 'MapPin'
+              | 'Globe'
+              | 'FileText'
               | 'ClipboardCheck'
+              | 'File'
+              | 'Leaf'
+              | 'Recycle'
+              | 'Sun'
+              | 'Scissors'
+              | 'RefreshCw'
+              | 'Target'
+              | 'Rocket'
+              | 'Lightbulb'
+              | 'TrendingUp'
+              | 'BarChart'
             )
           | null;
         image?: (string | null) | Media;
@@ -1901,6 +2696,7 @@ export interface HowItWorksBlock {
     enabled?: boolean | null;
     label?: string | null;
     link?: string | null;
+    variant?: ('primary' | 'secondary' | 'ghost') | null;
   };
   backgroundColor?: ('default' | 'light' | 'dark' | 'primary') | null;
   id?: string | null;
@@ -2367,6 +3163,12 @@ export interface TimelineBlock {
   }[];
   showConnector?: boolean | null;
   backgroundColor?: ('default' | 'light' | 'dark') | null;
+  conclusion?: {
+    enabled?: boolean | null;
+    quote?: string | null;
+    author?: string | null;
+    role?: string | null;
+  };
   id?: string | null;
   blockName?: string | null;
   blockType: 'timeline';
@@ -2714,6 +3516,284 @@ export interface ServiceDetailBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "VideoHeroBlock".
+ */
+export interface VideoHeroBlock {
+  /**
+   * Split: 2 oferte egale | Carousel: slideshow de mesaje pe acelasi video
+   */
+  variant?: ('default' | 'split' | 'centered' | 'carousel') | null;
+  videoSource?: ('url' | 'upload') | null;
+  /**
+   * YouTube, Vimeo sau link direct la fisier .mp4
+   */
+  videoUrl?: string | null;
+  videoFile?: (string | null) | Media;
+  /**
+   * Se afiseaza pana se incarca videoul sau pe dispozitive care nu suporta autoplay
+   */
+  videoPoster?: (string | null) | Media;
+  /**
+   * Culoarea suprapusa peste video (rgba format recomandat)
+   */
+  overlayColor?: string | null;
+  overlayOpacity?: number | null;
+  headline?: string | null;
+  subheadline?: string | null;
+  ctaButtons?:
+    | {
+        label: string;
+        link: string;
+        variant?: ('primary' | 'secondary' | 'accent' | 'ghost') | null;
+        pillShape?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Text mic deasupra coloanelor, ex: "Revital Harmony" sau "Vindecă · Învață · Transformă"
+   */
+  splitTagline?: string | null;
+  /**
+   * Exact 2 coloane pentru varianta split
+   */
+  splitColumns?:
+    | {
+        headline: string;
+        subheadline?: string | null;
+        ctaButton: {
+          label: string;
+          link: string;
+          variant?: ('primary' | 'secondary' | 'accent' | 'ghost') | null;
+          pillShape?: boolean | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  splitDivider?: boolean | null;
+  /**
+   * Minim 2 slide-uri, maxim 6. Fiecare slide are titlu, descriere și butoane.
+   */
+  carouselSlides?:
+    | {
+        headline: string;
+        subheadline?: string | null;
+        ctaButtons?:
+          | {
+              label: string;
+              link: string;
+              variant?: ('primary' | 'secondary' | 'accent' | 'ghost') | null;
+              pillShape?: boolean | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Schimbă automat slide-urile
+   */
+  carouselAutoplay?: boolean | null;
+  /**
+   * Interval între slide-uri în milisecunde (6000 = 6 secunde)
+   */
+  carouselSpeed?: number | null;
+  /**
+   * Butoanele stânga/dreapta pentru schimbarea manuală a slide-urilor
+   */
+  carouselShowNavigation?: boolean | null;
+  /**
+   * Cercurile de jos care arată slide-ul activ și permit navigarea directă
+   */
+  carouselShowDots?: boolean | null;
+  /**
+   * Imagini de incredere (certificari, garantii, parteneri, etc.) - ex: Money-back guarantee, Patent
+   */
+  trustBadges?:
+    | {
+        image: string | Media;
+        alt?: string | null;
+        link?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Plasturi style: sub textul principal cu badge-uri de garantie
+   */
+  trustBadgesPosition?: ('below' | 'above') | null;
+  /**
+   * Preia din BusinessInfo
+   */
+  showSocialLinks?: boolean | null;
+  textAlignment?: ('center' | 'left' | 'right') | null;
+  height?: ('fullscreen' | 'large' | 'medium' | 'small') | null;
+  showScrollIndicator?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'video-hero';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProcessStepsBlock".
+ */
+export interface ProcessStepsBlock {
+  variant?: ('zigzag' | 'timeline' | 'horizontal' | 'grid' | 'carousel') | null;
+  heading?: string | null;
+  subheading?: string | null;
+  steps?:
+    | {
+        title: string;
+        description?: string | null;
+        /**
+         * Imagine pentru acest pas (recomandat 600x400px)
+         */
+        image?: (string | null) | Media;
+        icon?:
+          | (
+              | 'Search'
+              | 'MousePointerClick'
+              | 'Check'
+              | 'CheckCircle'
+              | 'Plus'
+              | 'Settings'
+              | 'Phone'
+              | 'Mail'
+              | 'MessageSquare'
+              | 'MessageCircle'
+              | 'Headphones'
+              | 'Store'
+              | 'ShoppingCart'
+              | 'CreditCard'
+              | 'Package'
+              | 'Truck'
+              | 'Gift'
+              | 'Banknote'
+              | 'CircleDollarSign'
+              | 'Calendar'
+              | 'Clock'
+              | 'Zap'
+              | 'Shield'
+              | 'ShieldCheck'
+              | 'BadgeCheck'
+              | 'Award'
+              | 'Star'
+              | 'ThumbsUp'
+              | 'User'
+              | 'Users'
+              | 'Heart'
+              | 'Home'
+              | 'MapPin'
+              | 'Globe'
+              | 'FileText'
+              | 'ClipboardCheck'
+              | 'File'
+              | 'Leaf'
+              | 'Recycle'
+              | 'Sun'
+              | 'Scissors'
+              | 'RefreshCw'
+              | 'Target'
+              | 'Rocket'
+              | 'Lightbulb'
+              | 'TrendingUp'
+              | 'BarChart'
+            )
+          | null;
+        /**
+         * Ex: "Pas 1", "Etapa initiala", etc.
+         */
+        badge?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  showNumbers?: boolean | null;
+  showConnectors?: boolean | null;
+  /**
+   * Prima imagine va fi pe aceasta parte, urmatoarele alterneaza
+   */
+  imagePosition?: ('right' | 'left') | null;
+  ctaButton?: {
+    enabled?: boolean | null;
+    label?: string | null;
+    link?: string | null;
+    variant?: ('primary' | 'secondary' | 'ghost') | null;
+  };
+  backgroundColor?: ('default' | 'light' | 'dark' | 'primary') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'process-steps';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PricingKitsBlock".
+ */
+export interface PricingKitsBlock {
+  variant?: ('cards' | 'cards-image' | 'compact' | 'highlighted') | null;
+  heading?: string | null;
+  subheading?: string | null;
+  kits?:
+    | {
+        name: string;
+        price: number;
+        /**
+         * Ex: "lei", "RON/luna", "€", etc.
+         */
+        priceLabel?: string | null;
+        /**
+         * Pentru a afisa reducere
+         */
+        originalPrice?: number | null;
+        description?: string | null;
+        features?:
+          | {
+              text: string;
+              included?: boolean | null;
+              id?: string | null;
+            }[]
+          | null;
+        badge?: ('none' | 'popular' | 'best-value' | 'new' | 'limited' | 'recommended') | null;
+        cta: {
+          label?: string | null;
+          link: string;
+        };
+        image?: (string | null) | Media;
+        highlighted?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  columns?: ('auto' | '2' | '3' | '4') | null;
+  showCompareFeatures?: boolean | null;
+  backgroundColor?: ('default' | 'light' | 'dark' | 'primary') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'pricing-kits';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "DownloadLinksBlock".
+ */
+export interface DownloadLinksBlock {
+  variant?: ('buttons' | 'list' | 'cards' | 'inline') | null;
+  heading?: string | null;
+  links?:
+    | {
+        label: string;
+        description?: string | null;
+        linkType?: ('upload' | 'external') | null;
+        file?: (string | null) | Media;
+        url?: string | null;
+        icon?: ('download' | 'pdf' | 'document' | 'external-link' | 'none') | null;
+        openInNewTab?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  alignment?: ('left' | 'center' | 'right') | null;
+  backgroundColor?: ('default' | 'light' | 'dark' | 'primary') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'download-links';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "bookings".
  */
 export interface Booking {
@@ -3053,6 +4133,10 @@ export interface PayloadLockedDocument {
         value: string | Service;
       } | null)
     | ({
+        relationTo: 'service-categories';
+        value: string | ServiceCategory;
+      } | null)
+    | ({
         relationTo: 'team';
         value: string | Team;
       } | null)
@@ -3063,6 +4147,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'testimonials';
         value: string | Testimonial;
+      } | null)
+    | ({
+        relationTo: 'testimonial-categories';
+        value: string | TestimonialCategory;
       } | null)
     | ({
         relationTo: 'bookings';
@@ -3193,6 +4281,14 @@ export interface PayloadMigration {
 export interface PagesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
+  headerSettings?:
+    | T
+    | {
+        headerVariant?: T;
+        headerTransparency?: T;
+        headerTextColor?: T;
+        headerTopBar?: T;
+      };
   heroType?: T;
   hero?:
     | T
@@ -3254,6 +4350,7 @@ export interface PagesSelect<T extends boolean = true> {
         cart?: T | CartBlockSelect<T>;
         checkout?: T | CheckoutBlockSelect<T>;
         videoEmbed?: T | VideoEmbedBlockSelect<T>;
+        videoGallery?: T | VideoGalleryBlockSelect<T>;
         priceListDotted?: T | PriceListDottedBlockSelect<T>;
         beforeAfter?: T | BeforeAfterBlockSelect<T>;
         newsletter?: T | NewsletterBlockSelect<T>;
@@ -3271,6 +4368,10 @@ export interface PagesSelect<T extends boolean = true> {
         teamMemberDetail?: T | TeamMemberDetailBlockSelect<T>;
         serviceDetail?: T | ServiceDetailBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
+        'video-hero'?: T | VideoHeroBlockSelect<T>;
+        'process-steps'?: T | ProcessStepsBlockSelect<T>;
+        'pricing-kits'?: T | PricingKitsBlockSelect<T>;
+        'download-links'?: T | DownloadLinksBlockSelect<T>;
       };
   publishedAt?: T;
   meta?:
@@ -3322,6 +4423,41 @@ export interface HeroBlockSelect<T extends boolean = true> {
   overlayOpacity?: T;
   textColor?: T;
   height?: T;
+  sectionFullWidth?: T;
+  sectionContainerSize?: T;
+  sectionPaddingTop?: T;
+  sectionPaddingBottom?: T;
+  sectionBackgroundImage?: T;
+  sectionBackgroundVideo?:
+    | T
+    | {
+        url?: T;
+        poster?: T;
+        autoplay?: T;
+        loop?: T;
+        muted?: T;
+        playbackSpeed?: T;
+      };
+  sectionOverlay?:
+    | T
+    | {
+        enabled?: T;
+        type?: T;
+        color?: T;
+        opacity?: T;
+      };
+  sectionParallax?: T;
+  sectionParallaxSpeed?: T;
+  sectionId?: T;
+  sectionAnimation?:
+    | T
+    | {
+        enabled?: T;
+        type?: T;
+        stagger?: T;
+        duration?: T;
+        delay?: T;
+      };
   id?: T;
   blockName?: T;
 }
@@ -3364,11 +4500,47 @@ export interface ServicesBlockSelect<T extends boolean = true> {
       };
   detailBasePath?: T;
   backgroundColor?: T;
+  hoverEffect?: T;
   labels?:
     | T
     | {
         currencySymbol?: T;
         fromLabel?: T;
+      };
+  sectionFullWidth?: T;
+  sectionContainerSize?: T;
+  sectionPaddingTop?: T;
+  sectionPaddingBottom?: T;
+  sectionBackgroundImage?: T;
+  sectionBackgroundVideo?:
+    | T
+    | {
+        url?: T;
+        poster?: T;
+        autoplay?: T;
+        loop?: T;
+        muted?: T;
+        playbackSpeed?: T;
+      };
+  sectionOverlay?:
+    | T
+    | {
+        enabled?: T;
+        type?: T;
+        color?: T;
+        opacity?: T;
+      };
+  sectionParallax?: T;
+  sectionParallaxSpeed?: T;
+  sectionId?: T;
+  sectionAnimation?:
+    | T
+    | {
+        enabled?: T;
+        type?: T;
+        stagger?: T;
+        duration?: T;
+        delay?: T;
       };
   id?: T;
   blockName?: T;
@@ -3392,6 +4564,41 @@ export interface TeamBlockSelect<T extends boolean = true> {
   detailBasePath?: T;
   columns?: T;
   backgroundColor?: T;
+  sectionFullWidth?: T;
+  sectionContainerSize?: T;
+  sectionPaddingTop?: T;
+  sectionPaddingBottom?: T;
+  sectionBackgroundImage?: T;
+  sectionBackgroundVideo?:
+    | T
+    | {
+        url?: T;
+        poster?: T;
+        autoplay?: T;
+        loop?: T;
+        muted?: T;
+        playbackSpeed?: T;
+      };
+  sectionOverlay?:
+    | T
+    | {
+        enabled?: T;
+        type?: T;
+        color?: T;
+        opacity?: T;
+      };
+  sectionParallax?: T;
+  sectionParallaxSpeed?: T;
+  sectionId?: T;
+  sectionAnimation?:
+    | T
+    | {
+        enabled?: T;
+        type?: T;
+        stagger?: T;
+        duration?: T;
+        delay?: T;
+      };
   id?: T;
   blockName?: T;
 }
@@ -3407,11 +4614,48 @@ export interface TestimonialsBlockSelect<T extends boolean = true> {
   selectedTestimonials?: T;
   limit?: T;
   onlyFeatured?: T;
+  filterByCategory?: T;
+  groupByCategory?: T;
   showRating?: T;
   showAvatar?: T;
   showSource?: T;
   autoplay?: T;
   backgroundColor?: T;
+  sectionFullWidth?: T;
+  sectionContainerSize?: T;
+  sectionPaddingTop?: T;
+  sectionPaddingBottom?: T;
+  sectionBackgroundImage?: T;
+  sectionBackgroundVideo?:
+    | T
+    | {
+        url?: T;
+        poster?: T;
+        autoplay?: T;
+        loop?: T;
+        muted?: T;
+        playbackSpeed?: T;
+      };
+  sectionOverlay?:
+    | T
+    | {
+        enabled?: T;
+        type?: T;
+        color?: T;
+        opacity?: T;
+      };
+  sectionParallax?: T;
+  sectionParallaxSpeed?: T;
+  sectionId?: T;
+  sectionAnimation?:
+    | T
+    | {
+        enabled?: T;
+        type?: T;
+        stagger?: T;
+        duration?: T;
+        delay?: T;
+      };
   id?: T;
   blockName?: T;
 }
@@ -3463,6 +4707,41 @@ export interface FaqBlockSelect<T extends boolean = true> {
       };
   defaultOpen?: T;
   backgroundColor?: T;
+  sectionFullWidth?: T;
+  sectionContainerSize?: T;
+  sectionPaddingTop?: T;
+  sectionPaddingBottom?: T;
+  sectionBackgroundImage?: T;
+  sectionBackgroundVideo?:
+    | T
+    | {
+        url?: T;
+        poster?: T;
+        autoplay?: T;
+        loop?: T;
+        muted?: T;
+        playbackSpeed?: T;
+      };
+  sectionOverlay?:
+    | T
+    | {
+        enabled?: T;
+        type?: T;
+        color?: T;
+        opacity?: T;
+      };
+  sectionParallax?: T;
+  sectionParallaxSpeed?: T;
+  sectionId?: T;
+  sectionAnimation?:
+    | T
+    | {
+        enabled?: T;
+        type?: T;
+        stagger?: T;
+        duration?: T;
+        delay?: T;
+      };
   id?: T;
   blockName?: T;
 }
@@ -3507,6 +4786,41 @@ export interface ContactBlockSelect<T extends boolean = true> {
         scheduleLabel?: T;
         socialLabel?: T;
       };
+  sectionFullWidth?: T;
+  sectionContainerSize?: T;
+  sectionPaddingTop?: T;
+  sectionPaddingBottom?: T;
+  sectionBackgroundImage?: T;
+  sectionBackgroundVideo?:
+    | T
+    | {
+        url?: T;
+        poster?: T;
+        autoplay?: T;
+        loop?: T;
+        muted?: T;
+        playbackSpeed?: T;
+      };
+  sectionOverlay?:
+    | T
+    | {
+        enabled?: T;
+        type?: T;
+        color?: T;
+        opacity?: T;
+      };
+  sectionParallax?: T;
+  sectionParallaxSpeed?: T;
+  sectionId?: T;
+  sectionAnimation?:
+    | T
+    | {
+        enabled?: T;
+        type?: T;
+        stagger?: T;
+        duration?: T;
+        delay?: T;
+      };
   id?: T;
   blockName?: T;
 }
@@ -3516,6 +4830,17 @@ export interface ContactBlockSelect<T extends boolean = true> {
  */
 export interface CtaBlockSelect<T extends boolean = true> {
   variant?: T;
+  pattern?:
+    | T
+    | {
+        enabled?: T;
+        type?: T;
+        position?: T;
+        color?: T;
+        opacity?: T;
+        size?: T;
+        animated?: T;
+      };
   headline?: T;
   subheadline?: T;
   image?: T;
@@ -3531,6 +4856,41 @@ export interface CtaBlockSelect<T extends boolean = true> {
   backgroundColor?: T;
   textAlignment?: T;
   size?: T;
+  sectionFullWidth?: T;
+  sectionContainerSize?: T;
+  sectionPaddingTop?: T;
+  sectionPaddingBottom?: T;
+  sectionBackgroundImage?: T;
+  sectionBackgroundVideo?:
+    | T
+    | {
+        url?: T;
+        poster?: T;
+        autoplay?: T;
+        loop?: T;
+        muted?: T;
+        playbackSpeed?: T;
+      };
+  sectionOverlay?:
+    | T
+    | {
+        enabled?: T;
+        type?: T;
+        color?: T;
+        opacity?: T;
+      };
+  sectionParallax?: T;
+  sectionParallaxSpeed?: T;
+  sectionId?: T;
+  sectionAnimation?:
+    | T
+    | {
+        enabled?: T;
+        type?: T;
+        stagger?: T;
+        duration?: T;
+        delay?: T;
+      };
   id?: T;
   blockName?: T;
 }
@@ -3561,6 +4921,41 @@ export interface GalleryBlockSelect<T extends boolean = true> {
     | {
         allFilter?: T;
       };
+  sectionFullWidth?: T;
+  sectionContainerSize?: T;
+  sectionPaddingTop?: T;
+  sectionPaddingBottom?: T;
+  sectionBackgroundImage?: T;
+  sectionBackgroundVideo?:
+    | T
+    | {
+        url?: T;
+        poster?: T;
+        autoplay?: T;
+        loop?: T;
+        muted?: T;
+        playbackSpeed?: T;
+      };
+  sectionOverlay?:
+    | T
+    | {
+        enabled?: T;
+        type?: T;
+        color?: T;
+        opacity?: T;
+      };
+  sectionParallax?: T;
+  sectionParallaxSpeed?: T;
+  sectionId?: T;
+  sectionAnimation?:
+    | T
+    | {
+        enabled?: T;
+        type?: T;
+        stagger?: T;
+        duration?: T;
+        delay?: T;
+      };
   id?: T;
   blockName?: T;
 }
@@ -3570,6 +4965,17 @@ export interface GalleryBlockSelect<T extends boolean = true> {
  */
 export interface StatsBlockSelect<T extends boolean = true> {
   variant?: T;
+  pattern?:
+    | T
+    | {
+        enabled?: T;
+        type?: T;
+        position?: T;
+        color?: T;
+        opacity?: T;
+        size?: T;
+        animated?: T;
+      };
   heading?: T;
   source?: T;
   stats?:
@@ -3769,6 +5175,69 @@ export interface VideoEmbedBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "VideoGalleryBlock_select".
+ */
+export interface VideoGalleryBlockSelect<T extends boolean = true> {
+  variant?: T;
+  heading?: T;
+  subheading?: T;
+  videos?:
+    | T
+    | {
+        source?: T;
+        videoUrl?: T;
+        thumbnail?: T;
+        title?: T;
+        description?: T;
+        duration?: T;
+        category?: T;
+        id?: T;
+      };
+  showTitles?: T;
+  showDuration?: T;
+  showCategories?: T;
+  aspectRatio?: T;
+  backgroundColor?: T;
+  sectionFullWidth?: T;
+  sectionContainerSize?: T;
+  sectionPaddingTop?: T;
+  sectionPaddingBottom?: T;
+  sectionBackgroundImage?: T;
+  sectionBackgroundVideo?:
+    | T
+    | {
+        url?: T;
+        poster?: T;
+        autoplay?: T;
+        loop?: T;
+        muted?: T;
+        playbackSpeed?: T;
+      };
+  sectionOverlay?:
+    | T
+    | {
+        enabled?: T;
+        type?: T;
+        color?: T;
+        opacity?: T;
+      };
+  sectionParallax?: T;
+  sectionParallaxSpeed?: T;
+  sectionId?: T;
+  sectionAnimation?:
+    | T
+    | {
+        enabled?: T;
+        type?: T;
+        stagger?: T;
+        duration?: T;
+        delay?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "PriceListDottedBlock_select".
  */
 export interface PriceListDottedBlockSelect<T extends boolean = true> {
@@ -3846,6 +5315,17 @@ export interface BeforeAfterBlockSelect<T extends boolean = true> {
  */
 export interface NewsletterBlockSelect<T extends boolean = true> {
   variant?: T;
+  pattern?:
+    | T
+    | {
+        enabled?: T;
+        type?: T;
+        position?: T;
+        color?: T;
+        opacity?: T;
+        size?: T;
+        animated?: T;
+      };
   heading?: T;
   subheading?: T;
   placeholder?: T;
@@ -3854,6 +5334,8 @@ export interface NewsletterBlockSelect<T extends boolean = true> {
   backgroundImage?: T;
   privacyText?: T;
   showPrivacyLink?: T;
+  requireConsent?: T;
+  consentText?: T;
   benefits?:
     | T
     | {
@@ -3918,6 +5400,7 @@ export interface HowItWorksBlockSelect<T extends boolean = true> {
         enabled?: T;
         label?: T;
         link?: T;
+        variant?: T;
       };
   backgroundColor?: T;
   id?: T;
@@ -4106,6 +5589,14 @@ export interface TimelineBlockSelect<T extends boolean = true> {
       };
   showConnector?: T;
   backgroundColor?: T;
+  conclusion?:
+    | T
+    | {
+        enabled?: T;
+        quote?: T;
+        author?: T;
+        role?: T;
+      };
   id?: T;
   blockName?: T;
 }
@@ -4320,6 +5811,179 @@ export interface ServiceDetailBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "VideoHeroBlock_select".
+ */
+export interface VideoHeroBlockSelect<T extends boolean = true> {
+  variant?: T;
+  videoSource?: T;
+  videoUrl?: T;
+  videoFile?: T;
+  videoPoster?: T;
+  overlayColor?: T;
+  overlayOpacity?: T;
+  headline?: T;
+  subheadline?: T;
+  ctaButtons?:
+    | T
+    | {
+        label?: T;
+        link?: T;
+        variant?: T;
+        pillShape?: T;
+        id?: T;
+      };
+  splitTagline?: T;
+  splitColumns?:
+    | T
+    | {
+        headline?: T;
+        subheadline?: T;
+        ctaButton?:
+          | T
+          | {
+              label?: T;
+              link?: T;
+              variant?: T;
+              pillShape?: T;
+            };
+        id?: T;
+      };
+  splitDivider?: T;
+  carouselSlides?:
+    | T
+    | {
+        headline?: T;
+        subheadline?: T;
+        ctaButtons?:
+          | T
+          | {
+              label?: T;
+              link?: T;
+              variant?: T;
+              pillShape?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  carouselAutoplay?: T;
+  carouselSpeed?: T;
+  carouselShowNavigation?: T;
+  carouselShowDots?: T;
+  trustBadges?:
+    | T
+    | {
+        image?: T;
+        alt?: T;
+        link?: T;
+        id?: T;
+      };
+  trustBadgesPosition?: T;
+  showSocialLinks?: T;
+  textAlignment?: T;
+  height?: T;
+  showScrollIndicator?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProcessStepsBlock_select".
+ */
+export interface ProcessStepsBlockSelect<T extends boolean = true> {
+  variant?: T;
+  heading?: T;
+  subheading?: T;
+  steps?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+        icon?: T;
+        badge?: T;
+        id?: T;
+      };
+  showNumbers?: T;
+  showConnectors?: T;
+  imagePosition?: T;
+  ctaButton?:
+    | T
+    | {
+        enabled?: T;
+        label?: T;
+        link?: T;
+        variant?: T;
+      };
+  backgroundColor?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PricingKitsBlock_select".
+ */
+export interface PricingKitsBlockSelect<T extends boolean = true> {
+  variant?: T;
+  heading?: T;
+  subheading?: T;
+  kits?:
+    | T
+    | {
+        name?: T;
+        price?: T;
+        priceLabel?: T;
+        originalPrice?: T;
+        description?: T;
+        features?:
+          | T
+          | {
+              text?: T;
+              included?: T;
+              id?: T;
+            };
+        badge?: T;
+        cta?:
+          | T
+          | {
+              label?: T;
+              link?: T;
+            };
+        image?: T;
+        highlighted?: T;
+        id?: T;
+      };
+  columns?: T;
+  showCompareFeatures?: T;
+  backgroundColor?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "DownloadLinksBlock_select".
+ */
+export interface DownloadLinksBlockSelect<T extends boolean = true> {
+  variant?: T;
+  heading?: T;
+  links?:
+    | T
+    | {
+        label?: T;
+        description?: T;
+        linkType?: T;
+        file?: T;
+        url?: T;
+        icon?: T;
+        openInNewTab?: T;
+        id?: T;
+      };
+  alignment?: T;
+  backgroundColor?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "posts_select".
  */
 export interface PostsSelect<T extends boolean = true> {
@@ -4491,6 +6155,7 @@ export interface UsersSelect<T extends boolean = true> {
 export interface ServicesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
+  category?: T;
   shortDescription?: T;
   description?: T;
   image?: T;
@@ -4544,6 +6209,20 @@ export interface ServicesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "service-categories_select".
+ */
+export interface ServiceCategoriesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  description?: T;
+  icon?: T;
+  services?: T;
+  order?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "team_select".
  */
 export interface TeamSelect<T extends boolean = true> {
@@ -4552,6 +6231,7 @@ export interface TeamSelect<T extends boolean = true> {
   role?: T;
   image?: T;
   bio?: T;
+  description?: T;
   experience?: T;
   specializations?:
     | T
@@ -4581,6 +6261,7 @@ export interface TeamSelect<T extends boolean = true> {
         hours?: T;
         id?: T;
       };
+  showCTAOnDetailPage?: T;
   featured?: T;
   order?: T;
   updatedAt?: T;
@@ -4631,8 +6312,25 @@ export interface TestimonialsSelect<T extends boolean = true> {
   content?: T;
   rating?: T;
   service?: T;
+  category?: T;
   source?: T;
+  videoUrl?: T;
+  videoPoster?: T;
   featured?: T;
+  order?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "testimonial-categories_select".
+ */
+export interface TestimonialCategoriesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  description?: T;
+  icon?: T;
+  testimonials?: T;
   order?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -5282,14 +6980,30 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
  */
 export interface Header {
   id: string;
-  variant?: ('standard' | 'centered' | 'with-topbar' | 'transparent' | 'minimal') | null;
+  variant?: ('standard' | 'centered' | 'with-topbar' | 'full-width' | 'minimal') | null;
+  /**
+   * Bara superioara cu social media, contact, mesaj etc.
+   */
+  showTopBar?: boolean | null;
   topBar?: {
+    backgroundColor?: ('dark' | 'primary' | 'transparent' | 'light') | null;
+    layout?: ('social-left' | 'message-left' | 'contact-left' | 'centered') | null;
     showPhone?: boolean | null;
     showEmail?: boolean | null;
     showSocial?: boolean | null;
+    /**
+     * Daca nu sunt setate, se folosesc link-urile din BusinessInfo
+     */
+    customSocialLinks?:
+      | {
+          platform: 'youtube' | 'facebook' | 'instagram' | 'tiktok' | 'twitter' | 'linkedin' | 'whatsapp';
+          url: string;
+          id?: string | null;
+        }[]
+      | null;
     showWorkingHours?: boolean | null;
     /**
-     * Ex: Transport gratuit la comenzi peste 200 lei
+     * Ex: Te rugam sa te intorci la persoana care te-a recomandat!
      */
     customText?: string | null;
   };
@@ -5331,6 +7045,14 @@ export interface Header {
     variant?: ('default' | 'outline' | 'ghost') | null;
   };
   sticky?: boolean | null;
+  /**
+   * Header-ul va fi transparent și suprapus peste primul block (ideal pentru Video Hero)
+   */
+  isTransparent?: boolean | null;
+  /**
+   * Culoarea textului și logo-ului când header-ul este transparent
+   */
+  transparentTextColor?: ('white' | 'dark' | 'auto') | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -5445,7 +7167,10 @@ export interface SiteTheme {
     | 'brown-vintage'
     | 'pink-soft'
     | 'fitness-orange'
-    | 'fitness-dark';
+    | 'fitness-dark'
+    | 'gold-navy-healing'
+    | 'revital-harmony'
+    | 'purple-wellness';
   /**
    * Lasa gol pentru default din varianta
    */
@@ -5519,6 +7244,7 @@ export interface SiteTheme {
         | 'DM_Sans'
         | 'DM_Serif_Display'
         | 'Raleway'
+        | 'Prompt'
       )
     | null;
   /**
@@ -5541,8 +7267,13 @@ export interface SiteTheme {
         | 'Manrope'
         | 'DM_Sans'
         | 'Raleway'
+        | 'Prompt'
       )
     | null;
+  /**
+   * Font weight pentru titluri (H1-H6). "Light" pentru design clean/flat.
+   */
+  headingWeight?: ('300' | '400' | '500' | '600' | '700') | null;
   /**
    * Permite controlul fin asupra letter-spacing si line-height
    */
@@ -5554,6 +7285,7 @@ export interface SiteTheme {
    * Permite controlul fin asupra aspectului butoanelor
    */
   useCustomButtons?: boolean | null;
+  buttonRounding?: ('none' | 'small' | 'default' | 'medium' | 'large' | 'pill' | 'full') | null;
   buttonPadding?: ('compact' | 'normal' | 'large' | 'xl') | null;
   buttonTextTransform?: ('none' | 'uppercase' | 'capitalize') | null;
   buttonFontWeight?: ('400' | '500' | '600' | '700') | null;
@@ -5688,6 +7420,29 @@ export interface BusinessInfo {
     backgroundColor?: ('primary' | 'secondary' | 'accent' | 'dark' | 'gradient') | null;
     icon?: ('megaphone' | 'gift' | 'star' | 'fire' | 'sparkles' | 'none') | null;
     dismissible?: boolean | null;
+  };
+  /**
+   * Buton call-to-action flotant (stil Plasturi)
+   */
+  floatingCta?: {
+    enabled?: boolean | null;
+    text?: string | null;
+    href?: string | null;
+    variant?: ('primary' | 'accent' | 'secondary' | 'dark' | 'gradient') | null;
+    icon?: ('arrow' | 'phone' | 'message' | 'calendar' | 'none') | null;
+    position?: ('bottom-right' | 'bottom-left' | 'bottom-center' | 'right-center' | 'left-center') | null;
+    shape?: ('pill' | 'rectangle') | null;
+    showOnMobile?: boolean | null;
+    pulseAnimation?: boolean | null;
+    dismissible?: boolean | null;
+    /**
+     * Butonul apare după ce utilizatorul derulează X pixeli
+     */
+    showAfterScroll?: number | null;
+    /**
+     * Ex: /contact, /programare - pagini unde butonul nu apare
+     */
+    hideOnPaths?: string | null;
   };
   /**
    * Configurare banner cookie conform GDPR și Legea 506/2004 România
@@ -5955,12 +7710,22 @@ export interface SystemPage {
  */
 export interface HeaderSelect<T extends boolean = true> {
   variant?: T;
+  showTopBar?: T;
   topBar?:
     | T
     | {
+        backgroundColor?: T;
+        layout?: T;
         showPhone?: T;
         showEmail?: T;
         showSocial?: T;
+        customSocialLinks?:
+          | T
+          | {
+              platform?: T;
+              url?: T;
+              id?: T;
+            };
         showWorkingHours?: T;
         customText?: T;
       };
@@ -5998,6 +7763,8 @@ export interface HeaderSelect<T extends boolean = true> {
         variant?: T;
       };
   sticky?: T;
+  isTransparent?: T;
+  transparentTextColor?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -6105,11 +7872,13 @@ export interface SiteThemeSelect<T extends boolean = true> {
       };
   headingFont?: T;
   bodyFont?: T;
+  headingWeight?: T;
   useAdvancedTypography?: T;
   letterSpacing?: T;
   headingLineHeight?: T;
   bodyLineHeight?: T;
   useCustomButtons?: T;
+  buttonRounding?: T;
   buttonPadding?: T;
   buttonTextTransform?: T;
   buttonFontWeight?: T;
@@ -6222,6 +7991,22 @@ export interface BusinessInfoSelect<T extends boolean = true> {
         backgroundColor?: T;
         icon?: T;
         dismissible?: T;
+      };
+  floatingCta?:
+    | T
+    | {
+        enabled?: T;
+        text?: T;
+        href?: T;
+        variant?: T;
+        icon?: T;
+        position?: T;
+        shape?: T;
+        showOnMobile?: T;
+        pulseAnimation?: T;
+        dismissible?: T;
+        showAfterScroll?: T;
+        hideOnPaths?: T;
       };
   cookieConsent?:
     | T

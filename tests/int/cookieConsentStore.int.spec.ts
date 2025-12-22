@@ -4,8 +4,8 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { useCookieConsent } from './cookieConsentStore'
-import type { CookieCategory } from './cookieConsentStore'
+import { useCookieConsent } from '@/stores/cookieConsentStore'
+import type { CookieCategory } from '@/stores/cookieConsentStore'
 
 describe('Cookie Consent Store', () => {
   beforeEach(() => {
@@ -178,10 +178,11 @@ describe('Cookie Consent Store', () => {
 
       // Modify state first
       store.acceptAll()
-      expect(store.hasInteracted).toBe(true)
+      // Get fresh state after mutation (Zustand pattern)
+      expect(useCookieConsent.getState().hasInteracted).toBe(true)
 
       // Reset
-      store.resetConsent()
+      useCookieConsent.getState().resetConsent()
 
       const state = useCookieConsent.getState()
       expect(state.necessary).toBe(true)

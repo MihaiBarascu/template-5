@@ -3,6 +3,8 @@ import configPromise from '@payload-config'
 import { Suspense } from 'react'
 import type { Metadata } from 'next'
 
+import { PageWrapper } from '@/components/PageWrapper'
+import { getCachedGlobal } from '@/utilities/getGlobals'
 import { Breadcrumbs } from '@/components/ecommerce/Breadcrumbs'
 import { ProductCard } from '@/components/ecommerce/ProductCard'
 import { ProductSort } from '@/components/ecommerce/ProductSort'
@@ -49,8 +51,11 @@ export default async function ShopPage({ searchParams }: PageProps) {
   const params = await searchParams
   const payload = await getPayload({ config: configPromise })
 
-  // Fetch system pages config and shop settings
-  const [systemPages, shopSettings] = await Promise.all([
+  // Fetch header globals + system pages config and shop settings
+  const [headerData, logoData, businessInfo, systemPages, shopSettings] = await Promise.all([
+    getCachedGlobal('header'),
+    getCachedGlobal('logo'),
+    getCachedGlobal('business-info'),
     payload.findGlobal({ slug: 'system-pages' }).catch(() => null) as Promise<SystemPage | null>,
     payload.findGlobal({ slug: 'shop-settings' }).catch(() => null) as Promise<ShopSetting | null>,
   ])
@@ -169,11 +174,17 @@ export default async function ShopPage({ searchParams }: PageProps) {
     .replace('{total}', String(products.totalDocs))
 
   return (
-    <main className="min-h-screen bg-theme-surface">
-      {/* Breadcrumbs */}
-      <div className="container mx-auto px-4 py-4">
-        <Breadcrumbs items={[{ label: config.title || 'Produse' }]} />
-      </div>
+    <PageWrapper
+      headerData={headerData}
+      logoData={logoData}
+      businessInfoData={businessInfo}
+      showCart={shopSettings?.enabled ?? false}
+    >
+      <div className="min-h-screen bg-theme-surface">
+        {/* Breadcrumbs */}
+        <div className="container mx-auto px-4 py-4">
+          <Breadcrumbs items={[{ label: config.title || 'Produse' }]} />
+        </div>
 
       {/* Header */}
       <div className="bg-theme-light py-12 mb-8">
@@ -275,7 +286,8 @@ export default async function ShopPage({ searchParams }: PageProps) {
           </div>
         </div>
       </div>
-    </main>
+      </div>
+    </PageWrapper>
   )
 }
 

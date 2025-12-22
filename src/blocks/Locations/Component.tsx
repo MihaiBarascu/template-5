@@ -175,7 +175,7 @@ export function LocationsBlock({
           {location.ctaButton?.link && (
             <a
               href={location.ctaButton.link}
-              className="flex-1 py-2 px-4 bg-theme-primary text-white text-center text-sm rounded-lg hover:bg-theme-primary-dark transition-colors"
+              className="flex-1 py-2 px-4 bg-theme-primary text-theme-text-on-primary text-center text-sm rounded-lg hover:bg-theme-primary-dark transition-colors"
             >
               {location.ctaButton.label || 'Programeaza-te'}
             </a>

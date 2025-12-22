@@ -24,6 +24,7 @@ import { Categories } from './collections/Categories';
 import { Media } from './collections/Media';
 import { Pages } from './collections/Pages';
 import { Posts } from './collections/Posts';
+import { ServiceCategories } from './collections/ServiceCategories';
 import { Services } from './collections/Services';
 import { Users } from './collections/Users';
 // Products is created by ecommerce plugin with productsCollectionOverride
@@ -31,6 +32,7 @@ import { Portfolio } from './collections/Portfolio';
 import { ProductTags } from './collections/ProductTags';
 import { Team } from './collections/Team';
 import { Testimonials } from './collections/Testimonials';
+import { TestimonialCategories } from './collections/TestimonialCategories';
 // PricePackages removed - use Subscriptions instead
 import { Bookings } from './collections/Bookings';
 import { FAQ } from './collections/FAQ';
@@ -656,10 +658,12 @@ export default buildConfig({
     Categories,
     Users,
     Services,
+    ServiceCategories,
     // Products is created by ecommerce plugin
     Team,
     Portfolio,
     Testimonials,
+    TestimonialCategories,
     Bookings,
     FAQ,
     // ContactSubmissions removed - use Form Builder plugin's form-submissions

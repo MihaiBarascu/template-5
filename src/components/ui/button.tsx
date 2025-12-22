@@ -15,7 +15,8 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-theme-primary text-white shadow-sm hover:bg-theme-primary-dark',
+        default: 'bg-theme-primary text-theme-text-on-primary shadow-sm hover:bg-theme-primary-dark',
+        gradient: 'btn-gradient shadow-sm hover:shadow-md', // Premium gradient: primary → primary-dark
         destructive: 'bg-red-600 text-white shadow-sm hover:bg-red-700',
         outline: 'border border-theme-border bg-theme-surface shadow-sm hover:bg-theme-surface-secondary hover:border-theme-primary',
         secondary: 'bg-theme-surface-secondary text-theme-text shadow-sm hover:bg-theme-border',

@@ -2,7 +2,7 @@
 status: ACTIVE
 type: lesson
 created: 2025-12-08
-updated: 2025-12-14
+updated: 2025-12-21
 tags: [lessons, bugs, fixes, tips]
 ---
 
@@ -10,6 +10,172 @@ tags: [lessons, bugs, fixes, tips]
 
 > Acest fisier indexeaza toate lectiile invatate in proiect.
 > Pentru detalii complete, vezi [LESSONS-LEARNED.md](../LESSONS-LEARNED.md)
+
+---
+
+## PLAYWRIGHT MCP ADMIN TESTING (2025-12-21) - NOU!
+
+### Ce am învățat despre testarea admin-ului cu Playwright MCP
+
+| Lecție | Detalii | Utilitate viitoare |
+|--------|---------|-------------------|
+| **browser_snapshot vs screenshot** | `browser_snapshot` returnează accessibility tree (YAML), mai util pentru automatizare decât screenshots | Folosește snapshot pentru navigare, screenshot pentru verificare vizuală |
+| **Refs sunt dinamice** | Referințele elementelor (ref=e1234) se schimbă la fiecare snapshot - trebuie luat snapshot fresh înainte de click | Nu hardcoda refs, ia snapshot înainte de fiecare interacțiune |
+| **Timeout la pagini mari** | Pagini cu multe blocuri (Home) pot genera output > 100k caractere | Folosește Grep pe fișierul salvat sau scroll incremental |
+| **Erori 500 non-blocking** | Erori 500 pentru thumbnail optimization (Sharp) nu afectează funcționalitatea | Ignoră erorile de optimizare imagine în teste |
+| **CRUD complet testat** | Create, Read, Update funcționează pentru Pages, Services, Globals | Testele CRUD pot fi replicate pentru orice collection |
+
+### Pattern de testare Playwright MCP
+
+```
+1. browser_navigate -> URL
+2. browser_snapshot -> verifică structura
+3. browser_click -> element ref
+4. browser_type -> completează câmpuri
+5. browser_click -> Save
+6. browser_snapshot -> verifică succes (toast, status)
+```
+
+### Collections testate și funcționale
+
+| Collection | CRUD | Observații |
+|------------|------|------------|
+| Pages | ✅ | Create, Publish, Edit OK |
+| Services | ✅ | Edit price, categories OK |
+| Media | ✅ | Gallery, upload form OK |
+| Site Theme | ✅ | 14 variante, switch OK |
+| Header | ✅ | Nav items, TopBar config |
+| Footer | ✅ | 4 coloane, badges ANPC |
+
+> Vezi [QA-ADMIN-COMPLETE-REPORT.md](../QA-ADMIN-COMPLETE-REPORT.md) pentru raport complet
+
+---
+
+## PAYLOAD MULTITENANT RESEARCH (2025-12-21) - NOU!
+
+### Decizie: ❌ NU migra la Payload Multitenant
+
+| Factor | Evaluare | Motiv |
+|--------|----------|-------|
+| **Schema diversity** | ❌ Incompatibil | 11 business types cu scheme diferite (frizerie vs avocat vs magazin) |
+| **Field flexibility** | ❌ Rigid | Multitenant cere schema identică pentru toți tenants |
+| **Collection variety** | ❌ Problematic | Frizerie: Appointments, Avocat: Cases, Magazin: Products |
+| **Deployment** | ✅ Alternativă | Automatizare deploy (Docker/Coolify) mai potrivită |
+
+### Alternativa recomandată: Deployment Automation
+
+```
+Template-5 (bază) -> Fork per client -> Deploy independent
+                          |
+                          v
+                   Personalizare seed + env
+```
+
+**Beneficii:**
+- Fiecare client poate avea schema diferită
+- Update-uri se pot propaga selectiv
+- Izolare completă a datelor
+- Flexibilitate maximă
+
+---
+
+## THEME VARIANTS SYSTEM (2025-12-21) - NOU!
+
+### Cum să adaugi o nouă variantă de temă
+
+**Fișiere de modificat:**
+1. `src/theme/variants.ts` - definiție completă variant
+2. `src/globals/SiteTheme.ts` - opțiune în select
+
+**Structura unei variante:**
+
+```typescript
+'purple-wellness': {
+  colors: {
+    primary: '#AD50F2',      // Culoare principală
+    secondary: '#27BECF',    // Accent secundar
+    accent: '#0088CB',       // Highlight
+    dark: '#1A1A2E',
+    light: '#EEEEEE',
+    surface: '#ffffff',
+    text: '#000000',
+    textLight: '#4F4F4F',
+    border: '#E0E0E0',
+    textOnPrimary: '#ffffff',  // Contrast colors
+    textOnSecondary: '#ffffff',
+    // ... etc
+  },
+  fonts: {
+    heading: 'Prompt',       // Font titluri
+    body: 'Open_Sans',       // Font text
+  },
+  borderRadius: 'none',      // Stil colțuri
+  shadows: 'none',           // Umbre (flat design = none)
+}
+```
+
+### Variante disponibile (14+1 purple-wellness)
+
+| # | Varianta | Stil | Use Case |
+|---|----------|------|----------|
+| 1 | dark-gold | Premium, elegant | Barbershop, restaurant |
+| 2 | modern-red | Bold, energic | Fitness, auto |
+| 3 | classic-blue | Profesional | Avocat, medical |
+| 4 | fresh-green | Natural, eco | Wellness, bio |
+| 5 | minimal-black | Clean, modern | Tech, agency |
+| 14 | revital-harmony | Gold/Navy | Terapii energetice |
+| 15 | purple-wellness | Mov/Cyan flat | Plasturi, wellness |
+
+---
+
+## DOCUMENTATIE DESIGN (2025-12-21) - NOU!
+
+**Analiza Completa UI Components:**
+- [PLASTURI-UI-COMPONENTS-ANALYSIS.md](../PLASTURI-UI-COMPONENTS-ANALYSIS.md) - Analiza senior-level a tuturor componentelor de pe plasturifototerapeutici.ro
+- [PLASTURI-DESIGN-SYSTEM.md](../PLASTURI-DESIGN-SYSTEM.md) - Design tokens si widgeturi identificate
+- [PLASTURI-WIDGETS-COMPARISON.md](../PLASTURI-WIDGETS-COMPARISON.md) - Mapare completa Plasturi → Template-5
+
+**Structura Analizei:**
+- HTML structure pentru fiecare componenta
+- CSS techniques folosite (flat design, pill buttons, zero shadows)
+- JavaScript interactions (carousel, accordion, video players)
+- Accessibility considerations (ARIA, keyboard nav, focus states)
+- Performance optimizations (lazy loading, Intersection Observer)
+- Template-5 implementation mapping (100% implementat)
+
+---
+
+## ECOMMERCE CONTROL (2025-12-21) - NOU!
+
+| Data | Problema | Solutie |
+|------|----------|---------|
+| 2025-12-21 | Cart apare pe site-uri non-ecommerce | `shopSettings.enabled` = master switch; ecommerce pages use `showCart={shopSettings?.enabled ?? false}` |
+| 2025-12-21 | Ecommerce persista intre seeders | `clearData()` reseteaza `shop-settings.enabled = false`; doar `magazin` seeder activeaza explicit |
+| 2025-12-21 | Header shows cart by accident | Header verifica `showCart` prop SI `ctaButton?.link === '/cos'` |
+
+**Fisiere modificate:**
+- `src/seed/helpers.ts` - `seedShopSettings()` function
+- `src/seed/index.ts` - reset in `clearData()`
+- `src/seed/businesses/magazin.ts` - explicit enable
+- `src/app/(frontend)/produse/page.tsx` etc - check `shopSettings?.enabled`
+
+---
+
+## PER-PAGE HEADER (2025-12-21) - NOU!
+
+| Data | Problema | Solutie |
+|------|----------|---------|
+| 2025-12-21 | Header diferit per pagina | `headerSettings` group in Pages collection cu `inherit` default |
+| 2025-12-21 | Transparent header pe anumite pagini | `headerTransparency: 'solid'` sau `'transparent'` override |
+| 2025-12-21 | TopBar per pagina | `headerTopBar: 'show'` / `'hide'` / `'inherit'` |
+
+**Flux:**
+```
+layout.tsx -> PageWrapper -> Header(mergedSettings)
+                    ^
+                    |
+       mergeHeaderSettings(global, page.headerSettings)
+```
 
 ---
 
@@ -36,9 +202,14 @@ tags: [lessons, bugs, fixes, tips]
 
 | Data | Problema | Solutie |
 |------|----------|---------|
+| 2025-12-20 | `type: 'group'` nu suporta `initCollapsed` | Foloseste `type: 'collapsible'` sau omite optiunea |
+| 2025-12-20 | `relationTo` cere CollectionSlug literal | NU poti genericiza - `relationTo: 'team'` literal, nu variabila |
+| 2025-12-20 | Spread pe Field cu override admin | Scrie field-ul complet inline, nu spread + override |
 | 2025-12-01 | Hooks nu ruleaza in aceeasi tranzactie | Transmite `req` la toate operatiile Local API din hooks |
 | 2025-12-01 | Loop infinit in hooks | Foloseste `context.skipRevalidation` sau similar |
 | 2025-12-01 | TypeScript errors la blocuri | Adauga `interfaceName` in config.ts pentru fiecare bloc |
+
+> Vezi [SESSION-SHARED-UTILITIES-REFACTORING.md](./SESSION-SHARED-UTILITIES-REFACTORING.md) pentru shared fields pattern
 
 ---
 
@@ -49,6 +220,32 @@ tags: [lessons, bugs, fixes, tips]
 | 2025-12-01 | Text invizibil pe fundal dark | Pattern `isDark ? 'text-white' : 'text-theme-text'` |
 | 2025-12-01 | Border invizibil | `isDark ? 'border-white/10' : 'border-theme-border'` |
 | 2025-12-01 | Culori hardcodate nu respecta tema | NICIODATA `text-gray-600`, INTOTDEAUNA `text-theme-text-light` |
+
+---
+
+## HEADER & NAVIGATION (2025-12-21)
+
+| Data | Problema | Solutie |
+|------|----------|---------|
+| 2025-12-21 | Header transparent peste VideoHero | `isTransparent: true` + `fixed top-0` in loc de `sticky` |
+| 2025-12-21 | Header transform la scroll | useState `isScrolled` + scroll event listener cu `passive: true` |
+| 2025-12-21 | TopBar dispare la scroll | `opacity-0 -translate-y-full h-0 overflow-hidden` cu `transition-all duration-300` |
+| 2025-12-21 | Hydration mismatch la scroll | `isScrolled` diferă server/client - funcționalitatea merge, warning ignorat |
+| 2025-12-21 | TopBar layout break | Container trebuie `flex items-center justify-between` mereu |
+
+> Vezi [STICKY-HEADER-TRANSPARENT.md](./STICKY-HEADER-TRANSPARENT.md) pentru implementare completă
+
+---
+
+## VIDEO HERO (2025-12-21)
+
+| Data | Problema | Solutie |
+|------|----------|---------|
+| 2025-12-21 | Text centrat vs stânga | `textAlignment: 'left'` în seed/admin pentru stil plasturi.ro |
+| 2025-12-21 | Butoane/badges nu se aliniază | `justify-center` doar când `textAlignment === 'center'` |
+| 2025-12-21 | Trust badges poziție | `trustBadgesPosition: 'above'` sau `'below'` headline |
+
+> Vezi [VIDEO-HERO-TEXT-ALIGNMENT.md](./VIDEO-HERO-TEXT-ALIGNMENT.md) pentru detalii
 
 ---
 
@@ -121,6 +318,24 @@ tags: [lessons, bugs, fixes, tips]
 
 ---
 
+## SHARED UTILITIES (2025-12-20)
+
+| Tip | Locatie | Utilizare |
+|-----|---------|-----------|
+| Theme helpers | `blocks/_shared/themeHelpers.ts` | `getBgClasses()`, `isDarkBackground()`, `getTextColor()` |
+| Icon components | `blocks/_shared/iconComponents.tsx` | `getLucideIcon()` (ReactNode), `getLucideIconComponent()` (ComponentType) |
+| Common fields | `blocks/_shared/commonFields.ts` | `backgroundColorField()`, `headingFields()`, `ctaButtonFields()` |
+| Section wrapper | `blocks/_shared/sectionWrapperFields.ts` | Layout & design fields for all blocks |
+
+### TypeScript: ReactNode vs ComponentType
+
+| Tip | Returneaza | Cand sa folosesti |
+|-----|------------|-------------------|
+| `React.ReactNode` | Element JSX renderizat | `{getLucideIcon('Star')}` - afisare directa |
+| `React.ComponentType` | Clasa/functie componenta | `<IconComponent className="..." />` - cand vrei sa pasezi props |
+
+---
+
 ## Quick Reference
 
 ### Comenzi utile
@@ -152,6 +367,32 @@ function getImageUrl(image: Media | string | null): string | null {
 // Pattern isDark pentru blocuri
 const isDark = backgroundColor === 'dark' || backgroundColor === 'primary'
 className={isDark ? 'text-white' : 'text-theme-text'}
+```
+
+### Import-uri pentru Block Configs (nou 2025-12-20)
+
+```typescript
+// Shared Payload fields
+import {
+  backgroundColorField,
+  headingFields,
+  ctaButtonFields,
+  allIconOptions,
+  columnsSelectField,
+  toggleField,
+} from '../_shared/commonFields'
+import { sectionWrapperFields } from '../_shared/sectionWrapperFields'
+```
+
+### Import-uri pentru Block Components (nou 2025-12-20)
+
+```typescript
+// Theme helpers
+import { getBgClasses, isDarkBackground, getTextColor, getCardClasses } from '@/blocks/_shared/themeHelpers'
+
+// Dynamic icons - alegere in functie de utilizare
+import { getLucideIconComponent } from '@/blocks/_shared/iconComponents'  // pentru <Icon className="..."/>
+import { getLucideIcon } from '@/blocks/_shared/iconComponents'           // pentru {icon}
 ```
 
 ---

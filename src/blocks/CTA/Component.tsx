@@ -3,6 +3,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { cn } from '@/utilities/cn'
+import { getBgClasses, isDarkBackground } from '@/blocks/_shared/themeHelpers'
 
 interface CTAButton {
   label: string
@@ -48,15 +49,8 @@ export function CTABlock({
   size = 'medium',
   businessPhone,
 }: CTABlockProps) {
-  const bgClass = {
-    default: 'bg-theme-surface text-theme-text',
-    light: 'bg-theme-light text-theme-text',
-    dark: 'bg-theme-dark text-white',
-    primary: 'bg-theme-primary text-white',
-    accent: 'bg-theme-accent text-white',
-  }[backgroundColor] || 'bg-theme-primary text-white'
-
-  const isDark = backgroundColor === 'dark' || backgroundColor === 'primary' || backgroundColor === 'accent'
+  const bgClass = getBgClasses(backgroundColor)
+  const isDark = isDarkBackground(backgroundColor) || backgroundColor === 'accent'
 
   const alignClass = {
     left: 'text-left',
@@ -83,12 +77,12 @@ export function CTABlock({
       return cn(buttonBaseClass, 'bg-white text-theme-dark hover:bg-theme-light')
     } else {
       if (btnVariant === 'outline') {
-        return cn(buttonBaseClass, 'border-2 border-theme-primary text-theme-primary hover:bg-theme-primary hover:text-white')
+        return cn(buttonBaseClass, 'border-2 border-theme-primary text-theme-primary hover:bg-theme-primary hover:text-theme-text-on-primary')
       }
       if (btnVariant === 'ghost') {
         return cn(buttonBaseClass, 'text-theme-primary hover:bg-theme-primary/10')
       }
-      return cn(buttonBaseClass, 'bg-theme-primary text-white hover:bg-theme-secondary')
+      return cn(buttonBaseClass, 'bg-theme-primary text-theme-text-on-primary hover:bg-theme-secondary')
     }
   }
 
@@ -104,7 +98,7 @@ export function CTABlock({
           backgroundPosition: 'center',
         }}
       >
-        <div className="absolute inset-0 bg-black/60" />
+        <div className="absolute inset-0 overlay-gradient-cta" />
         <div className={cn('relative container mx-auto px-4', alignClass)}>
           <h2 className="heading-h2 font-bold text-white mb-4">{headline}</h2>
           {subheadline && (

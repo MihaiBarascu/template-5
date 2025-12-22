@@ -60,6 +60,8 @@ interface ServiceDetailProps {
   backLabel?: string
   ctaLabel?: string
   ctaLink?: string
+  relatedServices?: Service[]
+  relatedServicesTitle?: string
 }
 
 export function ServiceDetail({
@@ -68,6 +70,8 @@ export function ServiceDetail({
   backLabel = 'Înapoi la servicii',
   ctaLabel,
   ctaLink = '/contact',
+  relatedServices = [],
+  relatedServicesTitle = 'Terapii recomandate',
 }: ServiceDetailProps) {
   // Safely extract related data
   const image = typeof service.image === 'object' ? (service.image as Media) : null
@@ -82,86 +86,124 @@ export function ServiceDetail({
 
   return (
     <main className="min-h-screen bg-theme-surface">
-      {/* Hero Section */}
-      <section className="relative h-[50vh] min-h-[400px]">
-        {image?.url ? (
-          <Image
-            src={image.url}
-            alt={image.alt || service.title}
-            fill
-            className="object-cover"
-            priority
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-theme-primary to-theme-primary/80" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+      {/* Split Hero Section */}
+      <section className="bg-theme-surface">
+        <div className="container mx-auto px-4 py-8">
+          {/* Back Link */}
+          <Link
+            href={backLink}
+            className="inline-flex items-center gap-2 text-theme-text-light hover:text-theme-primary mb-8 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            {backLabel}
+          </Link>
 
-        <div className="absolute inset-0 flex items-end">
-          <div className="container mx-auto px-4 pb-12">
-            {/* Back Link */}
-            <Link
-              href={backLink}
-              className="inline-flex items-center gap-2 text-white/80 hover:text-white mb-6 transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              {backLabel}
-            </Link>
+          {/* Split Layout: Image left, Content right */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+            {/* Left: Image at natural aspect ratio */}
+            <div className="relative">
+              {image?.url ? (
+                <div className="relative rounded-2xl overflow-hidden shadow-xl">
+                  <Image
+                    src={image.url}
+                    alt={image.alt || service.title}
+                    width={image.width || 600}
+                    height={image.height || 500}
+                    className="w-full h-auto object-cover"
+                    priority
+                  />
+                </div>
+              ) : (
+                <div className="aspect-[4/3] rounded-2xl bg-gradient-to-br from-theme-primary to-theme-primary/80 flex items-center justify-center">
+                  {getIcon(service.icon, 'w-24 h-24 text-white/50')}
+                </div>
+              )}
+            </div>
 
-            {/* Difficulty Badge */}
-            {service.difficulty && (
-              <div className="flex flex-wrap gap-3 mb-4">
-                <span className={cn(
-                  'px-3 py-1 text-sm font-medium rounded-full',
-                  difficultyColors[service.difficulty] || 'bg-theme-light text-theme-text'
-                )}>
-                  {difficultyTranslations[service.difficulty] || service.difficulty}
-                </span>
+            {/* Right: Content */}
+            <div className="space-y-6">
+              {/* Badges */}
+              <div className="flex flex-wrap gap-3">
+                {service.featured && (
+                  <span className="px-3 py-1 text-sm font-medium rounded-full bg-theme-accent text-theme-text-on-accent">
+                    Popular
+                  </span>
+                )}
+                {service.difficulty && (
+                  <span className={cn(
+                    'px-3 py-1 text-sm font-medium rounded-full',
+                    difficultyColors[service.difficulty] || 'bg-theme-light text-theme-text'
+                  )}>
+                    {difficultyTranslations[service.difficulty] || service.difficulty}
+                  </span>
+                )}
               </div>
-            )}
 
-            {/* Title */}
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
-              {service.title}
-            </h1>
+              {/* Title */}
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-theme-text">
+                {service.title}
+              </h1>
 
-            {/* Quick Stats */}
-            <div className="flex flex-wrap gap-6 text-white/90">
-              {service.duration && (
-                <span className="flex items-center gap-2">
-                  <Clock className="w-5 h-5" />
-                  {service.duration}
-                </span>
+              {/* Short Description */}
+              {service.shortDescription && (
+                <p className="text-lg text-theme-text-light leading-relaxed">
+                  {service.shortDescription}
+                </p>
               )}
-              {service.capacity && (
-                <span className="flex items-center gap-2">
-                  <Users className="w-5 h-5" />
-                  Max {service.capacity} persoane
-                </span>
+
+              {/* Quick Stats */}
+              <div className="flex flex-wrap items-center gap-6 py-4 border-y border-theme-border">
+                {service.duration && (
+                  <span className="flex items-center gap-2 text-theme-text">
+                    <Clock className="w-5 h-5 text-theme-primary" />
+                    {service.duration}
+                  </span>
+                )}
+                {service.capacity && (
+                  <span className="flex items-center gap-2 text-theme-text">
+                    <Users className="w-5 h-5 text-theme-primary" />
+                    Max {service.capacity} persoane
+                  </span>
+                )}
+                {service.price && (
+                  <span className="text-xl font-bold text-theme-primary">
+                    {service.price}
+                  </span>
+                )}
+              </div>
+
+              {/* Features - all displayed with theme color */}
+              {service.features && service.features.length > 0 && (
+                <div className="space-y-3">
+                  {service.features.map((item, index) => (
+                    <div key={item.id || index} className="flex items-start gap-3">
+                      <Check className="w-5 h-5 text-theme-accent flex-shrink-0 mt-0.5" />
+                      <span className="text-theme-text">{item.feature}</span>
+                    </div>
+                  ))}
+                </div>
               )}
-              {service.price && (
-                <span className="text-2xl font-bold text-white">
-                  {service.price}
-                </span>
-              )}
+
+              {/* CTA Button */}
+              <div className="pt-4">
+                <Link
+                  href={ctaLink}
+                  className="btn-primary inline-flex items-center gap-2 text-lg px-8 py-4"
+                >
+                  {buttonLabel}
+                </Link>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Content Section */}
-      <section className="py-12 md:py-16">
-        <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-3 gap-12">
-            {/* Main Content */}
-            <div className="lg:col-span-2 space-y-8">
-              {/* Description */}
-              {service.shortDescription && (
-                <p className="text-xl text-theme-text-light leading-relaxed">
-                  {service.shortDescription}
-                </p>
-              )}
-
+      {/* Content Section - Full width, no sidebar */}
+      {(service.description || (service.attributes && service.attributes.length > 0) || hasSchedule || instructor) && (
+        <section className="py-12 md:py-16">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto space-y-8">
+              {/* Full Description */}
               {service.description && (
                 <div className="prose prose-lg max-w-none">
                   <RichText data={service.description} enableGutter={false} />
@@ -187,21 +229,6 @@ export function ServiceDetail({
                       </div>
                     ))}
                   </div>
-                </div>
-              )}
-
-              {/* Features */}
-              {service.features && service.features.length > 0 && (
-                <div>
-                  <h2 className="text-2xl font-bold text-theme-text mb-6">Ce include</h2>
-                  <ul className="grid md:grid-cols-2 gap-4">
-                    {service.features.map((item, index) => (
-                      <li key={item.id || index} className="flex items-start gap-3">
-                        <Check className="w-5 h-5 text-theme-primary flex-shrink-0 mt-0.5" />
-                        <span className="text-theme-text">{item.feature}</span>
-                      </li>
-                    ))}
-                  </ul>
                 </div>
               )}
 
@@ -236,40 +263,11 @@ export function ServiceDetail({
                   </div>
                 </div>
               )}
-            </div>
 
-            {/* Sidebar */}
-            <div className="space-y-6">
-              {/* Pricing Card */}
-              <div className="bg-theme-surface border border-theme-border rounded-2xl p-6 shadow-sm sticky top-24">
-                {/* Main Price */}
-                {service.price && (
-                  <div className="mb-6">
-                    <div className="text-3xl font-bold text-theme-primary">
-                      {service.price}
-                    </div>
-                    {service.duration && (
-                      <div className="text-theme-text-muted flex items-center gap-1 mt-1">
-                        <Clock className="w-4 h-4" />
-                        {service.duration}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* CTA Button */}
-                <Link
-                  href={service.ctaLink || ctaLink}
-                  className="w-full inline-flex items-center justify-center px-6 py-3 bg-theme-primary text-white font-semibold rounded-xl hover:bg-theme-secondary transition-colors"
-                >
-                  {buttonLabel}
-                </Link>
-              </div>
-
-              {/* Instructor Card */}
+              {/* Instructor */}
               {instructor && (
                 <div className="bg-theme-surface border border-theme-border rounded-2xl p-6 shadow-sm">
-                  <h3 className="text-lg font-semibold text-theme-text mb-4">Instructor</h3>
+                  <h3 className="text-lg font-semibold text-theme-text mb-4">Terapeut</h3>
                   <div className="flex items-center gap-4">
                     {instructorImage?.url ? (
                       <Image
@@ -292,16 +290,75 @@ export function ServiceDetail({
                     </div>
                   </div>
                   {instructor.bio && (
-                    <div className="mt-4 text-sm text-theme-text-muted line-clamp-3">
-                      <RichText data={instructor.bio} enableGutter={false} enableProse={false} />
-                    </div>
+                    <p className="mt-4 text-sm text-theme-text-muted line-clamp-3">
+                      {instructor.bio}
+                    </p>
                   )}
                 </div>
               )}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
+
+      {/* Related Services */}
+      {relatedServices.length > 0 && (
+        <section className="py-12 md:py-16 bg-theme-light">
+          <div className="container mx-auto px-4">
+            <h2 className="text-2xl md:text-3xl font-bold text-theme-text text-center mb-8">
+              {relatedServicesTitle}
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+              {relatedServices.map((related) => {
+                const relatedImage = typeof related.image === 'object' ? (related.image as Media) : null
+                return (
+                  <Link
+                    key={related.id}
+                    href={`${backLink}/${related.slug}`}
+                    className="group bg-white rounded-xl overflow-hidden shadow-sm border border-theme-border hover:shadow-lg transition-all duration-300"
+                  >
+                    {relatedImage?.url ? (
+                      <div className="relative h-48 overflow-hidden">
+                        <Image
+                          src={relatedImage.url}
+                          alt={relatedImage.alt || related.title}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                    ) : (
+                      <div className="h-48 bg-gradient-to-br from-theme-primary/20 to-theme-primary/5 flex items-center justify-center">
+                        {getIcon(related.icon, 'w-16 h-16 text-theme-primary/30')}
+                      </div>
+                    )}
+                    <div className="p-5">
+                      <h3 className="font-semibold text-theme-text group-hover:text-theme-primary transition-colors text-lg mb-2">
+                        {related.title}
+                      </h3>
+                      {related.shortDescription && (
+                        <p className="text-sm text-theme-text-light line-clamp-2 mb-3">
+                          {related.shortDescription}
+                        </p>
+                      )}
+                      <div className="flex items-center justify-between">
+                        {related.price && (
+                          <span className="text-theme-primary font-bold">{related.price}</span>
+                        )}
+                        {related.duration && (
+                          <span className="text-sm text-theme-text-muted flex items-center gap-1">
+                            <Clock className="w-4 h-4" />
+                            {related.duration}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+        </section>
+      )}
     </main>
   )
 }

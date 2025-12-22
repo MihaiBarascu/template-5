@@ -1,4 +1,6 @@
 import type { Block } from 'payload'
+import { sectionWrapperFields } from '../_shared/sectionWrapperFields'
+import { patternField } from '@/fields/patternField'
 
 export const CTABlock: Block = {
   slug: 'cta',
@@ -22,8 +24,13 @@ export const CTABlock: Block = {
         { label: 'Minimal', value: 'minimal' },
         { label: 'Card flotant', value: 'floating' },
         { label: 'Cu formular', value: 'with-form' },
+        { label: 'Cu pattern', value: 'with-pattern' },
       ],
     },
+    // Pattern configuration
+    ...patternField({
+      condition: (_, siblingData) => (siblingData as Record<string, unknown>)?.variant === 'with-pattern',
+    }),
     {
       name: 'headline',
       type: 'text',
@@ -116,5 +123,7 @@ export const CTABlock: Block = {
         { label: 'Mare', value: 'large' },
       ],
     },
+    // Section wrapper fields for advanced layout options
+    ...sectionWrapperFields,
   ],
 }

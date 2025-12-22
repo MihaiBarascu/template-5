@@ -60,6 +60,19 @@ export const Testimonials: CollectionConfig = {
       type: 'relationship',
       relationTo: 'services',
       label: 'Serviciu utilizat',
+      admin: {
+        description: 'Opțional - link direct la un serviciu specific',
+      },
+    },
+    {
+      name: 'category',
+      type: 'relationship',
+      relationTo: 'testimonial-categories',
+      label: 'Categorie',
+      admin: {
+        description: 'Categorie pentru grupare (ex: Access Bars, Terapia Bowen)',
+      },
+      index: true,
     },
     {
       name: 'source',
@@ -71,6 +84,24 @@ export const Testimonials: CollectionConfig = {
         { label: 'Site', value: 'website' },
         { label: 'Altele', value: 'other' },
       ],
+    },
+    {
+      name: 'videoUrl',
+      type: 'text',
+      label: 'URL Video Testimonial',
+      admin: {
+        description: 'YouTube, Vimeo sau URL direct la video. Optional - doar pentru varianta video-grid.',
+      },
+    },
+    {
+      name: 'videoPoster',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Poster Video',
+      admin: {
+        description: 'Imagine de preview pentru video testimonial',
+        condition: (_, siblingData) => !!siblingData?.videoUrl,
+      },
     },
     {
       name: 'featured',

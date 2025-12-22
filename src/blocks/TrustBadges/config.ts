@@ -1,4 +1,10 @@
 import type { Block } from 'payload'
+import {
+  backgroundColorField,
+  allIconOptions,
+  showDescriptionsField,
+  iconSizeField,
+} from '../_shared/commonFields'
 
 export const TrustBadgesBlock: Block = {
   slug: 'trust-badges',
@@ -67,6 +73,10 @@ export const TrustBadgesBlock: Block = {
         { label: 'Eco-friendly', value: 'eco-friendly' },
         { label: 'Consultatie gratuita', value: 'free-consultation' },
         { label: 'Programare online', value: 'online-booking' },
+        { label: 'Garantie 30 zile banii inapoi', value: 'money-back-30' },
+        { label: 'Tehnologie patentata', value: 'patented' },
+        { label: 'Produs certificat', value: 'certified' },
+        { label: 'Non-invaziv', value: 'non-invasive' },
       ],
     },
     {
@@ -117,32 +127,7 @@ export const TrustBadgesBlock: Block = {
           type: 'select',
           label: 'Iconita',
           required: true,
-          options: [
-            { label: 'Camion (livrare)', value: 'Truck' },
-            { label: 'Pachet', value: 'Package' },
-            { label: 'Scut (securitate)', value: 'Shield' },
-            { label: 'Scut cu bifa', value: 'ShieldCheck' },
-            { label: 'Bifa in cerc', value: 'CheckCircle' },
-            { label: 'Stea', value: 'Star' },
-            { label: 'Inima', value: 'Heart' },
-            { label: 'Telefon', value: 'Phone' },
-            { label: 'Ceas', value: 'Clock' },
-            { label: 'Calendar', value: 'Calendar' },
-            { label: 'Card credit', value: 'CreditCard' },
-            { label: 'Cadou', value: 'Gift' },
-            { label: 'Medalie', value: 'Award' },
-            { label: 'Utilizatori', value: 'Users' },
-            { label: 'ThumbsUp', value: 'ThumbsUp' },
-            { label: 'Frunza (eco)', value: 'Leaf' },
-            { label: 'Recycle', value: 'Recycle' },
-            { label: 'Refresh (retur)', value: 'RefreshCw' },
-            { label: 'Headphones (support)', value: 'Headphones' },
-            { label: 'MessageCircle', value: 'MessageCircle' },
-            { label: 'Zap (rapid)', value: 'Zap' },
-            { label: 'BadgeCheck', value: 'BadgeCheck' },
-            { label: 'CircleDollarSign', value: 'CircleDollarSign' },
-            { label: 'Banknote', value: 'Banknote' },
-          ],
+          options: allIconOptions,
         },
         {
           name: 'title',
@@ -166,29 +151,7 @@ export const TrustBadgesBlock: Block = {
         description: 'Debifati pentru a afisa doar iconitele si titlurile',
       },
     },
-    {
-      name: 'iconSize',
-      type: 'select',
-      label: 'Dimensiune iconite',
-      defaultValue: 'medium',
-      options: [
-        { label: 'Mica', value: 'small' },
-        { label: 'Medie', value: 'medium' },
-        { label: 'Mare', value: 'large' },
-      ],
-    },
-    {
-      name: 'backgroundColor',
-      type: 'select',
-      label: 'Culoare fundal',
-      defaultValue: 'light',
-      options: [
-        { label: 'Default', value: 'default' },
-        { label: 'Light', value: 'light' },
-        { label: 'Dark', value: 'dark' },
-        { label: 'Primary', value: 'primary' },
-        { label: 'Transparent', value: 'transparent' },
-      ],
-    },
+    iconSizeField,
+    backgroundColorField({ includeTransparent: true, defaultValue: 'light' }),
   ],
 }

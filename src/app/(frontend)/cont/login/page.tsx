@@ -6,6 +6,8 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { redirect } from 'next/navigation'
 import { LoginForm } from '@/components/account/LoginForm'
+import { PageWrapper } from '@/components/PageWrapper'
+import { getCachedGlobal } from '@/utilities/getGlobals'
 import type { SystemPage } from '@/payload-types'
 
 export default async function LoginPage() {
@@ -17,12 +19,22 @@ export default async function LoginPage() {
     redirect('/cont')
   }
 
-  // Fetch system pages config
-  const systemPages = await payload.findGlobal({ slug: 'system-pages' }).catch(() => null) as SystemPage | null
+  // Fetch header globals + system pages config
+  const [headerData, logoData, businessInfo, systemPages] = await Promise.all([
+    getCachedGlobal('header'),
+    getCachedGlobal('logo'),
+    getCachedGlobal('business-info'),
+    payload.findGlobal({ slug: 'system-pages' }).catch(() => null) as Promise<SystemPage | null>,
+  ])
   const account = systemPages?.accountPages || {}
 
   return (
-    <section className="py-16 bg-theme-surface min-h-screen">
+    <PageWrapper
+      headerData={headerData}
+      logoData={logoData}
+      businessInfoData={businessInfo}
+    >
+      <section className="py-16 bg-theme-surface min-h-screen">
       <div className="container mx-auto px-4">
         <div className="max-w-md mx-auto">
           <div className="p-8 rounded-[var(--radius-card)] bg-theme-surface-secondary border border-theme-border">
@@ -42,8 +54,9 @@ export default async function LoginPage() {
             </Link>
           </p>
         </div>
-      </div>
-    </section>
+        </div>
+      </section>
+    </PageWrapper>
   )
 }
 

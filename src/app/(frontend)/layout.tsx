@@ -10,10 +10,11 @@ import { EcommerceProviderWrapper } from '@/providers/EcommerceProvider'
 import { AuthProvider } from '@/providers/Auth'
 import { ShopSettingsProvider } from '@/providers/ShopSettings'
 import { ToastProvider } from '@/components/Toast'
-import { Header } from '@/components/Header'
+// Header is now rendered in individual pages via PageWrapper for per-page customization
 import { Footer } from '@/components/Footer'
 import { AdminBar } from '@/components/AdminBar'
 import { WhatsAppFloat } from '@/components/WhatsAppFloat'
+import { FloatingCTA } from '@/components/ui/FloatingCTA'
 import { BackToTop } from '@/components/BackToTop'
 import { CookieConsent } from '@/components/CookieConsent'
 import { ScriptLoader } from '@/components/ScriptLoader'
@@ -38,9 +39,9 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
   // Fetch globals with cache tags for proper revalidation
-  const [siteThemeData, headerData, footerData, businessInfoData, logoData, shopSettingsData] = await Promise.all([
+  // Note: Header is fetched in individual pages via PageWrapper for per-page customization
+  const [siteThemeData, footerData, businessInfoData, logoData, shopSettingsData] = await Promise.all([
     getCachedGlobal('site-theme'),
-    getCachedGlobal('header'),
     getCachedGlobal('footer'),
     getCachedGlobal('business-info'),
     getCachedGlobal('logo'),
@@ -62,6 +63,21 @@ export default async function RootLayout({
     backgroundColor?: 'primary' | 'secondary' | 'accent' | 'dark' | 'gradient'
     icon?: 'megaphone' | 'gift' | 'star' | 'fire' | 'sparkles' | 'none'
     dismissible?: boolean
+  } | undefined
+
+  const floatingCta = businessInfoData?.floatingCta as {
+    enabled?: boolean
+    text?: string
+    href?: string
+    variant?: 'primary' | 'accent' | 'secondary' | 'dark' | 'gradient'
+    icon?: 'arrow' | 'phone' | 'message' | 'calendar' | 'none'
+    position?: 'bottom-right' | 'bottom-left' | 'bottom-center' | 'right-center' | 'left-center'
+    shape?: 'pill' | 'rectangle'
+    showOnMobile?: boolean
+    pulseAnimation?: boolean
+    dismissible?: boolean
+    showAfterScroll?: number
+    hideOnPaths?: string[]
   } | undefined
 
   const cookieConsent = businessInfoData?.cookieConsent as {
@@ -194,7 +210,7 @@ export default async function RootLayout({
             )}
 
             <AdminBar />
-            <Header data={headerData} logo={logoData} businessInfo={businessInfoData} />
+            {/* Header is rendered in individual pages via PageWrapper */}
             <main id="main-content" className="min-h-screen">{children}</main>
             <Footer data={footerData} businessInfo={businessInfoData} logo={logoData} />
 
@@ -208,6 +224,24 @@ export default async function RootLayout({
               pulseAnimation={businessInfoData?.whatsappFloat?.pulseAnimation}
               enabled={businessInfoData?.whatsappFloat?.enabled}
             />
+
+            {/* Floating CTA Button (Plasturi style) */}
+            {floatingCta?.enabled && floatingCta.text && floatingCta.href && (
+              <FloatingCTA
+                text={floatingCta.text}
+                href={floatingCta.href}
+                variant={floatingCta.variant}
+                icon={floatingCta.icon}
+                position={floatingCta.position}
+                shape={floatingCta.shape}
+                showOnMobile={floatingCta.showOnMobile}
+                pulseAnimation={floatingCta.pulseAnimation}
+                dismissible={floatingCta.dismissible}
+                showAfterScroll={floatingCta.showAfterScroll}
+                hideOnPaths={floatingCta.hideOnPaths}
+              />
+            )}
+
             <BackToTop position="bottom-left" />
 
             {/* Cookie Consent Banner - GDPR Romania compliant */}

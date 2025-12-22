@@ -73,6 +73,27 @@ export async function seedSalon(payload: Payload) {
     stats: salonData.business.stats,
     googleMapsEmbed:
       'https://www.google.com/maps?q=Bulevardul+Unirii+120,+Sector+3,+Bucuresti,+Romania&output=embed',
+    whatsappFloat: {
+      enabled: true,
+      position: 'bottom-right',
+      showOnMobile: true,
+      defaultMessage: 'Buna! Doresc sa fac o programare la salon.',
+      tooltipText: 'Programeaza-te pe WhatsApp',
+      pulseAnimation: true,
+    },
+    floatingCta: {
+      enabled: true,
+      text: 'Rezervă Acum',
+      href: '/contact',
+      variant: 'gradient',
+      icon: 'calendar',
+      position: 'bottom-center',
+      shape: 'pill',
+      showOnMobile: true,
+      pulseAnimation: true,
+      dismissible: true,
+      showAfterScroll: 300,
+    },
   })
 
   console.log('\n🏷️ Setting up logo...')

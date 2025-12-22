@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { cn } from '@/utilities/cn'
 import { Media } from '@/components/Media'
 import type { Media as MediaType } from '@/payload-types'
+import { getBgClasses, isDarkBackground } from '@/blocks/_shared/themeHelpers'
 import { ChevronLeft, ChevronRight, Calendar, User, Tag, ArrowRight } from 'lucide-react'
 
 interface PostImage {
@@ -102,15 +103,8 @@ export function LatestPostsBlock({
 }: LatestPostsBlockProps) {
   const [currentSlide, setCurrentSlide] = useState(0)
 
-  // Background classes
-  const bgClasses: Record<string, string> = {
-    default: 'bg-theme-surface',
-    light: 'bg-theme-light',
-    dark: 'bg-theme-dark',
-    primary: 'bg-theme-primary',
-  }
-
-  const isDark = backgroundColor === 'dark' || backgroundColor === 'primary'
+  const bgClass = getBgClasses(backgroundColor)
+  const isDark = isDarkBackground(backgroundColor)
 
   // Carousel navigation
   const nextSlide = useCallback(() => {
@@ -174,7 +168,7 @@ export function LatestPostsBlock({
               imgClassName="object-cover transition-transform duration-500 group-hover:scale-105"
             />
             {showCategory && category && (
-              <span className="absolute top-4 left-4 px-3 py-1 bg-theme-primary text-white text-xs font-medium rounded-full">
+              <span className="absolute top-4 left-4 px-3 py-1 bg-theme-primary text-theme-text-on-primary text-xs font-medium rounded-full">
                 {category.title}
               </span>
             )}
@@ -374,7 +368,7 @@ export function LatestPostsBlock({
       className={cn(
         'py-16 md:py-24',
         'animate-fade-in-up',
-        bgClasses[backgroundColor] || bgClasses.default,
+        bgClass,
       )}
     >
       <div className="container mx-auto px-4">
@@ -416,7 +410,7 @@ export function LatestPostsBlock({
                 'inline-flex items-center gap-2 px-6 py-3 rounded-[var(--radius-button)] font-medium transition-colors',
                 isDark
                   ? 'bg-white text-theme-dark hover:bg-white/90'
-                  : 'bg-theme-primary text-white hover:bg-theme-secondary',
+                  : 'bg-theme-primary text-theme-text-on-primary hover:bg-theme-secondary',
               )}
             >
               {ctaButton.label || 'Vezi toate articolele'}

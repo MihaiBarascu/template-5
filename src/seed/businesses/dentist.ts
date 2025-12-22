@@ -85,6 +85,27 @@ export async function seedDentist(payload: Payload) {
     stats: dentistData.business.stats,
     googleMapsEmbed:
       'https://www.google.com/maps?q=Strada+Floreasca+55,+Sector+1,+Bucuresti,+Romania&output=embed',
+    whatsappFloat: {
+      enabled: true,
+      position: 'bottom-right',
+      showOnMobile: true,
+      defaultMessage: 'Buna! Doresc sa fac o programare la cabinet.',
+      tooltipText: 'Programeaza-te pe WhatsApp',
+      pulseAnimation: true,
+    },
+    floatingCta: {
+      enabled: true,
+      text: 'Programare Online',
+      href: '/contact',
+      variant: 'gradient',
+      icon: 'calendar',
+      position: 'bottom-center',
+      shape: 'pill',
+      showOnMobile: true,
+      pulseAnimation: true,
+      dismissible: true,
+      showAfterScroll: 300,
+    },
   })
 
   // 5. Logo

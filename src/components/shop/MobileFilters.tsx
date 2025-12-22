@@ -79,7 +79,7 @@ export function MobileFilters({
             <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-theme-border bg-theme-surface">
               <button
                 onClick={() => setIsOpen(false)}
-                className="w-full py-3 bg-theme-primary text-white rounded-lg font-medium"
+                className="w-full py-3 bg-theme-primary text-theme-text-on-primary rounded-lg font-medium"
               >
                 {applyText}
               </button>

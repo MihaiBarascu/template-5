@@ -1,4 +1,5 @@
 import type { Block } from 'payload'
+import { sectionWrapperFields } from '../_shared/sectionWrapperFields'
 
 export const FAQBlock: Block = {
   slug: 'faq',
@@ -116,5 +117,7 @@ export const FAQBlock: Block = {
         { label: 'Dark', value: 'dark' },
       ],
     },
+    // Section wrapper fields for advanced layout options
+    ...sectionWrapperFields,
   ],
 }

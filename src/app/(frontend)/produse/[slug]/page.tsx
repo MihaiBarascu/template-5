@@ -3,6 +3,8 @@ import configPromise from '@payload-config'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { ProductDetails } from './ProductDetails'
+import { PageWrapper } from '@/components/PageWrapper'
+import { getCachedGlobal } from '@/utilities/getGlobals'
 import { generateProductMeta } from '@/utilities/generateMeta'
 import { getServerSideURL } from '@/utilities/getURL'
 
@@ -16,6 +18,14 @@ interface PageProps {
 export default async function ProductPage({ params }: PageProps) {
   const { slug } = await params
   const payload = await getPayload({ config: configPromise })
+
+  // Fetch header globals and shop settings
+  const [headerData, logoData, businessInfo, shopSettings] = await Promise.all([
+    getCachedGlobal('header'),
+    getCachedGlobal('logo'),
+    getCachedGlobal('business-info'),
+    getCachedGlobal('shop-settings'),
+  ])
 
   const product = await payload.find({
     collection: 'products',
@@ -135,7 +145,12 @@ export default async function ProductPage({ params }: PageProps) {
   }
 
   return (
-    <>
+    <PageWrapper
+      headerData={headerData}
+      logoData={logoData}
+      businessInfoData={businessInfo}
+      showCart={shopSettings?.enabled ?? false}
+    >
       {/* JSON-LD Structured Data - Product */}
       <script
         type="application/ld+json"
@@ -151,7 +166,7 @@ export default async function ProductPage({ params }: PageProps) {
         category={category ? { title: category.title, slug: category.slug } : null}
         relatedProducts={relatedProductsData}
       />
-    </>
+    </PageWrapper>
   )
 }
 

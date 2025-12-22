@@ -20,6 +20,7 @@ import type {
 } from '@/payload-types';
 import { Media } from '@/components/Media';
 import RichText from '@/components/RichText';
+import { getBgClasses } from '@/blocks/_shared/themeHelpers';
 
 // Default labels (used as fallbacks when not configured)
 const defaultDifficultyLabels: Record<string, string> = {
@@ -210,11 +211,7 @@ export function ServiceDetailBlock({
     );
   }
 
-  const bgClasses = {
-    default: 'bg-theme-surface',
-    light: 'bg-theme-light',
-    dark: 'bg-theme-dark text-white',
-  };
+  const bgClass = getBgClasses(backgroundColor);
 
   const image = serviceData.image as MediaType | null;
   const assignedTeamMember =
@@ -250,9 +247,265 @@ export function ServiceDetailBlock({
     );
   };
 
+  // Hero variant - Split layout with image on left, content on right
+  if (variant === 'hero') {
+    return (
+      <section className={`${bgClass}`}>
+        {/* Breadcrumb outside the split */}
+        {showBreadcrumb && (
+          <div className="container mx-auto px-4 pt-8">
+            <Breadcrumb
+              serviceName={serviceData.title}
+              homeLabel={l.breadcrumbHome}
+              servicesLabel={l.breadcrumbServices}
+              servicesPath={paths.servicesBasePath}
+            />
+          </div>
+        )}
+
+        {/* Split Hero Section */}
+        <div className="container mx-auto px-4 py-8 lg:py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            {/* Left: Image at natural aspect ratio */}
+            <div className="relative">
+              {image?.url ? (
+                <div className="relative rounded-2xl overflow-hidden shadow-xl">
+                  <Media
+                    resource={image}
+                    size="(max-width: 768px) 100vw, 50vw"
+                    imgClassName="w-full h-auto object-cover"
+                  />
+                  {/* Gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                </div>
+              ) : serviceData.icon ? (
+                <div className="aspect-[4/3] rounded-2xl bg-gradient-to-br from-theme-primary/20 to-theme-dark/20 flex items-center justify-center">
+                  <DynamicIcon
+                    iconName={serviceData.icon}
+                    className="w-24 h-24 text-theme-primary/50"
+                  />
+                </div>
+              ) : (
+                <div className="aspect-[4/3] rounded-2xl bg-gradient-to-br from-theme-primary/20 to-theme-dark/20 flex items-center justify-center">
+                  <div className="text-6xl">🔧</div>
+                </div>
+              )}
+            </div>
+
+            {/* Right: Content */}
+            <div className="space-y-6">
+              {/* Badges */}
+              <div className="flex flex-wrap items-center gap-3">
+                {serviceData.featured && (
+                  <span className="px-3 py-1 rounded-full text-sm font-medium bg-theme-accent text-theme-text-on-accent">
+                    Popular
+                  </span>
+                )}
+                {serviceData.difficulty && (
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${getDifficultyColor(serviceData.difficulty)}`}
+                  >
+                    {difficultyLabels[serviceData.difficulty]}
+                  </span>
+                )}
+              </div>
+
+              {/* Title */}
+              <h1 className="heading-h1 font-bold text-theme-dark">
+                {serviceData.title}
+              </h1>
+
+              {/* Short Description */}
+              {serviceData.shortDescription && (
+                <p className="text-lg text-theme-text-light leading-relaxed">
+                  {serviceData.shortDescription}
+                </p>
+              )}
+
+              {/* Meta Info */}
+              <div className="flex flex-wrap items-center gap-6 py-4 border-y border-theme-border">
+                {serviceData.duration && (
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-theme-primary" />
+                    <span className="font-medium">{serviceData.duration}</span>
+                  </div>
+                )}
+                {serviceData.price && (
+                  <div className="flex items-center gap-2">
+                    <DollarSign className="w-5 h-5 text-theme-primary" />
+                    <span className="font-medium">{serviceData.price}</span>
+                  </div>
+                )}
+                {attributes[0] && (
+                  <div className="flex items-center gap-2">
+                    <DynamicIcon iconName={attributes[0].icon || 'Info'} className="w-5 h-5 text-theme-primary" />
+                    <span className="font-medium">{attributes[0].value}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Features preview */}
+              {showFeatures && serviceData.features && serviceData.features.length > 0 && (
+                <div className="space-y-3">
+                  {serviceData.features.slice(0, 4).map((item, index) => (
+                    <div key={index} className="flex items-start gap-3">
+                      <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <span className="text-theme-text">{item.feature}</span>
+                    </div>
+                  ))}
+                  {serviceData.features.length > 4 && (
+                    <p className="text-sm text-theme-text-light ml-8">
+                      + {serviceData.features.length - 4} mai multe beneficii
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* CTA Button */}
+              <div className="pt-4">
+                <Link
+                  href={bookingLink}
+                  className="btn-primary inline-flex items-center gap-2 text-lg px-8 py-4"
+                >
+                  {ctaButtonText}
+                  <ChevronRight className="w-5 h-5" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Full Description Section */}
+        {serviceData.description && (
+          <div className="bg-theme-light py-12">
+            <div className="container mx-auto px-4">
+              <div className="max-w-3xl mx-auto prose prose-lg">
+                <RichText data={serviceData.description} />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Features Section (full list) */}
+        {showFeatures && serviceData.features && serviceData.features.length > 4 && (
+          <div className="py-12">
+            <div className="container mx-auto px-4">
+              <h2 className="heading-h2 font-bold text-center mb-8">{l.featuresTitle}</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
+                {serviceData.features.map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex items-start gap-3 p-4 bg-white rounded-xl shadow-sm border border-theme-border"
+                  >
+                    <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <span className="text-theme-text">{item.feature}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Team Member Section */}
+        {showTeamMember && assignedTeamMember && (
+          <div className="bg-theme-light py-12">
+            <div className="container mx-auto px-4">
+              <div className="max-w-2xl mx-auto text-center">
+                <h2 className="heading-h3 font-bold mb-6">{l.teamMemberTitle}</h2>
+                <Link
+                  href={`${paths.teamBasePath}/${assignedTeamMember.slug}`}
+                  className="inline-flex flex-col items-center gap-4 group"
+                >
+                  {teamMemberImage?.url ? (
+                    <div className="relative w-24 h-24 rounded-full overflow-hidden ring-4 ring-white shadow-lg">
+                      <Media
+                        resource={teamMemberImage}
+                        fill
+                        size="96px"
+                        imgClassName="object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-24 h-24 rounded-full bg-theme-primary/10 flex items-center justify-center">
+                      <Users className="w-10 h-10 text-theme-primary" />
+                    </div>
+                  )}
+                  <div>
+                    <p className="font-semibold text-theme-dark group-hover:text-theme-primary transition-colors">
+                      {assignedTeamMember.name}
+                    </p>
+                    {assignedTeamMember.role && (
+                      <p className="text-sm text-theme-text-light">{assignedTeamMember.role}</p>
+                    )}
+                  </div>
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Related Services */}
+        {showRelatedServices && relatedServices.length > 0 && (
+          <div className="py-12">
+            <div className="container mx-auto px-4">
+              <h2 className="heading-h2 font-bold text-center mb-8">{relatedServicesTitle}</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                {relatedServices.map((related) => {
+                  const relatedImage = related.image as MediaType | null;
+                  return (
+                    <Link
+                      key={related.id}
+                      href={`${paths.servicesBasePath}/${related.slug}`}
+                      className="group bg-white rounded-xl overflow-hidden shadow-sm border border-theme-border hover:shadow-md transition-shadow"
+                    >
+                      {relatedImage?.url ? (
+                        <div className="relative h-40 overflow-hidden">
+                          <Media
+                            resource={relatedImage}
+                            fill
+                            size="(max-width: 768px) 100vw, 33vw"
+                            imgClassName="object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        </div>
+                      ) : (
+                        <div className="h-40 bg-theme-light flex items-center justify-center">
+                          <DynamicIcon iconName={related.icon || 'Sparkles'} className="w-12 h-12 text-theme-primary/30" />
+                        </div>
+                      )}
+                      <div className="p-4">
+                        <h3 className="font-semibold text-theme-dark group-hover:text-theme-primary transition-colors">
+                          {related.title}
+                        </h3>
+                        {related.price && (
+                          <p className="text-sm text-theme-primary font-medium mt-1">{related.price}</p>
+                        )}
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Back to Services */}
+        <div className="pb-12">
+          <div className="container mx-auto px-4 text-center">
+            <Link
+              href={paths.servicesBasePath}
+              className="inline-flex items-center gap-2 text-theme-primary hover:text-theme-primary-dark font-medium"
+            >
+              ← {l.viewAllServicesText}
+            </Link>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   if (variant === 'compact') {
     return (
-      <section className={`py-12 ${bgClasses[backgroundColor]}`}>
+      <section className={`py-12 ${bgClass}`}>
         <div className="container mx-auto px-4">
           {showBreadcrumb && (
             <Breadcrumb
@@ -351,7 +604,7 @@ export function ServiceDetailBlock({
 
   // Full variant (default)
   return (
-    <section className={`min-h-screen ${bgClasses[backgroundColor]}`}>
+    <section className={`min-h-screen ${bgClass}`}>
       <div className="container mx-auto py-8 px-4">
         {/* Breadcrumb */}
         {showBreadcrumb && (

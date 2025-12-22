@@ -2,9 +2,16 @@
 
 import React from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { cn } from '@/utilities/cn'
 import { Media } from '@/components/Media'
 import type { Media as MediaType } from '@/payload-types'
+
+// Shared utilities
+import { getBgClasses, isDarkBackground, getGridCols } from '../_shared/themeHelpers'
+import { isValidMedia } from '../_shared/mediaHelpers'
+import { SocialIcons, SocialLink, EmptyStateIcon, StarRating } from '../_shared/iconComponents'
+import type { SocialPlatform } from '../_shared/iconComponents'
 
 interface RichText {
   root: {
@@ -60,34 +67,6 @@ interface TeamBlockProps {
   detailBasePath?: string | null
 }
 
-// Social Media Icons
-const SocialIcons = {
-  facebook: (
-    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-    </svg>
-  ),
-  instagram: (
-    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-      <path d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" />
-    </svg>
-  ),
-  linkedin: (
-    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-    </svg>
-  ),
-  twitter: (
-    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-    </svg>
-  ),
-}
-
-// Helper to check if image is valid Media object
-function isValidMedia(image: unknown): image is MediaType {
-  return typeof image === 'object' && image !== null && 'url' in image
-}
 
 // Helper function to render bio as string
 function getBioText(bio: TeamMember['bio']): string | null {
@@ -120,6 +99,8 @@ export function TeamBlock({
   members = [],
   detailBasePath,
 }: TeamBlockProps) {
+  const router = useRouter()
+
   // Helper to get member detail URL
   const getMemberHref = (member: TeamMember): string | null => {
     if (!detailBasePath || !member.slug) return null
@@ -127,16 +108,19 @@ export function TeamBlock({
     return `${basePath}/${member.slug}`
   }
 
-  // Background classes
-  const bgClasses: Record<string, string> = {
-    default: 'bg-theme-surface',
-    light: 'bg-theme-light',
-    dark: 'bg-theme-dark',
+  // Handle card click - navigate to detail page
+  const handleCardClick = (member: TeamMember) => {
+    const href = getMemberHref(member)
+    if (href) {
+      router.push(href)
+    }
   }
 
-  const isDark = backgroundColor === 'dark'
+  // Use shared theme helpers
+  const bgClass = getBgClasses(backgroundColor)
+  const isDark = isDarkBackground(backgroundColor)
 
-  const getGridCols = () => {
+  const getGridColsClass = () => {
     switch (columns) {
       case '2': return 'md:grid-cols-2'
       case '3': return 'md:grid-cols-2 lg:grid-cols-3'
@@ -146,7 +130,7 @@ export function TeamBlock({
 
   if (members.length === 0) {
     return (
-      <section className={cn('py-section', bgClasses[backgroundColor] || bgClasses.default)}>
+      <section className={cn('py-section', bgClass)}>
         <div className="container mx-auto px-4">
           <div className={cn(
             'text-center py-16 border-2 border-dashed rounded-xl',
@@ -165,7 +149,7 @@ export function TeamBlock({
   // List Variant
   if (variant === 'list') {
     return (
-      <section className={cn('py-section', bgClasses[backgroundColor] || bgClasses.default)}>
+      <section className={cn('py-section', bgClass)}>
         <div className="container mx-auto px-4">
           {/* Header */}
           {(heading || subheading) && (
@@ -187,16 +171,30 @@ export function TeamBlock({
           )}
 
           <div className="space-y-6 max-w-4xl mx-auto">
-            {members.map((member, index) => (
+            {members.map((member, index) => {
+              const memberHref = getMemberHref(member)
+              const isClickable = !!memberHref
+
+              return (
               <div
                 key={member.id}
+                onClick={() => isClickable && handleCardClick(member)}
+                role={isClickable ? 'link' : undefined}
+                tabIndex={isClickable ? 0 : undefined}
+                onKeyDown={(e) => {
+                  if (isClickable && (e.key === 'Enter' || e.key === ' ')) {
+                    e.preventDefault()
+                    handleCardClick(member)
+                  }
+                }}
                 className={cn(
                   'group flex flex-col md:flex-row items-center gap-6 p-6 rounded-[var(--radius-card)]',
                   'animate-fade-in-up card-hover',
                   isDark
                     ? 'bg-white/5 hover:bg-white/10 border border-white/10'
                     : 'bg-white hover:shadow-xl border border-theme-border',
-                  index < 8 && `animation-delay-${(index % 4) * 100 + 100}`
+                  index < 8 && `animation-delay-${(index % 4) * 100 + 100}`,
+                  isClickable && 'cursor-pointer'
                 )}
               >
                 {/* Image */}
@@ -224,7 +222,7 @@ export function TeamBlock({
                   <h3 className={cn('heading-h3 font-bold mb-1', isDark ? 'text-white' : 'text-theme-text')}>
                     {member.name}
                     {member.featured && (
-                      <span className="ml-2 inline-flex items-center px-2 py-0.5 text-xs font-medium bg-theme-accent text-white rounded-full">
+                      <span className="ml-2 inline-flex items-center px-2 py-0.5 text-xs font-medium bg-theme-accent text-theme-text-on-accent rounded-full">
                         Top
                       </span>
                     )}
@@ -276,12 +274,13 @@ export function TeamBlock({
                             href={url}
                             target="_blank"
                             rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
                             className={cn(
                               'w-9 h-9 rounded-full flex items-center justify-center',
                               'transition-all duration-300 hover:scale-110',
                               isDark
                                 ? 'bg-white/10 text-white hover:bg-theme-accent hover:text-white'
-                                : 'bg-theme-light text-theme-text-light hover:bg-theme-primary hover:text-white'
+                                : 'bg-theme-light text-theme-text-light hover:bg-theme-primary hover:text-theme-text-on-primary'
                             )}
                           >
                             {SocialIcons[platform as keyof typeof SocialIcons]}
@@ -295,13 +294,14 @@ export function TeamBlock({
                   {showBookButton && member.bookingLink && (
                     <Link
                       href={member.bookingLink}
+                      onClick={(e) => e.stopPropagation()}
                       className={cn(
                         'inline-flex items-center gap-2 px-5 py-2',
                         'text-sm font-semibold rounded-full',
                         'transition-all duration-300 hover:scale-105',
                         isDark
-                          ? 'bg-theme-accent text-white hover:bg-white hover:text-theme-dark'
-                          : 'bg-theme-primary text-white hover:bg-theme-secondary'
+                          ? 'bg-theme-accent text-theme-text-on-accent hover:bg-white hover:text-theme-dark'
+                          : 'bg-theme-primary text-theme-text-on-primary hover:bg-theme-secondary'
                       )}
                     >
                       {bookButtonText}
@@ -309,7 +309,8 @@ export function TeamBlock({
                   )}
                 </div>
               </div>
-            ))}
+            )})}
+
           </div>
         </div>
       </section>
@@ -318,7 +319,7 @@ export function TeamBlock({
 
   // Grid Variants (default)
   return (
-    <section className={cn('py-section', bgClasses[backgroundColor] || bgClasses.default)}>
+    <section className={cn('py-section', bgClass)}>
       <div className="container mx-auto px-4">
         {/* Header */}
         {(heading || subheading) && (
@@ -340,7 +341,7 @@ export function TeamBlock({
         )}
 
         {/* Grid */}
-        <div className={cn('grid gap-cards', getGridCols())}>
+        <div className={cn('grid gap-cards', getGridColsClass())}>
           {members.map((member, index) => (
             <div
               key={member.id}
@@ -361,7 +362,7 @@ export function TeamBlock({
                 {/* Featured Badge */}
                 {member.featured && (
                   <div className="absolute top-3 right-3 z-10">
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold bg-theme-accent text-white rounded-full">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold bg-theme-accent text-theme-text-on-accent rounded-full">
                       <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                       </svg>
@@ -490,8 +491,8 @@ export function TeamBlock({
                       'text-sm font-semibold rounded-[var(--radius-button)]',
                       'transition-all duration-300',
                       isDark
-                        ? 'bg-theme-accent text-white hover:bg-white hover:text-theme-dark'
-                        : 'bg-theme-primary text-white hover:bg-theme-secondary'
+                        ? 'bg-theme-accent text-theme-text-on-accent hover:bg-white hover:text-theme-dark'
+                        : 'bg-theme-primary text-theme-text-on-primary hover:bg-theme-secondary'
                     )}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

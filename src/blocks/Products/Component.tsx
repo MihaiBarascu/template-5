@@ -6,6 +6,7 @@ import { Media as MediaType } from '@/payload-types'
 import { Media } from '@/components/Media'
 import { useToast } from '@/components/Toast'
 import { useCart } from '@payloadcms/plugin-ecommerce/client/react'
+import { getBgClasses, isDarkBackground } from '@/blocks/_shared/themeHelpers'
 
 interface Product {
   id: string
@@ -48,11 +49,8 @@ export function ProductsBlock({
   const { addItem } = useCart()
   const [addingProductId, setAddingProductId] = useState<string | null>(null)
 
-  const bgClasses = {
-    default: 'bg-white',
-    light: 'bg-theme-light',
-    dark: 'bg-theme-dark text-white',
-  }
+  const bgClass = getBgClasses(backgroundColor)
+  const isDark = isDarkBackground(backgroundColor)
 
   const gridClasses = {
     'grid-4': 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4',
@@ -98,21 +96,21 @@ export function ProductsBlock({
   }
 
   return (
-    <section className={`py-16 ${bgClasses[backgroundColor]}`}>
+    <section className={`py-16 ${bgClass}`}>
       <div className="container mx-auto px-4">
         {/* Header */}
         {(heading || subheading) && (
           <div className="text-center mb-12">
             {heading && (
               <h2
-                className={`heading-h2 font-bold mb-4 ${backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'}`}
+                className={`heading-h2 font-bold mb-4 ${isDark ? 'text-white' : 'text-theme-text'}`}
               >
                 {heading}
               </h2>
             )}
             {subheading && (
               <p
-                className={`text-lg max-w-2xl mx-auto ${backgroundColor === 'dark' ? 'text-white/70' : 'text-theme-text-light'}`}
+                className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-white/70' : 'text-theme-text-light'}`}
               >
                 {subheading}
               </p>
@@ -199,7 +197,7 @@ export function ProductsBlock({
                       className={`mt-3 w-full py-2 px-4 rounded-md transition-colors text-sm font-medium flex items-center justify-center gap-2 ${
                         isOutOfStock || isAddingThis
                           ? 'bg-theme-border text-theme-text-muted cursor-not-allowed'
-                          : 'bg-theme-primary text-white hover:bg-theme-primary/90'
+                          : 'bg-theme-primary text-theme-text-on-primary hover:bg-theme-primary/90'
                       }`}
                     >
                       {isAddingThis ? (
@@ -225,9 +223,9 @@ export function ProductsBlock({
             <Link
               href={ctaButton.link}
               className={`inline-flex items-center gap-2 px-6 py-3 rounded-md font-medium transition-colors ${
-                backgroundColor === 'dark'
+                isDark
                   ? 'bg-white text-theme-text hover:bg-theme-light'
-                  : 'bg-theme-primary text-white hover:bg-theme-primary/90'
+                  : 'bg-theme-primary text-theme-text-on-primary hover:bg-theme-primary/90'
               }`}
             >
               {ctaButton.label || 'Vezi toate produsele'}

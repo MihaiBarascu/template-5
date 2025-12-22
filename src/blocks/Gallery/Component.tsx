@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { cn } from '@/utilities/cn'
 import { Media } from '@/components/Media'
 import type { Media as MediaType } from '@/payload-types'
+import { getBgClasses, isDarkBackground } from '@/blocks/_shared/themeHelpers'
 
 interface GalleryImage {
   id: string
@@ -88,12 +89,8 @@ export function GalleryBlock({
     ? images
     : images.filter(img => img.category === activeFilter)
 
-  // Background classes
-  const bgClasses: Record<string, string> = {
-    default: 'bg-theme-surface',
-    light: 'bg-theme-light',
-    dark: 'bg-theme-dark text-white',
-  }
+  const bgClass = getBgClasses(backgroundColor)
+  const isDark = isDarkBackground(backgroundColor)
 
   // Gap classes
   const gapClasses: Record<string, string> = {
@@ -163,7 +160,7 @@ export function GalleryBlock({
 
   if (images.length === 0) {
     return (
-      <section className={cn('py-section', bgClasses[backgroundColor] || bgClasses.default)}>
+      <section className={cn('py-section', bgClass)}>
         <div className="container mx-auto px-4">
           <div className="text-center py-16 border-2 border-dashed border-theme-border rounded-xl">
             <svg className="w-16 h-16 mx-auto text-theme-text-muted mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -279,7 +276,7 @@ export function GalleryBlock({
   }
 
   return (
-    <section className={cn('py-section', bgClasses[backgroundColor] || bgClasses.default)}>
+    <section className={cn('py-section', bgClass)}>
       <div className="container mx-auto px-4">
         {/* Header */}
         {(heading || subheading) && (
@@ -287,7 +284,7 @@ export function GalleryBlock({
             {heading && (
               <h2 className={cn(
                 'heading-h2 font-bold mb-4',
-                backgroundColor === 'dark' ? 'text-white' : 'text-theme-text'
+                isDark ? 'text-white' : 'text-theme-text'
               )}>
                 {heading}
               </h2>
@@ -295,7 +292,7 @@ export function GalleryBlock({
             {subheading && (
               <p className={cn(
                 'text-lg max-w-2xl mx-auto',
-                backgroundColor === 'dark' ? 'text-white/70' : 'text-theme-text-light'
+                isDark ? 'text-white/70' : 'text-theme-text-light'
               )}>
                 {subheading}
               </p>
@@ -314,10 +311,10 @@ export function GalleryBlock({
                   'px-5 py-2.5 rounded-full text-sm font-medium',
                   'transition-all duration-300',
                   activeFilter === category
-                    ? 'bg-theme-primary text-white shadow-lg scale-105'
+                    ? 'bg-theme-primary text-theme-text-on-primary shadow-lg scale-105'
                     : cn(
                         'hover:scale-105',
-                        backgroundColor === 'dark'
+                        isDark
                           ? 'bg-white/10 text-white hover:bg-white/20'
                           : 'bg-theme-light text-theme-text hover:bg-theme-primary/10'
                       )
@@ -377,7 +374,7 @@ export function GalleryBlock({
           <div className="text-center mt-8">
             <button className={cn(
               'inline-flex items-center gap-2 px-8 py-3',
-              'bg-theme-primary text-white font-semibold',
+              'bg-theme-primary text-theme-text-on-primary font-semibold',
               'rounded-[var(--radius-button)] transition-all duration-300',
               'hover:bg-theme-secondary hover:scale-105'
             )}>

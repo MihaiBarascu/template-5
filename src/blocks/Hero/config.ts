@@ -1,4 +1,5 @@
 import type { Block } from 'payload'
+import { sectionWrapperFields } from '../_shared/sectionWrapperFields'
 
 export const HeroBlock: Block = {
   slug: 'hero',
@@ -149,5 +150,7 @@ export const HeroBlock: Block = {
         { label: 'Fullscreen', value: 'fullscreen' },
       ],
     },
+    // Section wrapper fields for advanced layout options
+    ...sectionWrapperFields,
   ],
 }

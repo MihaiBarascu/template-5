@@ -23,18 +23,51 @@ export const Header: GlobalConfig = {
         { label: 'Standard (Logo stanga, meniu dreapta)', value: 'standard' },
         { label: 'Centrat (Logo centru)', value: 'centered' },
         { label: 'Cu TopBar', value: 'with-topbar' },
-        { label: 'Transparent (pe hero)', value: 'transparent' },
+        { label: 'Full Width (fara container, pe tot ecranul)', value: 'full-width' },
         { label: 'Minimal', value: 'minimal' },
       ],
     },
     {
+      name: 'showTopBar',
+      type: 'checkbox',
+      label: 'Afiseaza Top Bar',
+      defaultValue: false,
+      admin: {
+        description: 'Bara superioara cu social media, contact, mesaj etc.',
+      },
+    },
+    {
       name: 'topBar',
       type: 'group',
-      label: 'Top Bar',
+      label: 'Configurare Top Bar',
       admin: {
-        condition: (_, siblingData) => siblingData?.variant === 'with-topbar',
+        condition: (_, siblingData) => siblingData?.showTopBar === true,
       },
       fields: [
+        {
+          name: 'backgroundColor',
+          type: 'select',
+          label: 'Culoare fundal',
+          defaultValue: 'dark',
+          options: [
+            { label: 'Inchis (dark)', value: 'dark' },
+            { label: 'Primary', value: 'primary' },
+            { label: 'Transparent', value: 'transparent' },
+            { label: 'Deschis (light)', value: 'light' },
+          ],
+        },
+        {
+          name: 'layout',
+          type: 'select',
+          label: 'Aranjament',
+          defaultValue: 'social-left',
+          options: [
+            { label: 'Social stanga, mesaj dreapta', value: 'social-left' },
+            { label: 'Mesaj stanga, social dreapta', value: 'message-left' },
+            { label: 'Contact stanga, social dreapta', value: 'contact-left' },
+            { label: 'Centrat', value: 'centered' },
+          ],
+        },
         {
           name: 'showPhone',
           type: 'checkbox',
@@ -50,8 +83,39 @@ export const Header: GlobalConfig = {
         {
           name: 'showSocial',
           type: 'checkbox',
-          label: 'Afiseaza social media',
+          label: 'Afiseaza social media (din BusinessInfo)',
           defaultValue: true,
+        },
+        {
+          name: 'customSocialLinks',
+          type: 'array',
+          label: 'Social links personalizate (optional)',
+          admin: {
+            description: 'Daca nu sunt setate, se folosesc link-urile din BusinessInfo',
+          },
+          fields: [
+            {
+              name: 'platform',
+              type: 'select',
+              label: 'Platforma',
+              required: true,
+              options: [
+                { label: 'YouTube', value: 'youtube' },
+                { label: 'Facebook', value: 'facebook' },
+                { label: 'Instagram', value: 'instagram' },
+                { label: 'TikTok', value: 'tiktok' },
+                { label: 'Twitter/X', value: 'twitter' },
+                { label: 'LinkedIn', value: 'linkedin' },
+                { label: 'WhatsApp', value: 'whatsapp' },
+              ],
+            },
+            {
+              name: 'url',
+              type: 'text',
+              label: 'URL',
+              required: true,
+            },
+          ],
         },
         {
           name: 'showWorkingHours',
@@ -62,9 +126,9 @@ export const Header: GlobalConfig = {
         {
           name: 'customText',
           type: 'text',
-          label: 'Text personalizat',
+          label: 'Mesaj personalizat',
           admin: {
-            description: 'Ex: Transport gratuit la comenzi peste 200 lei',
+            description: 'Ex: Te rugam sa te intorci la persoana care te-a recomandat!',
           },
         },
       ],
@@ -179,6 +243,30 @@ export const Header: GlobalConfig = {
       type: 'checkbox',
       label: 'Header sticky la scroll',
       defaultValue: true,
+    },
+    {
+      name: 'isTransparent',
+      type: 'checkbox',
+      label: 'Header transparent (overlay pe hero)',
+      defaultValue: false,
+      admin: {
+        description: 'Header-ul va fi transparent și suprapus peste primul block (ideal pentru Video Hero)',
+      },
+    },
+    {
+      name: 'transparentTextColor',
+      type: 'select',
+      label: 'Culoare text când transparent',
+      defaultValue: 'white',
+      options: [
+        { label: 'Alb', value: 'white' },
+        { label: 'Negru', value: 'dark' },
+        { label: 'Auto (bazat pe hero)', value: 'auto' },
+      ],
+      admin: {
+        condition: (_, siblingData) => siblingData?.isTransparent,
+        description: 'Culoarea textului și logo-ului când header-ul este transparent',
+      },
     },
   ],
 }

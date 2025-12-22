@@ -2,8 +2,12 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
+import * as CheckboxPrimitive from '@radix-ui/react-checkbox'
+import { CheckIcon } from 'lucide-react'
 import { cn } from '@/utilities/cn'
 import { Media } from '@/components/Media'
+import { SectionPattern } from '@/components/SectionPattern'
+import { getPatternProps, type PatternConfig } from '@/fields/patternField'
 import type { Media as MediaType } from '@/payload-types'
 
 interface Benefit {
@@ -21,7 +25,10 @@ interface NewsletterBlockProps {
   backgroundImage?: MediaType | string | null
   privacyText?: string | null
   showPrivacyLink?: boolean | null
+  requireConsent?: boolean | null
+  consentText?: string | null
   benefits?: Benefit[] | null
+  pattern?: PatternConfig | null
 }
 
 export function NewsletterBlock({
@@ -34,9 +41,13 @@ export function NewsletterBlock({
   backgroundImage,
   privacyText = 'Datele tale sunt in siguranta. Nu facem spam.',
   showPrivacyLink = true,
+  requireConsent = false,
+  consentText = 'Da, ma abonez la newsletter',
   benefits = [],
+  pattern,
 }: NewsletterBlockProps) {
   const [email, setEmail] = useState('')
+  const [consent, setConsent] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -47,6 +58,11 @@ export function NewsletterBlock({
 
     if (!email || !email.includes('@')) {
       setError('Te rugam introdu o adresa de email valida.')
+      return
+    }
+
+    if (requireConsent && !consent) {
+      setError('Te rugam sa confirmi ca esti de acord cu abonarea.')
       return
     }
 
@@ -83,6 +99,7 @@ export function NewsletterBlock({
   const hasBgImage = backgroundImage && typeof backgroundImage === 'object' && 'url' in backgroundImage
 
   const isDark = variant === 'dark' || variant === 'with-image'
+  const isPrimary = variant === 'with-pattern' // with-pattern uses bg-theme-primary
 
   // Variant-specific styles
   const getContainerStyles = () => {
@@ -100,28 +117,8 @@ export function NewsletterBlock({
     }
   }
 
-  // Pattern overlay for with-pattern variant
-  const PatternOverlay = () => (
-    <div className="absolute inset-0 opacity-10">
-      <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <pattern
-            id="diagonal-lines"
-            patternUnits="userSpaceOnUse"
-            width="40"
-            height="40"
-          >
-            <path
-              d="M-10,10 l20,-20 M0,40 l40,-40 M30,50 l20,-20"
-              stroke="white"
-              strokeWidth="2"
-            />
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#diagonal-lines)" />
-      </svg>
-    </div>
-  )
+  // Get pattern props for SectionPattern component
+  const patternProps = getPatternProps(pattern)
 
   if (variant === 'inline') {
     return (
@@ -163,7 +160,7 @@ export function NewsletterBlock({
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="px-6 py-2.5 bg-theme-primary text-white rounded-lg font-medium hover:opacity-90 transition-all disabled:opacity-50"
+                  className="px-6 py-2.5 bg-theme-primary text-theme-text-on-primary rounded-lg font-medium hover:opacity-90 transition-all disabled:opacity-50"
                 >
                   {isLoading ? '...' : buttonText}
                 </button>
@@ -190,8 +187,16 @@ export function NewsletterBlock({
         </div>
       )}
 
-      {/* Pattern overlay */}
-      {variant === 'with-pattern' && <PatternOverlay />}
+      {/* Pattern overlay - now configurable */}
+      {variant === 'with-pattern' && patternProps && (
+        <SectionPattern {...patternProps} />
+      )}
+      {/* Fallback diagonal lines if no pattern configured */}
+      {variant === 'with-pattern' && !patternProps && (
+        <div className="absolute inset-0 opacity-10">
+          <div className="w-full h-full pattern-diagonal-flowing text-white" />
+        </div>
+      )}
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-2xl mx-auto text-center">
@@ -199,17 +204,13 @@ export function NewsletterBlock({
           <div
             className={cn(
               'w-16 h-16 mx-auto mb-6 rounded-full flex items-center justify-center',
-              isDark || variant === 'with-pattern'
-                ? 'bg-white/10'
-                : 'bg-theme-primary/10'
+              isDark ? 'bg-white/10' : isPrimary ? 'bg-theme-text-on-primary/10' : 'bg-theme-primary/10'
             )}
           >
             <svg
               className={cn(
                 'w-8 h-8',
-                isDark || variant === 'with-pattern'
-                  ? 'text-white'
-                  : 'text-theme-primary'
+                isDark ? 'text-theme-text-on-dark' : isPrimary ? 'text-theme-text-on-primary' : 'text-theme-primary'
               )}
               fill="none"
               stroke="currentColor"
@@ -229,7 +230,7 @@ export function NewsletterBlock({
             <h2
               className={cn(
                 'heading-h2 font-bold mb-4',
-                isDark || variant === 'with-pattern' ? 'text-white' : 'text-theme-text'
+                isDark ? 'text-theme-text-on-dark' : isPrimary ? 'text-theme-text-on-primary' : 'text-theme-text'
               )}
             >
               {heading}
@@ -241,9 +242,7 @@ export function NewsletterBlock({
             <p
               className={cn(
                 'text-lg mb-8',
-                isDark || variant === 'with-pattern'
-                  ? 'text-white/70'
-                  : 'text-theme-text-light'
+                isDark ? 'text-theme-text-on-dark/70' : isPrimary ? 'text-theme-text-on-primary/70' : 'text-theme-text-light'
               )}
             >
               {subheading}
@@ -260,17 +259,13 @@ export function NewsletterBlock({
                     key={benefit.id || index}
                     className={cn(
                       'flex items-center gap-2 text-sm',
-                      isDark || variant === 'with-pattern'
-                        ? 'text-white/70'
-                        : 'text-theme-text-light'
+                      isDark ? 'text-theme-text-on-dark/70' : isPrimary ? 'text-theme-text-on-primary/70' : 'text-theme-text-light'
                     )}
                   >
                     <svg
                       className={cn(
                         'w-5 h-5',
-                        isDark || variant === 'with-pattern'
-                          ? 'text-green-400'
-                          : 'text-green-500'
+                        isDark || isPrimary ? 'text-green-400' : 'text-green-500'
                       )}
                       fill="currentColor"
                       viewBox="0 0 20 20"
@@ -292,9 +287,7 @@ export function NewsletterBlock({
             <div
               className={cn(
                 'flex items-center justify-center gap-3 py-4 px-6 rounded-xl',
-                isDark || variant === 'with-pattern'
-                  ? 'bg-green-500/20 text-green-300'
-                  : 'bg-green-100 text-green-700'
+                isDark || isPrimary ? 'bg-green-500/20 text-green-300' : 'bg-green-100 text-green-700'
               )}
             >
               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
@@ -317,7 +310,7 @@ export function NewsletterBlock({
                   className={cn(
                     'flex-1 px-5 py-3.5 rounded-xl text-theme-text outline-none transition-all',
                     'focus:ring-4',
-                    isDark || variant === 'with-pattern'
+                    isDark || isPrimary
                       ? 'bg-white focus:ring-white/20'
                       : 'bg-white border border-theme-border focus:ring-theme-primary/20 focus:border-theme-primary'
                   )}
@@ -329,9 +322,9 @@ export function NewsletterBlock({
                     'px-8 py-3.5 rounded-xl font-semibold transition-all',
                     'disabled:opacity-50 disabled:cursor-not-allowed',
                     'hover:scale-105 active:scale-95',
-                    isDark || variant === 'with-pattern'
-                      ? 'bg-white text-theme-text hover:bg-theme-light'
-                      : 'bg-theme-primary text-white hover:opacity-90'
+                    isDark ? 'bg-white text-theme-text hover:bg-theme-light'
+                      : isPrimary ? 'bg-theme-dark text-theme-text-on-dark hover:bg-theme-secondary'
+                      : 'bg-theme-primary text-theme-text-on-primary hover:opacity-90'
                   )}
                 >
                   {isLoading ? (
@@ -363,6 +356,42 @@ export function NewsletterBlock({
                 </button>
               </div>
 
+              {/* Consent checkbox (GDPR) - Using Radix UI for full accessibility */}
+              {requireConsent && (
+                <div className="flex items-center gap-3 max-w-md mx-auto">
+                  <CheckboxPrimitive.Root
+                    id="newsletter-consent"
+                    checked={consent}
+                    onCheckedChange={(checked) => setConsent(checked === true)}
+                    className={cn(
+                      'size-4 shrink-0 rounded-sm border transition-colors cursor-pointer',
+                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+                      isPrimary
+                        ? 'border-theme-dark/40 bg-white/10 focus-visible:ring-theme-dark data-[state=checked]:bg-theme-dark data-[state=checked]:border-theme-dark'
+                        : isDark
+                          ? 'border-white/40 bg-white/10 focus-visible:ring-white data-[state=checked]:bg-white data-[state=checked]:border-white'
+                          : 'border-theme-border bg-white focus-visible:ring-theme-primary data-[state=checked]:bg-theme-primary data-[state=checked]:border-theme-primary'
+                    )}
+                  >
+                    <CheckboxPrimitive.Indicator className="flex items-center justify-center">
+                      <CheckIcon className={cn(
+                        'size-3',
+                        isPrimary ? 'text-white' : isDark ? 'text-theme-dark' : 'text-white'
+                      )} />
+                    </CheckboxPrimitive.Indicator>
+                  </CheckboxPrimitive.Root>
+                  <label
+                    htmlFor="newsletter-consent"
+                    className={cn(
+                      'text-sm cursor-pointer select-none',
+                      isDark ? 'text-theme-text-on-dark/80' : isPrimary ? 'text-theme-text-on-primary/80' : 'text-theme-text-light'
+                    )}
+                  >
+                    {consentText}<span className="text-red-400">*</span>
+                  </label>
+                </div>
+              )}
+
               {/* Error message */}
               {error && (
                 <p className="text-red-500 text-sm">{error}</p>
@@ -373,9 +402,7 @@ export function NewsletterBlock({
                 <p
                   className={cn(
                     'text-sm',
-                    isDark || variant === 'with-pattern'
-                      ? 'text-white/60'
-                      : 'text-theme-text-muted'
+                    isDark ? 'text-theme-text-on-dark/60' : isPrimary ? 'text-theme-text-on-primary/60' : 'text-theme-text-muted'
                   )}
                 >
                   {privacyText}
@@ -386,9 +413,7 @@ export function NewsletterBlock({
                         href="/politica-confidentialitate"
                         className={cn(
                           'underline hover:no-underline',
-                          isDark || variant === 'with-pattern'
-                            ? 'text-white/70'
-                            : 'text-theme-primary'
+                          isDark ? 'text-theme-text-on-dark/70' : isPrimary ? 'text-theme-text-on-primary/70' : 'text-theme-primary'
                         )}
                       >
                         Politica de confidentialitate
