@@ -1032,9 +1032,9 @@ export interface Testimonial {
   content: string;
   rating?: ('5' | '4' | '3' | '2' | '1') | null;
   /**
-   * Opțional - link direct la un serviciu specific
+   * Testimonialul va apărea pe paginile acestor servicii/cursuri
    */
-  service?: (string | null) | Service;
+  services?: (string | Service)[] | null;
   /**
    * Categorie pentru grupare (ex: Access Bars, Terapia Bowen)
    */
@@ -6311,7 +6311,7 @@ export interface TestimonialsSelect<T extends boolean = true> {
   image?: T;
   content?: T;
   rating?: T;
-  service?: T;
+  services?: T;
   category?: T;
   source?: T;
   videoUrl?: T;

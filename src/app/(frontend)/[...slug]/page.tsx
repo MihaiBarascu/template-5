@@ -8,7 +8,7 @@ import { TeamDetail } from '@/components/TeamDetail'
 import { PageWrapper } from '@/components/PageWrapper'
 import { getCachedGlobal } from '@/utilities/getGlobals'
 import type { Metadata } from 'next'
-import type { Service, Team } from '@/payload-types'
+import type { Service, Team, Testimonial } from '@/payload-types'
 
 // Revalidate page every 60 seconds for ISR
 export const revalidate = 60
@@ -117,6 +117,21 @@ async function getRelatedServices(payload: Awaited<ReturnType<typeof getPayload>
   return servicesResult.docs
 }
 
+// Helper to get testimonials linked to a service (many-to-many)
+async function getServiceTestimonials(payload: Awaited<ReturnType<typeof getPayload>>, serviceId: string, limit: number = 10): Promise<Testimonial[]> {
+  const testimonialsResult = await payload.find({
+    collection: 'testimonials',
+    where: {
+      services: { contains: serviceId },
+    },
+    limit,
+    depth: 1,
+    sort: '-featured,order',
+  })
+
+  return testimonialsResult.docs
+}
+
 export default async function Page({ params }: PageProps) {
   const { slug: slugArray } = await params
   const url = getUrlFromSlug(slugArray)
@@ -159,7 +174,10 @@ export default async function Page({ params }: PageProps) {
     const service = await findService(payload, itemSlug)
 
     if (service) {
-      const relatedServices = await getRelatedServices(payload, service.id, 3)
+      const [relatedServices, testimonials] = await Promise.all([
+        getRelatedServices(payload, service.id, 3),
+        getServiceTestimonials(payload, service.id, 10),
+      ])
       return (
         <PageWrapper
           headerData={headerData}
@@ -174,6 +192,7 @@ export default async function Page({ params }: PageProps) {
             ctaLabel={service.ctaLabel || undefined}
             ctaLink={service.ctaLink || undefined}
             relatedServices={relatedServices}
+            testimonials={testimonials}
           />
         </PageWrapper>
       )
@@ -216,7 +235,10 @@ export default async function Page({ params }: PageProps) {
     // Try service first
     const service = await findService(payload, lastSlug)
     if (service) {
-      const relatedServices = await getRelatedServices(payload, service.id, 3)
+      const [relatedServices, testimonials] = await Promise.all([
+        getRelatedServices(payload, service.id, 3),
+        getServiceTestimonials(payload, service.id, 10),
+      ])
       return (
         <PageWrapper
           headerData={headerData}
@@ -231,6 +253,7 @@ export default async function Page({ params }: PageProps) {
             ctaLabel={service.ctaLabel || undefined}
             ctaLink={service.ctaLink || undefined}
             relatedServices={relatedServices}
+            testimonials={testimonials}
           />
         </PageWrapper>
       )

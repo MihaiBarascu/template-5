@@ -56,12 +56,14 @@ export const Testimonials: CollectionConfig = {
       ],
     },
     {
-      name: 'service',
+      name: 'services',
       type: 'relationship',
       relationTo: 'services',
-      label: 'Serviciu utilizat',
+      hasMany: true,
+      label: 'Servicii asociate',
+      index: true, // Index for efficient querying with 'contains' operator
       admin: {
-        description: 'Opțional - link direct la un serviciu specific',
+        description: 'Testimonialul va apărea pe paginile acestor servicii/cursuri',
       },
     },
     {

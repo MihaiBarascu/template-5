@@ -5,7 +5,8 @@ import Link from 'next/link'
 import * as LucideIcons from 'lucide-react'
 import { ArrowLeft, Clock, Users, Calendar, MapPin, Check, Sparkles } from 'lucide-react'
 import RichText from '@/components/RichText'
-import type { Service, Media, Team } from '@/payload-types'
+import { TestimonialGrid } from '@/components/TestimonialCard'
+import type { Service, Media, Team, Testimonial } from '@/payload-types'
 import { cn } from '@/utilities/cn'
 
 // Day translation map
@@ -62,6 +63,8 @@ interface ServiceDetailProps {
   ctaLink?: string
   relatedServices?: Service[]
   relatedServicesTitle?: string
+  testimonials?: Testimonial[]
+  testimonialsTitle?: string
 }
 
 export function ServiceDetail({
@@ -72,6 +75,8 @@ export function ServiceDetail({
   ctaLink = '/contact',
   relatedServices = [],
   relatedServicesTitle = 'Terapii recomandate',
+  testimonials = [],
+  testimonialsTitle = 'Ce spun cursanții',
 }: ServiceDetailProps) {
   // Safely extract related data
   const image = typeof service.image === 'object' ? (service.image as Media) : null
@@ -297,6 +302,20 @@ export function ServiceDetail({
                 </div>
               )}
             </div>
+          </div>
+        </section>
+      )}
+
+      {/* Testimonials Section */}
+      {testimonials.length > 0 && (
+        <section className="py-12 md:py-16 bg-theme-surface">
+          <div className="container mx-auto px-4">
+            <TestimonialGrid
+              testimonials={testimonials}
+              title={testimonialsTitle}
+              columns={3}
+              className="max-w-6xl mx-auto"
+            />
           </div>
         </section>
       )}

@@ -341,169 +341,244 @@ export function TeamBlock({
         )}
 
         {/* Grid */}
-        <div className={cn('grid gap-cards', getGridColsClass())}>
-          {members.map((member, index) => (
-            <div
-              key={member.id}
-              className={cn(
-                'group relative text-center',
-                'animate-fade-in-up',
-                index < 8 && `animation-delay-${(index % 4) * 100 + 100}`
-              )}
-            >
-              {/* Card */}
-              <div className={cn(
-                'relative p-6 rounded-[var(--radius-card)] overflow-hidden',
-                'transition-all duration-300',
-                isDark
-                  ? 'bg-white/5 hover:bg-white/10 border border-white/10'
-                  : 'bg-white hover:shadow-xl border border-theme-border'
-              )}>
-                {/* Featured Badge */}
-                {member.featured && (
-                  <div className="absolute top-3 right-3 z-10">
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold bg-theme-accent text-theme-text-on-accent rounded-full">
-                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                      Top
-                    </span>
-                  </div>
-                )}
+        <div className={cn(
+          'grid gap-8',
+          // For single member, center it; otherwise use grid
+          members.length === 1 ? 'max-w-md mx-auto' : getGridColsClass()
+        )}>
+          {members.map((member, index) => {
+            const memberHref = getMemberHref(member)
+            const isClickable = !!memberHref
 
-                {/* Image */}
+            return (
+              <div
+                key={member.id}
+                onClick={() => isClickable && handleCardClick(member)}
+                role={isClickable ? 'link' : undefined}
+                tabIndex={isClickable ? 0 : undefined}
+                onKeyDown={(e) => {
+                  if (isClickable && (e.key === 'Enter' || e.key === ' ')) {
+                    e.preventDefault()
+                    handleCardClick(member)
+                  }
+                }}
+                className={cn(
+                  'group relative',
+                  'animate-fade-in-up',
+                  index < 8 && `animation-delay-${(index % 4) * 100 + 100}`,
+                  isClickable && 'cursor-pointer'
+                )}
+              >
+                {/* Modern Card Design */}
                 <div className={cn(
-                  'relative w-32 h-32 mx-auto mb-5 overflow-hidden',
-                  'transition-all duration-500 group-hover:scale-105',
-                  variant === 'grid-centered' || variant === 'grid-round' ? 'rounded-full' : 'rounded-2xl'
+                  'relative overflow-hidden rounded-2xl h-full',
+                  'transition-all duration-500',
+                  isDark
+                    ? 'bg-gradient-to-br from-white/10 to-white/5 border border-white/20 backdrop-blur-sm'
+                    : 'bg-white border border-theme-border/50 shadow-lg shadow-theme-primary/5',
+                  isClickable && (isDark
+                    ? 'hover:border-theme-accent/60 hover:shadow-2xl hover:shadow-theme-accent/20 hover:-translate-y-2'
+                    : 'hover:shadow-2xl hover:shadow-theme-primary/15 hover:-translate-y-2 hover:border-theme-primary/40')
                 )}>
-                  {/* Ring decoration */}
+                  {/* Top gradient accent bar */}
                   <div className={cn(
-                    'absolute -inset-1 rounded-inherit transition-all duration-300',
-                    variant === 'grid-centered' || variant === 'grid-round' ? 'rounded-full' : 'rounded-2xl',
-                    isDark
-                      ? 'bg-gradient-to-br from-theme-accent/50 to-transparent opacity-0 group-hover:opacity-100'
-                      : 'bg-gradient-to-br from-theme-primary/30 to-theme-accent/30 opacity-0 group-hover:opacity-100'
+                    'absolute top-0 left-0 right-0 h-1.5',
+                    'bg-gradient-to-r from-theme-primary via-theme-accent to-theme-primary',
+                    'opacity-80 group-hover:opacity-100 transition-opacity duration-300'
                   )} />
 
-                  <div className={cn(
-                    'relative w-full h-full overflow-hidden',
-                    variant === 'grid-centered' || variant === 'grid-round' ? 'rounded-full' : 'rounded-2xl'
-                  )}>
-                    {isValidMedia(member.image) ? (
-                      <Media
-                        resource={member.image as MediaType}
-                        fill
-                        size="128px"
-                        imgClassName="object-cover transition-transform duration-700 group-hover:scale-110"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-theme-primary to-theme-secondary text-white text-4xl font-bold">
-                        {member.name.charAt(0)}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Hover overlay with social */}
-                  {showSocial && member.social && (
-                    <div className={cn(
-                      'absolute inset-0 flex items-center justify-center gap-2',
-                      'bg-black/60 opacity-0 group-hover:opacity-100',
-                      'transition-all duration-300',
-                      variant === 'grid-centered' || variant === 'grid-round' ? 'rounded-full' : 'rounded-2xl'
-                    )}>
-                      {Object.entries(member.social).map(([platform, url]) => {
-                        if (!url) return null
-                        return (
-                          <a
-                            key={platform}
-                            href={url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={cn(
-                              'w-8 h-8 rounded-full flex items-center justify-center',
-                              'bg-white/20 text-white hover:bg-white hover:text-theme-dark',
-                              'transition-all duration-200 hover:scale-110',
-                              'transform translate-y-4 group-hover:translate-y-0'
-                            )}
-                            style={{ transitionDelay: `${Object.keys(member.social!).indexOf(platform) * 50}ms` }}
-                          >
-                            {SocialIcons[platform as keyof typeof SocialIcons]}
-                          </a>
-                        )
-                      })}
+                  {/* Featured Badge */}
+                  {member.featured && (
+                    <div className="absolute top-5 right-5 z-10">
+                      <span className={cn(
+                        'inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-full shadow-lg',
+                        'bg-gradient-to-r from-theme-accent to-theme-accent/80 text-theme-text-on-accent',
+                        'ring-2 ring-white/30'
+                      )}>
+                        <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                        Top
+                      </span>
                     </div>
                   )}
-                </div>
 
-                {/* Info */}
-                <h3 className={cn(
-                  'heading-h3 font-bold mb-1 transition-colors',
-                  isDark ? 'text-white group-hover:text-theme-accent' : 'text-theme-text group-hover:text-theme-primary'
-                )}>
-                  {getMemberHref(member) ? (
-                    <Link href={getMemberHref(member)!} className="hover:underline">
-                      {member.name}
-                    </Link>
-                  ) : (
-                    member.name
-                  )}
-                </h3>
+                  {/* Card Content */}
+                  <div className="p-8 pt-10">
+                    {/* Image Container - Larger and more prominent */}
+                    <div className="relative mb-6">
+                      <div className={cn(
+                        'relative w-44 h-44 mx-auto overflow-hidden',
+                        'transition-all duration-500 group-hover:scale-[1.02]',
+                        variant === 'grid-centered' || variant === 'grid-round' ? 'rounded-full' : 'rounded-2xl',
+                        'ring-4 ring-offset-4',
+                        isDark
+                          ? 'ring-theme-accent/30 ring-offset-transparent group-hover:ring-theme-accent/60'
+                          : 'ring-theme-primary/20 ring-offset-white group-hover:ring-theme-primary/50'
+                      )}>
+                        <div className={cn(
+                          'relative w-full h-full overflow-hidden',
+                          variant === 'grid-centered' || variant === 'grid-round' ? 'rounded-full' : 'rounded-xl'
+                        )}>
+                          {isValidMedia(member.image) ? (
+                            <Media
+                              resource={member.image as MediaType}
+                              fill
+                              size="176px"
+                              imgClassName="object-cover transition-transform duration-700 group-hover:scale-110"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-theme-primary to-theme-secondary text-white text-5xl font-bold">
+                              {member.name.charAt(0)}
+                            </div>
+                          )}
+                        </div>
 
-                {showRole && member.role && (
-                  <p className={cn(
-                    'text-sm font-medium mb-2',
-                    isDark ? 'text-theme-accent' : 'text-theme-primary'
-                  )}>
-                    {member.role}
-                  </p>
-                )}
-
-                {member.experience && (
-                  <p className={cn('text-xs mb-3', isDark ? 'text-white/50' : 'text-theme-text-muted')}>
-                    {member.experience}
-                  </p>
-                )}
-
-                {/* Specializations */}
-                {member.specializations && member.specializations.length > 0 && (
-                  <div className="flex flex-wrap justify-center gap-1 mb-4">
-                    {member.specializations.filter(s => s.specialization).slice(0, 3).map((spec, idx) => (
-                      <span
-                        key={spec.id || idx}
-                        className={cn(
-                          'text-xs px-2 py-0.5 rounded-full',
-                          isDark ? 'bg-white/10 text-white/70' : 'bg-theme-light text-theme-text-light'
+                        {/* Hover overlay with social */}
+                        {showSocial && member.social && Object.values(member.social).some(v => v) && (
+                          <div className={cn(
+                            'absolute inset-0 flex items-center justify-center gap-3',
+                            'bg-gradient-to-t from-black/70 via-black/50 to-black/30',
+                            'opacity-0 group-hover:opacity-100',
+                            'transition-all duration-300',
+                            variant === 'grid-centered' || variant === 'grid-round' ? 'rounded-full' : 'rounded-xl'
+                          )}>
+                            {Object.entries(member.social).map(([platform, url]) => {
+                              if (!url) return null
+                              return (
+                                <a
+                                  key={platform}
+                                  href={url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  onClick={(e) => e.stopPropagation()}
+                                  className={cn(
+                                    'w-10 h-10 rounded-full flex items-center justify-center',
+                                    'bg-white/20 text-white hover:bg-white hover:text-theme-primary',
+                                    'transition-all duration-200 hover:scale-110',
+                                    'transform translate-y-4 group-hover:translate-y-0',
+                                    'backdrop-blur-sm'
+                                  )}
+                                  style={{ transitionDelay: `${Object.keys(member.social!).indexOf(platform) * 75}ms` }}
+                                >
+                                  {SocialIcons[platform as keyof typeof SocialIcons]}
+                                </a>
+                              )
+                            })}
+                          </div>
                         )}
-                      >
-                        {spec.specialization}
-                      </span>
-                    ))}
-                  </div>
-                )}
+                      </div>
+                    </div>
 
-                {/* Book Button */}
-                {showBookButton && member.bookingLink && (
-                  <Link
-                    href={member.bookingLink}
-                    className={cn(
-                      'inline-flex items-center justify-center gap-2 w-full px-4 py-2.5',
-                      'text-sm font-semibold rounded-[var(--radius-button)]',
-                      'transition-all duration-300',
-                      isDark
-                        ? 'bg-theme-accent text-theme-text-on-accent hover:bg-white hover:text-theme-dark'
-                        : 'bg-theme-primary text-theme-text-on-primary hover:bg-theme-secondary'
-                    )}
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    {bookButtonText}
-                  </Link>
-                )}
+                    {/* Info Section */}
+                    <div className="text-center space-y-3">
+                      <h3 className={cn(
+                        'text-2xl font-bold transition-colors duration-300',
+                        isDark ? 'text-white group-hover:text-theme-accent' : 'text-theme-text group-hover:text-theme-primary'
+                      )}>
+                        {member.name}
+                      </h3>
+
+                      {showRole && member.role && (
+                        <p className={cn(
+                          'text-base font-semibold tracking-wide',
+                          isDark ? 'text-theme-accent' : 'text-theme-primary'
+                        )}>
+                          {member.role}
+                        </p>
+                      )}
+
+                      {member.experience && (
+                        <p className={cn('text-sm', isDark ? 'text-white/60' : 'text-theme-text-muted')}>
+                          {member.experience}
+                        </p>
+                      )}
+
+                      {/* Specializations - Better styled */}
+                      {member.specializations && member.specializations.length > 0 && (
+                        <div className="flex flex-wrap justify-center gap-2 pt-2">
+                          {member.specializations.filter(s => s.specialization).slice(0, 4).map((spec, idx) => (
+                            <span
+                              key={spec.id || idx}
+                              className={cn(
+                                'text-xs px-3 py-1.5 rounded-full font-medium',
+                                'transition-colors duration-300',
+                                isDark
+                                  ? 'bg-white/10 text-white/90 group-hover:bg-theme-accent/20 group-hover:text-theme-accent'
+                                  : 'bg-theme-light text-theme-text-light group-hover:bg-theme-primary/10 group-hover:text-theme-primary'
+                              )}
+                            >
+                              {spec.specialization}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Action Section */}
+                    <div className="mt-6 pt-6 border-t border-dashed border-theme-border/50">
+                      {/* View Profile Button - Always visible when clickable */}
+                      {isClickable && (
+                        <div className={cn(
+                          'flex items-center justify-center gap-2',
+                          'py-3 px-6 rounded-xl',
+                          'transition-all duration-300',
+                          isDark
+                            ? 'bg-white/5 group-hover:bg-theme-accent/20'
+                            : 'bg-theme-light/50 group-hover:bg-theme-primary/10'
+                        )}>
+                          <span className={cn(
+                            'font-semibold text-sm',
+                            'transition-colors duration-300',
+                            isDark
+                              ? 'text-white/80 group-hover:text-theme-accent'
+                              : 'text-theme-text-light group-hover:text-theme-primary'
+                          )}>
+                            Vezi profilul complet
+                          </span>
+                          <svg
+                            className={cn(
+                              'w-5 h-5 transition-all duration-300',
+                              'group-hover:translate-x-1',
+                              isDark
+                                ? 'text-white/60 group-hover:text-theme-accent'
+                                : 'text-theme-text-muted group-hover:text-theme-primary'
+                            )}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                          </svg>
+                        </div>
+                      )}
+
+                      {/* Book Button */}
+                      {showBookButton && member.bookingLink && (
+                        <Link
+                          href={member.bookingLink}
+                          onClick={(e) => e.stopPropagation()}
+                          className={cn(
+                            'inline-flex items-center justify-center gap-2 w-full px-6 py-3 mt-3',
+                            'text-sm font-bold rounded-xl',
+                            'transition-all duration-300 hover:scale-[1.02]',
+                            isDark
+                              ? 'bg-gradient-to-r from-theme-accent to-theme-accent/80 text-theme-text-on-accent hover:shadow-lg hover:shadow-theme-accent/30'
+                              : 'bg-gradient-to-r from-theme-primary to-theme-primary/90 text-theme-text-on-primary hover:shadow-lg hover:shadow-theme-primary/30'
+                          )}
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          {bookButtonText}
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
     </section>

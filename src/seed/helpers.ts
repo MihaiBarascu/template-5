@@ -529,6 +529,12 @@ export async function seedLogo(
   data: {
     type: 'text' | 'image' | 'both';
     text?: string;
+    imageId?: string;
+    imageDarkId?: string;
+    imageLightId?: string;
+    faviconId?: string;
+    height?: number;
+    heightMobile?: number;
   },
 ) {
   await payload.updateGlobal({
@@ -536,9 +542,13 @@ export async function seedLogo(
     data: {
       type: data.type,
       text: data.text,
+      image: data.imageId,
+      imageDark: data.imageDarkId,
+      imageLight: data.imageLightId,
+      favicon: data.faviconId,
       size: {
-        height: 40,
-        heightMobile: 32,
+        height: data.height || 40,
+        heightMobile: data.heightMobile || 32,
       },
     },
   });
@@ -1026,6 +1036,8 @@ export async function seedTestimonials(
     rating?: string;
     featured?: boolean;
     categoryId?: string; // Optional testimonial category ID
+    serviceIds?: string[]; // Link to multiple services (many-to-many)
+    videoUrl?: string; // YouTube/Vimeo URL for video testimonials
   }>,
 ) {
   type RatingType = '1' | '2' | '3' | '4' | '5';
@@ -1039,6 +1051,8 @@ export async function seedTestimonials(
         rating: (testimonial.rating || '5') as RatingType,
         featured: testimonial.featured ?? true,
         category: testimonial.categoryId || undefined,
+        services: testimonial.serviceIds?.length ? testimonial.serviceIds : undefined,
+        videoUrl: testimonial.videoUrl || undefined,
       },
     });
   }
