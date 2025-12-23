@@ -454,6 +454,8 @@ export const BusinessInfo: GlobalConfig = {
                         { label: 'Accent', value: 'accent' },
                         { label: 'Dark', value: 'dark' },
                         { label: 'Gradient', value: 'gradient' },
+                        { label: '🔴 Urgent (roșu)', value: 'urgent' },
+                        { label: '🟢 Success (verde)', value: 'success' },
                       ],
                       admin: { width: '50%' },
                     },

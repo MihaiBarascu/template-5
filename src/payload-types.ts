@@ -2129,7 +2129,7 @@ export interface AnnouncementBarBlock {
     label?: string | null;
     link?: string | null;
   };
-  backgroundColor?: ('primary' | 'red' | 'green' | 'black') | null;
+  backgroundColor?: ('primary' | 'secondary' | 'accent' | 'dark' | 'gradient' | 'urgent' | 'success') | null;
   sticky?: boolean | null;
   id?: string | null;
   blockName?: string | null;
@@ -6316,7 +6316,7 @@ export interface BusinessInfo {
     message?: string | null;
     linkText?: string | null;
     linkUrl?: string | null;
-    backgroundColor?: ('primary' | 'secondary' | 'accent' | 'dark' | 'gradient') | null;
+    backgroundColor?: ('primary' | 'secondary' | 'accent' | 'dark' | 'gradient' | 'urgent' | 'success') | null;
     icon?: ('megaphone' | 'gift' | 'star' | 'fire' | 'sparkles' | 'none') | null;
     dismissible?: boolean | null;
   };

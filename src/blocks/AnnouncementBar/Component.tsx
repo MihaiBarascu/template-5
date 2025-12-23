@@ -183,11 +183,12 @@ export function AnnouncementBarBlock({
   const bgClass =
     {
       primary: 'bg-theme-primary text-theme-text-on-primary',
-      red: 'bg-red-600 text-white',
-      green: 'bg-green-600 text-white',
-      blue: 'bg-blue-600 text-white',
-      black: 'bg-theme-dark text-theme-text-on-dark',
+      secondary: 'bg-theme-secondary text-theme-text-on-secondary',
+      accent: 'bg-theme-accent text-theme-text-on-accent',
+      dark: 'bg-theme-dark text-theme-text-on-dark',
       gradient: 'bg-gradient-to-r from-theme-primary to-theme-accent text-theme-text-on-primary',
+      urgent: 'bg-error text-white',
+      success: 'bg-success text-white',
     }[backgroundColor] || 'bg-theme-primary text-theme-text-on-primary'
 
   const currentMessage = messageList[currentIndex] || messageList[0]
@@ -255,7 +256,7 @@ export function AnnouncementBarBlock({
             {variant === 'with-button' && ctaButton?.link && (
               <a
                 href={ctaButton.link}
-                className="inline-flex items-center justify-center px-4 py-1.5 bg-white text-theme-text rounded text-xs font-medium hover:bg-theme-light transition-colors whitespace-nowrap"
+                className="inline-flex items-center justify-center px-4 py-1.5 bg-theme-surface text-theme-primary rounded text-xs font-medium hover:bg-theme-light hover:text-theme-primary transition-colors whitespace-nowrap shadow-sm"
               >
                 {ctaButton.label || 'Vezi oferta'}
               </a>

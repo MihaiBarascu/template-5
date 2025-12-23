@@ -522,6 +522,9 @@ export async function seedBusinessInfo(
       message?: string;
       linkText?: string;
       linkUrl?: string;
+      backgroundColor?: 'primary' | 'secondary' | 'accent' | 'dark' | 'gradient' | 'urgent' | 'success';
+      icon?: 'megaphone' | 'gift' | 'star' | 'fire' | 'sparkles' | 'none';
+      dismissible?: boolean;
     };
     floatingCta?: {
       enabled?: boolean;

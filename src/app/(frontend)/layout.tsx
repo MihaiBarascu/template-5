@@ -60,7 +60,7 @@ export default async function RootLayout({
     message?: string
     linkText?: string
     linkUrl?: string
-    backgroundColor?: 'primary' | 'secondary' | 'accent' | 'dark' | 'gradient'
+    backgroundColor?: 'primary' | 'secondary' | 'accent' | 'dark' | 'gradient' | 'urgent' | 'success'
     icon?: 'megaphone' | 'gift' | 'star' | 'fire' | 'sparkles' | 'none'
     dismissible?: boolean
   } | undefined
@@ -211,7 +211,7 @@ export default async function RootLayout({
 
             <AdminBar />
             {/* Header is rendered in individual pages via PageWrapper */}
-            <main id="main-content" className="min-h-screen">{children}</main>
+            <main id="main-content" className="relative min-h-screen">{children}</main>
             <Footer data={footerData} businessInfo={businessInfoData} logo={logoData} />
 
             {/* Floating widgets */}

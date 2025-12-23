@@ -9,7 +9,7 @@ interface AnnouncementBarProps {
   message: string
   linkText?: string
   linkUrl?: string
-  backgroundColor?: 'primary' | 'secondary' | 'accent' | 'dark' | 'gradient'
+  backgroundColor?: 'primary' | 'secondary' | 'accent' | 'dark' | 'gradient' | 'urgent' | 'success'
   dismissible?: boolean
   icon?: 'megaphone' | 'gift' | 'star' | 'fire' | 'sparkles' | 'none'
   animated?: boolean
@@ -77,12 +77,14 @@ export function AnnouncementBar({
     accent: 'bg-theme-accent text-theme-text-on-accent',
     dark: 'bg-theme-dark text-theme-text-on-dark',
     gradient: 'bg-gradient-to-r from-theme-primary via-theme-secondary to-theme-accent text-theme-text-on-primary',
+    urgent: 'bg-error text-white',
+    success: 'bg-success text-white',
   }
 
   return (
     <div
       className={cn(
-        'relative py-2.5 px-4 text-center text-sm font-medium',
+        'relative z-[60] py-2.5 px-4 text-center text-sm font-medium',
         bgClasses[backgroundColor],
         animated && 'animate-fade-in'
       )}
