@@ -167,7 +167,7 @@ export async function seedTerapiiEnergetice(payload: Payload) {
     isTransparent: true, // Header transparent overlay peste Video Hero
     transparentTextColor: 'white', // Text alb pe fundal video întunecat
     navItems: terapiiEnergeticeData.navigation,
-    ctaButton: { enabled: false }, // Fără buton CTA în header, ca pe plasturi
+    ctaButton: { enabled: false, label: '', link: '/contact', variant: 'default' }, // Fără buton CTA în header, ca pe plasturi
     topBar: {
       backgroundColor: 'dark',
       layout: 'social-left',
