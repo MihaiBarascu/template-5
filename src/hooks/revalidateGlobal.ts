@@ -20,7 +20,6 @@ export const revalidateGlobal: GlobalAfterChangeHook = ({ doc, req, global }) =>
 
     // Always revalidate the cache tag for this global (matches getCachedGlobal tags)
     const cacheTag = `global_${global.slug}`
-    // Next.js 16 requires cacheLife profile as second argument
     revalidateTag(cacheTag, 'max')
     req.payload.logger.info(`Revalidated cache tag: ${cacheTag}`)
 

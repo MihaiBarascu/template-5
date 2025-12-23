@@ -73,10 +73,13 @@ export const AnnouncementBarBlock: Block = {
           label: 'Culoare fundal',
           defaultValue: 'primary',
           options: [
-            { label: 'Primary', value: 'primary' },
-            { label: 'Rosu', value: 'red' },
-            { label: 'Verde', value: 'green' },
-            { label: 'Negru', value: 'black' },
+            { label: 'Primary (culoarea principală)', value: 'primary' },
+            { label: 'Secondary (culoarea secundară)', value: 'secondary' },
+            { label: 'Accent', value: 'accent' },
+            { label: 'Dark (fundal întunecat)', value: 'dark' },
+            { label: 'Gradient (primary → accent)', value: 'gradient' },
+            { label: '🔴 Urgent (roșu - pentru anunțuri importante)', value: 'urgent' },
+            { label: '🟢 Success (verde - pentru vești bune)', value: 'success' },
           ],
         },
         {

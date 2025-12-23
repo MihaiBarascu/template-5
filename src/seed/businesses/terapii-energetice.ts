@@ -100,9 +100,7 @@ export async function seedTerapiiEnergetice(payload: Payload) {
     buttonTextTransform: 'none',
     buttonFontWeight: '500',
     buttonPadding: 'normal',
-    // Colors
-    useCustomColors: true,
-    colors: variant.theme.colors,
+    // Colors - using 'revital-harmony' variant colors (don't set useCustomColors)
   });
 
   console.log('\n🏢 Setting up business info...');
@@ -129,7 +127,13 @@ export async function seedTerapiiEnergetice(payload: Payload) {
       pulseAnimation: true,
     },
     announcementBar: {
-      enabled: false,
+      enabled: true,
+      message: '🔥 Ofertă Specială: -20% la prima ședință de terapie!',
+      linkText: 'Rezervă acum',
+      linkUrl: '/contact',
+      backgroundColor: 'urgent',
+      icon: 'fire',
+      dismissible: true,
     },
     floatingCta: {
       enabled: true,
