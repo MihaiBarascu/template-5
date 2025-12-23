@@ -101,10 +101,13 @@ export function TeamBlock({
 }: TeamBlockProps) {
   const router = useRouter()
 
-  // Helper to get member detail URL
+  // Helper to get member detail URL - automatic if member has slug
   const getMemberHref = (member: TeamMember): string | null => {
-    if (!detailBasePath || !member.slug) return null
-    const basePath = detailBasePath.startsWith('/') ? detailBasePath : `/${detailBasePath}`
+    if (!member.slug) return null
+    // Use provided detailBasePath or default to /echipa
+    const basePath = detailBasePath
+      ? (detailBasePath.startsWith('/') ? detailBasePath : `/${detailBasePath}`)
+      : '/echipa'
     return `${basePath}/${member.slug}`
   }
 

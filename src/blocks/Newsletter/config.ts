@@ -1,4 +1,6 @@
 import type { Block } from 'payload'
+import { sectionWrapperFields } from '../_shared/sectionWrapperFields'
+import { headingFields, advancedSettingsGroup } from '../_shared/commonFields'
 import { patternField } from '@/fields/patternField'
 
 export const NewsletterBlock: Block = {
@@ -8,10 +10,13 @@ export const NewsletterBlock: Block = {
     singular: 'Newsletter',
     plural: 'Newsletter',
   },
+  imageURL: '/blocks/newsletter.svg',
   fields: [
+    // === ESSENTIAL FIELDS ===
     {
       name: 'variant',
       type: 'select',
+      label: 'Varianta',
       defaultValue: 'simple',
       options: [
         { label: 'Simplu', value: 'simple' },
@@ -21,92 +26,61 @@ export const NewsletterBlock: Block = {
         { label: 'Inline (compact)', value: 'inline' },
       ],
     },
-    // Pattern configuration - visible when variant is 'with-pattern'
-    ...patternField({
-      condition: (_, siblingData) => (siblingData as Record<string, unknown>)?.variant === 'with-pattern',
-    }),
-    {
-      name: 'heading',
-      type: 'text',
-      label: 'Titlu',
-      defaultValue: 'Aboneaza-te la Newsletter',
-    },
-    {
-      name: 'subheading',
-      type: 'textarea',
-      label: 'Descriere',
-      defaultValue: 'Primeste noutati, oferte speciale si sfaturi direct in inbox.',
-    },
-    {
-      name: 'placeholder',
-      type: 'text',
-      label: 'Placeholder input',
-      defaultValue: 'Adresa ta de email',
-    },
-    {
-      name: 'buttonText',
-      type: 'text',
-      label: 'Text buton',
-      defaultValue: 'Aboneaza-te',
-    },
-    {
-      name: 'successMessage',
-      type: 'text',
-      label: 'Mesaj succes',
-      defaultValue: 'Te-ai abonat cu succes! Multumim.',
-    },
+    ...headingFields({ headingDefault: 'Aboneaza-te la Newsletter' }),
     {
       name: 'backgroundImage',
       type: 'upload',
       relationTo: 'media',
-      label: 'Imagine fundal (pentru varianta cu imagine)',
+      label: 'Imagine fundal',
       admin: {
         condition: (_, siblingData) => siblingData?.variant === 'with-image',
       },
     },
-    {
-      name: 'privacyText',
-      type: 'text',
-      label: 'Text privacy',
-      defaultValue: 'Datele tale sunt in siguranta. Nu facem spam.',
-    },
-    {
-      name: 'showPrivacyLink',
-      type: 'checkbox',
-      label: 'Afiseaza link politica confidentialitate',
-      defaultValue: true,
-    },
-    {
-      name: 'requireConsent',
-      type: 'checkbox',
-      label: 'Necesita acord explicit (checkbox GDPR)',
-      defaultValue: false,
-      admin: {
-        description: 'Afiseaza un checkbox pe care utilizatorul trebuie sa-l bifeze inainte de abonare',
-      },
-    },
-    {
-      name: 'consentText',
-      type: 'text',
-      label: 'Text checkbox acord',
-      defaultValue: 'Da, ma abonez la newsletter',
-      admin: {
-        condition: (_, siblingData) => siblingData?.requireConsent,
-      },
-    },
-    {
-      name: 'benefits',
-      type: 'array',
-      label: 'Beneficii (optional)',
-      maxRows: 4,
+    // === ADVANCED SETTINGS (collapsible) ===
+    advancedSettingsGroup({
+      label: 'Setari avansate',
       fields: [
         {
-          name: 'text',
+          name: 'buttonText',
           type: 'text',
-          label: 'Beneficiu',
+          label: 'Text buton',
+          defaultValue: 'Aboneaza-te',
         },
+        {
+          name: 'placeholder',
+          type: 'text',
+          label: 'Placeholder input',
+          defaultValue: 'Adresa ta de email',
+        },
+        {
+          name: 'successMessage',
+          type: 'text',
+          label: 'Mesaj succes',
+          defaultValue: 'Te-ai abonat cu succes! Multumim.',
+        },
+        {
+          name: 'requireConsent',
+          type: 'checkbox',
+          label: 'Necesita acord explicit (checkbox GDPR)',
+          defaultValue: false,
+        },
+        {
+          name: 'consentText',
+          type: 'text',
+          label: 'Text checkbox acord',
+          defaultValue: 'Da, ma abonez la newsletter',
+          admin: {
+            condition: (_, siblingData) => siblingData?.requireConsent,
+          },
+        },
+        // Pattern configuration
+        ...patternField({
+          condition: (_, siblingData) => (siblingData as Record<string, unknown>)?.variant === 'with-pattern',
+        }),
       ],
-    },
+    }),
+    // Section wrapper fields
+    ...sectionWrapperFields,
   ],
 }
 

@@ -24,9 +24,8 @@ export const SiteTheme: GlobalConfig = {
   slug: 'site-theme',
   label: 'Tema Site',
   admin: {
-    description:
-      'Schimba instantaneu aspectul complet al site-ului. Variantele functioneaza pentru orice tip de afacere.',
-    group: 'Design',
+    group: 'Setari Site',
+    description: 'Schimba instantaneu aspectul complet al site-ului. Variantele functioneaza pentru orice tip de afacere.',
   },
   access: {
     read: () => true,

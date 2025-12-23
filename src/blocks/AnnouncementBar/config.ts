@@ -1,4 +1,5 @@
 import type { Block } from 'payload'
+import { advancedSettingsGroup } from '../_shared/commonFields'
 
 export const AnnouncementBarBlock: Block = {
   slug: 'announcementBar',
@@ -9,6 +10,7 @@ export const AnnouncementBarBlock: Block = {
   interfaceName: 'AnnouncementBarBlock',
   imageURL: '/blocks/announcement-bar.svg',
   fields: [
+    // === ESSENTIAL FIELDS ===
     {
       name: 'variant',
       type: 'select',
@@ -17,9 +19,7 @@ export const AnnouncementBarBlock: Block = {
       options: [
         { label: 'Simplu', value: 'simple' },
         { label: 'Cu buton', value: 'with-button' },
-        { label: 'Cu countdown', value: 'countdown' },
         { label: 'Slider (mai multe mesaje)', value: 'slider' },
-        { label: 'Dismissabil', value: 'dismissable' },
       ],
     },
     {
@@ -39,12 +39,6 @@ export const AnnouncementBarBlock: Block = {
           name: 'link',
           type: 'text',
           label: 'Link',
-        },
-        {
-          name: 'linkText',
-          type: 'text',
-          label: 'Text link',
-          defaultValue: 'Afla mai mult',
         },
       ],
     },
@@ -69,85 +63,29 @@ export const AnnouncementBarBlock: Block = {
         },
       ],
     },
-    {
-      name: 'countdown',
-      type: 'group',
-      label: 'Countdown',
-      admin: {
-        condition: (_, siblingData) => siblingData?.variant === 'countdown',
-      },
+    // === ADVANCED SETTINGS (collapsible) ===
+    advancedSettingsGroup({
+      label: 'Setari avansate',
       fields: [
         {
-          name: 'endDate',
-          type: 'date',
-          label: 'Data sfarsit',
-          required: true,
-          admin: {
-            date: {
-              pickerAppearance: 'dayAndTime',
-            },
-          },
+          name: 'backgroundColor',
+          type: 'select',
+          label: 'Culoare fundal',
+          defaultValue: 'primary',
+          options: [
+            { label: 'Primary', value: 'primary' },
+            { label: 'Rosu', value: 'red' },
+            { label: 'Verde', value: 'green' },
+            { label: 'Negru', value: 'black' },
+          ],
         },
         {
-          name: 'expiredText',
-          type: 'text',
-          label: 'Text dupa expirare',
-          defaultValue: 'Oferta a expirat',
+          name: 'sticky',
+          type: 'checkbox',
+          label: 'Sticky (ramane vizibil la scroll)',
+          defaultValue: false,
         },
       ],
-    },
-    {
-      name: 'icon',
-      type: 'select',
-      label: 'Iconiță',
-      defaultValue: 'none',
-      options: [
-        { label: 'Fără iconiță', value: 'none' },
-        { label: '🎁 Cadou', value: 'gift' },
-        { label: '⭐ Stea', value: 'star' },
-        { label: '🔔 Clopoțel', value: 'bell' },
-        { label: '🔥 Foc', value: 'fire' },
-        { label: '✨ Sclipiri', value: 'sparkles' },
-        { label: '📢 Megafon', value: 'megaphone' },
-        { label: '💰 Procent/Reducere', value: 'percent' },
-        { label: '⚖️ Balanță', value: 'scale' },
-        { label: '🏷️ Tag/Etichetă', value: 'tag' },
-        { label: '📣 Anunț', value: 'bullhorn' },
-        { label: '💎 Diamant', value: 'gem' },
-        { label: '🎉 Sărbătoare', value: 'party' },
-        { label: '⏰ Ceas', value: 'clock' },
-        { label: '🚀 Rachetă', value: 'rocket' },
-      ],
-    },
-    {
-      name: 'backgroundColor',
-      type: 'select',
-      label: 'Culoare fundal',
-      defaultValue: 'primary',
-      options: [
-        { label: 'Primary', value: 'primary' },
-        { label: 'Rosu', value: 'red' },
-        { label: 'Verde', value: 'green' },
-        { label: 'Albastru', value: 'blue' },
-        { label: 'Negru', value: 'black' },
-        { label: 'Gradient', value: 'gradient' },
-      ],
-    },
-    {
-      name: 'position',
-      type: 'select',
-      label: 'Pozitie',
-      defaultValue: 'top',
-      options: [
-        { label: 'Sus', value: 'top' },
-        { label: 'Jos', value: 'bottom' },
-      ],
-    },
-    {
-      name: 'sticky',
-      type: 'checkbox',
-      label: 'Sticky (ramane vizibil la scroll)',
-      defaultValue: false,
-    },
+    }),
   ],
 }

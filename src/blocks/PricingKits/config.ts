@@ -1,4 +1,6 @@
 import type { Block } from 'payload'
+import { sectionWrapperFields } from '../_shared/sectionWrapperFields'
+import { headingFields, displayOptionsGroup, advancedSettingsGroup } from '../_shared/commonFields'
 
 export const PricingKitsBlock: Block = {
   slug: 'pricing-kits',
@@ -9,6 +11,7 @@ export const PricingKitsBlock: Block = {
   },
   imageURL: '/blocks/pricing-kits.svg',
   fields: [
+    // === ESSENTIAL FIELDS ===
     {
       name: 'variant',
       type: 'select',
@@ -18,20 +21,9 @@ export const PricingKitsBlock: Block = {
         { label: 'Carduri clasice', value: 'cards' },
         { label: 'Carduri cu imagine', value: 'cards-image' },
         { label: 'Compacte (tabel)', value: 'compact' },
-        { label: 'Highlighted (un card evidentiat)', value: 'highlighted' },
       ],
     },
-    {
-      name: 'heading',
-      type: 'text',
-      label: 'Titlu sectiune',
-      defaultValue: 'Pachete si preturi',
-    },
-    {
-      name: 'subheading',
-      type: 'textarea',
-      label: 'Subtitlu / descriere',
-    },
+    ...headingFields(),
     {
       name: 'kits',
       type: 'array',
@@ -56,17 +48,6 @@ export const PricingKitsBlock: Block = {
           type: 'text',
           label: 'Eticheta pret',
           defaultValue: 'lei',
-          admin: {
-            description: 'Ex: "lei", "RON/luna", "€", etc.',
-          },
-        },
-        {
-          name: 'originalPrice',
-          type: 'number',
-          label: 'Pret original (optional)',
-          admin: {
-            description: 'Pentru a afisa reducere',
-          },
         },
         {
           name: 'description',
@@ -84,12 +65,6 @@ export const PricingKitsBlock: Block = {
               label: 'Caracteristica',
               required: true,
             },
-            {
-              name: 'included',
-              type: 'checkbox',
-              label: 'Inclusa',
-              defaultValue: true,
-            },
           ],
         },
         {
@@ -100,9 +75,6 @@ export const PricingKitsBlock: Block = {
           options: [
             { label: 'Fara', value: 'none' },
             { label: 'Popular', value: 'popular' },
-            { label: 'Best Value', value: 'best-value' },
-            { label: 'Nou', value: 'new' },
-            { label: 'Limitat', value: 'limited' },
             { label: 'Recomandat', value: 'recommended' },
           ],
         },
@@ -126,54 +98,49 @@ export const PricingKitsBlock: Block = {
           ],
         },
         {
-          name: 'image',
-          type: 'upload',
-          relationTo: 'media',
-          label: 'Imagine (optional)',
-          admin: {
-            condition: (_, siblingData) => {
-              // Show only for cards-image variant - this is checked at block level
-              return true
-            },
-          },
-        },
-        {
           name: 'highlighted',
           type: 'checkbox',
-          label: 'Evidentiat (scalat mai mare)',
+          label: 'Evidentiat',
           defaultValue: false,
         },
       ],
     },
-    {
-      name: 'columns',
-      type: 'select',
-      label: 'Numar coloane',
-      defaultValue: 'auto',
-      options: [
-        { label: 'Auto (dupa numar pachete)', value: 'auto' },
-        { label: '2 coloane', value: '2' },
-        { label: '3 coloane', value: '3' },
-        { label: '4 coloane', value: '4' },
+    // === DISPLAY OPTIONS (collapsible) ===
+    displayOptionsGroup({
+      label: 'Optiuni afisare',
+      collapsed: true,
+      fields: [
+        {
+          name: 'columns',
+          type: 'select',
+          label: 'Numar coloane',
+          defaultValue: 'auto',
+          options: [
+            { label: 'Auto', value: 'auto' },
+            { label: '2 coloane', value: '2' },
+            { label: '3 coloane', value: '3' },
+          ],
+        },
       ],
-    },
-    {
-      name: 'showCompareFeatures',
-      type: 'checkbox',
-      label: 'Afiseaza comparatie caracteristici',
-      defaultValue: true,
-    },
-    {
-      name: 'backgroundColor',
-      type: 'select',
-      label: 'Culoare fundal',
-      defaultValue: 'light',
-      options: [
-        { label: 'Default (alb)', value: 'default' },
-        { label: 'Light (gri deschis)', value: 'light' },
-        { label: 'Dark (inchis)', value: 'dark' },
-        { label: 'Primary (accent)', value: 'primary' },
+    }),
+    // === ADVANCED SETTINGS (collapsible) ===
+    advancedSettingsGroup({
+      label: 'Setari avansate',
+      fields: [
+        {
+          name: 'backgroundColor',
+          type: 'select',
+          label: 'Culoare fundal',
+          defaultValue: 'light',
+          options: [
+            { label: 'Default', value: 'default' },
+            { label: 'Light', value: 'light' },
+            { label: 'Dark', value: 'dark' },
+          ],
+        },
       ],
-    },
+    }),
+    // Section wrapper fields
+    ...sectionWrapperFields,
   ],
 }

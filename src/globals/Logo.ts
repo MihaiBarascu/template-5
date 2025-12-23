@@ -5,6 +5,10 @@ import { revalidateGlobal } from '@/hooks/revalidateGlobal'
 export const Logo: GlobalConfig = {
   slug: 'logo',
   label: 'Logo',
+  admin: {
+    group: 'Setari Site',
+    description: 'Logo-ul site-ului: text, imagine sau ambele',
+  },
   access: {
     read: () => true,
     update: authenticated,

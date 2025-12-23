@@ -60,7 +60,6 @@ interface VideoHeroBlockProps {
   carouselAutoplay?: boolean
   carouselSpeed?: number
   carouselShowNavigation?: boolean
-  carouselShowDots?: boolean
   // Common fields
   trustBadges?: TrustBadge[]
   trustBadgesPosition?: 'above' | 'below'
@@ -98,7 +97,7 @@ export function VideoHeroBlock({
   videoUrl,
   videoFile,
   videoPoster,
-  overlayColor = 'rgba(2, 40, 61, 0.5)',
+  overlayColor = 'rgb(0, 0, 0)',
   overlayOpacity = 50,
   headline,
   subheadline,
@@ -110,7 +109,6 @@ export function VideoHeroBlock({
   carouselAutoplay = true,
   carouselSpeed = 6000,
   carouselShowNavigation = true,
-  carouselShowDots = true,
   trustBadges = [],
   trustBadgesPosition = 'below',
   showSocialLinks = false,
@@ -598,24 +596,6 @@ export function VideoHeroBlock({
           </>
         )}
 
-        {/* Slide indicators (dots) */}
-        {carouselShowDots && carouselSlides.length > 1 && (
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-3">
-            {carouselSlides.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => goToSlide(index)}
-                className={cn(
-                  'transition-all duration-300',
-                  index === currentSlide
-                    ? 'w-8 h-2 bg-white rounded-full'
-                    : 'w-2 h-2 bg-white/50 rounded-full hover:bg-white/70'
-                )}
-                aria-label={`Go to slide ${index + 1}`}
-              />
-            ))}
-          </div>
-        )}
 
         {/* Trust Badges */}
         {trustBadges && trustBadges.length > 0 && (
@@ -669,11 +649,11 @@ export function VideoHeroBlock({
           </div>
         )}
 
-        {/* Overlay */}
+        {/* Overlay - uses theme dark color */}
         <div
           className="absolute inset-0"
           style={{
-            backgroundColor: overlayColor,
+            backgroundColor: 'var(--theme-dark)',
             opacity: overlayOpacity / 100,
           }}
         />

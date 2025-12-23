@@ -215,8 +215,16 @@ async function getPosts(block: BlockParams) {
     _status: { equals: 'published' },
   }
 
+  // Handle filterByCategory as array or single value
   if (block.filterByCategory) {
-    where.category = { equals: block.filterByCategory }
+    const categoryIds = Array.isArray(block.filterByCategory)
+      ? block.filterByCategory.map((c) => (typeof c === 'string' ? c : (c as { id: string }).id))
+      : [block.filterByCategory]
+    if (categoryIds.length === 1) {
+      where.category = { equals: categoryIds[0] }
+    } else if (categoryIds.length > 1) {
+      where.category = { in: categoryIds }
+    }
   }
 
   const posts = await payload.find({
@@ -282,8 +290,16 @@ async function getProducts(block: BlockParams, taxSettings?: TaxSettings | null)
   if (block.onlySale) {
     where.salePrice = { exists: true }
   }
+  // Handle filterByCategory as array or single value
   if (block.filterByCategory) {
-    where.category = { equals: block.filterByCategory }
+    const categoryFilter = Array.isArray(block.filterByCategory)
+      ? block.filterByCategory.map((c) => (typeof c === 'string' ? c : c))
+      : [block.filterByCategory]
+    if (categoryFilter.length === 1) {
+      where.category = { equals: categoryFilter[0] }
+    } else if (categoryFilter.length > 1) {
+      where.category = { in: categoryFilter }
+    }
   }
 
   const products = await payload.find({
@@ -320,8 +336,16 @@ async function getServicesForSchedule(block: BlockParams & { filterByDifficulty?
   if (block.onlyFeatured) {
     where.featured = { equals: true }
   }
+  // Handle filterByCategory as array or single value
   if (block.filterByCategory && block.filterByCategory !== 'all') {
-    where.category = { equals: block.filterByCategory }
+    const categoryIds = Array.isArray(block.filterByCategory)
+      ? block.filterByCategory.map((c) => (typeof c === 'string' ? c : (c as { id: string }).id))
+      : [block.filterByCategory]
+    if (categoryIds.length === 1) {
+      where.category = { equals: categoryIds[0] }
+    } else if (categoryIds.length > 1) {
+      where.category = { in: categoryIds }
+    }
   }
   if (block.filterByDifficulty && block.filterByDifficulty !== 'all') {
     where.difficulty = { equals: block.filterByDifficulty }
@@ -533,45 +557,24 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                 onlyFeatured: block.onlyFeatured,
               })
 
-              // Get detailBasePath from block config
-              const teamDetailBasePath = (block as { detailBasePath?: string | null }).detailBasePath ?? null
-
               return (
                 <TeamBlock
                   key={block.id || index}
                   variant={block.variant ?? undefined}
                   heading={block.heading ?? undefined}
                   subheading={block.subheading ?? undefined}
-                  showRole={block.showRole ?? undefined}
-                  showBio={block.showBio ?? undefined}
-                  columns={block.columns ?? undefined}
                   backgroundColor={block.backgroundColor ?? undefined}
                   members={members}
-                  detailBasePath={teamDetailBasePath}
+                  detailBasePath={block.detailBasePath ?? undefined}
                 />
               )
             }
 
             case 'testimonials': {
-              // Extract filterByCategory - can be array of IDs from relationship field
-              const filterByCategory = (block as { filterByCategory?: string | { id: string }[] | null }).filterByCategory
-              const categoryIds: string[] | undefined = filterByCategory
-                ? Array.isArray(filterByCategory)
-                  ? filterByCategory.map(c => typeof c === 'string' ? c : c.id)
-                  : [filterByCategory as string]
-                : undefined
-
-              const groupByCategory = (block as { groupByCategory?: boolean }).groupByCategory
-
-              // Fetch testimonials with optional category filter
               const testimonials = await getTestimonials({
-                limit: groupByCategory ? 100 : block.limit, // Get more if grouping
+                limit: block.limit,
                 onlyFeatured: block.onlyFeatured,
-                filterByCategory: categoryIds,
               })
-
-              // Fetch categories if grouping is enabled
-              const categories = groupByCategory ? await getTestimonialCategories() : undefined
 
               return (
                 <TestimonialsBlock
@@ -579,13 +582,8 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   variant={block.variant ?? undefined}
                   heading={block.heading ?? undefined}
                   subheading={block.subheading ?? undefined}
-                  showRating={block.showRating ?? undefined}
-                  showAvatar={block.showAvatar ?? undefined}
-                  autoplay={block.autoplay ?? undefined}
                   backgroundColor={block.backgroundColor ?? undefined}
                   testimonials={testimonials}
-                  groupByCategory={groupByCategory}
-                  categories={categories}
                 />
               )
             }
@@ -621,7 +619,6 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                     variant={block.variant ?? undefined}
                     heading={block.heading ?? undefined}
                     subheading={block.subheading ?? undefined}
-                    defaultOpen={block.defaultOpen ?? undefined}
                     backgroundColor={block.backgroundColor ?? undefined}
                     faqs={faqs}
                   />
@@ -648,75 +645,44 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
             }
 
             case 'contact': {
-              // ContactInfo block - displays business contact details
-              // For maps, use the Map block
-              // For contact forms, use the Form block
-              // These can be composed using the Content block with columns
+              // ContactInfo block - displays business contact details from SiteSettings
               return (
                 <ContactBlock
                   key={block.id || index}
                   variant={block.variant ?? undefined}
                   heading={block.heading ?? undefined}
                   subheading={block.subheading ?? undefined}
-                  contactInfoItems={block.contactInfoItems ?? undefined}
                   backgroundColor={block.backgroundColor ?? undefined}
-                  labels={block.labels ?? undefined}
                   businessInfo={businessInfo}
                 />
               )
             }
 
             case 'gallery': {
-              // Transform images into a consistent format with full Media objects for high-quality rendering
+              // Transform images from block
               type GalleryImage = {
                 id: string
                 url?: string
                 alt?: string
                 caption?: string
-                category?: string
                 media?: MediaType | null
               }
-              let images: GalleryImage[] = []
 
-              if (block.source === 'portfolio') {
-                const portfolio = await getPortfolioItems(block)
-                images = (portfolio as Portfolio[])
-                  .filter((item) => (item.featuredImage as { url?: string } | null)?.url)
-                  .map((item) => {
-                    const featuredImage = item.featuredImage as MediaType | null
-                    return {
-                      id: item.id,
-                      url: featuredImage?.url ?? '',
-                      alt: featuredImage?.alt || item.title,
-                      media: featuredImage,
-                    }
-                  })
-              } else if (block.images) {
-                images = block.images
-                  .filter((img) => {
-                    const imgData = img.image as { url?: string } | string | null
-                    return imgData && typeof imgData !== 'string' && imgData.url
-                  })
-                  .map((img) => {
-                    const imgData = img.image as MediaType | null
-                    return {
-                      id: img.id || imgData?.id || '',
-                      url: imgData?.url ?? '',
-                      alt: imgData?.alt || img.caption || '',
-                      caption: img.caption || '',
-                      category: img.category || '',
-                      media: imgData,
-                    }
-                  })
-              }
-
-              // Derive columns from variant (grid-3, grid-4, etc.)
-              const columns = block.variant?.includes('3') ? '3' : block.variant?.includes('4') ? '4' : '3'
-
-              // Transform labels from block
-              const galleryLabels = block.labels as {
-                allFilter?: string | null
-              } | undefined
+              const images: GalleryImage[] = (block.images || [])
+                .filter((img) => {
+                  const imgData = img.image as { url?: string } | string | null
+                  return imgData && typeof imgData !== 'string' && imgData.url
+                })
+                .map((img) => {
+                  const imgData = img.image as MediaType | null
+                  return {
+                    id: img.id || imgData?.id || '',
+                    url: imgData?.url ?? '',
+                    alt: imgData?.alt || img.caption || '',
+                    caption: img.caption || '',
+                    media: imgData,
+                  }
+                })
 
               return (
                 <GalleryBlock
@@ -724,15 +690,8 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   variant={block.variant ?? undefined}
                   heading={block.heading ?? undefined}
                   subheading={block.subheading ?? undefined}
-                  columns={columns}
-                  gap={block.gap ?? undefined}
-                  aspectRatio={block.aspectRatio ?? undefined}
-                  lightbox={true}
                   backgroundColor={block.backgroundColor ?? undefined}
                   images={images}
-                  labels={galleryLabels ? {
-                    allFilter: galleryLabels.allFilter ?? undefined,
-                  } : undefined}
                 />
               )
             }
@@ -744,8 +703,16 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                 if (block.onlyFeatured) {
                   where.featured = { equals: true }
                 }
-                if (block.filterByCategory) {
-                  where.category = { equals: block.filterByCategory }
+                // Handle filterByCategory as array from relationship field
+                if (block.filterByCategory && Array.isArray(block.filterByCategory) && block.filterByCategory.length > 0) {
+                  const categoryIds = block.filterByCategory.map((cat) =>
+                    typeof cat === 'string' ? cat : cat.id
+                  )
+                  if (categoryIds.length === 1) {
+                    where.category = { equals: categoryIds[0] }
+                  } else {
+                    where.category = { in: categoryIds }
+                  }
                 }
 
                 const payload = await getPayload({ config: configPromise })
@@ -826,11 +793,14 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
             }
 
             case 'products': {
+              // Extract category IDs from relationship array
+              const categoryIds = block.filterByCategory?.map((cat) =>
+                typeof cat === 'string' ? cat : cat.id
+              )
               const products = await getProducts({
                 limit: block.limit,
                 onlyFeatured: block.onlyFeatured,
-                onlySale: block.onlySale,
-                filterByCategory: typeof block.filterByCategory === 'string' ? block.filterByCategory : undefined,
+                filterByCategory: categoryIds,
               }, taxSettings)
               return (
                 <ProductsBlock
@@ -838,8 +808,6 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   variant={block.variant ?? undefined}
                   heading={block.heading ?? undefined}
                   subheading={block.subheading ?? undefined}
-                  showPrice={block.showPrice ?? undefined}
-                  showAddToCart={block.showAddToCart ?? undefined}
                   ctaButton={block.ctaButton ?? undefined}
                   backgroundColor={block.backgroundColor ?? undefined}
                   products={products}
@@ -893,10 +861,7 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   sideContent={block.sideContent ?? undefined}
                   aspectRatio={block.aspectRatio ?? undefined}
                   autoplay={block.autoplay ?? undefined}
-                  loop={block.loop ?? undefined}
-                  showControls={block.showControls ?? undefined}
                   backgroundColor={block.backgroundColor ?? undefined}
-                  maxWidth={block.maxWidth ?? undefined}
                 />
               )
             }
@@ -911,8 +876,6 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   videos={block.videos ?? undefined}
                   showTitles={block.showTitles ?? undefined}
                   showDuration={block.showDuration ?? undefined}
-                  showCategories={block.showCategories ?? undefined}
-                  aspectRatio={block.aspectRatio ?? undefined}
                   backgroundColor={block.backgroundColor ?? undefined}
                 />
               )
@@ -922,7 +885,6 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
               const priceListServices = block.source === 'services'
                 ? await getServices({
                     limit: block.limit,
-                    filterByCategory: block.filterByCategory,
                   })
                 : []
 
@@ -933,11 +895,8 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   heading={block.heading ?? undefined}
                   subheading={block.subheading ?? undefined}
                   items={block.items ?? undefined}
-                  categories={block.categories ?? undefined}
                   services={priceListServices}
-                  currency={block.currency ?? undefined}
                   showDuration={block.showDuration ?? undefined}
-                  dotStyle={block.dotStyle ?? undefined}
                   backgroundColor={block.backgroundColor ?? undefined}
                   ctaButton={block.ctaButton ?? undefined}
                 />
@@ -969,11 +928,8 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   buttonText={block.buttonText ?? undefined}
                   successMessage={block.successMessage ?? undefined}
                   backgroundImage={block.backgroundImage ?? undefined}
-                  privacyText={block.privacyText ?? undefined}
-                  showPrivacyLink={block.showPrivacyLink ?? undefined}
                   requireConsent={block.requireConsent ?? undefined}
                   consentText={block.consentText ?? undefined}
-                  benefits={block.benefits ?? undefined}
                   pattern={block.pattern ?? undefined}
                 />
               )
@@ -1017,7 +973,6 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   key={block.id || index}
                   variant={block.variant ?? undefined}
                   heading={block.heading ?? undefined}
-                  subheading={block.subheading ?? undefined}
                   logos={block.logos ?? undefined}
                   logoSize={block.logoSize ?? undefined}
                   columns={block.columns ?? undefined}
@@ -1028,9 +983,13 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
             }
 
             case 'latestPosts': {
+              // Extract category IDs from relationship array
+              const categoryIds = block.filterByCategory?.map((cat) =>
+                typeof cat === 'string' ? cat : cat.id
+              )
               const posts = await getPosts({
                 limit: block.limit,
-                filterByCategory: typeof block.filterByCategory === 'string' ? block.filterByCategory : undefined,
+                filterByCategory: categoryIds,
               })
               return (
                 <LatestPostsBlock
@@ -1038,13 +997,6 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   variant={block.variant ?? undefined}
                   heading={block.heading ?? undefined}
                   subheading={block.subheading ?? undefined}
-                  showImage={block.showImage ?? undefined}
-                  showExcerpt={block.showExcerpt ?? undefined}
-                  showDate={block.showDate ?? undefined}
-                  showCategory={block.showCategory ?? undefined}
-                  showAuthor={block.showAuthor ?? undefined}
-                  showReadMore={block.showReadMore ?? undefined}
-                  readMoreText={block.readMoreText ?? undefined}
                   ctaButton={block.ctaButton ?? undefined}
                   backgroundColor={block.backgroundColor ?? undefined}
                   posts={posts}
@@ -1081,9 +1033,7 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   heading={block.heading ?? undefined}
                   subheading={block.subheading ?? undefined}
                   locations={block.locations}
-                  showMap={block.showMap ?? undefined}
                   showSchedule={block.showSchedule ?? undefined}
-                  showRating={block.showRating ?? undefined}
                   backgroundColor={block.backgroundColor ?? undefined}
                 />
               )
@@ -1095,9 +1045,7 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   key={block.id || index}
                   variant={block.variant ?? undefined}
                   heading={block.heading ?? undefined}
-                  subheading={block.subheading ?? undefined}
                   logos={block.logos}
-                  sections={block.sections}
                   grayscale={block.grayscale ?? undefined}
                   logoSize={block.logoSize ?? undefined}
                   backgroundColor={block.backgroundColor ?? undefined}
@@ -1126,10 +1074,7 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   variant={block.variant ?? undefined}
                   messages={block.messages}
                   ctaButton={block.ctaButton ?? undefined}
-                  countdown={block.countdown ?? undefined}
-                  icon={block.icon ?? undefined}
                   backgroundColor={block.backgroundColor ?? undefined}
-                  position={block.position ?? undefined}
                   sticky={block.sticky ?? undefined}
                 />
               )
@@ -1188,16 +1133,6 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                 })
               })
 
-              // Transform labels from block
-              const scheduleLabels = block.labels as {
-                allFilter?: string | null
-                todayBadge?: string | null
-                noClasses?: string | null
-                detailsButton?: string | null
-                timeHeader?: string | null
-                dayLabels?: Record<string, string> | null
-              } | undefined
-
               return (
                 <ScheduleTableBlock
                   key={block.id || index}
@@ -1206,7 +1141,6 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   subheading={block.subheading ?? undefined}
                   showTrainer={block.showTrainer ?? undefined}
                   showDuration={block.showDuration ?? undefined}
-                  showRoom={block.showRoom ?? undefined}
                   showCategoryFilter={block.showCategoryFilter ?? undefined}
                   highlightToday={block.highlightToday ?? undefined}
                   startHour={block.startHour ?? undefined}
@@ -1214,14 +1148,6 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   ctaButton={block.ctaButton ?? undefined}
                   backgroundColor={block.backgroundColor ?? undefined}
                   scheduleEntries={block.source === 'custom' ? (block.customSchedule || []) : scheduleEntries}
-                  labels={scheduleLabels ? {
-                    allFilter: scheduleLabels.allFilter ?? undefined,
-                    todayBadge: scheduleLabels.todayBadge ?? undefined,
-                    noClasses: scheduleLabels.noClasses ?? undefined,
-                    detailsButton: scheduleLabels.detailsButton ?? undefined,
-                    timeHeader: scheduleLabels.timeHeader ?? undefined,
-                    dayLabels: scheduleLabels.dayLabels ?? undefined,
-                  } : undefined}
                 />
               )
             }
@@ -1452,22 +1378,14 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   videoUrl={block.videoUrl ?? undefined}
                   videoFile={block.videoFile ?? undefined}
                   videoPoster={block.videoPoster ?? undefined}
-                  overlayColor={block.overlayColor ?? undefined}
                   overlayOpacity={block.overlayOpacity ?? undefined}
                   headline={block.headline ?? undefined}
                   subheadline={block.subheadline ?? undefined}
                   ctaButtons={block.ctaButtons ?? undefined}
-                  splitTagline={block.splitTagline ?? undefined}
                   splitColumns={block.splitColumns ?? undefined}
-                  splitDivider={block.splitDivider ?? undefined}
                   carouselSlides={block.carouselSlides ?? undefined}
                   carouselAutoplay={block.carouselAutoplay ?? undefined}
                   carouselSpeed={block.carouselSpeed ?? undefined}
-                  carouselShowNavigation={block.carouselShowNavigation ?? undefined}
-                  carouselShowDots={block.carouselShowDots ?? undefined}
-                  trustBadges={block.trustBadges ?? undefined}
-                  trustBadgesPosition={block.trustBadgesPosition ?? undefined}
-                  showSocialLinks={block.showSocialLinks ?? undefined}
                   textAlignment={block.textAlignment ?? undefined}
                   height={block.height ?? undefined}
                   showScrollIndicator={block.showScrollIndicator ?? undefined}
@@ -1501,7 +1419,6 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   subheading={block.subheading ?? undefined}
                   kits={block.kits ?? undefined}
                   columns={block.columns ?? undefined}
-                  showCompareFeatures={block.showCompareFeatures ?? undefined}
                   backgroundColor={block.backgroundColor ?? undefined}
                 />
               )
@@ -1514,7 +1431,6 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                   variant={block.variant ?? undefined}
                   heading={block.heading ?? undefined}
                   links={block.links ?? undefined}
-                  alignment={block.alignment ?? undefined}
                   backgroundColor={block.backgroundColor ?? undefined}
                 />
               )

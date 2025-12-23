@@ -19,6 +19,8 @@ import {
   formTemplates,
   createContactPageLayout,
   buildHeroData,
+  createSeederPage,
+  type FlexibleLayout,
 } from '../helpers'
 import { autoServiceImages, autoServiceData } from '../seed-data'
 import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
@@ -249,7 +251,7 @@ function buildHomepageLayout(variant: DesignVariant) {
       blockType: 'trust-badges',
       variant: 'grid-3',
       source: 'preset',
-      presets: ['warranty', 'experience-years', 'quality', 'fair-price'],
+      presets: ['warranty', 'experience-years', 'quality', 'quality'],
       customValues: {
         experienceYears: 20,
         warrantyPeriod: '2 ani garantie lucrari',
@@ -325,25 +327,10 @@ function buildHomepageLayout(variant: DesignVariant) {
       locations: [
         {
           name: 'AutoPro - Colentina',
-          address: 'Șoseaua Colentina 250',
-          city: 'București',
+          address: 'Șoseaua Colentina 250, București',
           phone: '0722 777 888',
-          email: 'service@autopro.ro',
-          schedule: [
-            { days: 'Luni - Vineri', hours: '08:00 - 18:00' },
-            { days: 'Sâmbătă', hours: '08:00 - 14:00' },
-            { days: 'Duminică', hours: 'Închis' },
-          ],
-          rating: 4.8,
-          ctaButton: {
-            label: 'Programează Service',
-            link: '/programare',
-          },
         },
       ],
-      showRating: true,
-      showSchedule: true,
-      backgroundColor: 'light',
     },
     // NEW: Brand Logos - marci auto
     brandLogos: {
@@ -398,15 +385,11 @@ function buildHomepageLayout(variant: DesignVariant) {
       variant: 'simple',
       messages: [
         {
-          text: '🔧 Verificare GRATUITĂ înainte de drum lung!',
+          text: 'Verificare GRATUITĂ înainte de drum lung!',
           link: '/programare',
-          linkText: 'Programează verificarea',
         },
       ],
-      icon: 'fire',
       backgroundColor: 'red',
-      position: 'top',
-      sticky: false,
     },
     services: {
       blockType: 'services',
@@ -425,7 +408,7 @@ function buildHomepageLayout(variant: DesignVariant) {
       blockType: 'stats',
       variant: 'grid-4',
       source: 'businessInfo',
-      backgroundColor: 'primary',
+      backgroundColor: 'dark',
     },
     team: {
       blockType: 'team',
@@ -500,98 +483,72 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
   const contactFormId = formsMap.get('Formular de contact')
   const bookingFormId = formsMap.get('Cerere programare')
 
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Servicii',
-      slug: 'servicii',
-      heroType: 'minimal',
-      hero: { headline: 'Servicii Auto Complete', subheadline: 'De la revizie la reparatii majore' },
-      layout: [
-        { blockType: 'services', variant: variant.layout.servicesVariant, heading: 'Lista Servicii', source: 'collection', limit: 20, showPrices: true, showIcons: true, backgroundColor: 'default', detailBasePath: '/servicii' },
-        { blockType: 'cta', variant: 'centered', headline: 'Ai nevoie de ajutor?', subheadline: 'Programeaza-te acum', buttons: [{ label: 'Programeaza-te', link: '/programare', variant: 'default' }], backgroundColor: 'light' },
-      ],
-      _status: 'published',
-    },
+  await createSeederPage(payload, {
+    title: 'Servicii',
+    slug: 'servicii',
+    heroType: 'minimal',
+    hero: { headline: 'Servicii Auto Complete', subheadline: 'De la revizie la reparatii majore' },
+    layout: [
+      { blockType: 'services', variant: variant.layout.servicesVariant, heading: 'Lista Servicii', limit: 20, showPrices: true, showIcons: true, backgroundColor: 'default' },
+      { blockType: 'cta', variant: 'centered', headline: 'Ai nevoie de ajutor?', subheadline: 'Programeaza-te acum', buttons: [{ label: 'Programeaza-te', link: '/programare', variant: 'default' }], backgroundColor: 'light' },
+    ],
+    _status: 'published',
   })
   console.log('   Created Services page')
 
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Echipa',
-      slug: 'echipa',
-      heroType: 'minimal',
-      hero: { headline: 'Echipa Noastra', subheadline: 'Mecanici profesionisti' },
-      layout: [
-        { blockType: 'team', variant: variant.layout.teamVariant, heading: 'Mecanicii Nostri', source: 'collection', limit: 20, showRole: true, showBio: true, backgroundColor: 'default' },
-      ],
-      _status: 'published',
-    },
+  await createSeederPage(payload, {
+    title: 'Echipa',
+    slug: 'echipa',
+    heroType: 'minimal',
+    hero: { headline: 'Echipa Noastra', subheadline: 'Mecanici profesionisti' },
+    layout: [
+      { blockType: 'team', variant: variant.layout.teamVariant, heading: 'Mecanicii Nostri', limit: 20, backgroundColor: 'default' },
+    ],
+    _status: 'published',
   })
   console.log('   Created Team page')
 
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Preturi',
-      slug: 'preturi',
-      heroType: 'minimal',
-      hero: { headline: 'Lista de Preturi', subheadline: 'Tarife transparente pentru toate serviciile auto' },
-      layout: [
-        { blockType: 'priceListDotted', variant: 'two-columns', heading: 'Preturi Servicii Auto', source: 'services', limit: 20, showDuration: true, dotStyle: 'dotted', currency: 'RON', backgroundColor: 'default', ctaButton: { show: false } },
-        { blockType: 'cta', variant: 'centered', headline: 'Ai nevoie de o oferta personalizata?', subheadline: 'Contacteaza-ne pentru diagnosticare si deviz gratuit', buttons: [{ label: 'Programeaza-te', link: '/programare', variant: 'default' }], backgroundColor: 'light' },
-      ],
-      _status: 'published',
-    },
+  await createSeederPage(payload, {
+    title: 'Preturi',
+    slug: 'preturi',
+    heroType: 'minimal',
+    hero: { headline: 'Lista de Preturi', subheadline: 'Tarife transparente pentru toate serviciile auto' },
+    layout: [
+      { blockType: 'priceListDotted', variant: 'two-columns', heading: 'Preturi Servicii Auto', limit: 20, backgroundColor: 'default' },
+      { blockType: 'cta', variant: 'centered', headline: 'Ai nevoie de o oferta personalizata?', subheadline: 'Contacteaza-ne pentru diagnosticare si deviz gratuit', buttons: [{ label: 'Programeaza-te', link: '/programare', variant: 'default' }], backgroundColor: 'light' },
+    ],
+    _status: 'published',
   })
   console.log('   Created Prices page')
 
   // Booking page - using FormBlock
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Programare',
-      slug: 'programare',
-      heroType: 'minimal',
-      hero: { headline: 'Programeaza-te Online', subheadline: 'Completeaza formularul' },
-      layout: [
-        ...(bookingFormId ? [{
-          blockType: 'formBlock' as const,
-          form: bookingFormId,
-          enableIntro: true,
-          introContent: {
-            root: {
-              type: 'root' as const,
-              children: [
-                { type: 'heading' as const, tag: 'h3' as const, children: [{ type: 'text' as const, text: 'Cerere Programare', format: 0, detail: 0, mode: 'normal' as const, style: '', version: 1 }], direction: 'ltr' as const, format: '' as const, indent: 0, version: 1 },
-                { type: 'paragraph' as const, children: [{ type: 'text' as const, text: 'Completeaza formularul si te vom contacta pentru confirmare.', format: 0, detail: 0, mode: 'normal' as const, style: '', version: 1 }], direction: 'ltr' as const, format: '' as const, indent: 0, textFormat: 0, version: 1 },
-              ],
-              direction: 'ltr' as const,
-              format: '' as const,
-              indent: 0,
-              version: 1,
-            },
-          },
-        }] : []),
-        { blockType: 'contact' as const, variant: 'minimal' as const, heading: 'Informatii Service', contactInfoItems: { showAddress: true, showPhone: true, showEmail: true, showWorkingHours: true, showSocial: false }, backgroundColor: 'light' as const },
-      ],
-      _status: 'published',
-    },
+  await createSeederPage(payload, {
+    title: 'Programare',
+    slug: 'programare',
+    heroType: 'minimal',
+    hero: { headline: 'Programeaza-te Online', subheadline: 'Completeaza formularul' },
+    layout: [
+      ...(bookingFormId ? [{
+        blockType: 'formBlock',
+        form: bookingFormId,
+        enableIntro: true,
+        heading: 'Cerere Programare',
+        subheading: 'Completeaza formularul si te vom contacta pentru confirmare.',
+      }] : []),
+      { blockType: 'contact', variant: 'compact', heading: 'Informatii Service', backgroundColor: 'light' },
+    ],
+    _status: 'published',
   })
   console.log('   Created Booking page')
 
   // Contact page - 2-column layout
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Contact',
-      slug: 'contact',
-      heroType: 'minimal',
-      hero: { headline: 'Contact', subheadline: 'Suntem aici sa te ajutam' },
-      layout: createContactPageLayout(contactFormId),
-      _status: 'published',
-    },
+  await createSeederPage(payload, {
+    title: 'Contact',
+    slug: 'contact',
+    heroType: 'minimal',
+    hero: { headline: 'Contact', subheadline: 'Suntem aici sa te ajutam' },
+    layout: createContactPageLayout(contactFormId) as FlexibleLayout,
+    _status: 'published',
   })
   console.log('   Created Contact page')
 }

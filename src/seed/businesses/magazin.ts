@@ -21,6 +21,8 @@ import {
   formTemplates,
   createContactPageLayout,
   buildHeroData,
+  createSeederPage,
+  type FlexibleLayout,
 } from '../helpers'
 import { magazinImages, magazinData } from '../seed-data'
 import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
@@ -277,7 +279,7 @@ function buildHomepageLayout(variant: DesignVariant, getImageId: (filename: stri
       blockType: 'trust-badges',
       variant: 'bar',
       source: 'preset',
-      presets: ['free-shipping-threshold', 'return-30', 'secure-payment', 'eco-friendly'],
+      presets: ['free-shipping', 'return-30', 'secure-payment', 'quality'],
       customValues: {
         shippingThreshold: 200,
       },
@@ -336,7 +338,7 @@ function buildHomepageLayout(variant: DesignVariant, getImageId: (filename: stri
         { text: 'Produse noi' },
         { text: 'Sfaturi eco' },
       ],
-      backgroundColor: 'primary',
+      backgroundColor: 'dark',
       // Pattern configuration - diagonal flowing lines like before but configurable
       pattern: {
         enabled: true,
@@ -367,26 +369,12 @@ function buildHomepageLayout(variant: DesignVariant, getImageId: (filename: stri
       locations: [
         {
           name: 'EcoShop Showroom',
-          address: 'Bulevardul Magheru 50',
-          city: 'București',
+          address: 'Bulevardul Magheru 50, București',
           phone: '0722 444 555',
-          email: 'showroom@ecoshop.ro',
           image: getImageId(magazinImages.locations[0]?.filename),
-          schedule: [
-            { days: 'Luni - Vineri', hours: '10:00 - 20:00' },
-            { days: 'Sâmbătă', hours: '10:00 - 18:00' },
-            { days: 'Duminică', hours: '12:00 - 18:00' },
-          ],
-          rating: 4.9,
-          ctaButton: {
-            label: 'Vezi pe Hartă',
-            link: 'https://maps.google.com',
-          },
+          googleMapsLink: 'https://maps.google.com',
         },
       ],
-      showRating: true,
-      showSchedule: true,
-      backgroundColor: 'light',
     },
     // NEW: Brand Logos - branduri eco/naturale
     brandLogos: {
@@ -442,25 +430,19 @@ function buildHomepageLayout(variant: DesignVariant, getImageId: (filename: stri
       variant: 'slider',
       messages: [
         {
-          text: '🚚 Livrare GRATUITĂ la comenzi peste 200 RON!',
+          text: 'Livrare GRATUITĂ la comenzi peste 200 RON!',
           link: '/produse',
-          linkText: 'Cumpără acum',
         },
         {
-          text: '🌿 -20% la toate produsele BIO această săptămână!',
+          text: '-20% la toate produsele BIO această săptămână!',
           link: '/produse?filter=bio',
-          linkText: 'Vezi oferta',
         },
         {
-          text: '⭐ Returnare gratuită în 30 de zile',
+          text: 'Returnare gratuită în 30 de zile',
           link: '/politica-retur',
-          linkText: 'Detalii',
         },
       ],
-      icon: 'tag',
-      backgroundColor: 'primary',
-      position: 'top',
-      sticky: false,
+      backgroundColor: 'green',
     },
     products: {
       blockType: 'products',
@@ -484,7 +466,7 @@ function buildHomepageLayout(variant: DesignVariant, getImageId: (filename: stri
       blockType: 'stats',
       variant: 'grid-4',
       source: 'businessInfo',
-      backgroundColor: 'primary',
+      backgroundColor: 'dark',
     },
     testimonials: {
       blockType: 'testimonials',
@@ -547,229 +529,67 @@ function buildHomepageLayout(variant: DesignVariant, getImageId: (filename: stri
 
 async function createAdditionalPages(payload: Payload, variant: DesignVariant, formsMap: Map<string, string>) {
   const contactFormId = formsMap.get('Formular de contact')
-  // Note: Products page (/produse) is now a dedicated route with filters
-  // No need to create it via CMS pages
 
-  // Categories page
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Categorii',
-      slug: 'categorii',
-      heroType: 'minimal',
-      hero: { headline: 'Categorii Produse', subheadline: 'Exploreaza pe categorii' },
-      layout: [
-        {
-          blockType: 'content',
-          columns: [
-            {
-              width: 'full',
-              contentType: 'richText',
-              richText: {
-                root: {
-                  type: 'root',
-                  children: [
-                    {
-                      type: 'paragraph',
-                      children: [
-                        {
-                          type: 'text',
-                          text: 'Alege o categorie pentru a vedea produsele disponibile.',
-                          format: 0,
-                          detail: 0,
-                          mode: 'normal',
-                          style: '',
-                          version: 1,
-                        },
-                      ],
-                      direction: 'ltr',
-                      format: '',
-                      indent: 0,
-                      textFormat: 0,
-                      version: 1,
-                    },
-                  ],
-                  direction: 'ltr',
-                  format: '',
-                  indent: 0,
-                  version: 1,
-                },
-              },
-            },
-          ],
-          backgroundColor: 'default',
-        },
-      ],
-      _status: 'published',
-    },
+  await createSeederPage(payload, {
+    title: 'Categorii',
+    slug: 'categorii',
+    heroType: 'minimal',
+    hero: { headline: 'Categorii Produse', subheadline: 'Exploreaza pe categorii' },
+    layout: [
+      { blockType: 'content', columns: [{ width: 'full', contentType: 'richText' }], backgroundColor: 'default' },
+    ],
+    _status: 'published',
   })
   console.log('   Created Categories page')
 
-  // About page
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Despre Noi',
-      slug: 'despre',
-      heroType: 'minimal',
-      hero: { headline: 'Despre EcoShop', subheadline: 'Povestea noastra' },
-      layout: [
-        {
-          blockType: 'content',
-          columns: [
-            {
-              width: 'full',
-              contentType: 'richText',
-              richText: {
-                root: {
-                  type: 'root',
-                  children: [
-                    {
-                      type: 'paragraph',
-                      children: [
-                        {
-                          type: 'text',
-                          text: 'EcoShop a fost fondat in 2019 cu o misiune simpla: sa oferim produse naturale, organice si eco-friendly la preturi accesibile. Credem ca fiecare dintre noi poate face alegeri mai bune pentru sanatatea noastra si a planetei.',
-                          format: 0,
-                          detail: 0,
-                          mode: 'normal',
-                          style: '',
-                          version: 1,
-                        },
-                      ],
-                      direction: 'ltr',
-                      format: '',
-                      indent: 0,
-                      textFormat: 0,
-                      version: 1,
-                    },
-                    {
-                      type: 'paragraph',
-                      children: [
-                        {
-                          type: 'text',
-                          text: 'Toate produsele noastre sunt selectate cu grija, de la producatori certificati care respecta standardele cele mai inalte de calitate si sustenabilitate.',
-                          format: 0,
-                          detail: 0,
-                          mode: 'normal',
-                          style: '',
-                          version: 1,
-                        },
-                      ],
-                      direction: 'ltr',
-                      format: '',
-                      indent: 0,
-                      textFormat: 0,
-                      version: 1,
-                    },
-                  ],
-                  direction: 'ltr',
-                  format: '',
-                  indent: 0,
-                  version: 1,
-                },
-              },
-            },
-          ],
-          backgroundColor: 'default',
-        },
-        {
-          blockType: 'stats',
-          variant: 'grid-4',
-          source: 'businessInfo',
-          backgroundColor: 'light',
-        },
-        {
-          blockType: 'testimonials',
-          variant: variant.layout.testimonialsVariant,
-          heading: 'Ce Spun Clientii',
-          source: 'collection',
-          onlyFeatured: true,
-          showRating: true,
-          backgroundColor: 'default',
-        },
-      ],
-      _status: 'published',
-    },
+  await createSeederPage(payload, {
+    title: 'Despre Noi',
+    slug: 'despre',
+    heroType: 'minimal',
+    hero: { headline: 'Despre EcoShop', subheadline: 'Povestea noastra' },
+    layout: [
+      { blockType: 'content', columns: [{ width: 'full', contentType: 'richText' }], backgroundColor: 'default' },
+      { blockType: 'stats', variant: 'grid-4', backgroundColor: 'light' },
+      { blockType: 'testimonials', variant: variant.layout.testimonialsVariant, heading: 'Ce Spun Clientii', onlyFeatured: true, backgroundColor: 'default' },
+    ],
+    _status: 'published',
   })
   console.log('   Created About page')
 
-  // Cart page
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Cos de Cumparaturi',
-      slug: 'cos',
-      heroType: 'minimal',
-      hero: { headline: 'Cosul Tau', subheadline: 'Verifica produsele si finalizeaza comanda' },
-      layout: [
-        {
-          blockType: 'cart',
-          variant: 'full',
-          heading: 'Produsele din cos',
-          showQuantitySelector: true,
-          showRemoveButton: true,
-          showSubtotal: true,
-          checkoutButtonText: 'Finalizeaza Comanda',
-          checkoutLink: '/checkout',
-          emptyCartMessage: 'Cosul tau este gol. Adauga produse pentru a continua.',
-          continueShoppingLink: '/produse',
-          backgroundColor: 'default',
-        },
-      ],
-      _status: 'published',
-    },
+  await createSeederPage(payload, {
+    title: 'Cos de Cumparaturi',
+    slug: 'cos',
+    heroType: 'minimal',
+    hero: { headline: 'Cosul Tau', subheadline: 'Verifica produsele si finalizeaza comanda' },
+    layout: [
+      { blockType: 'cart', variant: 'full', heading: 'Produsele din cos', checkoutButtonText: 'Finalizeaza Comanda', checkoutLink: '/checkout', emptyCartMessage: 'Cosul tau este gol. Adauga produse pentru a continua.', continueShoppingLink: '/produse', backgroundColor: 'default' },
+    ],
+    _status: 'published',
   })
   console.log('   Created Cart page')
 
-  // Checkout page
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Finalizare Comanda',
-      slug: 'checkout',
-      heroType: 'minimal',
-      hero: { headline: 'Finalizare Comanda', subheadline: 'Completeaza datele pentru livrare' },
-      layout: [
-        {
-          blockType: 'checkout',
-          variant: 'full',
-          heading: 'Detalii Comanda',
-          showOrderSummary: true,
-          showShippingOptions: true,
-          showPaymentOptions: true,
-          submitButtonText: 'Plaseaza Comanda',
-          successMessage: 'Multumim pentru comanda! Vei primi un email de confirmare.',
-          backgroundColor: 'light',
-        },
-      ],
-      _status: 'published',
-    },
+  await createSeederPage(payload, {
+    title: 'Finalizare Comanda',
+    slug: 'checkout',
+    heroType: 'minimal',
+    hero: { headline: 'Finalizare Comanda', subheadline: 'Completeaza datele pentru livrare' },
+    layout: [
+      { blockType: 'checkout', variant: 'full', heading: 'Detalii Comanda', submitButtonText: 'Plaseaza Comanda', successMessage: 'Multumim pentru comanda! Vei primi un email de confirmare.', backgroundColor: 'light' },
+    ],
+    _status: 'published',
   })
   console.log('   Created Checkout page')
 
-  // Contact page - 2-column layout
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Contact',
-      slug: 'contact',
-      heroType: 'minimal',
-      hero: { headline: 'Contact', subheadline: 'Suntem aici pentru tine' },
-      layout: [
-        ...(createContactPageLayout(contactFormId) || []),
-        {
-          blockType: 'faq',
-          variant: 'accordion',
-          heading: 'Intrebari Frecvente',
-          source: 'collection',
-          limit: 5,
-          defaultOpen: 'first',
-          backgroundColor: 'default',
-        },
-      ],
-      _status: 'published',
-    },
+  await createSeederPage(payload, {
+    title: 'Contact',
+    slug: 'contact',
+    heroType: 'minimal',
+    hero: { headline: 'Contact', subheadline: 'Suntem aici pentru tine' },
+    layout: [
+      ...(createContactPageLayout(contactFormId) || []) as FlexibleLayout,
+      { blockType: 'faq', variant: 'accordion', heading: 'Intrebari Frecvente', limit: 5, backgroundColor: 'default' },
+    ],
+    _status: 'published',
   })
   console.log('   Created Contact page')
 }

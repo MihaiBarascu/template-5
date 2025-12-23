@@ -1,10 +1,11 @@
 import type { Block } from 'payload'
+import { sectionWrapperFields } from '../_shared/sectionWrapperFields'
 import {
   headingFields,
   ctaButtonFields,
-  backgroundColorField,
   allIconOptions,
-  showNumbersField,
+  displayOptionsGroup,
+  advancedSettingsGroup,
 } from '../_shared/commonFields'
 
 export const HowItWorksBlock: Block = {
@@ -16,6 +17,7 @@ export const HowItWorksBlock: Block = {
   },
   imageURL: '/blocks/how-it-works.svg',
   fields: [
+    // === ESSENTIAL FIELDS ===
     {
       name: 'variant',
       type: 'select',
@@ -69,8 +71,40 @@ export const HowItWorksBlock: Block = {
         },
       ],
     },
-    showNumbersField,
+    // === DISPLAY OPTIONS (collapsible) ===
+    displayOptionsGroup({
+      label: 'Optiuni afisare',
+      collapsed: true,
+      fields: [
+        {
+          name: 'showNumbers',
+          type: 'checkbox',
+          label: 'Afiseaza numerele pasilor',
+          defaultValue: true,
+        },
+      ],
+    }),
+    // CTA Button
     ctaButtonFields(),
-    backgroundColorField(),
+    // === ADVANCED SETTINGS (collapsible) ===
+    advancedSettingsGroup({
+      label: 'Setari avansate',
+      fields: [
+        {
+          name: 'backgroundColor',
+          type: 'select',
+          label: 'Culoare fundal',
+          defaultValue: 'default',
+          options: [
+            { label: 'Default', value: 'default' },
+            { label: 'Light', value: 'light' },
+            { label: 'Dark', value: 'dark' },
+            { label: 'Primary', value: 'primary' },
+          ],
+        },
+      ],
+    }),
+    // Section wrapper fields
+    ...sectionWrapperFields,
   ],
 }

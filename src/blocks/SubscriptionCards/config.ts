@@ -1,4 +1,7 @@
 import type { Block } from 'payload'
+import { sectionWrapperFields } from '../_shared/sectionWrapperFields'
+import { headingFields, ctaButtonFields, displayOptionsGroup, advancedSettingsGroup } from '../_shared/commonFields'
+import { subscriptionsSourceFields } from '../_shared/collectionSourceFields'
 
 export const SubscriptionCardsBlock: Block = {
   slug: 'subscriptionCards',
@@ -9,6 +12,7 @@ export const SubscriptionCardsBlock: Block = {
   },
   imageURL: '/blocks/subscription-cards.svg',
   fields: [
+    // === ESSENTIAL FIELDS ===
     {
       name: 'variant',
       type: 'select',
@@ -22,36 +26,9 @@ export const SubscriptionCardsBlock: Block = {
         { label: 'Tabele comparatie', value: 'table-compare' },
       ],
     },
-    {
-      name: 'heading',
-      type: 'text',
-      label: 'Titlu sectiune',
-    },
-    {
-      name: 'subheading',
-      type: 'textarea',
-      label: 'Subtitlu sectiune',
-    },
-    {
-      name: 'source',
-      type: 'select',
-      label: 'Sursa date',
-      defaultValue: 'collection',
-      options: [
-        { label: 'Din colectia Abonamente', value: 'collection' },
-        { label: 'Selectie manuala', value: 'manual' },
-      ],
-    },
-    {
-      name: 'selectedSubscriptions',
-      type: 'relationship',
-      relationTo: 'subscriptions',
-      hasMany: true,
-      label: 'Abonamente selectate',
-      admin: {
-        condition: (_, siblingData) => siblingData?.source === 'manual',
-      },
-    },
+    ...headingFields(),
+    // Collection source fields
+    ...subscriptionsSourceFields(),
     {
       name: 'filterByType',
       type: 'select',
@@ -70,81 +47,63 @@ export const SubscriptionCardsBlock: Block = {
         condition: (_, siblingData) => siblingData?.source === 'collection',
       },
     },
-    {
-      name: 'limit',
-      type: 'number',
-      label: 'Numar maxim',
-      defaultValue: 4,
-      admin: {
-        condition: (_, siblingData) => siblingData?.source === 'collection',
-      },
-    },
-    {
-      name: 'showImage',
-      type: 'checkbox',
-      label: 'Afiseaza imagine',
-      defaultValue: false,
-    },
-    {
-      name: 'showFeatures',
-      type: 'checkbox',
-      label: 'Afiseaza beneficii',
-      defaultValue: true,
-    },
-    {
-      name: 'showOldPrice',
-      type: 'checkbox',
-      label: 'Afiseaza pret vechi (reduceri)',
-      defaultValue: true,
-    },
-    {
-      name: 'highlightStyle',
-      type: 'select',
-      label: 'Stil highlight',
-      defaultValue: 'border',
-      options: [
-        { label: 'Chenar colorat', value: 'border' },
-        { label: 'Fundal colorat', value: 'background' },
-        { label: 'Efect ridicat', value: 'elevated' },
-        { label: 'Badge', value: 'badge' },
-      ],
-    },
-    {
-      name: 'ctaButton',
-      type: 'group',
-      label: 'Buton CTA global',
+    // === DISPLAY OPTIONS (collapsible) ===
+    displayOptionsGroup({
+      label: 'Optiuni afisare',
+      collapsed: true,
       fields: [
         {
-          name: 'enabled',
+          name: 'showImage',
           type: 'checkbox',
-          label: 'Afiseaza buton',
+          label: 'Afiseaza imagine',
           defaultValue: false,
         },
         {
-          name: 'label',
-          type: 'text',
-          label: 'Text',
-          defaultValue: 'Vezi toate abonamentele',
+          name: 'showFeatures',
+          type: 'checkbox',
+          label: 'Afiseaza beneficii',
+          defaultValue: true,
         },
         {
-          name: 'link',
-          type: 'text',
-          label: 'Link',
-          defaultValue: '/abonamente',
+          name: 'showOldPrice',
+          type: 'checkbox',
+          label: 'Afiseaza pret vechi (reduceri)',
+          defaultValue: true,
+        },
+        {
+          name: 'highlightStyle',
+          type: 'select',
+          label: 'Stil highlight',
+          defaultValue: 'border',
+          options: [
+            { label: 'Chenar colorat', value: 'border' },
+            { label: 'Fundal colorat', value: 'background' },
+            { label: 'Efect ridicat', value: 'elevated' },
+            { label: 'Badge', value: 'badge' },
+          ],
         },
       ],
-    },
-    {
-      name: 'backgroundColor',
-      type: 'select',
-      label: 'Culoare fundal',
-      defaultValue: 'default',
-      options: [
-        { label: 'Default', value: 'default' },
-        { label: 'Light', value: 'light' },
-        { label: 'Dark', value: 'dark' },
-        { label: 'Primary', value: 'primary' },
+    }),
+    // CTA Button
+    ctaButtonFields({ defaultLabel: 'Vezi toate abonamentele', groupLabel: 'Buton CTA global' }),
+    // === ADVANCED SETTINGS (collapsible) ===
+    advancedSettingsGroup({
+      label: 'Setari avansate',
+      fields: [
+        {
+          name: 'backgroundColor',
+          type: 'select',
+          label: 'Culoare fundal',
+          defaultValue: 'default',
+          options: [
+            { label: 'Default', value: 'default' },
+            { label: 'Light', value: 'light' },
+            { label: 'Dark', value: 'dark' },
+          ],
+        },
       ],
-    },
+    }),
+    // Section wrapper fields for advanced layout options
+    ...sectionWrapperFields,
   ],
 }

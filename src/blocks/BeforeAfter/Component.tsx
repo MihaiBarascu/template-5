@@ -314,7 +314,6 @@ export function BeforeAfterBlock({
               beforeImage={items[activeIndex].beforeImage}
               afterImage={items[activeIndex].afterImage}
               title={items[activeIndex].title}
-              description={items[activeIndex].description}
               initialPosition={sliderPosition || 50}
               isDark={isDark}
             />
@@ -359,7 +358,6 @@ export function BeforeAfterBlock({
                 beforeImage={item.beforeImage}
                 afterImage={item.afterImage}
                 title={item.title}
-                description={item.description}
                 isDark={isDark}
               />
             ))}
@@ -381,7 +379,6 @@ export function BeforeAfterBlock({
                         beforeImage={item.beforeImage}
                         afterImage={item.afterImage}
                         title={item.title}
-                        description={item.description}
                         initialPosition={sliderPosition || 50}
                         isDark={isDark}
                       />

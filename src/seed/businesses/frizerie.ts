@@ -20,6 +20,8 @@ import {
   formTemplates,
   createContactPageLayout,
   buildHeroData,
+  createSeederPage,
+  type FlexibleLayout,
 } from '../helpers'
 import { barbershopImages, barbershopData } from '../seed-data'
 import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
@@ -360,25 +362,10 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof barbershopDat
       locations: [
         {
           name: 'Sediul Central',
-          address: 'Calea Victoriei 45',
-          city: 'Bucuresti',
+          address: 'Calea Victoriei 45, Bucuresti',
           phone: '0722 123 456',
-          email: 'contact@barbershop.ro',
-          schedule: [
-            { days: 'Luni - Vineri', hours: '10:00 - 20:00' },
-            { days: 'Sambata', hours: '10:00 - 18:00' },
-            { days: 'Duminica', hours: 'Inchis' },
-          ],
-          rating: 4.9,
-          ctaButton: {
-            label: 'Programeaza-te',
-            link: '/programare',
-          },
         },
       ],
-      showRating: true,
-      showSchedule: true,
-      backgroundColor: 'light',
     },
     // New: Brand Logos - logo-uri parteneri/produse
     brandLogos: {
@@ -435,13 +422,9 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof barbershopDat
         {
           text: 'Reducere 20% la prima vizita!',
           link: '/programare',
-          linkText: 'Programeaza-te acum',
         },
       ],
-      icon: 'percent',
       backgroundColor: 'primary',
-      position: 'top',
-      sticky: false,
     },
     // New: How It Works - customer journey steps
     howItWorks: {
@@ -509,7 +492,7 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof barbershopDat
       blockType: 'stats',
       variant: 'grid-4',
       source: 'businessInfo',
-      backgroundColor: 'primary',
+      backgroundColor: 'dark',
     },
     team: {
       blockType: 'team',
@@ -586,200 +569,102 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof barbershopDat
 // Create additional pages
 async function createAdditionalPages(payload: Payload, variant: DesignVariant, formsMap: Map<string, string>) {
   // Services page
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Servicii',
-      slug: 'servicii',
-      heroType: 'minimal',
-      hero: {
-        headline: 'Serviciile Noastre',
-        subheadline: 'De la tunsori clasice la tratamente premium, oferim tot ce ai nevoie',
-      },
-      layout: [
-        {
-          blockType: 'services',
-          variant: variant.layout.servicesVariant,
-          heading: 'Lista Completa Servicii',
-          source: 'collection',
-          limit: 20,
-          showPrices: true,
-          showIcons: true,
-          backgroundColor: 'default',
-          detailBasePath: '/servicii',
-        },
-        {
-          blockType: 'cta',
-          variant: 'centered',
-          headline: 'Vrei sa te programezi?',
-          subheadline: 'Alege serviciul dorit si programeaza-te online',
-          buttons: [{ label: 'Programeaza-te', link: '/programare', variant: 'default' }],
-          backgroundColor: 'light',
-        },
-      ],
-      _status: 'published',
+  await createSeederPage(payload, {
+    title: 'Servicii',
+    slug: 'servicii',
+    heroType: 'minimal',
+    hero: {
+      headline: 'Serviciile Noastre',
+      subheadline: 'De la tunsori clasice la tratamente premium, oferim tot ce ai nevoie',
     },
+    layout: [
+      { blockType: 'services', variant: variant.layout.servicesVariant, heading: 'Lista Completa Servicii', limit: 20, showPrices: true, showIcons: true, backgroundColor: 'default' },
+      { blockType: 'cta', variant: 'centered', headline: 'Vrei sa te programezi?', subheadline: 'Alege serviciul dorit si programeaza-te online', buttons: [{ label: 'Programeaza-te', link: '/programare', variant: 'default' }], backgroundColor: 'light' },
+    ],
+    _status: 'published',
   })
   console.log('   Created Services page')
 
   // Team page
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Echipa',
-      slug: 'echipa',
-      heroType: 'minimal',
-      hero: {
-        headline: 'Echipa Noastra',
-        subheadline: 'Cunoaste profesionistii care vor avea grija de tine',
-      },
-      layout: [
-        {
-          blockType: 'team',
-          variant: variant.layout.teamVariant,
-          heading: 'Barberii Nostri',
-          subheading: 'Fiecare membru al echipei noastre este un profesionist dedicat meseriei sale',
-          source: 'collection',
-          limit: 20,
-          showRole: true,
-          showBio: true,
-          backgroundColor: 'default',
-        },
-        {
-          blockType: 'cta',
-          variant: 'centered',
-          headline: 'Alege-ti Barberul Preferat',
-          subheadline: 'Programeaza-te acum si alege cu cine vrei sa lucrezi',
-          buttons: [{ label: 'Programeaza-te', link: '/programare', variant: 'default' }],
-          backgroundColor: 'dark',
-        },
-      ],
-      _status: 'published',
+  await createSeederPage(payload, {
+    title: 'Echipa',
+    slug: 'echipa',
+    heroType: 'minimal',
+    hero: {
+      headline: 'Echipa Noastra',
+      subheadline: 'Cunoaste profesionistii care vor avea grija de tine',
     },
+    layout: [
+      { blockType: 'team', variant: variant.layout.teamVariant, heading: 'Barberii Nostri', subheading: 'Fiecare membru al echipei noastre este un profesionist dedicat meseriei sale', limit: 20, backgroundColor: 'default' },
+      { blockType: 'cta', variant: 'centered', headline: 'Alege-ti Barberul Preferat', subheadline: 'Programeaza-te acum si alege cu cine vrei sa lucrezi', buttons: [{ label: 'Programeaza-te', link: '/programare', variant: 'default' }], backgroundColor: 'dark' },
+    ],
+    _status: 'published',
   })
   console.log('   Created Team page')
 
   // Gallery page
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Galerie',
-      slug: 'galerie',
-      heroType: 'minimal',
-      hero: {
-        headline: 'Galerie',
-        subheadline: 'Vezi rezultatele muncii noastre',
-      },
-      layout: [
-        {
-          blockType: 'gallery',
-          variant: variant.layout.galleryVariant,
-          heading: 'Lucrarile Noastre',
-          subheading: 'De la tunsori clasice la stiluri moderne, fiecare client pleaca multumit',
-          source: 'portfolio',
-          limit: 20,
-          
-          backgroundColor: 'default',
-        },
-        {
-          blockType: 'cta',
-          variant: 'centered',
-          headline: 'Iti place ce vezi?',
-          subheadline: 'Programeaza-te si arata-ne ce stil iti doresti',
-          buttons: [{ label: 'Programeaza-te', link: '/programare', variant: 'default' }],
-          backgroundColor: 'primary',
-        },
-      ],
-      _status: 'published',
+  await createSeederPage(payload, {
+    title: 'Galerie',
+    slug: 'galerie',
+    heroType: 'minimal',
+    hero: {
+      headline: 'Galerie',
+      subheadline: 'Vezi rezultatele muncii noastre',
     },
+    layout: [
+      { blockType: 'gallery', variant: variant.layout.galleryVariant, heading: 'Lucrarile Noastre', subheading: 'De la tunsori clasice la stiluri moderne, fiecare client pleaca multumit', limit: 20, backgroundColor: 'default' },
+      { blockType: 'cta', variant: 'centered', headline: 'Iti place ce vezi?', subheadline: 'Programeaza-te si arata-ne ce stil iti doresti', buttons: [{ label: 'Programeaza-te', link: '/programare', variant: 'default' }], backgroundColor: 'dark' },
+    ],
+    _status: 'published',
   })
   console.log('   Created Gallery page')
 
   // Pricing page
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Preturi',
-      slug: 'preturi',
-      heroType: 'minimal',
-      hero: {
-        headline: 'Preturi',
-        subheadline: 'Tarife transparente pentru toate serviciile noastre',
-      },
-      layout: [
-        {
-          blockType: 'subscriptionCards',
-          variant: 'cards-3',
-          heading: 'Pachete si Abonamente',
-          subheading: 'Alege pachetul potrivit pentru tine',
-          source: 'collection',
-          limit: 4,
-          showFeatures: true,
-          showOldPrice: true,
-          backgroundColor: 'default',
-        },
-        {
-          blockType: 'services',
-          variant: 'price-list',
-          heading: 'Lista Completa Preturi Servicii',
-          subheading: 'Toate serviciile noastre cu preturi detaliate',
-          source: 'collection',
-          limit: 20,
-          showPrices: true,
-          backgroundColor: 'light',
-          detailBasePath: '/servicii',
-        },
-      ],
-      _status: 'published',
+  await createSeederPage(payload, {
+    title: 'Preturi',
+    slug: 'preturi',
+    heroType: 'minimal',
+    hero: {
+      headline: 'Preturi',
+      subheadline: 'Tarife transparente pentru toate serviciile noastre',
     },
+    layout: [
+      { blockType: 'subscriptionCards', variant: 'cards-3', heading: 'Pachete si Abonamente', subheading: 'Alege pachetul potrivit pentru tine', limit: 4, backgroundColor: 'default' },
+      { blockType: 'services', variant: 'price-list', heading: 'Lista Completa Preturi Servicii', subheading: 'Toate serviciile noastre cu preturi detaliate', limit: 20, showPrices: true, backgroundColor: 'light' },
+    ],
+    _status: 'published',
   })
   console.log('   Created Pricing page')
 
   // Booking page - uses Form Builder
   const bookingFormId = formsMap.get('Cerere programare')
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Programare',
-      slug: 'programare',
-      heroType: 'minimal',
-      hero: {
-        headline: 'Programeaza-te Online',
-        subheadline: 'Completeaza formularul si te vom contacta pentru confirmare',
-      },
-      layout: bookingFormId
-        ? [
-            {
-              blockType: 'formBlock',
-              form: bookingFormId,
-              variant: 'card',
-              enableIntro: true,
-              heading: 'Cerere de Programare',
-              subheading: 'Alege serviciul dorit, iar noi te vom contacta pentru confirmare',
-              backgroundColor: 'light',
-            },
-          ]
-        : [],
-      _status: 'published',
+  await createSeederPage(payload, {
+    title: 'Programare',
+    slug: 'programare',
+    heroType: 'minimal',
+    hero: {
+      headline: 'Programeaza-te Online',
+      subheadline: 'Completeaza formularul si te vom contacta pentru confirmare',
     },
+    layout: bookingFormId
+      ? [{ blockType: 'formBlock', form: bookingFormId, variant: 'card', enableIntro: true, heading: 'Cerere de Programare', subheading: 'Alege serviciul dorit, iar noi te vom contacta pentru confirmare', backgroundColor: 'light' }]
+      : [],
+    _status: 'published',
   })
   console.log('   Created Booking page')
 
   // Contact page - uses Form Builder with 2-column layout
   const contactFormId = formsMap.get('Formular de contact')
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Contact',
-      slug: 'contact',
-      heroType: 'minimal',
-      hero: {
-        headline: 'Contact',
-        subheadline: 'Suntem aici sa te ajutam. Contacteaza-ne pentru programari sau intrebari.',
-      },
-      layout: createContactPageLayout(contactFormId),
-      _status: 'published',
+  await createSeederPage(payload, {
+    title: 'Contact',
+    slug: 'contact',
+    heroType: 'minimal',
+    hero: {
+      headline: 'Contact',
+      subheadline: 'Suntem aici sa te ajutam. Contacteaza-ne pentru programari sau intrebari.',
     },
+    layout: createContactPageLayout(contactFormId) as FlexibleLayout,
+    _status: 'published',
   })
   console.log('   Created Contact page')
 }

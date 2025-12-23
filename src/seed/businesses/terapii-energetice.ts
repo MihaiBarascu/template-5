@@ -3,6 +3,7 @@ import { getVariant, type DesignVariant } from '../design-variants';
 import {
   createAdminUser,
   createContactPageLayout,
+  createSeederPage,
   formTemplates,
   seedBusinessInfo,
   seedFAQ,
@@ -18,6 +19,7 @@ import {
   seedTestimonialCategories,
   seedTestimonials,
   uploadLocalSeedImages,
+  type FlexibleLayout,
 } from '../helpers';
 import {
   terapiiEnergeticeData,
@@ -485,7 +487,6 @@ async function createPlasturiHomepage(
       variant: 'carousel',
       videoSource: 'url',
       videoUrl: '/videos/hero-home.mp4',
-      overlayColor: 'rgba(26, 26, 46, 0.7)',
       overlayOpacity: 70,
       carouselSlides: [
         {
@@ -497,7 +498,6 @@ async function createPlasturiHomepage(
               label: 'Contacteaza-ne',
               link: '/contact',
               variant: 'primary',
-              pillShape: true,
             },
           ],
         },
@@ -510,15 +510,12 @@ async function createPlasturiHomepage(
               label: 'Mai Multe Informatii',
               link: '/terapii',
               variant: 'secondary',
-              pillShape: true,
             },
           ],
         },
       ],
       carouselAutoplay: true,
       carouselSpeed: 6000,
-      carouselShowNavigation: true,
-      carouselShowDots: false,
       textAlignment: 'left',
       height: 'fullscreen',
       showScrollIndicator: true,
@@ -627,6 +624,49 @@ async function createPlasturiHomepage(
       blockName: 'BIne ai venit',
     },
 
+    // 3. DE CE SĂ ALEGI REVITAL HARMONY - Secțiune din site-ul original
+    {
+      blockType: 'process-steps' as const,
+      variant: 'grid',
+      heading: 'De ce să Alegi Revital Harmony?',
+      subheading:
+        'La Revital Harmony, ne dedicăm în totalitate bunăstării tale',
+      steps: [
+        {
+          title: 'Terapeuți Calificați',
+          description:
+            'Echipa noastră de terapeuți calificați are experiență vastă în domeniul terapiilor energetice și este pregătită să te sprijine în călătoria ta către vindecare și echilibru.',
+          icon: 'Award',
+        },
+        {
+          title: 'Sesiuni Personalizate',
+          description:
+            'Fiecare sesiune este personalizată în funcție de nevoile tale specifice, asigurându-ți o experiență unică și eficientă.',
+          icon: 'Heart',
+        },
+        {
+          title: 'Abordare Holistică',
+          description:
+            'Tratăm persoana, nu doar simptomele. Abordăm aspectele fizice, emoționale și energetice pentru o vindecare completă.',
+          icon: 'Star',
+        },
+        {
+          title: 'Drum Către Armonie',
+          description:
+            'Pasul tău către o viață mai echilibrată și armonioasă începe cu un simplu contact. Suntem aici pentru a răspunde la orice întrebări.',
+          icon: 'Target',
+        },
+      ],
+      showNumbers: false,
+      showConnectors: false,
+      ctaButton: {
+        enabled: true,
+        label: 'Contactează-ne Acum',
+        link: '/contact',
+      },
+      backgroundColor: 'default',
+    },
+
     // 4. SERVICES GRID - Terapii principale
     {
       blockType: 'services' as const,
@@ -712,13 +752,55 @@ async function createPlasturiHomepage(
       source: 'businessInfo',
       showCurrentStatus: false,
       ctaButton: {
+        show: true,
         label: 'Programează-te Acum',
         link: '/contact',
       },
       backgroundColor: 'light',
     },
 
-    // 9. MAP - Locație
+    // 9. CUM SĂ ÎNCEPI - How It Works section from original site
+    {
+      blockType: 'how-it-works' as const,
+      variant: 'timeline',
+      heading: 'Cum să Începi',
+      subheading:
+        'Pasul tău către o viață mai echilibrată și armonioasă începe cu un simplu contact',
+      steps: [
+        {
+          title: 'Contactează-ne',
+          description:
+            'Suntem aici pentru a răspunde la orice întrebări. Sună la 0774 512 905 sau trimite un email pentru a stabili o programare.',
+          icon: 'Phone',
+        },
+        {
+          title: 'Evaluare Personalizată',
+          description:
+            'Discutăm despre nevoile tale și stabilim împreună un plan de terapie personalizat pentru situația ta.',
+          icon: 'ClipboardCheck',
+        },
+        {
+          title: 'Ședința de Terapie',
+          description:
+            'Experimentezi terapia într-un mediu relaxant și profesionist, adaptată nevoilor tale individuale.',
+          icon: 'Heart',
+        },
+        {
+          title: 'Transformare',
+          description:
+            'Te ajutăm cu drag și dedicare să-ți recapeți echilibrul și vitalitatea. Începe călătoria ta către revitalizare!',
+          icon: 'Star',
+        },
+      ],
+      ctaButton: {
+        enabled: true,
+        label: 'Contactează-ne Acum',
+        link: '/contact',
+      },
+      backgroundColor: 'light',
+    },
+
+    // 10. MAP - Locație
     {
       blockType: 'map' as const,
       variant: 'with-info',
@@ -728,7 +810,7 @@ async function createPlasturiHomepage(
       showDirectionsButton: true,
     },
 
-    // 10. FINAL CTA
+    // 11. FINAL CTA
     {
       blockType: 'cta' as const,
       variant: 'centered',
@@ -779,14 +861,12 @@ async function createAdditionalPages(
   const { terapiiCategoryId, cursuriCategoryId, galleryImageIds } = categoryIds;
 
   // Terapii (Services) page - PLASTURI DESIGN with ProcessSteps
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Terapii',
-      slug: 'terapii',
-      _status: 'published',
-      heroType: 'none',
-      layout: [
+  await createSeederPage(payload, {
+    title: 'Terapii',
+    slug: 'terapii',
+    _status: 'published',
+    heroType: 'none',
+    layout: [
         // Mini video hero for services page (Local MP4)
         {
           blockType: 'video-hero' as const,
@@ -928,7 +1008,7 @@ async function createAdditionalPages(
               variant: 'outline',
             },
           ],
-          backgroundColor: 'primary',
+          backgroundColor: 'dark',
         },
       ],
       meta: {
@@ -936,14 +1016,11 @@ async function createAdditionalPages(
         description:
           'Descoperă terapiile energetice: Tehnica Bowen, Access Bars, Facelift Energetic, Reiki și multe altele. Consultație gratuită în București.',
       },
-    },
   });
 
   // Cursuri page - uses services block filtered by Cursuri category (data from seeder)
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Cursuri',
+  await createSeederPage(payload, {
+    title: 'Cursuri',
       slug: 'cursuri',
       _status: 'published',
       heroType: 'none',
@@ -1060,7 +1137,7 @@ async function createAdditionalPages(
               variant: 'outline',
             },
           ],
-          backgroundColor: 'primary',
+          backgroundColor: 'dark',
         },
       ],
       meta: {
@@ -1068,14 +1145,11 @@ async function createAdditionalPages(
         description:
           'Cursuri de certificare Access Bars și Facelift Energetic cu certificare internațională.',
       },
-    },
   });
 
   // Media page
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Media',
+  await createSeederPage(payload, {
+    title: 'Media',
       slug: 'media',
       _status: 'published',
       headerSettings: {
@@ -1106,15 +1180,12 @@ async function createAdditionalPages(
         title: 'Media | Revital Harmony',
         description: 'Video-uri și materiale despre terapiile energetice.',
       },
-    },
   });
 
   // Galerie Foto page - Photos from original site
   if (galleryImageIds.length > 0) {
-    await payload.create({
-      collection: 'pages',
-      data: {
-        title: 'Galerie Foto',
+    await createSeederPage(payload, {
+      title: 'Galerie Foto',
         slug: 'galerie',
         _status: 'published',
         headerSettings: {
@@ -1131,19 +1202,13 @@ async function createAdditionalPages(
         layout: [
           {
             blockType: 'gallery' as const,
-            variant: 'lightbox',
+            variant: 'masonry',
             heading: 'Imagini din Cabinet',
             subheading: 'Explorați spațiul nostru de vindecare și relaxare',
-            source: 'custom',
             images: galleryImageIds.map(img => ({
               image: img.id,
               caption: img.caption,
-              category: img.category,
             })),
-            showCaptions: true,
-            aspectRatio: '4-3',
-            gap: 'medium',
-            backgroundColor: 'default',
           },
           {
             blockType: 'cta' as const,
@@ -1166,15 +1231,12 @@ async function createAdditionalPages(
           description:
             'Galerie foto cu imagini din cabinetul de terapii energetice.',
         },
-      },
     });
   }
 
   // Testimoniale page - Grupate pe categorii (ca pe site-ul original)
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Testimoniale',
+  await createSeederPage(payload, {
+    title: 'Testimoniale',
       slug: 'testimoniale',
       _status: 'published',
       headerSettings: {
@@ -1208,18 +1270,15 @@ async function createAdditionalPages(
         description:
           'Citește experiențele pacienților care au beneficiat de terapiile energetice.',
       },
-    },
   });
 
   // Despre Mine page - PLASTURI DESIGN with Timeline
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Despre Mine',
-      slug: 'despre',
-      _status: 'published',
-      heroType: 'none',
-      layout: [
+  await createSeederPage(payload, {
+    title: 'Despre Mine',
+    slug: 'despre',
+    _status: 'published',
+    heroType: 'none',
+    layout: [
         // Video hero for about page (Local MP4)
         {
           blockType: 'video-hero' as const,
@@ -1334,35 +1393,31 @@ async function createAdditionalPages(
         description:
           'Monica Batir - Psiholog, Terapeut Holistic, Reiki Master, Specialist Access Bars și Facelift Energetic.',
       },
-    },
   });
 
   // Contact page
   const contactLayout = createContactPageLayout(contactFormId);
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Contact',
-      slug: 'contact',
-      _status: 'published',
-      headerSettings: {
-        headerVariant: 'inherit',
-        headerTransparency: 'solid',
-        headerTextColor: 'inherit',
-        headerTopBar: 'inherit',
-      },
-      heroType: 'minimal',
-      hero: {
-        headline: 'Contactează-ne',
-        subheadline:
-          'Suntem aici să te ajutăm. Programează o ședință sau trimite-ne un mesaj.',
-      },
-      layout: contactLayout,
-      meta: {
-        title: 'Contact | Revital Harmony',
-        description:
-          'Contactează Revital Harmony pentru programări și informații.',
-      },
+  await createSeederPage(payload, {
+    title: 'Contact',
+    slug: 'contact',
+    _status: 'published',
+    headerSettings: {
+      headerVariant: 'inherit',
+      headerTransparency: 'solid',
+      headerTextColor: 'inherit',
+      headerTopBar: 'inherit',
+    },
+    heroType: 'minimal',
+    hero: {
+      headline: 'Contactează-ne',
+      subheadline:
+        'Suntem aici să te ajutăm. Programează o ședință sau trimite-ne un mesaj.',
+    },
+    layout: contactLayout || [],
+    meta: {
+      title: 'Contact | Revital Harmony',
+      description:
+        'Contactează Revital Harmony pentru programări și informații.',
     },
   });
 }

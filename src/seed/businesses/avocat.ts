@@ -19,6 +19,8 @@ import {
   formTemplates,
   createContactPageLayout,
   buildHeroData,
+  createSeederPage,
+  type FlexibleLayout,
 } from '../helpers'
 import { avocatImages, avocatData } from '../seed-data'
 import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
@@ -311,31 +313,16 @@ function buildHomepageLayout(variant: DesignVariant) {
     // NEW: Locations - sediu cabinet
     locations: {
       blockType: 'locations',
-      variant: 'minimal',
+      variant: 'cards',
       heading: 'Sediul Cabinetului',
       subheading: 'Te așteptăm pentru consultații',
       locations: [
         {
           name: 'Cabinet Avocat Ionescu',
-          address: 'Bulevardul Decebal 78',
-          city: 'București',
+          address: 'Bulevardul Decebal 78, București',
           phone: '0722 999 000',
-          email: 'cabinet@avocat-ionescu.ro',
-          schedule: [
-            { days: 'Luni - Vineri', hours: '09:00 - 18:00' },
-            { days: 'Sâmbătă', hours: 'Cu programare' },
-            { days: 'Duminică', hours: 'Închis' },
-          ],
-          rating: 5.0,
-          ctaButton: {
-            label: 'Solicită Consultație',
-            link: '/contact',
-          },
         },
       ],
-      showRating: true,
-      showSchedule: true,
-      backgroundColor: 'light',
     },
     // NEW: Brand Logos - asociatii profesionale
     brandLogos: {
@@ -392,7 +379,6 @@ function buildHomepageLayout(variant: DesignVariant) {
         {
           text: 'Prima consultație juridică este GRATUITĂ',
           link: '/contact',
-          linkText: 'Programează acum',
         },
       ],
       ctaButton: {
@@ -400,10 +386,7 @@ function buildHomepageLayout(variant: DesignVariant) {
         label: 'Solicită Consultație Gratuită',
         link: '/contact',
       },
-      icon: 'scale',
-      backgroundColor: 'blue',
-      position: 'top',
-      sticky: false,
+      backgroundColor: 'primary',
     },
     services: {
       blockType: 'services',
@@ -422,7 +405,7 @@ function buildHomepageLayout(variant: DesignVariant) {
       blockType: 'stats',
       variant: 'grid-4',
       source: 'businessInfo',
-      backgroundColor: 'primary',
+      backgroundColor: 'dark',
     },
     team: {
       blockType: 'team',
@@ -494,69 +477,54 @@ function buildHomepageLayout(variant: DesignVariant) {
 }
 
 async function createAdditionalPages(payload: Payload, variant: DesignVariant, formsMap: Map<string, string>) {
-  // Get form IDs
   const contactFormId = formsMap.get('Formular de contact')
 
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Servicii',
-      slug: 'servicii',
-      heroType: 'minimal',
-      hero: { headline: 'Domenii de Practica', subheadline: 'Servicii juridice complete' },
-      layout: [
-        { blockType: 'services', variant: variant.layout.servicesVariant, heading: 'Toate Serviciile', source: 'collection', limit: 20, showPrices: true, showIcons: true, backgroundColor: 'default', detailBasePath: '/servicii' },
-        { blockType: 'cta', variant: 'centered', headline: 'Ai nevoie de ajutor juridic?', buttons: [{ label: 'Contacteaza-ne', link: '/contact', variant: 'default' }], backgroundColor: 'light' },
-      ],
-      _status: 'published',
-    },
+  await createSeederPage(payload, {
+    title: 'Servicii',
+    slug: 'servicii',
+    heroType: 'minimal',
+    hero: { headline: 'Domenii de Practica', subheadline: 'Servicii juridice complete' },
+    layout: [
+      { blockType: 'services', variant: variant.layout.servicesVariant, heading: 'Toate Serviciile', limit: 20, showPrices: true, showIcons: true, backgroundColor: 'default' },
+      { blockType: 'cta', variant: 'centered', headline: 'Ai nevoie de ajutor juridic?', buttons: [{ label: 'Contacteaza-ne', link: '/contact', variant: 'default' }], backgroundColor: 'light' },
+    ],
+    _status: 'published',
   })
   console.log('   Created Services page')
 
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Echipa',
-      slug: 'echipa',
-      heroType: 'minimal',
-      hero: { headline: 'Echipa de Avocati', subheadline: 'Profesionisti cu experienta' },
-      layout: [
-        { blockType: 'team', variant: variant.layout.teamVariant, heading: 'Avocatii Nostri', source: 'collection', limit: 20, showRole: true, showBio: true, backgroundColor: 'default' },
-      ],
-      _status: 'published',
-    },
+  await createSeederPage(payload, {
+    title: 'Echipa',
+    slug: 'echipa',
+    heroType: 'minimal',
+    hero: { headline: 'Echipa de Avocati', subheadline: 'Profesionisti cu experienta' },
+    layout: [
+      { blockType: 'team', variant: variant.layout.teamVariant, heading: 'Avocatii Nostri', limit: 20, backgroundColor: 'default' },
+    ],
+    _status: 'published',
   })
   console.log('   Created Team page')
 
-  // Cazuri (Cases/Portfolio) page - linked from navigation
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Cazuri',
-      slug: 'cazuri',
-      heroType: 'minimal',
-      hero: { headline: 'Cazuri Reprezentative', subheadline: 'Experiente si rezultate din practica noastra' },
-      layout: [
-        { blockType: 'gallery', variant: variant.layout.galleryVariant, heading: 'Domenii de Activitate', subheading: 'Cazuri rezolvate cu succes in diverse domenii juridice', source: 'portfolio', limit: 20, backgroundColor: 'default' },
-        { blockType: 'testimonials', variant: variant.layout.testimonialsVariant, heading: 'Feedback Clienti', subheading: 'Ce spun clientii despre colaborarea cu noi', source: 'collection', showRating: true, backgroundColor: 'light' },
-        { blockType: 'cta', variant: 'centered', headline: 'Ai un caz similar?', subheadline: 'Contacteaza-ne pentru o evaluare gratuita', buttons: [{ label: 'Solicita Consultatie', link: '/contact', variant: 'default' }], backgroundColor: 'dark' },
-      ],
-      _status: 'published',
-    },
+  await createSeederPage(payload, {
+    title: 'Cazuri',
+    slug: 'cazuri',
+    heroType: 'minimal',
+    hero: { headline: 'Cazuri Reprezentative', subheadline: 'Experiente si rezultate din practica noastra' },
+    layout: [
+      { blockType: 'gallery', variant: variant.layout.galleryVariant, heading: 'Domenii de Activitate', subheading: 'Cazuri rezolvate cu succes in diverse domenii juridice', limit: 20, backgroundColor: 'default' },
+      { blockType: 'testimonials', variant: variant.layout.testimonialsVariant, heading: 'Feedback Clienti', subheading: 'Ce spun clientii despre colaborarea cu noi', backgroundColor: 'light' },
+      { blockType: 'cta', variant: 'centered', headline: 'Ai un caz similar?', subheadline: 'Contacteaza-ne pentru o evaluare gratuita', buttons: [{ label: 'Solicita Consultatie', link: '/contact', variant: 'default' }], backgroundColor: 'dark' },
+    ],
+    _status: 'published',
   })
   console.log('   Created Cases page')
 
-  // Contact page - 2-column layout
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Contact',
-      slug: 'contact',
-      heroType: 'minimal',
-      hero: { headline: 'Contact', subheadline: 'Programeaza o consultatie' },
-      layout: createContactPageLayout(contactFormId),
-      _status: 'published',
-    },
+  await createSeederPage(payload, {
+    title: 'Contact',
+    slug: 'contact',
+    heroType: 'minimal',
+    hero: { headline: 'Contact', subheadline: 'Programeaza o consultatie' },
+    layout: createContactPageLayout(contactFormId) as FlexibleLayout,
+    _status: 'published',
   })
   console.log('   Created Contact page')
 }

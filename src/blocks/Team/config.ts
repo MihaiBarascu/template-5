@@ -1,11 +1,7 @@
 import type { Block } from 'payload'
 import { sectionWrapperFields } from '../_shared/sectionWrapperFields'
-import {
-  headingFields,
-  backgroundColorField,
-  columnsSelectField,
-  toggleField,
-} from '../_shared/commonFields'
+import { headingFields, advancedSettingsGroup } from '../_shared/commonFields'
+import { teamSourceFields } from '../_shared/collectionSourceFields'
 
 export const TeamBlock: Block = {
   slug: 'team',
@@ -16,6 +12,7 @@ export const TeamBlock: Block = {
   },
   imageURL: '/blocks/team.svg',
   fields: [
+    // === ESSENTIAL FIELDS ===
     {
       name: 'variant',
       type: 'select',
@@ -23,67 +20,39 @@ export const TeamBlock: Block = {
       defaultValue: 'grid',
       options: [
         { label: 'Grid carduri', value: 'grid' },
-        { label: 'Grid centrat', value: 'grid-centered' },
         { label: 'Carousel', value: 'carousel' },
-        { label: 'Lista', value: 'list' },
-        { label: 'Un membru featured + restul', value: 'featured' },
-        { label: 'Cu modal la click', value: 'with-modal' },
+        { label: 'Featured (profil mare)', value: 'featured' },
       ],
     },
     ...headingFields({ headingDefault: 'Echipa noastra' }),
-    {
-      name: 'source',
-      type: 'select',
-      label: 'Sursa date',
-      defaultValue: 'collection',
-      options: [
-        { label: 'Din colectia Echipa', value: 'collection' },
-        { label: 'Selectie manuala', value: 'manual' },
+    // Collection fields (limit, onlyFeatured)
+    ...teamSourceFields(),
+    // === ADVANCED SETTINGS (collapsible) ===
+    advancedSettingsGroup({
+      label: 'Setari avansate',
+      fields: [
+        {
+          name: 'detailBasePath',
+          type: 'text',
+          label: 'Calea paginii de detalii',
+          admin: {
+            description: 'Ex: /echipa - permite click pe card pentru a vedea profilul complet',
+          },
+        },
+        {
+          name: 'backgroundColor',
+          type: 'select',
+          label: 'Culoare fundal',
+          defaultValue: 'default',
+          options: [
+            { label: 'Default', value: 'default' },
+            { label: 'Light', value: 'light' },
+            { label: 'Dark', value: 'dark' },
+          ],
+        },
       ],
-    },
-    {
-      name: 'selectedMembers',
-      type: 'relationship',
-      relationTo: 'team',
-      hasMany: true,
-      label: 'Membri selectati',
-      admin: {
-        condition: (_, siblingData) => siblingData?.source === 'manual',
-      },
-    },
-    {
-      name: 'limit',
-      type: 'number',
-      label: 'Numar maxim',
-      defaultValue: 4,
-      admin: {
-        condition: (_, siblingData) => siblingData?.source === 'collection',
-      },
-    },
-    {
-      name: 'onlyFeatured',
-      type: 'checkbox',
-      label: 'Doar membri featured',
-      defaultValue: false,
-      admin: {
-        condition: (_, siblingData) => siblingData?.source === 'collection',
-      },
-    },
-    toggleField({ name: 'showRole', label: 'Afiseaza functia', defaultValue: true }),
-    toggleField({ name: 'showBio', label: 'Afiseaza biografie', defaultValue: false }),
-    toggleField({ name: 'showSocial', label: 'Afiseaza social media', defaultValue: true }),
-    toggleField({ name: 'showContact', label: 'Afiseaza contact', defaultValue: false }),
-    {
-      name: 'detailBasePath',
-      type: 'text',
-      label: 'Cale de baza pentru detalii',
-      admin: {
-        description: 'Ex: /echipa - cardurile vor deveni clickable si vor duce la /echipa/slug-membru',
-      },
-    },
-    columnsSelectField({ options: ['2', '3', '4'], defaultValue: '4' }),
-    backgroundColorField({ includePrimary: false }),
-    // Section wrapper fields for advanced layout options
+    }),
+    // Section wrapper fields
     ...sectionWrapperFields,
   ],
 }

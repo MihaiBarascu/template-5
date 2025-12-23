@@ -1,4 +1,6 @@
 import type { Block } from 'payload'
+import { sectionWrapperFields } from '../_shared/sectionWrapperFields'
+import { headingFields, advancedSettingsGroup } from '../_shared/commonFields'
 
 export const OpeningHoursBlock: Block = {
   slug: 'openingHours',
@@ -9,6 +11,7 @@ export const OpeningHoursBlock: Block = {
   interfaceName: 'OpeningHoursBlock',
   imageURL: '/blocks/opening-hours.svg',
   fields: [
+    // === ESSENTIAL FIELDS ===
     {
       name: 'variant',
       type: 'select',
@@ -22,24 +25,14 @@ export const OpeningHoursBlock: Block = {
         { label: 'Inline (o singura linie)', value: 'inline' },
       ],
     },
-    {
-      name: 'heading',
-      type: 'text',
-      label: 'Titlu sectiune',
-      defaultValue: 'Program',
-    },
-    {
-      name: 'subheading',
-      type: 'textarea',
-      label: 'Subtitlu',
-    },
+    ...headingFields({ headingDefault: 'Program' }),
     {
       name: 'source',
       type: 'select',
       label: 'Sursa date',
       defaultValue: 'businessInfo',
       options: [
-        { label: 'Din BusinessInfo', value: 'businessInfo' },
+        { label: 'Din BusinessInfo (automat)', value: 'businessInfo' },
         { label: 'Custom', value: 'custom' },
       ],
     },
@@ -56,24 +49,14 @@ export const OpeningHoursBlock: Block = {
           type: 'text',
           label: 'Zile',
           required: true,
-          admin: {
-            placeholder: 'Ex: Luni - Vineri',
-          },
+          admin: { placeholder: 'Ex: Luni - Vineri' },
         },
         {
           name: 'hours',
           type: 'text',
           label: 'Ore',
           required: true,
-          admin: {
-            placeholder: 'Ex: 09:00 - 18:00',
-          },
-        },
-        {
-          name: 'isClosed',
-          type: 'checkbox',
-          label: 'Inchis',
-          defaultValue: false,
+          admin: { placeholder: 'Ex: 09:00 - 18:00' },
         },
       ],
     },
@@ -86,12 +69,7 @@ export const OpeningHoursBlock: Block = {
         condition: (_, siblingData) => siblingData?.variant === 'with-image',
       },
     },
-    {
-      name: 'showCurrentStatus',
-      type: 'checkbox',
-      label: 'Afiseaza status curent (Deschis/Inchis)',
-      defaultValue: true,
-    },
+    // CTA Button - for 'with-cta' variant
     {
       name: 'ctaButton',
       type: 'group',
@@ -114,17 +92,31 @@ export const OpeningHoursBlock: Block = {
         },
       ],
     },
-    {
-      name: 'backgroundColor',
-      type: 'select',
-      label: 'Culoare fundal',
-      defaultValue: 'default',
-      options: [
-        { label: 'Default', value: 'default' },
-        { label: 'Light', value: 'light' },
-        { label: 'Dark', value: 'dark' },
-        { label: 'Primary', value: 'primary' },
+    // === ADVANCED SETTINGS (collapsible) ===
+    advancedSettingsGroup({
+      label: 'Setari avansate',
+      fields: [
+        {
+          name: 'showCurrentStatus',
+          type: 'checkbox',
+          label: 'Afiseaza status curent (Deschis/Inchis)',
+          defaultValue: true,
+        },
+        {
+          name: 'backgroundColor',
+          type: 'select',
+          label: 'Culoare fundal',
+          defaultValue: 'default',
+          options: [
+            { label: 'Default', value: 'default' },
+            { label: 'Light', value: 'light' },
+            { label: 'Dark', value: 'dark' },
+            { label: 'Primary', value: 'primary' },
+          ],
+        },
       ],
-    },
+    }),
+    // Section wrapper fields
+    ...sectionWrapperFields,
   ],
 }

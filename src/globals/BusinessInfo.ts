@@ -5,6 +5,10 @@ import { revalidateGlobal } from '@/hooks/revalidateGlobal'
 export const BusinessInfo: GlobalConfig = {
   slug: 'business-info',
   label: 'Informatii Business',
+  admin: {
+    group: 'Setari Site',
+    description: 'Informatii despre afacere: contact, program, social media',
+  },
   access: {
     read: () => true,
     update: authenticated,

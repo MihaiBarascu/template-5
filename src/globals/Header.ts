@@ -6,6 +6,10 @@ import { linkFields } from '@/fields/link'
 export const Header: GlobalConfig = {
   slug: 'header',
   label: 'Header',
+  admin: {
+    group: 'Setari Site',
+    description: 'Configurare header: navigatie, logo, top bar',
+  },
   access: {
     read: () => true,
     update: authenticated,

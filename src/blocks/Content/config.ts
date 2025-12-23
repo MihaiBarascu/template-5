@@ -136,39 +136,49 @@ export const ContentBlock: Block = {
       },
       fields: columnFields,
     },
+    // === ADVANCED SETTINGS (collapsible) ===
     {
-      name: 'backgroundColor',
-      type: 'select',
-      label: 'Culoare fundal',
-      defaultValue: 'default',
-      options: [
-        { label: 'Default', value: 'default' },
-        { label: 'Light', value: 'light' },
-        { label: 'Dark', value: 'dark' },
-      ],
-    },
-    {
-      name: 'paddingTop',
-      type: 'select',
-      label: 'Padding sus',
-      defaultValue: 'medium',
-      options: [
-        { label: 'Fara', value: 'none' },
-        { label: 'Mic', value: 'small' },
-        { label: 'Mediu', value: 'medium' },
-        { label: 'Mare', value: 'large' },
-      ],
-    },
-    {
-      name: 'paddingBottom',
-      type: 'select',
-      label: 'Padding jos',
-      defaultValue: 'medium',
-      options: [
-        { label: 'Fara', value: 'none' },
-        { label: 'Mic', value: 'small' },
-        { label: 'Mediu', value: 'medium' },
-        { label: 'Mare', value: 'large' },
+      type: 'collapsible',
+      label: 'Setari avansate',
+      admin: {
+        initCollapsed: true,
+      },
+      fields: [
+        {
+          name: 'backgroundColor',
+          type: 'select',
+          label: 'Culoare fundal',
+          defaultValue: 'default',
+          options: [
+            { label: 'Default', value: 'default' },
+            { label: 'Light', value: 'light' },
+            { label: 'Dark', value: 'dark' },
+          ],
+        },
+        {
+          name: 'paddingTop',
+          type: 'select',
+          label: 'Padding sus',
+          defaultValue: 'medium',
+          options: [
+            { label: 'Fara', value: 'none' },
+            { label: 'Mic', value: 'small' },
+            { label: 'Mediu', value: 'medium' },
+            { label: 'Mare', value: 'large' },
+          ],
+        },
+        {
+          name: 'paddingBottom',
+          type: 'select',
+          label: 'Padding jos',
+          defaultValue: 'medium',
+          options: [
+            { label: 'Fara', value: 'none' },
+            { label: 'Mic', value: 'small' },
+            { label: 'Mediu', value: 'medium' },
+            { label: 'Mare', value: 'large' },
+          ],
+        },
       ],
     },
   ],

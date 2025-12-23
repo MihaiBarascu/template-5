@@ -652,36 +652,50 @@ export default buildConfig({
     url: process.env.DATABASE_URI || '',
   }),
   collections: [
+    // ===== CONTINUT (cele mai folosite) =====
     PagesWithBlocks,
     Posts,
     Media,
+    FAQ,
+
+    // ===== BLOG =====
     Categories,
-    Users,
+
+    // ===== BUSINESS =====
     Services,
     ServiceCategories,
-    // Products is created by ecommerce plugin
     Team,
     Portfolio,
     Testimonials,
     TestimonialCategories,
-    Bookings,
-    FAQ,
-    // ContactSubmissions removed - use Form Builder plugin's form-submissions
+    Subscriptions,
+
+    // ===== SHOP (ecommerce plugin adauga Products & Orders) =====
     ProductCategories,
     ProductTags,
-    NewsletterSubscribers,
-    Subscriptions,
+
+    // ===== OPERATIUNI =====
+    Bookings,
     SubscriptionOrders,
+
+    // ===== MARKETING =====
+    NewsletterSubscribers,
+
+    // ===== ADMINISTRARE =====
+    Users,
   ],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [
-    Header,
-    Footer,
-    SiteTheme,
-    Logo,
-    BusinessInfo,
-    ShopSettings,
-    SystemPages,
+    // Setari Site - in ordinea logica de configurare
+    SiteTheme,      // 1. Tema si design
+    Logo,           // 2. Logo
+    Header,         // 3. Header/navigatie
+    Footer,         // 4. Footer
+    BusinessInfo,   // 5. Informatii business
+    SystemPages,    // 6. Pagini sistem
+
+    // Setari Magazin
+    ShopSettings,   // 7. Configurare magazin
   ],
   plugins: [
     ...plugins,

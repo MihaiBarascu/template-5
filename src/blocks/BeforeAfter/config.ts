@@ -1,4 +1,6 @@
 import type { Block } from 'payload'
+import { sectionWrapperFields } from '../_shared/sectionWrapperFields'
+import { headingFields, advancedSettingsGroup } from '../_shared/commonFields'
 
 export const BeforeAfterBlock: Block = {
   slug: 'beforeAfter',
@@ -9,45 +11,19 @@ export const BeforeAfterBlock: Block = {
   imageURL: '/blocks/before-after.svg',
   interfaceName: 'BeforeAfterBlock',
   fields: [
+    // === ESSENTIAL FIELDS ===
     {
-      type: 'row',
-      fields: [
-        {
-          name: 'variant',
-          type: 'select',
-          label: 'Varianta',
-          defaultValue: 'slider',
-          options: [
-            { label: 'Slider interactiv', value: 'slider' },
-            { label: 'Grid side-by-side', value: 'grid' },
-            { label: 'Carousel', value: 'carousel' },
-          ],
-          admin: { width: '50%' },
-        },
-        {
-          name: 'backgroundColor',
-          type: 'select',
-          label: 'Fundal',
-          defaultValue: 'default',
-          options: [
-            { label: 'Default', value: 'default' },
-            { label: 'Light', value: 'light' },
-            { label: 'Dark', value: 'dark' },
-          ],
-          admin: { width: '50%' },
-        },
+      name: 'variant',
+      type: 'select',
+      label: 'Varianta',
+      defaultValue: 'slider',
+      options: [
+        { label: 'Slider interactiv', value: 'slider' },
+        { label: 'Grid side-by-side', value: 'grid' },
+        { label: 'Carousel', value: 'carousel' },
       ],
     },
-    {
-      name: 'heading',
-      type: 'text',
-      label: 'Titlu sectiune',
-    },
-    {
-      name: 'subheading',
-      type: 'textarea',
-      label: 'Subtitlu',
-    },
+    ...headingFields(),
     {
       name: 'items',
       type: 'array',
@@ -80,28 +56,38 @@ export const BeforeAfterBlock: Block = {
           name: 'title',
           type: 'text',
           label: 'Titlu (optional)',
-          admin: {
-            description: 'Ex: Tunsoare Fade, Tratament Albire',
-          },
-        },
-        {
-          name: 'description',
-          type: 'textarea',
-          label: 'Descriere (optional)',
         },
       ],
     },
-    {
-      name: 'sliderPosition',
-      type: 'number',
-      label: 'Pozitie initiala slider (%)',
-      defaultValue: 50,
-      min: 10,
-      max: 90,
-      admin: {
-        condition: (_, siblingData) => siblingData?.variant === 'slider',
-        description: 'Procentajul de la stanga (50 = centrat)',
-      },
-    },
+    // === ADVANCED SETTINGS (collapsible) ===
+    advancedSettingsGroup({
+      label: 'Setari avansate',
+      fields: [
+        {
+          name: 'sliderPosition',
+          type: 'number',
+          label: 'Pozitie initiala slider (%)',
+          defaultValue: 50,
+          min: 10,
+          max: 90,
+          admin: {
+            condition: (_, siblingData) => siblingData?.variant === 'slider',
+          },
+        },
+        {
+          name: 'backgroundColor',
+          type: 'select',
+          label: 'Culoare fundal',
+          defaultValue: 'default',
+          options: [
+            { label: 'Default', value: 'default' },
+            { label: 'Light', value: 'light' },
+            { label: 'Dark', value: 'dark' },
+          ],
+        },
+      ],
+    }),
+    // Section wrapper fields
+    ...sectionWrapperFields,
   ],
 }

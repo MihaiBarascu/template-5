@@ -20,6 +20,8 @@ import {
   formTemplates,
   createContactPageLayout,
   buildHeroData,
+  createSeederPage,
+  type FlexibleLayout,
 } from '../helpers'
 import path from 'path'
 import { restaurantImages, restaurantData } from '../seed-data'
@@ -382,7 +384,7 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof restaurantDat
       blockType: 'trust-badges',
       variant: 'inline',
       source: 'preset',
-      presets: ['quality', 'experience-years', 'happy-customers', 'eco-friendly'],
+      presets: ['quality', 'experience-years', 'happy-customers', 'quality'],
       customValues: {
         experienceYears: 15,
         happyCustomersCount: '50000+',
@@ -457,27 +459,11 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof restaurantDat
       locations: [
         {
           name: 'Restaurant La Copac - Centru',
-          address: 'Strada Lipscani 45',
-          city: 'București',
+          address: 'Strada Lipscani 45, București',
           phone: '0722 333 444',
-          email: 'rezervari@lacopac.ro',
-          schedule: [
-            { days: 'Luni - Joi', hours: '11:00 - 23:00' },
-            { days: 'Vineri - Sâmbătă', hours: '11:00 - 01:00' },
-            { days: 'Duminică', hours: '12:00 - 22:00' },
-          ],
-          rating: 4.8,
           googleMapsLink: 'https://maps.google.com',
-          ctaButton: {
-            label: 'Rezervă Masă',
-            link: '/rezervare',
-          },
         },
       ],
-      showMap: true,
-      showRating: true,
-      showSchedule: true,
-      backgroundColor: 'light',
     },
     // NEW: Brand Logos - furnizori si parteneri
     brandLogos: {
@@ -534,13 +520,9 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof restaurantDat
         {
           text: 'Meniu de prânz 49 RON - disponibil Luni-Vineri!',
           link: '/meniu',
-          linkText: 'Vezi meniul',
         },
       ],
-      icon: 'megaphone',
       backgroundColor: 'primary',
-      position: 'top',
-      sticky: false,
     },
     services: {
       blockType: 'services',
@@ -559,7 +541,7 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof restaurantDat
       blockType: 'stats',
       variant: 'grid-4',
       source: 'businessInfo',
-      backgroundColor: 'primary',
+      backgroundColor: 'dark',
     },
     team: {
       blockType: 'team',
@@ -637,175 +619,66 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
   const contactFormId = formsMap.get('Formular de contact')
   const bookingFormId = formsMap.get('Cerere programare')
 
-  // Menu page
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Meniu',
-      slug: 'meniu',
-      heroType: 'minimal',
-      hero: {
-        headline: 'Meniul Nostru',
-        subheadline: 'Preparate traditionale si moderne pentru toate gusturile',
-      },
-      layout: [
-        {
-          blockType: 'services',
-          variant: variant.layout.servicesVariant,
-          heading: 'Toate Preparatele',
-          source: 'collection',
-          limit: 20,
-          showPrices: true,
-          showIcons: true,
-          backgroundColor: 'default',
-          detailBasePath: '/meniu',
-        },
-        {
-          blockType: 'cta',
-          variant: 'centered',
-          headline: 'Ai gasit ce iti doresti?',
-          subheadline: 'Rezerva o masa si bucura-te de preparatele noastre',
-          buttons: [{ label: 'Rezerva Masa', link: '/rezervare', variant: 'default' }],
-          backgroundColor: 'light',
-        },
-      ],
-      _status: 'published',
-    },
+  await createSeederPage(payload, {
+    title: 'Meniu',
+    slug: 'meniu',
+    heroType: 'minimal',
+    hero: { headline: 'Meniul Nostru', subheadline: 'Preparate traditionale si moderne pentru toate gusturile' },
+    layout: [
+      { blockType: 'services', variant: variant.layout.servicesVariant, heading: 'Toate Preparatele', limit: 20, showPrices: true, showIcons: true, backgroundColor: 'default' },
+      { blockType: 'cta', variant: 'centered', headline: 'Ai gasit ce iti doresti?', subheadline: 'Rezerva o masa si bucura-te de preparatele noastre', buttons: [{ label: 'Rezerva Masa', link: '/rezervare', variant: 'default' }], backgroundColor: 'light' },
+    ],
+    _status: 'published',
   })
   console.log('   Created Menu page')
 
-  // Gallery page
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Galerie',
-      slug: 'galerie',
-      heroType: 'minimal',
-      hero: {
-        headline: 'Galerie',
-        subheadline: 'Imagini din restaurantul nostru',
-      },
-      layout: [
-        {
-          blockType: 'gallery',
-          variant: variant.layout.galleryVariant,
-          heading: 'Atmosfera Restaurantului',
-          subheading: 'Un loc unde gustul intalneste eleganta',
-          source: 'portfolio',
-          limit: 20,
-          
-          backgroundColor: 'default',
-        },
-        {
-          blockType: 'cta',
-          variant: 'centered',
-          headline: 'Vino sa ne vizitezi!',
-          subheadline: 'Rezerva o masa si descopera atmosfera noastra unica',
-          buttons: [{ label: 'Rezerva Masa', link: '/rezervare', variant: 'default' }],
-          backgroundColor: 'primary',
-        },
-      ],
-      _status: 'published',
-    },
+  await createSeederPage(payload, {
+    title: 'Galerie',
+    slug: 'galerie',
+    heroType: 'minimal',
+    hero: { headline: 'Galerie', subheadline: 'Imagini din restaurantul nostru' },
+    layout: [
+      { blockType: 'gallery', variant: variant.layout.galleryVariant, heading: 'Atmosfera Restaurantului', subheading: 'Un loc unde gustul intalneste eleganta', limit: 20, backgroundColor: 'default' },
+      { blockType: 'cta', variant: 'centered', headline: 'Vino sa ne vizitezi!', subheadline: 'Rezerva o masa si descopera atmosfera noastra unica', buttons: [{ label: 'Rezerva Masa', link: '/rezervare', variant: 'default' }], backgroundColor: 'dark' },
+    ],
+    _status: 'published',
   })
   console.log('   Created Gallery page')
 
-  // About page
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Despre Noi',
-      slug: 'despre',
-      heroType: 'minimal',
-      hero: {
-        headline: 'Despre Noi',
-        subheadline: 'Povestea noastra si pasiunea pentru gastronomie',
-      },
-      layout: [
-        {
-          blockType: 'team',
-          variant: variant.layout.teamVariant,
-          heading: 'Echipa Noastra',
-          subheading: 'Oamenii din spatele preparatelor delicioase',
-          source: 'collection',
-          limit: 20,
-          showRole: true,
-          showBio: true,
-          backgroundColor: 'default',
-        },
-        {
-          blockType: 'stats',
-          variant: 'grid-4',
-          source: 'businessInfo',
-          backgroundColor: 'primary',
-        },
-        {
-          blockType: 'testimonials',
-          variant: variant.layout.testimonialsVariant,
-          heading: 'Pareri Clienti',
-          subheading: 'Ce spun oaspetii nostri',
-          source: 'collection',
-          onlyFeatured: true,
-          showRating: true,
-          backgroundColor: 'light',
-        },
-      ],
-      _status: 'published',
-    },
+  await createSeederPage(payload, {
+    title: 'Despre Noi',
+    slug: 'despre',
+    heroType: 'minimal',
+    hero: { headline: 'Despre Noi', subheadline: 'Povestea noastra si pasiunea pentru gastronomie' },
+    layout: [
+      { blockType: 'team', variant: variant.layout.teamVariant, heading: 'Echipa Noastra', subheading: 'Oamenii din spatele preparatelor delicioase', limit: 20, backgroundColor: 'default' },
+      { blockType: 'stats', variant: 'grid-4', backgroundColor: 'dark' },
+      { blockType: 'testimonials', variant: variant.layout.testimonialsVariant, heading: 'Pareri Clienti', subheading: 'Ce spun oaspetii nostri', onlyFeatured: true, backgroundColor: 'light' },
+    ],
+    _status: 'published',
   })
   console.log('   Created About page')
 
-  // Reservation page - using FormBlock
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Rezervare',
-      slug: 'rezervare',
-      heroType: 'minimal',
-      hero: {
-        headline: 'Rezerva o Masa',
-        subheadline: 'Completeaza formularul si te vom contacta pentru confirmare',
-      },
-      layout: [
-        ...(bookingFormId ? [{
-          blockType: 'formBlock' as const,
-          form: bookingFormId,
-          enableIntro: true,
-          introContent: {
-            root: {
-              type: 'root' as const,
-              children: [
-                { type: 'heading' as const, tag: 'h3' as const, children: [{ type: 'text' as const, text: 'Formular Rezervare', format: 0, detail: 0, mode: 'normal' as const, style: '', version: 1 }], direction: 'ltr' as const, format: '' as const, indent: 0, version: 1 },
-                { type: 'paragraph' as const, children: [{ type: 'text' as const, text: 'Alege data si numarul de persoane.', format: 0, detail: 0, mode: 'normal' as const, style: '', version: 1 }], direction: 'ltr' as const, format: '' as const, indent: 0, textFormat: 0, version: 1 },
-              ],
-              direction: 'ltr' as const,
-              format: '' as const,
-              indent: 0,
-              version: 1,
-            },
-          },
-        }] : []),
-        { blockType: 'contact' as const, variant: 'minimal' as const, heading: 'Informatii Restaurant', contactInfoItems: { showAddress: true, showPhone: true, showEmail: true, showWorkingHours: true, showSocial: false }, backgroundColor: 'light' as const },
-      ],
-      _status: 'published',
-    },
+  await createSeederPage(payload, {
+    title: 'Rezervare',
+    slug: 'rezervare',
+    heroType: 'minimal',
+    hero: { headline: 'Rezerva o Masa', subheadline: 'Completeaza formularul si te vom contacta pentru confirmare' },
+    layout: [
+      ...(bookingFormId ? [{ blockType: 'formBlock', form: bookingFormId, enableIntro: true, heading: 'Formular Rezervare', subheading: 'Alege data si numarul de persoane.' }] : []),
+      { blockType: 'contact', variant: 'compact', heading: 'Informatii Restaurant', backgroundColor: 'light' },
+    ],
+    _status: 'published',
   })
   console.log('   Created Reservation page')
 
-  // Contact page - 2-column layout
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Contact',
-      slug: 'contact',
-      heroType: 'minimal',
-      hero: {
-        headline: 'Contact',
-        subheadline: 'Suntem aici pentru tine. Contacteaza-ne pentru rezervari sau intrebari.',
-      },
-      layout: createContactPageLayout(contactFormId),
-      _status: 'published',
-    },
+  await createSeederPage(payload, {
+    title: 'Contact',
+    slug: 'contact',
+    heroType: 'minimal',
+    hero: { headline: 'Contact', subheadline: 'Suntem aici pentru tine. Contacteaza-ne pentru rezervari sau intrebari.' },
+    layout: createContactPageLayout(contactFormId) as FlexibleLayout,
+    _status: 'published',
   })
   console.log('   Created Contact page')
 }

@@ -104,9 +104,9 @@ export interface DesignVariant {
   }
   layout: {
     sections: string[] // Order of sections on homepage
-    servicesVariant: 'grid-3' | 'grid-4' | 'list' | 'grid-2' | 'list-alternating' | 'price-list'
-    teamVariant: 'grid' | 'grid-centered' | 'list' | 'carousel'
-    testimonialsVariant: 'carousel' | 'grid' | 'masonry' | 'single-featured' | 'minimal' | 'cards-rotating'
+    servicesVariant: 'grid-3' | 'grid-2' | 'list' | 'price-list'
+    teamVariant: 'grid' | 'carousel'
+    testimonialsVariant: 'carousel' | 'grid'
     galleryVariant: 'grid-3' | 'grid-4' | 'masonry' | 'carousel'
     pricingVariant: 'cards-3' | 'cards-4' | 'table' | 'list' | 'toggle' | 'featured-center'
   }
@@ -204,7 +204,7 @@ export const barbershopVariants: DesignVariant[] = [
     layout: {
       sections: ['services', 'openingHours', 'locations', 'team', 'stats', 'gallery', 'testimonials', 'cta'],
       servicesVariant: 'price-list',
-      teamVariant: 'grid-centered',
+      teamVariant: 'grid',
       testimonialsVariant: 'grid',
       galleryVariant: 'grid-4',
       pricingVariant: 'cards-4',
@@ -251,8 +251,8 @@ export const barbershopVariants: DesignVariant[] = [
     layout: {
       sections: ['stats', 'services', 'openingHours', 'timeline', 'team', 'gallery', 'testimonials', 'faq', 'cta'],
       servicesVariant: 'list',
-      teamVariant: 'list',
-      testimonialsVariant: 'single-featured',
+      teamVariant: 'carousel',
+      testimonialsVariant: 'carousel',
       galleryVariant: 'masonry',
       pricingVariant: 'table',
     },
@@ -297,7 +297,7 @@ export const barbershopVariants: DesignVariant[] = [
     },
     layout: {
       sections: ['services', 'openingHours', 'team', 'testimonials', 'cta'],
-      servicesVariant: 'grid-4',
+      servicesVariant: 'grid-3',
       teamVariant: 'grid',
       testimonialsVariant: 'carousel',
       galleryVariant: 'grid-3',
@@ -337,9 +337,9 @@ export const barbershopVariants: DesignVariant[] = [
     },
     layout: {
       sections: ['services', 'locations', 'stats', 'gallery', 'team', 'testimonials', 'faq', 'cta'],
-      servicesVariant: 'grid-4',
+      servicesVariant: 'grid-3',
       teamVariant: 'carousel',
-      testimonialsVariant: 'masonry',
+      testimonialsVariant: 'carousel',
       galleryVariant: 'carousel',
       pricingVariant: 'cards-3',
     },
@@ -424,7 +424,7 @@ export const dentistVariants: DesignVariant[] = [
     layout: {
       sections: ['stats', 'services', 'openingHours', 'locations', 'team', 'gallery', 'testimonials', 'cta'],
       servicesVariant: 'price-list',
-      teamVariant: 'grid-centered',
+      teamVariant: 'grid',
       testimonialsVariant: 'grid',
       galleryVariant: 'masonry',
       pricingVariant: 'cards-4',
@@ -463,9 +463,9 @@ export const dentistVariants: DesignVariant[] = [
     },
     layout: {
       sections: ['services', 'team', 'stats', 'openingHours', 'testimonials', 'gallery', 'faq', 'cta'],
-      servicesVariant: 'grid-4',
-      teamVariant: 'list',
-      testimonialsVariant: 'single-featured',
+      servicesVariant: 'grid-3',
+      teamVariant: 'carousel',
+      testimonialsVariant: 'carousel',
       galleryVariant: 'carousel',
       pricingVariant: 'table',
     },
@@ -503,9 +503,9 @@ export const dentistVariants: DesignVariant[] = [
     },
     layout: {
       sections: ['services', 'stats', 'locations', 'team', 'gallery', 'testimonials', 'cta'],
-      servicesVariant: 'grid-4',
+      servicesVariant: 'grid-3',
       teamVariant: 'grid',
-      testimonialsVariant: 'masonry',
+      testimonialsVariant: 'carousel',
       galleryVariant: 'grid-4',
       pricingVariant: 'cards-3',
     },
@@ -629,9 +629,9 @@ export const restaurantVariants: DesignVariant[] = [
     },
     layout: {
       sections: ['gallery', 'services', 'openingHours', 'timeline', 'stats', 'team', 'testimonials', 'faq', 'cta'],
-      servicesVariant: 'grid-4',
-      teamVariant: 'list',
-      testimonialsVariant: 'single-featured',
+      servicesVariant: 'grid-3',
+      teamVariant: 'carousel',
+      testimonialsVariant: 'carousel',
       galleryVariant: 'carousel',
       pricingVariant: 'table',
     },
@@ -670,7 +670,7 @@ export const restaurantVariants: DesignVariant[] = [
     layout: {
       sections: ['services', 'openingHours', 'locations', 'team', 'stats', 'gallery', 'testimonials', 'cta'],
       servicesVariant: 'price-list',
-      teamVariant: 'grid-centered',
+      teamVariant: 'grid',
       testimonialsVariant: 'grid',
       galleryVariant: 'grid-4',
       pricingVariant: 'cards-4',
@@ -711,7 +711,7 @@ export const restaurantVariants: DesignVariant[] = [
       sections: ['stats', 'services', 'openingHours', 'gallery', 'team', 'testimonials', 'faq', 'cta'],
       servicesVariant: 'list',
       teamVariant: 'grid',
-      testimonialsVariant: 'masonry',
+      testimonialsVariant: 'carousel',
       galleryVariant: 'masonry',
       pricingVariant: 'cards-3',
     },
@@ -749,7 +749,7 @@ export const restaurantVariants: DesignVariant[] = [
     },
     layout: {
       sections: ['services', 'openingHours', 'gallery', 'team', 'testimonials', 'cta'],
-      servicesVariant: 'grid-4',
+      servicesVariant: 'grid-3',
       teamVariant: 'carousel',
       testimonialsVariant: 'carousel',
       galleryVariant: 'grid-3',
@@ -796,7 +796,7 @@ export const salonVariants: DesignVariant[] = [
     layout: {
       sections: ['announcementBar', 'services', 'trustBadges', 'howItWorks', 'openingHours', 'locations', 'stats', 'team', 'gallery', 'testimonials', 'faq', 'latestPosts', 'cta'],
       servicesVariant: 'grid-3',
-      teamVariant: 'grid-centered',
+      teamVariant: 'grid',
       testimonialsVariant: 'carousel',
       galleryVariant: 'masonry',
       pricingVariant: 'cards-3',
@@ -835,9 +835,9 @@ export const salonVariants: DesignVariant[] = [
     },
     layout: {
       sections: ['gallery', 'services', 'openingHours', 'team', 'stats', 'testimonials', 'faq', 'cta'],
-      servicesVariant: 'grid-4',
-      teamVariant: 'list',
-      testimonialsVariant: 'single-featured',
+      servicesVariant: 'grid-3',
+      teamVariant: 'carousel',
+      testimonialsVariant: 'carousel',
       galleryVariant: 'carousel',
       pricingVariant: 'table',
     },
@@ -955,9 +955,9 @@ export const salonVariants: DesignVariant[] = [
     },
     layout: {
       sections: ['services', 'openingHours', 'team', 'stats', 'gallery', 'testimonials', 'cta'],
-      servicesVariant: 'grid-4',
-      teamVariant: 'grid-centered',
-      testimonialsVariant: 'masonry',
+      servicesVariant: 'grid-3',
+      teamVariant: 'grid',
+      testimonialsVariant: 'carousel',
       galleryVariant: 'grid-4',
       pricingVariant: 'cards-3',
     },
@@ -1042,7 +1042,7 @@ export const autoServiceVariants: DesignVariant[] = [
     layout: {
       sections: ['services', 'openingHours', 'locations', 'team', 'stats', 'gallery', 'testimonials', 'cta'],
       servicesVariant: 'price-list',
-      teamVariant: 'grid-centered',
+      teamVariant: 'grid',
       testimonialsVariant: 'grid',
       galleryVariant: 'grid-4',
       pricingVariant: 'table',
@@ -1081,9 +1081,9 @@ export const autoServiceVariants: DesignVariant[] = [
     },
     layout: {
       sections: ['stats', 'services', 'openingHours', 'timeline', 'team', 'testimonials', 'gallery', 'faq', 'cta'],
-      servicesVariant: 'grid-4',
-      teamVariant: 'list',
-      testimonialsVariant: 'single-featured',
+      servicesVariant: 'grid-3',
+      teamVariant: 'carousel',
+      testimonialsVariant: 'carousel',
       galleryVariant: 'carousel',
       pricingVariant: 'cards-4',
     },
@@ -1121,9 +1121,9 @@ export const autoServiceVariants: DesignVariant[] = [
     },
     layout: {
       sections: ['services', 'openingHours', 'stats', 'gallery', 'team', 'testimonials', 'cta'],
-      servicesVariant: 'grid-4',
+      servicesVariant: 'grid-3',
       teamVariant: 'grid',
-      testimonialsVariant: 'masonry',
+      testimonialsVariant: 'carousel',
       galleryVariant: 'masonry',
       pricingVariant: 'cards-3',
     },
@@ -1162,7 +1162,7 @@ export const autoServiceVariants: DesignVariant[] = [
     layout: {
       sections: ['services', 'locations', 'stats', 'team', 'testimonials', 'gallery', 'cta'],
       servicesVariant: 'list',
-      teamVariant: 'grid-centered',
+      teamVariant: 'grid',
       testimonialsVariant: 'carousel',
       galleryVariant: 'grid-3',
       pricingVariant: 'list',
@@ -1247,8 +1247,8 @@ export const avocatVariants: DesignVariant[] = [
     },
     layout: {
       sections: ['services', 'openingHours', 'team', 'stats', 'testimonials', 'faq', 'cta'],
-      servicesVariant: 'grid-4',
-      teamVariant: 'grid-centered',
+      servicesVariant: 'grid-3',
+      teamVariant: 'grid',
       testimonialsVariant: 'grid',
       galleryVariant: 'grid-4',
       pricingVariant: 'cards-4',
@@ -1288,8 +1288,8 @@ export const avocatVariants: DesignVariant[] = [
     layout: {
       sections: ['stats', 'services', 'locations', 'timeline', 'team', 'testimonials', 'gallery', 'faq', 'cta'],
       servicesVariant: 'list',
-      teamVariant: 'list',
-      testimonialsVariant: 'single-featured',
+      teamVariant: 'carousel',
+      testimonialsVariant: 'carousel',
       galleryVariant: 'carousel',
       pricingVariant: 'table',
     },
@@ -1329,7 +1329,7 @@ export const avocatVariants: DesignVariant[] = [
       sections: ['services', 'openingHours', 'stats', 'team', 'gallery', 'testimonials', 'faq', 'cta'],
       servicesVariant: 'price-list',
       teamVariant: 'grid',
-      testimonialsVariant: 'masonry',
+      testimonialsVariant: 'carousel',
       galleryVariant: 'masonry',
       pricingVariant: 'cards-3',
     },
@@ -1367,7 +1367,7 @@ export const avocatVariants: DesignVariant[] = [
     },
     layout: {
       sections: ['services', 'locations', 'team', 'testimonials', 'cta'],
-      servicesVariant: 'grid-4',
+      servicesVariant: 'grid-3',
       teamVariant: 'grid',
       testimonialsVariant: 'carousel',
       galleryVariant: 'grid-3',
@@ -1454,7 +1454,7 @@ export const constructiiVariants: DesignVariant[] = [
     layout: {
       sections: ['services', 'openingHours', 'locations', 'stats', 'team', 'gallery', 'testimonials', 'cta'],
       servicesVariant: 'price-list',
-      teamVariant: 'grid-centered',
+      teamVariant: 'grid',
       testimonialsVariant: 'grid',
       galleryVariant: 'grid-4',
       pricingVariant: 'table',
@@ -1493,9 +1493,9 @@ export const constructiiVariants: DesignVariant[] = [
     },
     layout: {
       sections: ['stats', 'services', 'timeline', 'gallery', 'team', 'testimonials', 'faq', 'cta'],
-      servicesVariant: 'grid-4',
-      teamVariant: 'list',
-      testimonialsVariant: 'single-featured',
+      servicesVariant: 'grid-3',
+      teamVariant: 'carousel',
+      testimonialsVariant: 'carousel',
       galleryVariant: 'carousel',
       pricingVariant: 'cards-4',
     },
@@ -1533,9 +1533,9 @@ export const constructiiVariants: DesignVariant[] = [
     },
     layout: {
       sections: ['services', 'openingHours', 'gallery', 'stats', 'team', 'testimonials', 'cta'],
-      servicesVariant: 'grid-4',
+      servicesVariant: 'grid-3',
       teamVariant: 'grid',
-      testimonialsVariant: 'masonry',
+      testimonialsVariant: 'carousel',
       galleryVariant: 'grid-4',
       pricingVariant: 'cards-3',
     },
@@ -1660,7 +1660,7 @@ export const magazinVariants: DesignVariant[] = [
     layout: {
       sections: ['products', 'openingHours', 'locations', 'stats', 'gallery', 'testimonials', 'cta'],
       servicesVariant: 'price-list',
-      teamVariant: 'grid-centered',
+      teamVariant: 'grid',
       testimonialsVariant: 'grid',
       galleryVariant: 'masonry',
       pricingVariant: 'cards-4',
@@ -1699,9 +1699,9 @@ export const magazinVariants: DesignVariant[] = [
     },
     layout: {
       sections: ['products', 'openingHours', 'stats', 'testimonials', 'faq', 'cta'],
-      servicesVariant: 'grid-4',
-      teamVariant: 'list',
-      testimonialsVariant: 'single-featured',
+      servicesVariant: 'grid-3',
+      teamVariant: 'carousel',
+      testimonialsVariant: 'carousel',
       galleryVariant: 'carousel',
       pricingVariant: 'table',
     },
@@ -1739,9 +1739,9 @@ export const magazinVariants: DesignVariant[] = [
     },
     layout: {
       sections: ['stats', 'products', 'locations', 'testimonials', 'gallery', 'faq', 'cta'],
-      servicesVariant: 'grid-4',
+      servicesVariant: 'grid-3',
       teamVariant: 'grid',
-      testimonialsVariant: 'masonry',
+      testimonialsVariant: 'carousel',
       galleryVariant: 'grid-4',
       pricingVariant: 'cards-3',
     },
@@ -1865,9 +1865,9 @@ export const fitnessVariants: DesignVariant[] = [
     },
     layout: {
       sections: ['classesGrid', 'stats', 'scheduleTable', 'subscriptionCards', 'gallery', 'team', 'testimonials', 'cta'],
-      servicesVariant: 'grid-4',
-      teamVariant: 'grid-centered',
-      testimonialsVariant: 'single-featured',
+      servicesVariant: 'grid-3',
+      teamVariant: 'grid',
+      testimonialsVariant: 'carousel',
       galleryVariant: 'carousel',
       pricingVariant: 'cards-3',
     },
@@ -1946,8 +1946,8 @@ export const fitnessVariants: DesignVariant[] = [
     layout: {
       sections: ['stats', 'classesGrid', 'team', 'scheduleTable', 'subscriptionCards', 'gallery', 'testimonials', 'faq', 'cta'],
       servicesVariant: 'price-list',
-      teamVariant: 'list',
-      testimonialsVariant: 'masonry',
+      teamVariant: 'carousel',
+      testimonialsVariant: 'carousel',
       galleryVariant: 'masonry',
       pricingVariant: 'featured-center',
     },
@@ -1985,7 +1985,7 @@ export const fitnessVariants: DesignVariant[] = [
     },
     layout: {
       sections: ['classesGrid', 'stats', 'subscriptionCards', 'scheduleTable', 'team', 'gallery', 'testimonials', 'cta'],
-      servicesVariant: 'grid-4',
+      servicesVariant: 'grid-3',
       teamVariant: 'carousel',
       testimonialsVariant: 'carousel',
       galleryVariant: 'grid-3',
@@ -2045,8 +2045,8 @@ export const terapiiEnergeticeVariants: DesignVariant[] = [
     },
     layout: {
       sections: ['services', 'howItWorks', 'team', 'testimonials', 'videoTestimonials', 'stats', 'videoGallery', 'faq', 'contact', 'cta'],
-      servicesVariant: 'grid-4',
-      teamVariant: 'grid-centered',
+      servicesVariant: 'grid-3',
+      teamVariant: 'grid',
       testimonialsVariant: 'carousel',
       galleryVariant: 'grid-3',
       pricingVariant: 'featured-center',
@@ -2147,8 +2147,8 @@ export const terapiiEnergeticeVariants: DesignVariant[] = [
     },
     layout: {
       sections: ['services', 'stats', 'team', 'howItWorks', 'testimonials', 'videoGallery', 'faq', 'contact', 'cta'],
-      servicesVariant: 'list-alternating',
-      teamVariant: 'grid-centered',
+      servicesVariant: 'list',
+      teamVariant: 'grid',
       testimonialsVariant: 'carousel',
       galleryVariant: 'grid-4',
       pricingVariant: 'cards-4',
@@ -2256,8 +2256,8 @@ export const multiwebVariants: DesignVariant[] = [
     layout: {
       sections: ['stats', 'portfolio', 'services', 'howItWorks', 'testimonials', 'faq', 'latestPosts', 'cta'],
       servicesVariant: 'grid-3',
-      teamVariant: 'grid-centered',
-      testimonialsVariant: 'cards-rotating',
+      teamVariant: 'grid',
+      testimonialsVariant: 'carousel',
       galleryVariant: 'masonry',
       pricingVariant: 'cards-3',
     },
@@ -2306,9 +2306,9 @@ export const multiwebVariants: DesignVariant[] = [
     },
     layout: {
       sections: ['stats', 'portfolio', 'services', 'howItWorks', 'testimonials', 'faq', 'latestPosts', 'cta'],
-      servicesVariant: 'grid-4',
+      servicesVariant: 'grid-3',
       teamVariant: 'carousel',
-      testimonialsVariant: 'minimal',
+      testimonialsVariant: 'carousel',
       galleryVariant: 'carousel',
       pricingVariant: 'featured-center',
     },
@@ -2359,7 +2359,7 @@ export const multiwebVariants: DesignVariant[] = [
       sections: ['stats', 'portfolio', 'services', 'howItWorks', 'testimonials', 'faq', 'latestPosts', 'cta'],
       servicesVariant: 'grid-3',
       teamVariant: 'grid',
-      testimonialsVariant: 'single-featured',
+      testimonialsVariant: 'carousel',
       galleryVariant: 'grid-4',
       pricingVariant: 'cards-3',
     },
@@ -2409,7 +2409,7 @@ export const multiwebVariants: DesignVariant[] = [
     layout: {
       sections: ['stats', 'portfolio', 'services', 'howItWorks', 'testimonials', 'faq', 'latestPosts', 'cta'],
       servicesVariant: 'list',
-      teamVariant: 'list',
+      teamVariant: 'carousel',
       testimonialsVariant: 'grid',
       galleryVariant: 'grid-3',
       pricingVariant: 'table',

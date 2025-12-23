@@ -1,6 +1,7 @@
 import type { Block } from 'payload'
 import { sectionWrapperFields } from '../_shared/sectionWrapperFields'
 import { patternField } from '@/fields/patternField'
+import { advancedSettingsGroup } from '../_shared/commonFields'
 
 export const CTABlock: Block = {
   slug: 'cta',
@@ -11,6 +12,7 @@ export const CTABlock: Block = {
   },
   imageURL: '/blocks/cta.svg',
   fields: [
+    // === ESSENTIAL FIELDS ===
     {
       name: 'variant',
       type: 'select',
@@ -88,41 +90,47 @@ export const CTABlock: Block = {
       label: 'Afiseaza numar telefon',
       defaultValue: false,
     },
-    {
-      name: 'backgroundColor',
-      type: 'select',
-      label: 'Culoare fundal',
-      defaultValue: 'primary',
-      options: [
-        { label: 'Default', value: 'default' },
-        { label: 'Light', value: 'light' },
-        { label: 'Dark', value: 'dark' },
-        { label: 'Primary', value: 'primary' },
-        { label: 'Accent', value: 'accent' },
+    // === ADVANCED SETTINGS (collapsible) ===
+    advancedSettingsGroup({
+      label: 'Setari avansate',
+      fields: [
+        {
+          name: 'backgroundColor',
+          type: 'select',
+          label: 'Culoare fundal',
+          defaultValue: 'primary',
+          options: [
+            { label: 'Default', value: 'default' },
+            { label: 'Light', value: 'light' },
+            { label: 'Dark', value: 'dark' },
+            { label: 'Primary', value: 'primary' },
+            { label: 'Accent', value: 'accent' },
+          ],
+        },
+        {
+          name: 'textAlignment',
+          type: 'select',
+          label: 'Aliniere text',
+          defaultValue: 'center',
+          options: [
+            { label: 'Stanga', value: 'left' },
+            { label: 'Centru', value: 'center' },
+            { label: 'Dreapta', value: 'right' },
+          ],
+        },
+        {
+          name: 'size',
+          type: 'select',
+          label: 'Dimensiune',
+          defaultValue: 'medium',
+          options: [
+            { label: 'Mica', value: 'small' },
+            { label: 'Medie', value: 'medium' },
+            { label: 'Mare', value: 'large' },
+          ],
+        },
       ],
-    },
-    {
-      name: 'textAlignment',
-      type: 'select',
-      label: 'Aliniere text',
-      defaultValue: 'center',
-      options: [
-        { label: 'Stanga', value: 'left' },
-        { label: 'Centru', value: 'center' },
-        { label: 'Dreapta', value: 'right' },
-      ],
-    },
-    {
-      name: 'size',
-      type: 'select',
-      label: 'Dimensiune',
-      defaultValue: 'medium',
-      options: [
-        { label: 'Mica', value: 'small' },
-        { label: 'Medie', value: 'medium' },
-        { label: 'Mare', value: 'large' },
-      ],
-    },
+    }),
     // Section wrapper fields for advanced layout options
     ...sectionWrapperFields,
   ],

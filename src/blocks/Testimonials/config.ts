@@ -1,11 +1,7 @@
 import type { Block } from 'payload'
 import { sectionWrapperFields } from '../_shared/sectionWrapperFields'
-import {
-  headingFields,
-  backgroundColorField,
-  showRatingField,
-  showAvatarField,
-} from '../_shared/commonFields'
+import { headingFields, displayOptionsGroup, advancedSettingsGroup } from '../_shared/commonFields'
+import { testimonialsSourceFields } from '../_shared/collectionSourceFields'
 
 export const TestimonialsBlock: Block = {
   slug: 'testimonials',
@@ -16,6 +12,7 @@ export const TestimonialsBlock: Block = {
   },
   imageURL: '/blocks/testimonials.svg',
   fields: [
+    // === ESSENTIAL FIELDS ===
     {
       name: 'variant',
       type: 'select',
@@ -25,91 +22,48 @@ export const TestimonialsBlock: Block = {
         { label: 'Carousel', value: 'carousel' },
         { label: 'Grid', value: 'grid' },
         { label: 'Un testimonial mare', value: 'single-featured' },
-        { label: 'Masonry', value: 'masonry' },
-        { label: 'Carduri rotative', value: 'cards-rotating' },
-        { label: 'Minimal (fara avatare)', value: 'minimal' },
-        { label: 'Video Testimonials', value: 'video-grid' },
       ],
     },
     ...headingFields({ headingDefault: 'Ce spun clientii nostri' }),
-    {
-      name: 'source',
-      type: 'select',
-      label: 'Sursa date',
-      defaultValue: 'collection',
-      options: [
-        { label: 'Din colectia Testimoniale', value: 'collection' },
-        { label: 'Selectie manuala', value: 'manual' },
+    // Collection fields (limit, filterByCategory, onlyFeatured)
+    ...testimonialsSourceFields(),
+    // === DISPLAY OPTIONS (collapsible) ===
+    displayOptionsGroup({
+      label: 'Optiuni afisare',
+      collapsed: true,
+      fields: [
+        {
+          name: 'showRating',
+          type: 'checkbox',
+          label: 'Afiseaza rating (stele)',
+          defaultValue: true,
+        },
+        {
+          name: 'showAvatar',
+          type: 'checkbox',
+          label: 'Afiseaza avatar',
+          defaultValue: true,
+        },
       ],
-    },
-    {
-      name: 'selectedTestimonials',
-      type: 'relationship',
-      relationTo: 'testimonials',
-      hasMany: true,
-      label: 'Testimoniale selectate',
-      admin: {
-        condition: (_, siblingData) => siblingData?.source === 'manual',
-      },
-    },
-    {
-      name: 'limit',
-      type: 'number',
-      label: 'Numar maxim',
-      defaultValue: 6,
-      admin: {
-        condition: (_, siblingData) => siblingData?.source === 'collection',
-      },
-    },
-    {
-      name: 'onlyFeatured',
-      type: 'checkbox',
-      label: 'Doar testimoniale featured',
-      defaultValue: true,
-      admin: {
-        condition: (_, siblingData) => siblingData?.source === 'collection',
-      },
-    },
-    {
-      name: 'filterByCategory',
-      type: 'relationship',
-      relationTo: 'testimonial-categories',
-      hasMany: true,
-      label: 'Filtrează după categorie',
-      admin: {
-        description: 'Selectează una sau mai multe categorii pentru a filtra testimonialele',
-        condition: (_, siblingData) => siblingData?.source === 'collection',
-      },
-    },
-    {
-      name: 'groupByCategory',
-      type: 'checkbox',
-      label: 'Grupează pe categorii',
-      defaultValue: false,
-      admin: {
-        description: 'Afișează testimonialele grupate pe secțiuni pentru fiecare categorie',
-        condition: (_, siblingData) => siblingData?.source === 'collection',
-      },
-    },
-    showRatingField,
-    showAvatarField,
-    {
-      name: 'showSource',
-      type: 'checkbox',
-      label: 'Afiseaza sursa (Google, Facebook)',
-      defaultValue: false,
-    },
-    {
-      name: 'autoplay',
-      type: 'checkbox',
-      label: 'Autoplay (pentru carousel)',
-      defaultValue: true,
-      admin: {
-        condition: (_, siblingData) => siblingData?.variant === 'carousel',
-      },
-    },
-    backgroundColorField({ defaultValue: 'light' }),
-    // Section wrapper fields for advanced layout options
+    }),
+    // === ADVANCED SETTINGS (collapsible) ===
+    advancedSettingsGroup({
+      label: 'Setari avansate',
+      fields: [
+        {
+          name: 'backgroundColor',
+          type: 'select',
+          label: 'Culoare fundal',
+          defaultValue: 'default',
+          options: [
+            { label: 'Default', value: 'default' },
+            { label: 'Light', value: 'light' },
+            { label: 'Dark', value: 'dark' },
+          ],
+        },
+      ],
+    }),
+    // Section wrapper fields
     ...sectionWrapperFields,
   ],
 }

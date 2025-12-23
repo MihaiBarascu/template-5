@@ -1,4 +1,6 @@
 import type { Block } from 'payload'
+import { sectionWrapperFields } from '../_shared/sectionWrapperFields'
+import { advancedSettingsGroup } from '../_shared/commonFields'
 
 export const MapBlock: Block = {
   slug: 'map',
@@ -9,6 +11,7 @@ export const MapBlock: Block = {
   },
   imageURL: '/blocks/map.svg',
   fields: [
+    // === ESSENTIAL FIELDS ===
     {
       name: 'variant',
       type: 'select',
@@ -31,7 +34,7 @@ export const MapBlock: Block = {
       label: 'Sursa harta',
       defaultValue: 'businessInfo',
       options: [
-        { label: 'Din BusinessInfo', value: 'businessInfo' },
+        { label: 'Din BusinessInfo (automat)', value: 'businessInfo' },
         { label: 'Custom embed', value: 'custom' },
       ],
     },
@@ -43,22 +46,30 @@ export const MapBlock: Block = {
         condition: (_, siblingData) => siblingData?.source === 'custom',
       },
     },
-    {
-      name: 'height',
-      type: 'select',
-      label: 'Inaltime',
-      defaultValue: 'medium',
-      options: [
-        { label: 'Mica (300px)', value: 'small' },
-        { label: 'Medie (450px)', value: 'medium' },
-        { label: 'Mare (600px)', value: 'large' },
+    // === ADVANCED SETTINGS (collapsible) ===
+    advancedSettingsGroup({
+      label: 'Setari avansate',
+      fields: [
+        {
+          name: 'height',
+          type: 'select',
+          label: 'Inaltime',
+          defaultValue: 'medium',
+          options: [
+            { label: 'Mica (300px)', value: 'small' },
+            { label: 'Medie (450px)', value: 'medium' },
+            { label: 'Mare (600px)', value: 'large' },
+          ],
+        },
+        {
+          name: 'showDirectionsButton',
+          type: 'checkbox',
+          label: 'Afiseaza buton directii',
+          defaultValue: true,
+        },
       ],
-    },
-    {
-      name: 'showDirectionsButton',
-      type: 'checkbox',
-      label: 'Afiseaza buton directii',
-      defaultValue: true,
-    },
+    }),
+    // Section wrapper fields
+    ...sectionWrapperFields,
   ],
 }

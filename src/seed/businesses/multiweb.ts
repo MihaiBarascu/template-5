@@ -18,6 +18,8 @@ import {
   formTemplates,
   createContactPageLayout,
   buildHeroData,
+  createSeederPage,
+  type FlexibleLayout,
 } from '../helpers'
 import { multiwebImages, multiwebData } from '../multiweb-data'
 import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
@@ -248,7 +250,7 @@ function buildHomepageLayout(variant: DesignVariant, getImageId: (filename: stri
       blockType: 'stats',
       variant: 'grid-4',
       source: 'businessInfo',
-      backgroundColor: 'primary',
+      backgroundColor: 'dark',
     },
     // Portfolio - showcase demo websites
     portfolio: {
@@ -365,234 +367,213 @@ async function createAdditionalPages(
   const contactFormId = formsMap.get('Formular de contact')
 
   // Portfolio page
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Portofoliu',
-      slug: 'portofoliu',
-      heroType: 'minimal',
-      hero: {
-        headline: 'Portofoliul Nostru',
-        subheadline: 'Website-uri realizate pentru clienți din diverse industrii',
-      },
-      layout: [
-        {
-          blockType: 'portfolio',
-          variant: 'grid-masonry',
-          source: 'collection',
-          showDescription: true,
-          limit: 20,
-          backgroundColor: 'default',
-        },
-        {
-          blockType: 'cta',
-          variant: 'centered',
-          headline: 'Îți place ce vezi?',
-          subheadline: 'Hai să discutăm despre proiectul tău',
-          buttons: [{ label: 'Solicită Ofertă', link: '/contact', variant: 'default' }],
-          backgroundColor: 'primary',
-        },
-      ],
-      _status: 'published',
+  await createSeederPage(payload, {
+    title: 'Portofoliu',
+    slug: 'portofoliu',
+    heroType: 'minimal',
+    hero: {
+      headline: 'Portofoliul Nostru',
+      subheadline: 'Website-uri realizate pentru clienți din diverse industrii',
     },
+    layout: [
+      {
+        blockType: 'portfolio',
+        variant: 'grid-masonry',
+        showDescription: true,
+        limit: 20,
+        backgroundColor: 'default',
+      },
+      {
+        blockType: 'cta',
+        variant: 'centered',
+        headline: 'Îți place ce vezi?',
+        subheadline: 'Hai să discutăm despre proiectul tău',
+        buttons: [{ label: 'Solicită Ofertă', link: '/contact', variant: 'default' }],
+        backgroundColor: 'dark',
+      },
+    ],
+    _status: 'published',
   })
   console.log('   Created Portfolio page')
 
   // Services page
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Servicii',
-      slug: 'servicii',
-      heroType: 'minimal',
-      hero: {
-        headline: 'Serviciile Noastre',
-        subheadline: 'Soluții complete de web development pentru orice tip de afacere',
-      },
-      layout: [
-        {
-          blockType: 'services',
-          variant: 'grid-2',
-          source: 'collection',
-          limit: 10,
-          backgroundColor: 'default',
-        },
-        {
-          blockType: 'how-it-works',
-          variant: 'horizontal-cards',
-          heading: 'Procesul Nostru',
-          subheading: 'De la idee la website funcțional',
-          steps: multiwebData.howItWorks,
-          showNumbers: true,
-          backgroundColor: 'light',
-        },
-        {
-          blockType: 'faq',
-          variant: 'accordion',
-          heading: 'Întrebări Frecvente',
-          source: 'collection',
-          limit: 6,
-          defaultOpen: 'first',
-          backgroundColor: 'default',
-        },
-        {
-          blockType: 'cta',
-          variant: 'centered',
-          headline: 'Pregătit să Începem?',
-          subheadline: 'Consultația inițială este gratuită',
-          buttons: [{ label: 'Contactează-ne', link: '/contact', variant: 'default' }],
-          backgroundColor: 'primary',
-        },
-      ],
-      _status: 'published',
+  await createSeederPage(payload, {
+    title: 'Servicii',
+    slug: 'servicii',
+    heroType: 'minimal',
+    hero: {
+      headline: 'Serviciile Noastre',
+      subheadline: 'Soluții complete de web development pentru orice tip de afacere',
     },
+    layout: [
+      {
+        blockType: 'services',
+        variant: 'grid-2',
+        limit: 10,
+        backgroundColor: 'default',
+      },
+      {
+        blockType: 'how-it-works',
+        variant: 'horizontal-cards',
+        heading: 'Procesul Nostru',
+        subheading: 'De la idee la website funcțional',
+        steps: multiwebData.howItWorks,
+        showNumbers: true,
+        backgroundColor: 'light',
+      },
+      {
+        blockType: 'faq',
+        variant: 'accordion',
+        heading: 'Întrebări Frecvente',
+        limit: 6,
+        backgroundColor: 'default',
+      },
+      {
+        blockType: 'cta',
+        variant: 'centered',
+        headline: 'Pregătit să Începem?',
+        subheadline: 'Consultația inițială este gratuită',
+        buttons: [{ label: 'Contactează-ne', link: '/contact', variant: 'default' }],
+        backgroundColor: 'dark',
+      },
+    ],
+    _status: 'published',
   })
   console.log('   Created Services page')
 
   // About page
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Despre Noi',
-      slug: 'despre',
-      heroType: 'minimal',
-      hero: {
-        headline: 'Despre MultiWebsite',
-        subheadline: 'Echipa din spatele website-urilor de succes',
-      },
-      layout: [
-        {
-          blockType: 'content',
-          columns: [
-            {
-              width: 'full',
-              contentType: 'richText',
-              richText: {
-                root: {
-                  type: 'root',
-                  children: [
-                    {
-                      type: 'heading',
-                      tag: 'h2',
-                      children: [
-                        {
-                          type: 'text',
-                          text: 'Misiunea Noastră',
-                          format: 0,
-                          detail: 0,
-                          mode: 'normal',
-                          style: '',
-                          version: 1,
-                        },
-                      ],
-                      direction: 'ltr',
-                      format: '',
-                      indent: 0,
-                      version: 1,
-                    },
-                    {
-                      type: 'paragraph',
-                      children: [
-                        {
-                          type: 'text',
-                          text: 'La MultiWebsite, credem că fiecare afacere merită un website profesional care să o reprezinte corect în mediul online. Suntem pasionați de web development și dedicați să oferim soluții accesibile pentru afaceri mici și medii din România.',
-                          format: 0,
-                          detail: 0,
-                          mode: 'normal',
-                          style: '',
-                          version: 1,
-                        },
-                      ],
-                      direction: 'ltr',
-                      format: '',
-                      indent: 0,
-                      textFormat: 0,
-                      version: 1,
-                    },
-                    {
-                      type: 'paragraph',
-                      children: [
-                        {
-                          type: 'text',
-                          text: 'Cu experiență în dezvoltarea de website-uri pentru diverse industrii - de la frizerii și cabinete medicale până la restaurante și magazine online - înțelegem nevoile specifice ale fiecărui tip de afacere.',
-                          format: 0,
-                          detail: 0,
-                          mode: 'normal',
-                          style: '',
-                          version: 1,
-                        },
-                      ],
-                      direction: 'ltr',
-                      format: '',
-                      indent: 0,
-                      textFormat: 0,
-                      version: 1,
-                    },
-                  ],
-                  direction: 'ltr',
-                  format: '',
-                  indent: 0,
-                  version: 1,
-                },
+  await createSeederPage(payload, {
+    title: 'Despre Noi',
+    slug: 'despre',
+    heroType: 'minimal',
+    hero: {
+      headline: 'Despre MultiWebsite',
+      subheadline: 'Echipa din spatele website-urilor de succes',
+    },
+    layout: [
+      {
+        blockType: 'content',
+        columns: [
+          {
+            width: 'full',
+            contentType: 'richText',
+            richText: {
+              root: {
+                type: 'root',
+                children: [
+                  {
+                    type: 'heading',
+                    tag: 'h2',
+                    children: [
+                      {
+                        type: 'text',
+                        text: 'Misiunea Noastră',
+                        format: 0,
+                        detail: 0,
+                        mode: 'normal',
+                        style: '',
+                        version: 1,
+                      },
+                    ],
+                    direction: 'ltr',
+                    format: '',
+                    indent: 0,
+                    version: 1,
+                  },
+                  {
+                    type: 'paragraph',
+                    children: [
+                      {
+                        type: 'text',
+                        text: 'La MultiWebsite, credem că fiecare afacere merită un website profesional care să o reprezinte corect în mediul online. Suntem pasionați de web development și dedicați să oferim soluții accesibile pentru afaceri mici și medii din România.',
+                        format: 0,
+                        detail: 0,
+                        mode: 'normal',
+                        style: '',
+                        version: 1,
+                      },
+                    ],
+                    direction: 'ltr',
+                    format: '',
+                    indent: 0,
+                    textFormat: 0,
+                    version: 1,
+                  },
+                  {
+                    type: 'paragraph',
+                    children: [
+                      {
+                        type: 'text',
+                        text: 'Cu experiență în dezvoltarea de website-uri pentru diverse industrii - de la frizerii și cabinete medicale până la restaurante și magazine online - înțelegem nevoile specifice ale fiecărui tip de afacere.',
+                        format: 0,
+                        detail: 0,
+                        mode: 'normal',
+                        style: '',
+                        version: 1,
+                      },
+                    ],
+                    direction: 'ltr',
+                    format: '',
+                    indent: 0,
+                    textFormat: 0,
+                    version: 1,
+                  },
+                ],
+                direction: 'ltr',
+                format: '',
+                indent: 0,
+                version: 1,
               },
             },
-          ],
-          backgroundColor: 'default',
-        },
-        {
-          blockType: 'stats',
-          variant: 'grid-4',
-          source: 'businessInfo',
-          backgroundColor: 'primary',
-        },
-        {
-          blockType: 'testimonials',
-          variant: variant.layout.testimonialsVariant,
-          heading: 'Ce Spun Clienții',
-          source: 'collection',
-          onlyFeatured: true,
-          showRating: true,
-          backgroundColor: 'light',
-        },
-        {
-          blockType: 'cta',
-          variant: 'centered',
-          headline: 'Vrei să Lucrăm Împreună?',
-          subheadline: 'Discută cu noi despre proiectul tău',
-          buttons: [{ label: 'Contactează-ne', link: '/contact', variant: 'default' }],
-          backgroundColor: 'dark',
-        },
-      ],
-      _status: 'published',
-    },
+          },
+        ],
+        backgroundColor: 'default',
+      },
+      {
+        blockType: 'stats',
+        variant: 'grid-4',
+        backgroundColor: 'dark',
+      },
+      {
+        blockType: 'testimonials',
+        variant: variant.layout.testimonialsVariant,
+        heading: 'Ce Spun Clienții',
+        onlyFeatured: true,
+        backgroundColor: 'light',
+      },
+      {
+        blockType: 'cta',
+        variant: 'centered',
+        headline: 'Vrei să Lucrăm Împreună?',
+        subheadline: 'Discută cu noi despre proiectul tău',
+        buttons: [{ label: 'Contactează-ne', link: '/contact', variant: 'default' }],
+        backgroundColor: 'dark',
+      },
+    ],
+    _status: 'published',
   })
   console.log('   Created About page')
 
   // Contact page
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Contact',
-      slug: 'contact',
-      heroType: 'minimal',
-      hero: {
-        headline: 'Contactează-ne',
-        subheadline: 'Suntem aici să răspundem la întrebările tale',
-      },
-      layout: [
-        ...(createContactPageLayout(contactFormId) || []),
-        {
-          blockType: 'faq',
-          variant: 'accordion',
-          heading: 'Întrebări Frecvente',
-          source: 'collection',
-          limit: 5,
-          defaultOpen: 'first',
-          backgroundColor: 'default',
-        },
-      ],
-      _status: 'published',
+  await createSeederPage(payload, {
+    title: 'Contact',
+    slug: 'contact',
+    heroType: 'minimal',
+    hero: {
+      headline: 'Contactează-ne',
+      subheadline: 'Suntem aici să răspundem la întrebările tale',
     },
+    layout: [
+      ...(createContactPageLayout(contactFormId) || []),
+      {
+        blockType: 'faq',
+        variant: 'accordion',
+        heading: 'Întrebări Frecvente',
+        limit: 5,
+        backgroundColor: 'default',
+      },
+    ],
+    _status: 'published',
   })
   console.log('   Created Contact page')
 }

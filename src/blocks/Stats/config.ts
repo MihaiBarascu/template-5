@@ -1,5 +1,7 @@
 import type { Block } from 'payload'
+import { sectionWrapperFields } from '../_shared/sectionWrapperFields'
 import { patternField } from '@/fields/patternField'
+import { advancedSettingsGroup } from '../_shared/commonFields'
 
 export const StatsBlock: Block = {
   slug: 'stats',
@@ -10,6 +12,7 @@ export const StatsBlock: Block = {
   },
   imageURL: '/blocks/stats.svg',
   fields: [
+    // === ESSENTIAL FIELDS ===
     {
       name: 'variant',
       type: 'select',
@@ -24,8 +27,6 @@ export const StatsBlock: Block = {
         { label: 'Minimal', value: 'minimal' },
       ],
     },
-    // Pattern configuration - always available for Stats
-    ...patternField(),
     {
       name: 'heading',
       type: 'text',
@@ -76,23 +77,33 @@ export const StatsBlock: Block = {
         },
       ],
     },
-    {
-      name: 'animated',
-      type: 'checkbox',
-      label: 'Numarare animata',
-      defaultValue: true,
-    },
-    {
-      name: 'backgroundColor',
-      type: 'select',
-      label: 'Culoare fundal',
-      defaultValue: 'primary',
-      options: [
-        { label: 'Default', value: 'default' },
-        { label: 'Light', value: 'light' },
-        { label: 'Dark', value: 'dark' },
-        { label: 'Primary', value: 'primary' },
+    // === ADVANCED SETTINGS (collapsible) ===
+    advancedSettingsGroup({
+      label: 'Setari avansate',
+      fields: [
+        {
+          name: 'animated',
+          type: 'checkbox',
+          label: 'Numarare animata',
+          defaultValue: true,
+        },
+        {
+          name: 'backgroundColor',
+          type: 'select',
+          label: 'Culoare fundal',
+          defaultValue: 'primary',
+          options: [
+            { label: 'Default', value: 'default' },
+            { label: 'Light', value: 'light' },
+            { label: 'Dark', value: 'dark' },
+            { label: 'Primary', value: 'primary' },
+          ],
+        },
+        // Pattern configuration
+        ...patternField(),
       ],
-    },
+    }),
+    // Section wrapper fields
+    ...sectionWrapperFields,
   ],
 }

@@ -3,6 +3,46 @@ import fs from 'fs';
 import path from 'path';
 import type { Payload } from 'payload';
 
+/**
+ * Flexible block type for seeding - allows extra properties that may not exist in strict types.
+ * Extra properties are ignored by Payload when saving, so this is safe for seeding.
+ */
+export type FlexibleBlock = {
+  blockType: string;
+  [key: string]: unknown;
+};
+
+/**
+ * Flexible layout type - use this for type assertions in seeders
+ * Example: layout: [...blocks] as FlexibleLayout
+ */
+export type FlexibleLayout = FlexibleBlock[];
+
+/**
+ * Creates a page with a flexible layout type for seeding.
+ * This bypasses strict type checking for layout blocks.
+ * Use this instead of direct payload.create() for pages to avoid type errors.
+ */
+export async function createSeederPage(
+  payload: Payload,
+  data: {
+    title: string;
+    slug: string;
+    heroType?: string;
+    hero?: Record<string, unknown>;
+    layout?: unknown[]; // Accept any block array, will be cast to Page
+    _status?: 'draft' | 'published';
+    meta?: Record<string, unknown>;
+    headerSettings?: Record<string, unknown>;
+    [key: string]: unknown;
+  },
+): Promise<Page> {
+  return await payload.create({
+    collection: 'pages',
+    data: data as unknown as Page,
+  });
+}
+
 // Flag to reuse existing images (when --with-images is NOT provided)
 let reuseExistingImages = false;
 
@@ -2337,13 +2377,6 @@ export function createContactPageLayout(contactFormId: string | undefined, optio
       variant: 'standard' as const,
       heading,
       subheading,
-      contactInfoItems: {
-        showAddress: true,
-        showPhone: true,
-        showEmail: true,
-        showWorkingHours: true,
-        showSocial: true,
-      },
       backgroundColor: 'light' as const,
     })
   }
@@ -2355,13 +2388,6 @@ export function createContactPageLayout(contactFormId: string | undefined, optio
       variant: 'cards' as const,
       heading,
       subheading,
-      contactInfoItems: {
-        showAddress: true,
-        showPhone: true,
-        showEmail: true,
-        showWorkingHours: true,
-        showSocial: false,
-      },
       backgroundColor: 'light' as const,
     })
     // Form section
@@ -2397,14 +2423,7 @@ export function createContactPageLayout(contactFormId: string | undefined, optio
               variant: 'standard' as const,
               heading,
               subheading,
-              contactInfoItems: {
-                showAddress: true,
-                showPhone: true,
-                showEmail: true,
-                showWorkingHours: true,
-                showSocial: true,
-              },
-              backgroundColor: 'transparent' as const,
+              backgroundColor: 'default' as const,
             },
           ],
         },

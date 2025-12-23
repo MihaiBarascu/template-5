@@ -1,4 +1,6 @@
 import type { Block } from 'payload'
+import { sectionWrapperFields } from '../_shared/sectionWrapperFields'
+import { headingFields, displayOptionsGroup, advancedSettingsGroup } from '../_shared/commonFields'
 
 export const TimelineBlock: Block = {
   slug: 'timeline',
@@ -9,6 +11,7 @@ export const TimelineBlock: Block = {
   interfaceName: 'TimelineBlock',
   imageURL: '/blocks/timeline.svg',
   fields: [
+    // === ESSENTIAL FIELDS ===
     {
       name: 'variant',
       type: 'select',
@@ -21,17 +24,7 @@ export const TimelineBlock: Block = {
         { label: 'Compact', value: 'compact' },
       ],
     },
-    {
-      name: 'heading',
-      type: 'text',
-      label: 'Titlu sectiune',
-      defaultValue: 'Povestea noastra',
-    },
-    {
-      name: 'subheading',
-      type: 'textarea',
-      label: 'Subtitlu',
-    },
+    ...headingFields({ headingDefault: 'Povestea noastra' }),
     {
       name: 'events',
       type: 'array',
@@ -61,69 +54,39 @@ export const TimelineBlock: Block = {
           relationTo: 'media',
           label: 'Imagine',
         },
-        {
-          name: 'icon',
-          type: 'text',
-          label: 'Icon (Lucide)',
-          admin: {
-            description: 'Ex: Star, Award, Building, Users',
-          },
-        },
       ],
     },
-    {
-      name: 'showConnector',
-      type: 'checkbox',
-      label: 'Afiseaza linie conectoare',
-      defaultValue: true,
-    },
-    {
-      name: 'backgroundColor',
-      type: 'select',
-      label: 'Culoare fundal',
-      defaultValue: 'default',
-      options: [
-        { label: 'Default', value: 'default' },
-        { label: 'Light', value: 'light' },
-        { label: 'Dark', value: 'dark' },
-      ],
-    },
-    {
-      name: 'conclusion',
-      type: 'group',
-      label: 'Concluzie / Citat (optional)',
+    // === DISPLAY OPTIONS (collapsible) ===
+    displayOptionsGroup({
+      label: 'Optiuni afisare',
+      collapsed: true,
       fields: [
         {
-          name: 'enabled',
+          name: 'showConnector',
           type: 'checkbox',
-          label: 'Afiseaza concluzie',
-          defaultValue: false,
-        },
-        {
-          name: 'quote',
-          type: 'textarea',
-          label: 'Citat / Mesaj',
-          admin: {
-            condition: (data, siblingData) => siblingData?.enabled,
-          },
-        },
-        {
-          name: 'author',
-          type: 'text',
-          label: 'Autor',
-          admin: {
-            condition: (data, siblingData) => siblingData?.enabled,
-          },
-        },
-        {
-          name: 'role',
-          type: 'text',
-          label: 'Rol / Titlu',
-          admin: {
-            condition: (data, siblingData) => siblingData?.enabled,
-          },
+          label: 'Afiseaza linie conectoare',
+          defaultValue: true,
         },
       ],
-    },
+    }),
+    // === ADVANCED SETTINGS (collapsible) ===
+    advancedSettingsGroup({
+      label: 'Setari avansate',
+      fields: [
+        {
+          name: 'backgroundColor',
+          type: 'select',
+          label: 'Culoare fundal',
+          defaultValue: 'default',
+          options: [
+            { label: 'Default', value: 'default' },
+            { label: 'Light', value: 'light' },
+            { label: 'Dark', value: 'dark' },
+          ],
+        },
+      ],
+    }),
+    // Section wrapper fields
+    ...sectionWrapperFields,
   ],
 }
