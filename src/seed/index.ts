@@ -144,10 +144,12 @@ async function clearData(payload: Payload, clearMedia: boolean = false) {
   });
 
   // Reset business-info - clear fields that persist between seeds (social, whatsappFloat, announcementBar)
-  // Note: We only reset the problematic fields, not required fields like 'name'
+  // Note: We include a placeholder 'name' because it's required and in production the global might be empty
   await payload.updateGlobal({
     slug: 'business-info',
     data: {
+      // Placeholder name (required field) - will be overwritten by seeder
+      name: 'Business Name',
       // Reset social links to empty (prevents old values persisting)
       social: {
         facebook: '',

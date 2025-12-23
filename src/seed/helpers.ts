@@ -653,11 +653,11 @@ export async function seedHeader(
     data: {
       variant: data.variant || 'standard',
       navItems: data.navItems,
-      ctaButton: data.ctaButton || {
-        enabled: true,
-        label: 'Contact',
-        link: '/contact',
-        variant: 'default',
+      ctaButton: {
+        enabled: data.ctaButton?.enabled ?? true,
+        label: data.ctaButton?.label || 'Contact',
+        link: data.ctaButton?.link || '/contact',
+        variant: data.ctaButton?.variant || 'default',
       },
       showTopBar: data.showTopBar ?? !!data.topBar,
       topBar: data.topBar ? {
