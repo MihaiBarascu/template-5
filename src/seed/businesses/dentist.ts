@@ -19,6 +19,8 @@ import {
   formTemplates,
   createContactPageLayout,
   buildHeroData,
+  createSeederPage,
+  type FlexibleLayout,
 } from '../helpers'
 import { dentistImages, dentistData } from '../seed-data'
 import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
@@ -299,7 +301,7 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof dentistData) 
       },
       showDescriptions: true,
       iconSize: 'medium',
-      backgroundColor: 'primary',
+      backgroundColor: 'dark',
     },
     // NEW: How It Works - patient journey (timeline variant - different from barbershop)
     howItWorks: {
@@ -377,25 +379,10 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof dentistData) 
       locations: [
         {
           name: 'Clinica Centrală',
-          address: 'Strada Floreasca 55',
-          city: 'București',
+          address: 'Strada Floreasca 55, București',
           phone: '0722 111 222',
-          email: 'contact@dentalmed.ro',
-          schedule: [
-            { days: 'Luni - Vineri', hours: '09:00 - 20:00' },
-            { days: 'Sâmbătă', hours: '09:00 - 14:00' },
-            { days: 'Duminică', hours: 'Închis' },
-          ],
-          rating: 4.9,
-          ctaButton: {
-            label: 'Programează-te',
-            link: '/programare',
-          },
         },
       ],
-      showRating: true,
-      showSchedule: true,
-      backgroundColor: 'light',
     },
     // NEW: Brand Logos - echipamente si branduri medicale
     brandLogos: {
@@ -452,7 +439,6 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof dentistData) 
         {
           text: 'Consultație GRATUITĂ pentru pacienții noi!',
           link: '/programare',
-          linkText: 'Programează acum',
         },
       ],
       ctaButton: {
@@ -460,10 +446,7 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof dentistData) 
         label: 'Programează Consultație',
         link: '/programare',
       },
-      icon: 'gift',
-      backgroundColor: 'primary',
-      position: 'top',
-      sticky: false,
+      backgroundColor: 'green',
     },
     services: {
       blockType: 'services',
@@ -482,7 +465,7 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof dentistData) 
       blockType: 'stats',
       variant: 'grid-4',
       source: 'businessInfo',
-      backgroundColor: 'primary',
+      backgroundColor: 'dark',
     },
     team: {
       blockType: 'team',
@@ -557,201 +540,68 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof dentistData) 
 
 // Create additional pages
 async function createAdditionalPages(payload: Payload, variant: DesignVariant, formsMap: Map<string, string>) {
-  // Get form IDs
   const contactFormId = formsMap.get('Formular de contact')
   const bookingFormId = formsMap.get('Cerere programare')
-  // Services page
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Servicii',
-      slug: 'servicii',
-      heroType: 'minimal',
-      hero: {
-        headline: 'Servicii Stomatologice',
-        subheadline: 'Tratamente complete pentru sanatatea si estetica zambetului tau',
-      },
-      layout: [
-        {
-          blockType: 'services',
-          variant: variant.layout.servicesVariant,
-          heading: 'Lista Completa Servicii',
-          source: 'collection',
-          limit: 20,
-          showPrices: true,
-          showIcons: true,
-          backgroundColor: 'default',
-          detailBasePath: '/servicii',
-        },
-        {
-          blockType: 'cta',
-          variant: 'centered',
-          headline: 'Vrei sa te programezi?',
-          subheadline: 'Alege serviciul dorit si programeaza-te online',
-          buttons: [{ label: 'Programeaza-te', link: '/programare', variant: 'default' }],
-          backgroundColor: 'light',
-        },
-      ],
-      _status: 'published',
-    },
+
+  await createSeederPage(payload, {
+    title: 'Servicii',
+    slug: 'servicii',
+    heroType: 'minimal',
+    hero: { headline: 'Servicii Stomatologice', subheadline: 'Tratamente complete pentru sanatatea si estetica zambetului tau' },
+    layout: [
+      { blockType: 'services', variant: variant.layout.servicesVariant, heading: 'Lista Completa Servicii', limit: 20, showPrices: true, showIcons: true, backgroundColor: 'default' },
+      { blockType: 'cta', variant: 'centered', headline: 'Vrei sa te programezi?', subheadline: 'Alege serviciul dorit si programeaza-te online', buttons: [{ label: 'Programeaza-te', link: '/programare', variant: 'default' }], backgroundColor: 'light' },
+    ],
+    _status: 'published',
   })
   console.log('   Created Services page')
 
-  // Team page
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Echipa',
-      slug: 'echipa',
-      heroType: 'minimal',
-      hero: {
-        headline: 'Echipa Medicala',
-        subheadline: 'Cunoaste specialistii care vor avea grija de zambetul tau',
-      },
-      layout: [
-        {
-          blockType: 'team',
-          variant: variant.layout.teamVariant,
-          heading: 'Medicii Nostri',
-          subheading: 'Fiecare membru al echipei noastre este un specialist dedicat',
-          source: 'collection',
-          limit: 20,
-          showRole: true,
-          showBio: true,
-          backgroundColor: 'default',
-          detailBasePath: '/echipa',
-        },
-        {
-          blockType: 'cta',
-          variant: 'centered',
-          headline: 'Alege-ti Medicul',
-          subheadline: 'Programeaza-te la specialistul potrivit pentru nevoile tale',
-          buttons: [{ label: 'Programeaza-te', link: '/programare', variant: 'default' }],
-          backgroundColor: 'dark',
-        },
-      ],
-      _status: 'published',
-    },
+  await createSeederPage(payload, {
+    title: 'Echipa',
+    slug: 'echipa',
+    heroType: 'minimal',
+    hero: { headline: 'Echipa Medicala', subheadline: 'Cunoaste specialistii care vor avea grija de zambetul tau' },
+    layout: [
+      { blockType: 'team', variant: variant.layout.teamVariant, heading: 'Medicii Nostri', subheading: 'Fiecare membru al echipei noastre este un specialist dedicat', limit: 20, backgroundColor: 'default' },
+      { blockType: 'cta', variant: 'centered', headline: 'Alege-ti Medicul', subheadline: 'Programeaza-te la specialistul potrivit pentru nevoile tale', buttons: [{ label: 'Programeaza-te', link: '/programare', variant: 'default' }], backgroundColor: 'dark' },
+    ],
+    _status: 'published',
   })
   console.log('   Created Team page')
 
-  // Gallery page
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Galerie',
-      slug: 'galerie',
-      heroType: 'minimal',
-      hero: {
-        headline: 'Galerie',
-        subheadline: 'Descopera clinica noastra moderna',
-      },
-      layout: [
-        {
-          blockType: 'gallery',
-          variant: variant.layout.galleryVariant,
-          heading: 'Clinica si Echipamente',
-          subheading: 'Tehnologie de ultima generatie pentru cele mai bune rezultate',
-          source: 'portfolio',
-          limit: 20,
-          
-          backgroundColor: 'default',
-        },
-        {
-          blockType: 'cta',
-          variant: 'centered',
-          headline: 'Vino sa ne vizitezi!',
-          subheadline: 'Programeaza o consultatie si convinge-te de calitatea serviciilor noastre',
-          buttons: [{ label: 'Programeaza-te', link: '/programare', variant: 'default' }],
-          backgroundColor: 'primary',
-        },
-      ],
-      _status: 'published',
-    },
+  await createSeederPage(payload, {
+    title: 'Galerie',
+    slug: 'galerie',
+    heroType: 'minimal',
+    hero: { headline: 'Galerie', subheadline: 'Descopera clinica noastra moderna' },
+    layout: [
+      { blockType: 'gallery', variant: variant.layout.galleryVariant, heading: 'Clinica si Echipamente', subheading: 'Tehnologie de ultima generatie pentru cele mai bune rezultate', limit: 20, backgroundColor: 'default' },
+      { blockType: 'cta', variant: 'centered', headline: 'Vino sa ne vizitezi!', subheadline: 'Programeaza o consultatie si convinge-te de calitatea serviciilor noastre', buttons: [{ label: 'Programeaza-te', link: '/programare', variant: 'default' }], backgroundColor: 'dark' },
+    ],
+    _status: 'published',
   })
   console.log('   Created Gallery page')
 
-  // Booking page - using FormBlock
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Programare',
-      slug: 'programare',
-      heroType: 'minimal',
-      hero: {
-        headline: 'Programeaza-te Online',
-        subheadline: 'Completeaza formularul si te vom contacta pentru confirmare',
-      },
-      layout: [
-        // Form block using Form Builder (booking form)
-        ...(bookingFormId ? [{
-          blockType: 'formBlock' as const,
-          form: bookingFormId,
-          enableIntro: true,
-          introContent: {
-            root: {
-              type: 'root' as const,
-              children: [
-                {
-                  type: 'heading' as const,
-                  tag: 'h3' as const,
-                  children: [{ type: 'text' as const, text: 'Cerere de Programare', format: 0, detail: 0, mode: 'normal' as const, style: '', version: 1 }],
-                  direction: 'ltr' as const,
-                  format: '' as const,
-                  indent: 0,
-                  version: 1,
-                },
-                {
-                  type: 'paragraph' as const,
-                  children: [{ type: 'text' as const, text: 'Alege serviciul dorit, iar noi te vom contacta pentru confirmare.', format: 0, detail: 0, mode: 'normal' as const, style: '', version: 1 }],
-                  direction: 'ltr' as const,
-                  format: '' as const,
-                  indent: 0,
-                  textFormat: 0,
-                  version: 1,
-                },
-              ],
-              direction: 'ltr' as const,
-              format: '' as const,
-              indent: 0,
-              version: 1,
-            },
-          },
-        }] : []),
-        // Contact info block
-        {
-          blockType: 'contact' as const,
-          variant: 'minimal' as const,
-          heading: 'Informatii Clinica',
-          contactInfoItems: {
-            showAddress: true,
-            showPhone: true,
-            showEmail: true,
-            showWorkingHours: true,
-            showSocial: false,
-          },
-          backgroundColor: 'light' as const,
-        },
-      ],
-      _status: 'published',
-    },
+  await createSeederPage(payload, {
+    title: 'Programare',
+    slug: 'programare',
+    heroType: 'minimal',
+    hero: { headline: 'Programeaza-te Online', subheadline: 'Completeaza formularul si te vom contacta pentru confirmare' },
+    layout: [
+      ...(bookingFormId ? [{ blockType: 'formBlock', form: bookingFormId, enableIntro: true, heading: 'Cerere de Programare', subheading: 'Alege serviciul dorit, iar noi te vom contacta pentru confirmare.' }] : []),
+      { blockType: 'contact', variant: 'compact', heading: 'Informatii Clinica', backgroundColor: 'light' },
+    ],
+    _status: 'published',
   })
   console.log('   Created Booking page')
 
-  // Contact page - 2-column layout
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Contact',
-      slug: 'contact',
-      heroType: 'minimal',
-      hero: {
-        headline: 'Contact',
-        subheadline: 'Suntem aici pentru zambetul tau. Contacteaza-ne pentru programari.',
-      },
-      layout: createContactPageLayout(contactFormId),
-      _status: 'published',
-    },
+  await createSeederPage(payload, {
+    title: 'Contact',
+    slug: 'contact',
+    heroType: 'minimal',
+    hero: { headline: 'Contact', subheadline: 'Suntem aici pentru zambetul tau. Contacteaza-ne pentru programari.' },
+    layout: createContactPageLayout(contactFormId) as FlexibleLayout,
+    _status: 'published',
   })
   console.log('   Created Contact page')
 }

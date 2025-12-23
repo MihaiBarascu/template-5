@@ -1,4 +1,12 @@
 import type { Block } from 'payload'
+import { sectionWrapperFields } from '../_shared/sectionWrapperFields'
+import {
+  headingFields,
+  ctaButtonFields,
+  displayOptionsGroup,
+  advancedSettingsGroup,
+} from '../_shared/commonFields'
+import { portfolioSourceFields } from '../_shared/collectionSourceFields'
 
 export const PortfolioBlock: Block = {
   slug: 'portfolio',
@@ -9,6 +17,7 @@ export const PortfolioBlock: Block = {
   },
   imageURL: '/blocks/portfolio.svg',
   fields: [
+    // === ESSENTIAL FIELDS ===
     {
       name: 'variant',
       type: 'select',
@@ -23,122 +32,59 @@ export const PortfolioBlock: Block = {
         { label: 'Case studies (carduri mari)', value: 'case-studies' },
       ],
     },
-    {
-      name: 'heading',
-      type: 'text',
-      label: 'Titlu sectiune',
-      defaultValue: 'Proiectele noastre',
-    },
-    {
-      name: 'subheading',
-      type: 'textarea',
-      label: 'Subtitlu sectiune',
-    },
-    {
-      name: 'source',
-      type: 'select',
-      label: 'Sursa date',
-      defaultValue: 'collection',
-      options: [
-        { label: 'Din colectia Portofoliu', value: 'collection' },
-        { label: 'Selectie manuala', value: 'manual' },
-      ],
-    },
-    {
-      name: 'selectedProjects',
-      type: 'relationship',
-      relationTo: 'portfolio',
-      hasMany: true,
-      label: 'Proiecte selectate',
-      admin: {
-        condition: (_, siblingData) => siblingData?.source === 'manual',
-      },
-    },
-    {
-      name: 'filterByCategory',
-      type: 'relationship',
-      relationTo: 'categories',
-      label: 'Filtreaza dupa categorie',
-      admin: {
-        condition: (_, siblingData) => siblingData?.source === 'collection',
-      },
-    },
-    {
-      name: 'limit',
-      type: 'number',
-      label: 'Numar maxim',
-      defaultValue: 6,
-      admin: {
-        condition: (_, siblingData) => siblingData?.source === 'collection',
-      },
-    },
-    {
-      name: 'onlyFeatured',
-      type: 'checkbox',
-      label: 'Doar proiecte featured',
-      defaultValue: false,
-      admin: {
-        condition: (_, siblingData) => siblingData?.source === 'collection',
-      },
-    },
-    {
-      name: 'showDescription',
-      type: 'checkbox',
-      label: 'Afiseaza descriere',
-      defaultValue: true,
-    },
-    {
-      name: 'showClient',
-      type: 'checkbox',
-      label: 'Afiseaza client',
-      defaultValue: false,
-    },
-    {
-      name: 'columns',
-      type: 'select',
-      label: 'Coloane',
-      defaultValue: '3',
-      options: [
-        { label: '2 coloane', value: '2' },
-        { label: '3 coloane', value: '3' },
-        { label: '4 coloane', value: '4' },
-      ],
-    },
-    {
-      name: 'ctaButton',
-      type: 'group',
-      label: 'Buton CTA',
+    ...headingFields({ headingDefault: 'Proiectele noastre' }),
+    // Collection source fields
+    ...portfolioSourceFields(),
+    // === DISPLAY OPTIONS (collapsible) ===
+    displayOptionsGroup({
+      label: 'Optiuni afisare',
+      collapsed: true,
       fields: [
         {
-          name: 'enabled',
+          name: 'showDescription',
           type: 'checkbox',
-          label: 'Afiseaza buton',
+          label: 'Afiseaza descriere',
           defaultValue: true,
         },
         {
-          name: 'label',
-          type: 'text',
-          label: 'Text',
-          defaultValue: 'Vezi toate proiectele',
+          name: 'showClient',
+          type: 'checkbox',
+          label: 'Afiseaza client',
+          defaultValue: false,
         },
         {
-          name: 'link',
-          type: 'text',
-          label: 'Link',
-          defaultValue: '/portofoliu',
+          name: 'columns',
+          type: 'select',
+          label: 'Coloane',
+          defaultValue: '3',
+          options: [
+            { label: '2 coloane', value: '2' },
+            { label: '3 coloane', value: '3' },
+            { label: '4 coloane', value: '4' },
+          ],
         },
       ],
-    },
-    {
-      name: 'backgroundColor',
-      type: 'select',
-      label: 'Culoare fundal',
-      defaultValue: 'default',
-      options: [
-        { label: 'Default', value: 'default' },
-        { label: 'Light', value: 'light' },
-        { label: 'Dark', value: 'dark' },
+    }),
+    // CTA Button
+    ctaButtonFields({ defaultLabel: 'Vezi toate proiectele', groupLabel: 'Buton CTA' }),
+    // === ADVANCED SETTINGS (collapsible) ===
+    advancedSettingsGroup({
+      label: 'Setari avansate',
+      fields: [
+        {
+          name: 'backgroundColor',
+          type: 'select',
+          label: 'Culoare fundal',
+          defaultValue: 'default',
+          options: [
+            { label: 'Default', value: 'default' },
+            { label: 'Light', value: 'light' },
+            { label: 'Dark', value: 'dark' },
+          ],
+        },
       ],
-    },
+    }),
+    // Section wrapper fields
+    ...sectionWrapperFields,
   ],
 }

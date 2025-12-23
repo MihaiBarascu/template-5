@@ -1,5 +1,7 @@
 import type { Block } from 'payload'
 import { sectionWrapperFields } from '../_shared/sectionWrapperFields'
+import { headingFields, ctaButtonFields, displayOptionsGroup, advancedSettingsGroup } from '../_shared/commonFields'
+import { servicesSourceFields } from '../_shared/collectionSourceFields'
 
 export const ServicesBlock: Block = {
   slug: 'services',
@@ -10,6 +12,7 @@ export const ServicesBlock: Block = {
   },
   imageURL: '/blocks/services.svg',
   fields: [
+    // === ESSENTIAL FIELDS ===
     {
       name: 'variant',
       type: 'select',
@@ -17,239 +20,54 @@ export const ServicesBlock: Block = {
       defaultValue: 'grid-3',
       options: [
         { label: 'Grid 3 coloane', value: 'grid-3' },
-        { label: 'Grid 4 coloane', value: 'grid-4' },
         { label: 'Grid 2 coloane', value: 'grid-2' },
         { label: 'Lista', value: 'list' },
-        { label: 'Lista alternanta', value: 'list-alternating' },
-        { label: 'Lista preturi (dotted)', value: 'price-list' },
+        { label: 'Lista alternata (imagine stanga/dreapta)', value: 'list-alternating' },
+        { label: 'Lista preturi', value: 'price-list' },
       ],
     },
-    {
-      name: 'heading',
-      type: 'text',
-      label: 'Titlu sectiune',
-    },
-    {
-      name: 'subheading',
-      type: 'textarea',
-      label: 'Subtitlu sectiune',
-    },
-    {
-      name: 'source',
-      type: 'select',
-      label: 'Sursa date',
-      defaultValue: 'collection',
-      options: [
-        { label: 'Din colectia Servicii', value: 'collection' },
-        { label: 'Selectie manuala', value: 'manual' },
-        { label: 'Continut custom', value: 'custom' },
-      ],
-    },
-    {
-      name: 'selectedServices',
-      type: 'relationship',
-      relationTo: 'services',
-      hasMany: true,
-      label: 'Servicii selectate',
-      admin: {
-        condition: (_, siblingData) => siblingData?.source === 'manual',
-      },
-    },
-    {
-      name: 'filterByCategory',
-      type: 'relationship',
-      relationTo: 'service-categories',
-      hasMany: true,
-      label: 'Filtrează după categorie',
-      admin: {
-        description: 'Selectează una sau mai multe categorii pentru a filtra serviciile',
-        condition: (_, siblingData) => siblingData?.source === 'collection',
-      },
-    },
-    {
-      name: 'limit',
-      type: 'number',
-      label: 'Numar maxim',
-      defaultValue: 6,
-      admin: {
-        condition: (_, siblingData) => siblingData?.source === 'collection',
-      },
-    },
-    {
-      name: 'onlyFeatured',
-      type: 'checkbox',
-      label: 'Doar servicii populare',
-      defaultValue: false,
-      admin: {
-        condition: (_, siblingData) => siblingData?.source === 'collection',
-      },
-    },
-    {
-      name: 'customServices',
-      type: 'array',
-      label: 'Servicii custom',
-      admin: {
-        condition: (_, siblingData) => siblingData?.source === 'custom',
-      },
+    ...headingFields(),
+    // Collection fields (limit, filterByCategory, onlyFeatured)
+    ...servicesSourceFields(),
+    // === DISPLAY OPTIONS (collapsible) ===
+    displayOptionsGroup({
+      label: 'Optiuni afisare',
+      collapsed: true,
       fields: [
         {
-          name: 'title',
-          type: 'text',
-          label: 'Titlu',
-          required: true,
-        },
-        {
-          name: 'description',
-          type: 'textarea',
-          label: 'Descriere',
-        },
-        {
-          name: 'icon',
-          type: 'text',
-          label: 'Icon (Lucide)',
-        },
-        {
-          name: 'image',
-          type: 'upload',
-          relationTo: 'media',
-          label: 'Imagine',
-        },
-        {
-          name: 'price',
-          type: 'number',
-          label: 'Pret (RON)',
-        },
-        {
-          name: 'link',
-          type: 'text',
-          label: 'Link',
-        },
-      ],
-    },
-    {
-      name: 'showPrices',
-      type: 'checkbox',
-      label: 'Afiseaza preturi',
-      defaultValue: true,
-    },
-    {
-      name: 'showIcons',
-      type: 'checkbox',
-      label: 'Afiseaza iconite',
-      defaultValue: true,
-    },
-    {
-      name: 'showDuration',
-      type: 'checkbox',
-      label: 'Afiseaza durata',
-      defaultValue: true,
-    },
-    {
-      name: 'showBookButton',
-      type: 'checkbox',
-      label: 'Afiseaza buton programare',
-      defaultValue: false,
-    },
-    {
-      name: 'bookButtonText',
-      type: 'text',
-      label: 'Text buton programare',
-      defaultValue: 'Programeaza-te',
-      admin: {
-        condition: (_, siblingData) => siblingData?.showBookButton,
-      },
-    },
-    {
-      name: 'bookButtonLink',
-      type: 'text',
-      label: 'Link buton programare',
-      defaultValue: '/contact',
-      admin: {
-        condition: (_, siblingData) => siblingData?.showBookButton,
-      },
-    },
-    {
-      name: 'ctaButton',
-      type: 'group',
-      label: 'Buton CTA',
-      fields: [
-        {
-          name: 'enabled',
+          name: 'showPrices',
           type: 'checkbox',
-          label: 'Afiseaza buton',
+          label: 'Afiseaza preturi',
           defaultValue: true,
         },
         {
-          name: 'label',
-          type: 'text',
-          label: 'Text',
-          defaultValue: 'Vezi toate serviciile',
-        },
-        {
-          name: 'link',
-          type: 'text',
-          label: 'Link',
-          defaultValue: '/servicii',
+          name: 'showIcons',
+          type: 'checkbox',
+          label: 'Afiseaza iconite',
+          defaultValue: true,
         },
       ],
-    },
-    {
-      name: 'detailBasePath',
-      type: 'text',
-      label: 'Cale pentru pagini detaliu',
-      admin: {
-        description: 'Ex: /servicii - cardurile vor fi clickable si vor duce la /servicii/slug-serviciu. Lasati gol pentru a dezactiva link-urile.',
-      },
-    },
-    {
-      name: 'backgroundColor',
-      type: 'select',
-      label: 'Culoare fundal',
-      defaultValue: 'default',
-      options: [
-        { label: 'Default', value: 'default' },
-        { label: 'Light', value: 'light' },
-        { label: 'Dark', value: 'dark' },
-        { label: 'Primary', value: 'primary' },
-      ],
-    },
-    {
-      name: 'hoverEffect',
-      type: 'select',
-      label: 'Efect hover carduri',
-      defaultValue: 'default',
-      options: [
-        { label: 'Default (shadow + border)', value: 'default' },
-        { label: 'Lift (ridicare)', value: 'lift' },
-        { label: 'Glow (stralucire)', value: 'glow' },
-        { label: 'Scale (marire)', value: 'scale' },
-        { label: 'Fara efect', value: 'none' },
-      ],
-    },
-    // Configurable labels for i18n
-    {
-      name: 'labels',
-      type: 'group',
-      label: 'Text Labels (i18n)',
-      admin: {
-        description: 'Customize text labels for different languages',
-      },
+    }),
+    // CTA Button
+    ctaButtonFields({ defaultLabel: 'Vezi toate serviciile' }),
+    // === ADVANCED SETTINGS (collapsible) ===
+    advancedSettingsGroup({
+      label: 'Setari avansate',
       fields: [
         {
-          name: 'currencySymbol',
-          type: 'text',
-          label: 'Currency Symbol',
-          defaultValue: 'RON',
-        },
-        {
-          name: 'fromLabel',
-          type: 'text',
-          label: 'From Label (for starting price)',
-          defaultValue: 'de la',
+          name: 'backgroundColor',
+          type: 'select',
+          label: 'Culoare fundal',
+          defaultValue: 'default',
+          options: [
+            { label: 'Default', value: 'default' },
+            { label: 'Light', value: 'light' },
+            { label: 'Dark', value: 'dark' },
+          ],
         },
       ],
-    },
-    // Section wrapper fields for advanced layout options
+    }),
+    // Section wrapper fields
     ...sectionWrapperFields,
   ],
 }

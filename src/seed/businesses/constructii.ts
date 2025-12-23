@@ -19,6 +19,8 @@ import {
   formTemplates,
   createContactPageLayout,
   buildHeroData,
+  createSeederPage,
+  type FlexibleLayout,
 } from '../helpers'
 import { constructiiImages, constructiiData } from '../seed-data'
 import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
@@ -257,7 +259,7 @@ function buildHomepageLayout(variant: DesignVariant) {
       },
       showDescriptions: true,
       iconSize: 'medium',
-      backgroundColor: 'primary',
+      backgroundColor: 'dark',
     },
     // NEW: How It Works - construction process (connected variant - project flow)
     howItWorks: {
@@ -326,25 +328,10 @@ function buildHomepageLayout(variant: DesignVariant) {
       locations: [
         {
           name: 'BuildPro - Sediu Central',
-          address: 'Bulevardul Theodor Pallady 100',
-          city: 'București',
+          address: 'Bulevardul Theodor Pallady 100, București',
           phone: '0722 111 333',
-          email: 'office@buildpro.ro',
-          schedule: [
-            { days: 'Luni - Vineri', hours: '07:00 - 17:00' },
-            { days: 'Sâmbătă', hours: '08:00 - 13:00' },
-            { days: 'Duminică', hours: 'Închis' },
-          ],
-          rating: 4.9,
-          ctaButton: {
-            label: 'Cere Ofertă',
-            link: '/contact',
-          },
         },
       ],
-      showRating: true,
-      showSchedule: true,
-      backgroundColor: 'light',
     },
     // NEW: Brand Logos - furnizori materiale
     brandLogos: {
@@ -408,15 +395,11 @@ function buildHomepageLayout(variant: DesignVariant) {
       variant: 'simple',
       messages: [
         {
-          text: '📐 Evaluare GRATUITĂ la fața locului pentru orice proiect!',
+          text: 'Evaluare GRATUITĂ la fața locului pentru orice proiect!',
           link: '/contact',
-          linkText: 'Solicită evaluare',
         },
       ],
-      icon: 'megaphone',
       backgroundColor: 'primary',
-      position: 'top',
-      sticky: false,
     },
     services: {
       blockType: 'services',
@@ -435,7 +418,7 @@ function buildHomepageLayout(variant: DesignVariant) {
       blockType: 'stats',
       variant: 'grid-4',
       source: 'businessInfo',
-      backgroundColor: 'primary',
+      backgroundColor: 'dark',
     },
     team: {
       blockType: 'team',
@@ -509,63 +492,50 @@ function buildHomepageLayout(variant: DesignVariant) {
 async function createAdditionalPages(payload: Payload, variant: DesignVariant, formsMap: Map<string, string>) {
   const contactFormId = formsMap.get('Formular de contact')
 
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Servicii',
-      slug: 'servicii',
-      heroType: 'minimal',
-      hero: { headline: 'Serviciile Noastre', subheadline: 'Constructii si renovari complete' },
-      layout: [
-        { blockType: 'services', variant: variant.layout.servicesVariant, heading: 'Toate Serviciile', source: 'collection', limit: 20, showPrices: true, showIcons: true, backgroundColor: 'default', detailBasePath: '/servicii' },
-        { blockType: 'cta', variant: 'centered', headline: 'Cere Oferta', buttons: [{ label: 'Contacteaza-ne', link: '/contact', variant: 'default' }], backgroundColor: 'light' },
-      ],
-      _status: 'published',
-    },
+  await createSeederPage(payload, {
+    title: 'Servicii',
+    slug: 'servicii',
+    heroType: 'minimal',
+    hero: { headline: 'Serviciile Noastre', subheadline: 'Constructii si renovari complete' },
+    layout: [
+      { blockType: 'services', variant: variant.layout.servicesVariant, heading: 'Toate Serviciile', limit: 20, showPrices: true, showIcons: true, backgroundColor: 'default' },
+      { blockType: 'cta', variant: 'centered', headline: 'Cere Oferta', buttons: [{ label: 'Contacteaza-ne', link: '/contact', variant: 'default' }], backgroundColor: 'light' },
+    ],
+    _status: 'published',
   })
   console.log('   Created Services page')
 
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Portofoliu',
-      slug: 'portofoliu',
-      heroType: 'minimal',
-      hero: { headline: 'Portofoliu', subheadline: 'Proiecte realizate' },
-      layout: [
-        { blockType: 'gallery', variant: variant.layout.galleryVariant, heading: 'Proiectele Noastre', source: 'portfolio', limit: 20,  backgroundColor: 'default' },
-      ],
-      _status: 'published',
-    },
+  await createSeederPage(payload, {
+    title: 'Portofoliu',
+    slug: 'portofoliu',
+    heroType: 'minimal',
+    hero: { headline: 'Portofoliu', subheadline: 'Proiecte realizate' },
+    layout: [
+      { blockType: 'gallery', variant: variant.layout.galleryVariant, heading: 'Proiectele Noastre', limit: 20, backgroundColor: 'default' },
+    ],
+    _status: 'published',
   })
   console.log('   Created Portfolio page')
 
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Echipa',
-      slug: 'echipa',
-      heroType: 'minimal',
-      hero: { headline: 'Echipa Noastra', subheadline: 'Profesionisti cu experienta' },
-      layout: [
-        { blockType: 'team', variant: variant.layout.teamVariant, heading: 'Echipa', source: 'collection', limit: 20, showRole: true, showBio: true, backgroundColor: 'default' },
-      ],
-      _status: 'published',
-    },
+  await createSeederPage(payload, {
+    title: 'Echipa',
+    slug: 'echipa',
+    heroType: 'minimal',
+    hero: { headline: 'Echipa Noastra', subheadline: 'Profesionisti cu experienta' },
+    layout: [
+      { blockType: 'team', variant: variant.layout.teamVariant, heading: 'Echipa', limit: 20, backgroundColor: 'default' },
+    ],
+    _status: 'published',
   })
   console.log('   Created Team page')
 
-  // Contact page - 2-column layout
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Contact',
-      slug: 'contact',
-      heroType: 'minimal',
-      hero: { headline: 'Contact', subheadline: 'Cere o oferta gratuita' },
-      layout: createContactPageLayout(contactFormId),
-      _status: 'published',
-    },
+  await createSeederPage(payload, {
+    title: 'Contact',
+    slug: 'contact',
+    heroType: 'minimal',
+    hero: { headline: 'Contact', subheadline: 'Cere o oferta gratuita' },
+    layout: createContactPageLayout(contactFormId) as FlexibleLayout,
+    _status: 'published',
   })
   console.log('   Created Contact page')
 }

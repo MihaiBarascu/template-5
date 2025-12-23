@@ -1,4 +1,6 @@
 import type { Block } from 'payload'
+import { sectionWrapperFields } from '../_shared/sectionWrapperFields'
+import { displayOptionsGroup, advancedSettingsGroup } from '../_shared/commonFields'
 
 export const LogoCloudBlock: Block = {
   slug: 'logo-cloud',
@@ -9,6 +11,7 @@ export const LogoCloudBlock: Block = {
   },
   imageURL: '/blocks/logo-cloud.svg',
   fields: [
+    // === ESSENTIAL FIELDS ===
     {
       name: 'variant',
       type: 'select',
@@ -16,10 +19,7 @@ export const LogoCloudBlock: Block = {
       defaultValue: 'simple',
       options: [
         { label: 'Simpla (grid)', value: 'simple' },
-        { label: 'Carousel automat', value: 'carousel' },
-        { label: 'Cu fundal carduri', value: 'cards' },
-        { label: 'Grayscale -> Color la hover', value: 'grayscale' },
-        { label: 'Cu text "Parteneri"', value: 'with-text' },
+        { label: 'Carousel', value: 'carousel' },
         { label: 'Marquee (scroll infinit)', value: 'marquee' },
       ],
     },
@@ -27,14 +27,6 @@ export const LogoCloudBlock: Block = {
       name: 'heading',
       type: 'text',
       label: 'Titlu sectiune',
-      admin: {
-        description: 'Ex: "Partenerii nostri", "Au avut incredere in noi", "As Seen In"',
-      },
-    },
-    {
-      name: 'subheading',
-      type: 'text',
-      label: 'Subtitlu',
     },
     {
       name: 'logos',
@@ -54,63 +46,68 @@ export const LogoCloudBlock: Block = {
           type: 'text',
           label: 'Nume companie',
           required: true,
-          admin: {
-            description: 'Pentru accesibilitate (alt text)',
-          },
         },
         {
           name: 'url',
           type: 'text',
           label: 'Link (optional)',
-          admin: {
-            description: 'URL catre site-ul partenerului',
-          },
         },
       ],
     },
-    {
-      name: 'logoSize',
-      type: 'select',
-      label: 'Dimensiune logo-uri',
-      defaultValue: 'medium',
-      options: [
-        { label: 'Mica (80px)', value: 'small' },
-        { label: 'Medie (120px)', value: 'medium' },
-        { label: 'Mare (160px)', value: 'large' },
+    // === DISPLAY OPTIONS (collapsible) ===
+    displayOptionsGroup({
+      label: 'Optiuni afisare',
+      collapsed: true,
+      fields: [
+        {
+          name: 'grayscale',
+          type: 'checkbox',
+          label: 'Logo-uri grayscale (color la hover)',
+          defaultValue: false,
+        },
+        {
+          name: 'logoSize',
+          type: 'select',
+          label: 'Dimensiune logo-uri',
+          defaultValue: 'medium',
+          options: [
+            { label: 'Mica', value: 'small' },
+            { label: 'Medie', value: 'medium' },
+            { label: 'Mare', value: 'large' },
+          ],
+        },
+        {
+          name: 'columns',
+          type: 'select',
+          label: 'Numar coloane',
+          defaultValue: '5',
+          options: [
+            { label: '3 coloane', value: '3' },
+            { label: '4 coloane', value: '4' },
+            { label: '5 coloane', value: '5' },
+            { label: '6 coloane', value: '6' },
+          ],
+        },
       ],
-    },
-    {
-      name: 'columns',
-      type: 'select',
-      label: 'Numar coloane (desktop)',
-      defaultValue: '5',
-      options: [
-        { label: '3 coloane', value: '3' },
-        { label: '4 coloane', value: '4' },
-        { label: '5 coloane', value: '5' },
-        { label: '6 coloane', value: '6' },
+    }),
+    // === ADVANCED SETTINGS (collapsible) ===
+    advancedSettingsGroup({
+      label: 'Setari avansate',
+      fields: [
+        {
+          name: 'backgroundColor',
+          type: 'select',
+          label: 'Culoare fundal',
+          defaultValue: 'default',
+          options: [
+            { label: 'Default', value: 'default' },
+            { label: 'Light', value: 'light' },
+            { label: 'Dark', value: 'dark' },
+          ],
+        },
       ],
-    },
-    {
-      name: 'grayscale',
-      type: 'checkbox',
-      label: 'Logo-uri grayscale',
-      defaultValue: false,
-      admin: {
-        description: 'Afiseaza logo-urile in alb-negru (colorate la hover)',
-      },
-    },
-    {
-      name: 'backgroundColor',
-      type: 'select',
-      label: 'Culoare fundal',
-      defaultValue: 'default',
-      options: [
-        { label: 'Default', value: 'default' },
-        { label: 'Light', value: 'light' },
-        { label: 'Dark', value: 'dark' },
-        { label: 'Transparent', value: 'transparent' },
-      ],
-    },
+    }),
+    // Section wrapper fields
+    ...sectionWrapperFields,
   ],
 }

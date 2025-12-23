@@ -18,6 +18,8 @@ import {
   formTemplates,
   createContactPageLayout,
   buildHeroData,
+  createSeederPage,
+  type FlexibleLayout,
 } from '../helpers'
 import { fitnessImages, fitnessData } from '../fitness-data'
 import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
@@ -356,7 +358,7 @@ function buildHomepageLayout(variant: DesignVariant) {
       blockType: 'stats',
       variant: 'grid-4',
       source: 'businessInfo',
-      backgroundColor: 'primary',
+      backgroundColor: 'dark',
     },
     classesGrid: {
       blockType: 'classesGrid',
@@ -456,7 +458,7 @@ function buildHomepageLayout(variant: DesignVariant) {
         { label: 'Inscrie-te Acum', link: '/contact', variant: 'default' },
         { label: 'Vezi Abonamentele', link: '/abonamente', variant: 'outline' },
       ],
-      backgroundColor: 'primary',
+      backgroundColor: 'dark',
     },
   }
 
@@ -661,43 +663,35 @@ async function createAdditionalPages(
   // ============================================
   // CLASSES PARENT PAGE
   // ============================================
-  const clasesPage = await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Clase',
-      slug: 'clase',
-      heroType: 'minimal',
-      hero: {
-        headline: 'Clasele Noastre',
-        subheadline: 'De la cardio intens la yoga relaxanta - avem clasa perfecta pentru tine',
-      },
-      layout: [
-        {
-          blockType: 'services',
-          variant: 'grid-3',
-          heading: 'Toate Clasele',
-          subheading: 'Exploreaza varietatea de clase fitness disponibile',
-          limit: 20,
-          showPrices: true,
-          showIcons: true,
-          backgroundColor: 'default',
-          detailBasePath: '/clase',
-          labels: {
-            currencySymbol: 'RON',
-            fromLabel: 'de la',
-          },
-        },
-        {
-          blockType: 'cta',
-          variant: 'centered',
-          headline: 'Vrei sa incerci o clasa?',
-          subheadline: 'Inscrie-te pentru o sedinta de proba gratuita',
-          buttons: [{ label: 'Inscrie-te', link: '/contact', variant: 'default' }],
-          backgroundColor: 'primary',
-        },
-      ],
-      _status: 'published',
+  const clasesPage = await createSeederPage(payload, {
+    title: 'Clase',
+    slug: 'clase',
+    heroType: 'minimal',
+    hero: {
+      headline: 'Clasele Noastre',
+      subheadline: 'De la cardio intens la yoga relaxanta - avem clasa perfecta pentru tine',
     },
+    layout: [
+      {
+        blockType: 'services',
+        variant: 'grid-3',
+        heading: 'Toate Clasele',
+        subheading: 'Exploreaza varietatea de clase fitness disponibile',
+        limit: 20,
+        showPrices: true,
+        showIcons: true,
+        backgroundColor: 'default',
+      },
+      {
+        blockType: 'cta',
+        variant: 'centered',
+        headline: 'Vrei sa incerci o clasa?',
+        subheadline: 'Inscrie-te pentru o sedinta de proba gratuita',
+        buttons: [{ label: 'Inscrie-te', link: '/contact', variant: 'default' }],
+        backgroundColor: 'dark',
+      },
+    ],
+    _status: 'published',
   })
   console.log('   Created Classes page')
 
@@ -720,169 +714,140 @@ async function createAdditionalPages(
       continue
     }
 
-    await payload.create({
-      collection: 'pages',
-      data: {
-        title: classItem.title,
-        slug,
-        parent: clasesPage.id, // Nested under Clase
-        // Manually set breadcrumbs since nested-docs plugin hooks may not trigger via Local API
-        breadcrumbs: [
-          { label: 'Clase', url: '/clase', doc: clasesPage.id },
-          { label: classItem.title, url: `/clase/${slug}` },
-        ],
-        heroType: 'none', // No hero - ServiceDetail block handles the display
-        layout: [
-          {
-            blockType: 'serviceDetail',
-            service: serviceId as string, // Use relationship ID
-            variant: 'full',
-            showBreadcrumb: true,
-            showSchedule: true,
-            showPricing: true,
-            showTeamMember: true,
-            showBenefits: true,
-            showFeatures: true,
-            showRequirements: true,
-            showRelatedServices: true,
-            relatedServicesCount: 3,
-            relatedServicesTitle: 'Alte clase similare',
-            ctaButtonText: 'Rezerva acum',
-            ctaButtonLink: `/clase/inscriere?clasa=${encodeURIComponent(classItem.title)}`,
-            backgroundColor: 'light',
-            labels: {
-              breadcrumbHome: 'Acasa',
-              breadcrumbServices: 'Clase',
-              benefitsTitle: 'Beneficii',
-              scheduleTitle: 'Program',
-              pricingTitle: 'Preturi',
-              teamMemberTitle: 'Antrenor',
-              viewAllServicesText: 'Vezi toate clasele',
-            },
-            links: {
-              servicesBasePath: '/clase',
-              teamBasePath: '/antrenori',
-              bookingPath: '/clase/inscriere',
-            },
+    await createSeederPage(payload, {
+      title: classItem.title,
+      slug,
+      parent: clasesPage.id, // Nested under Clase
+      // Manually set breadcrumbs since nested-docs plugin hooks may not trigger via Local API
+      breadcrumbs: [
+        { label: 'Clase', url: '/clase', doc: clasesPage.id },
+        { label: classItem.title, url: `/clase/${slug}` },
+      ],
+      heroType: 'none', // No hero - ServiceDetail block handles the display
+      layout: [
+        {
+          blockType: 'serviceDetail',
+          service: serviceId as string, // Use relationship ID
+          variant: 'full',
+          showBreadcrumb: true,
+          showSchedule: true,
+          showPricing: true,
+          showTeamMember: true,
+          showBenefits: true,
+          showFeatures: true,
+          showRequirements: true,
+          showRelatedServices: true,
+          relatedServicesCount: 3,
+          relatedServicesTitle: 'Alte clase similare',
+          ctaButtonText: 'Rezerva acum',
+          ctaButtonLink: `/clase/inscriere?clasa=${encodeURIComponent(classItem.title)}`,
+          backgroundColor: 'light',
+          labels: {
+            breadcrumbHome: 'Acasa',
+            breadcrumbServices: 'Clase',
+            benefitsTitle: 'Beneficii',
+            scheduleTitle: 'Program',
+            pricingTitle: 'Preturi',
+            teamMemberTitle: 'Antrenor',
+            viewAllServicesText: 'Vezi toate clasele',
           },
-        ],
-        _status: 'published',
-      },
+          links: {
+            servicesBasePath: '/clase',
+            teamBasePath: '/antrenori',
+            bookingPath: '/clase/inscriere',
+          },
+        },
+      ],
+      _status: 'published',
     })
     console.log(`   Created class page: /clase/${slug}`)
   }
 
   // Schedule page
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Program',
-      slug: 'program',
-      heroType: 'minimal',
-      hero: {
-        headline: 'Programul Claselor',
-        subheadline: 'Gaseste clasa perfecta in programul nostru saptamanal',
-      },
-      layout: [
-        {
-          blockType: 'scheduleTable',
-          variant: 'table-week',
-          heading: 'Program Saptamanal',
-          source: 'collection',
-          showTrainer: true,
-          showDuration: true,
-          showRoom: true,
-          showCategoryFilter: true,
-          highlightToday: true,
-          startHour: 7,
-          endHour: 22,
-          backgroundColor: 'default',
-          ctaButton: {
-            enabled: true,
-            label: 'Inscrie-te la o clasa',
-            link: '/contact',
-          },
-        },
-      ],
-      _status: 'published',
+  await createSeederPage(payload, {
+    title: 'Program',
+    slug: 'program',
+    heroType: 'minimal',
+    hero: {
+      headline: 'Programul Claselor',
+      subheadline: 'Gaseste clasa perfecta in programul nostru saptamanal',
     },
+    layout: [
+      {
+        blockType: 'scheduleTable',
+        variant: 'table-week',
+        heading: 'Program Saptamanal',
+        showCategoryFilter: true,
+        highlightToday: true,
+        startHour: 7,
+        endHour: 22,
+        backgroundColor: 'default',
+      },
+    ],
+    _status: 'published',
   })
   console.log('   Created Schedule page')
 
   // Subscriptions page
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Abonamente',
-      slug: 'abonamente',
-      heroType: 'minimal',
-      hero: {
-        headline: 'Abonamente',
-        subheadline: 'Alege abonamentul potrivit pentru stilul tau de viata',
-      },
-      layout: [
-        {
-          blockType: 'subscriptionCards',
-          variant: 'cards-3',
-          heading: 'Pachetele Noastre',
-          subheading: 'Flexibilitate si valoare pentru orice buget',
-          source: 'collection',
-          limit: 10,
-          showFeatures: true,
-          showOldPrice: true,
-          backgroundColor: 'default',
-        },
-        {
-          blockType: 'faq',
-          variant: 'accordion',
-          heading: 'Intrebari despre Abonamente',
-          source: 'collection',
-          limit: 5,
-          backgroundColor: 'light',
-        },
-      ],
-      _status: 'published',
+  await createSeederPage(payload, {
+    title: 'Abonamente',
+    slug: 'abonamente',
+    heroType: 'minimal',
+    hero: {
+      headline: 'Abonamente',
+      subheadline: 'Alege abonamentul potrivit pentru stilul tau de viata',
     },
+    layout: [
+      {
+        blockType: 'subscriptionCards',
+        variant: 'cards-3',
+        heading: 'Pachetele Noastre',
+        subheading: 'Flexibilitate si valoare pentru orice buget',
+        limit: 10,
+        backgroundColor: 'default',
+      },
+      {
+        blockType: 'faq',
+        variant: 'accordion',
+        heading: 'Intrebari despre Abonamente',
+        limit: 5,
+        backgroundColor: 'light',
+      },
+    ],
+    _status: 'published',
   })
   console.log('   Created Subscriptions page')
 
   // ============================================
   // TRAINERS PARENT PAGE
   // ============================================
-  const antrenoriPage = await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Antrenori',
-      slug: 'antrenori',
-      heroType: 'minimal',
-      hero: {
-        headline: 'Echipa de Antrenori',
-        subheadline: 'Profesionisti pasionati care te vor ajuta sa iti atingi obiectivele',
-      },
-      layout: [
-        {
-          blockType: 'team',
-          variant: variant.layout.teamVariant,
-          heading: 'Antrenorii Nostri',
-          subheading:
-            'Fiecare antrenor este certificat si dedicat sa te ajute sa obtii rezultate',
-          source: 'collection',
-          limit: 20,
-          showRole: true,
-          showBio: true,
-          backgroundColor: 'default',
-        },
-        {
-          blockType: 'cta',
-          variant: 'centered',
-          headline: 'Vrei o sedinta personalizata?',
-          subheadline: 'Contacteaza-ne pentru a programa o sesiune cu un antrenor',
-          buttons: [{ label: 'Programeaza-te', link: '/contact', variant: 'default' }],
-          backgroundColor: 'primary',
-        },
-      ],
-      _status: 'published',
+  const antrenoriPage = await createSeederPage(payload, {
+    title: 'Antrenori',
+    slug: 'antrenori',
+    heroType: 'minimal',
+    hero: {
+      headline: 'Echipa de Antrenori',
+      subheadline: 'Profesionisti pasionati care te vor ajuta sa iti atingi obiectivele',
     },
+    layout: [
+      {
+        blockType: 'team',
+        variant: variant.layout.teamVariant,
+        heading: 'Antrenorii Nostri',
+        subheading: 'Fiecare antrenor este certificat si dedicat sa te ajute sa obtii rezultate',
+        limit: 20,
+        backgroundColor: 'default',
+      },
+      {
+        blockType: 'cta',
+        variant: 'centered',
+        headline: 'Vrei o sedinta personalizata?',
+        subheadline: 'Contacteaza-ne pentru a programa o sesiune cu un antrenor',
+        buttons: [{ label: 'Programeaza-te', link: '/contact', variant: 'default' }],
+        backgroundColor: 'dark',
+      },
+    ],
+    _status: 'published',
   })
   console.log('   Created Trainers page')
 
@@ -904,172 +869,112 @@ async function createAdditionalPages(
       continue
     }
 
-    await payload.create({
-      collection: 'pages',
-      data: {
-        title: member.name,
-        slug,
-        parent: antrenoriPage.id, // Nested under Antrenori
-        // Manually set breadcrumbs since nested-docs plugin hooks may not trigger via Local API
-        breadcrumbs: [
-          { label: 'Antrenori', url: '/antrenori', doc: antrenoriPage.id },
-          { label: member.name, url: `/antrenori/${slug}` },
-        ],
-        heroType: 'none', // No hero - TeamMemberDetail block handles everything
-        layout: [
-          {
-            blockType: 'teamMemberDetail',
-            member: memberId as string, // Use relationship ID instead of slug
-            variant: 'full',
-            showBreadcrumb: true,
-            showExperience: true,
-            showSpecializations: true,
-            showContact: false, // No individual contact for trainers
-            showSocialMedia: false,
-            showSchedule: false,
-            showCTA: true,
-            showRelatedMembers: true,
-            relatedMembersCount: 3,
-            relatedMembersTitle: 'Alti antrenori',
-            backgroundColor: 'default',
-            labels: {
-              breadcrumbHome: 'Acasa',
-              breadcrumbTeam: 'Antrenori',
-              experienceTitle: 'Ani experienta',
-              specializationsTitle: 'Specializari',
-              ctaTitle: `Vrei sa lucrezi cu ${member.name.split(' ')[0]}?`,
-              ctaDescription: 'Contacteaza-ne pentru a programa o sesiune de antrenament sau pentru mai multe informatii despre serviciile noastre.',
-              ctaButtonText: 'Programeaza-te',
-              ctaSecondaryButtonText: 'Vezi clasele disponibile',
-              viewAllTeamText: 'Vezi toti antrenorii',
-            },
-            links: {
-              teamBasePath: '/antrenori',
-              contactPath: '/contact',
-              classesPath: '/clase',
-              bookingPath: '/clase/inscriere',
-            },
+    await createSeederPage(payload, {
+      title: member.name,
+      slug,
+      parent: antrenoriPage.id, // Nested under Antrenori
+      // Manually set breadcrumbs since nested-docs plugin hooks may not trigger via Local API
+      breadcrumbs: [
+        { label: 'Antrenori', url: '/antrenori', doc: antrenoriPage.id },
+        { label: member.name, url: `/antrenori/${slug}` },
+      ],
+      heroType: 'none', // No hero - TeamMemberDetail block handles everything
+      layout: [
+        {
+          blockType: 'teamMemberDetail',
+          member: memberId as string, // Use relationship ID instead of slug
+          variant: 'full',
+          showBreadcrumb: true,
+          showExperience: true,
+          showSpecializations: true,
+          showContact: false, // No individual contact for trainers
+          showSocialMedia: false,
+          showSchedule: false,
+          showCTA: true,
+          showRelatedMembers: true,
+          relatedMembersCount: 3,
+          relatedMembersTitle: 'Alti antrenori',
+          backgroundColor: 'default',
+          labels: {
+            breadcrumbHome: 'Acasa',
+            breadcrumbTeam: 'Antrenori',
+            experienceTitle: 'Ani experienta',
+            specializationsTitle: 'Specializari',
+            ctaTitle: `Vrei sa lucrezi cu ${member.name.split(' ')[0]}?`,
+            ctaDescription: 'Contacteaza-ne pentru a programa o sesiune de antrenament sau pentru mai multe informatii despre serviciile noastre.',
+            ctaButtonText: 'Programeaza-te',
+            ctaSecondaryButtonText: 'Vezi clasele disponibile',
+            viewAllTeamText: 'Vezi toti antrenorii',
           },
-        ],
-        _status: 'published',
-      },
+          links: {
+            teamBasePath: '/antrenori',
+            contactPath: '/contact',
+            classesPath: '/clase',
+            bookingPath: '/clase/inscriere',
+          },
+        },
+      ],
+      _status: 'published',
     })
     console.log(`   Created trainer page: /antrenori/${slug}`)
   }
 
   // Gallery page
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Galerie',
-      slug: 'galerie',
-      heroType: 'minimal',
-      hero: {
-        headline: 'Galerie',
-        subheadline: 'Descopera spatiul nostru si atmosfera de antrenament',
-      },
-      layout: [
-        {
-          blockType: 'gallery',
-          variant: variant.layout.galleryVariant,
-          heading: 'Sala Noastra',
-          subheading: 'Echipamente moderne intr-un spatiu amenajat pentru performanta',
-          source: 'portfolio',
-          limit: 20,
-          backgroundColor: 'default',
-        },
-      ],
-      _status: 'published',
+  await createSeederPage(payload, {
+    title: 'Galerie',
+    slug: 'galerie',
+    heroType: 'minimal',
+    hero: {
+      headline: 'Galerie',
+      subheadline: 'Descopera spatiul nostru si atmosfera de antrenament',
     },
+    layout: [
+      {
+        blockType: 'gallery',
+        variant: variant.layout.galleryVariant,
+        heading: 'Sala Noastra',
+        subheading: 'Echipamente moderne intr-un spatiu amenajat pentru performanta',
+        limit: 20,
+        backgroundColor: 'default',
+      },
+    ],
+    _status: 'published',
   })
   console.log('   Created Gallery page')
 
   // Contact page - 2-column layout
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Contact',
-      slug: 'contact',
-      heroType: 'minimal',
-      hero: {
-        headline: 'Contact',
-        subheadline: 'Suntem aici sa te ajutam. Contacteaza-ne pentru orice intrebare.',
-      },
-      layout: createContactPageLayout(contactFormId),
-      _status: 'published',
+  await createSeederPage(payload, {
+    title: 'Contact',
+    slug: 'contact',
+    heroType: 'minimal',
+    hero: {
+      headline: 'Contact',
+      subheadline: 'Suntem aici sa te ajutam. Contacteaza-ne pentru orice intrebare.',
     },
+    layout: createContactPageLayout(contactFormId) as FlexibleLayout,
+    _status: 'published',
   })
   console.log('   Created Contact page')
 
   // Class Registration page - nested under /clase/inscriere - using FormBlock
-  await payload.create({
-    collection: 'pages',
-    data: {
-      title: 'Inscriere Clase',
-      slug: 'inscriere',
-      parent: clasesPage.id,
-      breadcrumbs: [
-        { label: 'Clase', url: '/clase', doc: clasesPage.id },
-        { label: 'Inscriere Clase', url: '/clase/inscriere' },
-      ],
-      heroType: 'minimal',
-      hero: {
-        headline: 'Inscrie-te la Clase',
-        subheadline: 'Alege clasa preferata si programeaza-te pentru o sedinta.',
-      },
-      layout: [
-        // Form block using Form Builder (booking form)
-        ...(bookingFormId ? [{
-          blockType: 'formBlock' as const,
-          form: bookingFormId,
-          enableIntro: true,
-          introContent: {
-            root: {
-              type: 'root' as const,
-              children: [
-                {
-                  type: 'heading' as const,
-                  tag: 'h3' as const,
-                  children: [{ type: 'text' as const, text: 'Formular de Inscriere', format: 0, detail: 0, mode: 'normal' as const, style: '', version: 1 }],
-                  direction: 'ltr' as const,
-                  format: '' as const,
-                  indent: 0,
-                  version: 1,
-                },
-                {
-                  type: 'paragraph' as const,
-                  children: [{ type: 'text' as const, text: 'Completeaza formularul pentru a te inscrie la clasele noastre de fitness. Te vom contacta pentru confirmare.', format: 0, detail: 0, mode: 'normal' as const, style: '', version: 1 }],
-                  direction: 'ltr' as const,
-                  format: '' as const,
-                  indent: 0,
-                  textFormat: 0,
-                  version: 1,
-                },
-              ],
-              direction: 'ltr' as const,
-              format: '' as const,
-              indent: 0,
-              version: 1,
-            },
-          },
-        }] : []),
-        // Contact info block
-        {
-          blockType: 'contact' as const,
-          variant: 'minimal' as const,
-          heading: 'Vino la Sala',
-          contactInfoItems: {
-            showAddress: true,
-            showPhone: true,
-            showEmail: true,
-            showWorkingHours: true,
-            showSocial: false,
-          },
-          backgroundColor: 'light' as const,
-        },
-      ],
-      _status: 'published',
+  await createSeederPage(payload, {
+    title: 'Inscriere Clase',
+    slug: 'inscriere',
+    parent: clasesPage.id,
+    breadcrumbs: [
+      { label: 'Clase', url: '/clase', doc: clasesPage.id },
+      { label: 'Inscriere Clase', url: '/clase/inscriere' },
+    ],
+    heroType: 'minimal',
+    hero: {
+      headline: 'Inscrie-te la Clase',
+      subheadline: 'Alege clasa preferata si programeaza-te pentru o sedinta.',
     },
+    layout: [
+      ...(bookingFormId ? [{ blockType: 'formBlock', form: bookingFormId, enableIntro: true, heading: 'Formular de Inscriere', subheading: 'Completeaza formularul pentru a te inscrie la clasele noastre de fitness. Te vom contacta pentru confirmare.' }] : []),
+      { blockType: 'contact', variant: 'compact', heading: 'Vino la Sala', backgroundColor: 'light' },
+    ],
+    _status: 'published',
   })
   console.log('   Created Class Registration page (/clase/inscriere)')
 
@@ -1082,74 +987,24 @@ async function createAdditionalPages(
   const abonamentePageId = abonamentePage.docs[0]?.id
 
   if (abonamentePageId) {
-    await payload.create({
-      collection: 'pages',
-      data: {
-        title: 'Comanda Abonament',
-        slug: 'comanda',
-        parent: abonamentePageId,
-        breadcrumbs: [
-          { label: 'Abonamente', url: '/abonamente', doc: abonamentePageId },
-          { label: 'Comanda Abonament', url: '/abonamente/comanda' },
-        ],
-        heroType: 'minimal',
-        hero: {
-          headline: 'Comanda Abonament',
-          subheadline: 'Completeaza datele pentru a comanda abonamentul dorit.',
-        },
-        layout: [
-          // Form block using Form Builder (subscription order form)
-          ...(subscriptionFormId ? [{
-            blockType: 'formBlock' as const,
-            form: subscriptionFormId,
-            enableIntro: true,
-            introContent: {
-              root: {
-                type: 'root' as const,
-                children: [
-                  {
-                    type: 'heading' as const,
-                    tag: 'h3' as const,
-                    children: [{ type: 'text' as const, text: 'Formular Comanda Abonament', format: 0, detail: 0, mode: 'normal' as const, style: '', version: 1 }],
-                    direction: 'ltr' as const,
-                    format: '' as const,
-                    indent: 0,
-                    version: 1,
-                  },
-                  {
-                    type: 'paragraph' as const,
-                    children: [{ type: 'text' as const, text: 'Completeaza datele si te vom contacta pentru finalizarea comenzii.', format: 0, detail: 0, mode: 'normal' as const, style: '', version: 1 }],
-                    direction: 'ltr' as const,
-                    format: '' as const,
-                    indent: 0,
-                    textFormat: 0,
-                    version: 1,
-                  },
-                ],
-                direction: 'ltr' as const,
-                format: '' as const,
-                indent: 0,
-                version: 1,
-              },
-            },
-          }] : []),
-          // Contact info block
-          {
-            blockType: 'contact' as const,
-            variant: 'minimal' as const,
-            heading: 'Ai intrebari?',
-            contactInfoItems: {
-              showAddress: false,
-              showPhone: true,
-              showEmail: true,
-              showWorkingHours: true,
-              showSocial: false,
-            },
-            backgroundColor: 'light' as const,
-          },
-        ],
-        _status: 'published',
+    await createSeederPage(payload, {
+      title: 'Comanda Abonament',
+      slug: 'comanda',
+      parent: abonamentePageId,
+      breadcrumbs: [
+        { label: 'Abonamente', url: '/abonamente', doc: abonamentePageId },
+        { label: 'Comanda Abonament', url: '/abonamente/comanda' },
+      ],
+      heroType: 'minimal',
+      hero: {
+        headline: 'Comanda Abonament',
+        subheadline: 'Completeaza datele pentru a comanda abonamentul dorit.',
       },
+      layout: [
+        ...(subscriptionFormId ? [{ blockType: 'formBlock', form: subscriptionFormId, enableIntro: true, heading: 'Formular Comanda Abonament', subheading: 'Completeaza datele si te vom contacta pentru finalizarea comenzii.' }] : []),
+        { blockType: 'contact', variant: 'compact', heading: 'Ai intrebari?', backgroundColor: 'light' },
+      ],
+      _status: 'published',
     })
     console.log('   Created Subscription Order page (/abonamente/comanda)')
   }

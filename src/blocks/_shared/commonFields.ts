@@ -440,3 +440,128 @@ export const iconSizeField: Field = {
     { label: 'Mare', value: 'large' },
   ],
 }
+
+// ============================================================
+// DISPLAY OPTIONS GROUP (collapsible)
+// ============================================================
+
+interface DisplayOptionsGroupOptions {
+  /** Fields to include in the group */
+  fields: Field[]
+  /** Group label */
+  label?: string
+  /** Whether the group is collapsed by default */
+  collapsed?: boolean
+}
+
+/**
+ * Creates a collapsible group for display/show-hide options
+ * Keeps admin UI clean by hiding advanced options
+ * NOTE: Collapsible fields don't nest data - fields remain at root level
+ */
+export function displayOptionsGroup(options: DisplayOptionsGroupOptions): Field {
+  const {
+    fields,
+    label = 'Optiuni afisare',
+    collapsed = true,
+  } = options
+
+  return {
+    type: 'collapsible',
+    label,
+    admin: {
+      initCollapsed: collapsed,
+    },
+    fields,
+  }
+}
+
+// ============================================================
+// DESIGN OPTIONS GROUP (collapsible)
+// ============================================================
+
+interface DesignOptionsGroupOptions {
+  /** Additional fields to include */
+  additionalFields?: Field[]
+  /** Include background color field */
+  includeBackgroundColor?: boolean
+  /** Include hover effect field */
+  includeHoverEffect?: boolean
+  /** Group label */
+  label?: string
+}
+
+/**
+ * Creates a collapsible group for design/styling options
+ * Includes backgroundColor, hoverEffect, and custom fields
+ * NOTE: Collapsible fields don't nest data - fields remain at root level
+ */
+export function designOptionsGroup(options: DesignOptionsGroupOptions = {}): Field {
+  const {
+    additionalFields = [],
+    includeBackgroundColor = true,
+    includeHoverEffect = false,
+    label = 'Design & Stil',
+  } = options
+
+  const fields: Field[] = []
+
+  if (includeBackgroundColor) {
+    fields.push(backgroundColorField())
+  }
+
+  if (includeHoverEffect) {
+    fields.push({
+      name: 'hoverEffect',
+      type: 'select',
+      label: 'Efect hover carduri',
+      defaultValue: 'default',
+      options: [
+        { label: 'Default (shadow + border)', value: 'default' },
+        { label: 'Lift (ridicare)', value: 'lift' },
+        { label: 'Glow (stralucire)', value: 'glow' },
+        { label: 'Scale (marire)', value: 'scale' },
+        { label: 'Fara efect', value: 'none' },
+      ],
+    })
+  }
+
+  fields.push(...additionalFields)
+
+  return {
+    type: 'collapsible',
+    label,
+    admin: {
+      initCollapsed: true,
+    },
+    fields,
+  }
+}
+
+// ============================================================
+// ADVANCED SETTINGS GROUP (collapsible)
+// ============================================================
+
+interface AdvancedSettingsGroupOptions {
+  /** Fields to include */
+  fields: Field[]
+  /** Group label */
+  label?: string
+}
+
+/**
+ * Creates a collapsible group for advanced/rarely-used settings
+ * NOTE: Collapsible fields don't nest data - fields remain at root level
+ */
+export function advancedSettingsGroup(options: AdvancedSettingsGroupOptions): Field {
+  const { fields, label = 'Setari avansate' } = options
+
+  return {
+    type: 'collapsible',
+    label,
+    admin: {
+      initCollapsed: true,
+    },
+    fields,
+  }
+}

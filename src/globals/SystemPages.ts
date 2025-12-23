@@ -4,7 +4,7 @@ export const SystemPages: GlobalConfig = {
   slug: 'system-pages',
   label: 'Pagini Sistem',
   admin: {
-    group: 'Setari',
+    group: 'Setari Site',
     description: 'Configurare pagini sistem (produse, cos, checkout)',
   },
   access: {

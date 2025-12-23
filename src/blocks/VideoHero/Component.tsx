@@ -60,7 +60,6 @@ interface VideoHeroBlockProps {
   carouselAutoplay?: boolean
   carouselSpeed?: number
   carouselShowNavigation?: boolean
-  carouselShowDots?: boolean
   // Common fields
   trustBadges?: TrustBadge[]
   trustBadgesPosition?: 'above' | 'below'
@@ -98,7 +97,7 @@ export function VideoHeroBlock({
   videoUrl,
   videoFile,
   videoPoster,
-  overlayColor = 'rgba(2, 40, 61, 0.5)',
+  overlayColor = 'rgb(0, 0, 0)',
   overlayOpacity = 50,
   headline,
   subheadline,
@@ -110,7 +109,6 @@ export function VideoHeroBlock({
   carouselAutoplay = true,
   carouselSpeed = 6000,
   carouselShowNavigation = true,
-  carouselShowDots = true,
   trustBadges = [],
   trustBadgesPosition = 'below',
   showSocialLinks = false,
@@ -574,12 +572,12 @@ export function VideoHeroBlock({
           )
         })}
 
-        {/* Navigation arrows */}
+        {/* Navigation arrows - hidden on mobile to avoid overlap with text */}
         {carouselShowNavigation && carouselSlides.length > 1 && (
           <>
             <button
               onClick={prevSlide}
-              className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all duration-300 hover:scale-110"
+              className="hidden md:flex absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all duration-300 hover:scale-110"
               aria-label="Previous slide"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -588,7 +586,7 @@ export function VideoHeroBlock({
             </button>
             <button
               onClick={nextSlide}
-              className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all duration-300 hover:scale-110"
+              className="hidden md:flex absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all duration-300 hover:scale-110"
               aria-label="Next slide"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -598,24 +596,6 @@ export function VideoHeroBlock({
           </>
         )}
 
-        {/* Slide indicators (dots) */}
-        {carouselShowDots && carouselSlides.length > 1 && (
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-3">
-            {carouselSlides.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => goToSlide(index)}
-                className={cn(
-                  'transition-all duration-300',
-                  index === currentSlide
-                    ? 'w-8 h-2 bg-white rounded-full'
-                    : 'w-2 h-2 bg-white/50 rounded-full hover:bg-white/70'
-                )}
-                aria-label={`Go to slide ${index + 1}`}
-              />
-            ))}
-          </div>
-        )}
 
         {/* Trust Badges */}
         {trustBadges && trustBadges.length > 0 && (
@@ -669,11 +649,11 @@ export function VideoHeroBlock({
           </div>
         )}
 
-        {/* Overlay */}
+        {/* Overlay - uses theme dark color */}
         <div
           className="absolute inset-0"
           style={{
-            backgroundColor: overlayColor,
+            backgroundColor: 'var(--theme-dark)',
             opacity: overlayOpacity / 100,
           }}
         />

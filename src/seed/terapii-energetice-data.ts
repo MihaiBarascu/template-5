@@ -23,35 +23,30 @@ export const terapiiEnergeticeData = {
     name: 'Revital Harmony',
     tagline: 'Centru de Terapii Energetice',
     description:
-      'Revital Harmony este un centru de terapii energetice fondat în București pentru a ajuta clienții să-și recâștige echilibrul interior - fizic, mental, emoțional și spiritual. Cu experiență vastă în domenii multiple, Monica Batir oferă abordări care transcend nivelul fizic, ajungând în sfere subtile unde are loc vindecarea profundă.',
-    yearEstablished: 2016,
+      'Revital Harmony este un centru de terapii energetice în București, creat pentru a oferi soluții practice de regăsire a echilibrului interior - fizic, mental, emoțional și spiritual.',
     phone: '0774 512 905',
     email: 'office@terapiienergetice.ro',
+    emailSecondary: 'monabatir12@gmail.com',
     whatsapp: '+40774512905',
     address: {
       street: 'Bulevardul Decebal Nr. 9',
       sector: 'Sector 3',
       city: 'București',
       country: 'România',
-      postalCode: '030964',
     },
+    // Program de lucru - de completat de client
     workingHours: [
-      { days: 'Luni - Vineri', hours: '09:00 - 20:00' },
-      { days: 'Sâmbătă', hours: '10:00 - 18:00' },
-      { days: 'Duminică', hours: 'Cu programare' },
+      { days: 'Cu programare', hours: 'Contactați-ne' },
     ],
+    // Social media - linkuri generice (de actualizat de client)
     social: {
-      facebook: 'https://www.facebook.com/MonicaBatir.Terapeut/',
-      instagram: 'https://www.instagram.com/monicabatir/',
-      youtube: 'https://www.youtube.com/channel/UCfbLIINL3FZbu2uZLx-wjPg',
-      twitter: 'https://www.twitter.com',
+      facebook: 'https://www.facebook.com',
+      instagram: 'https://www.instagram.com',
+      youtube: 'https://www.youtube.com',
     },
-    stats: [
-      { value: '5000', label: 'Pacienți Ajutați', suffix: '+' },
-      { value: '8', label: 'Ani Experiență', suffix: '+' },
-      { value: '8', label: 'Tipuri de Terapii' },
-      { value: '173', label: 'Țări Access Consciousness' },
-    ],
+    // Stats - ELIMINATE (nu sunt pe site-ul original)
+    // Pot fi adăugate din admin dacă clientul dorește
+    stats: [],
   },
 
   // =============================================================================
@@ -92,7 +87,7 @@ export const terapiiEnergeticeData = {
       shortDescription:
         'Terapia Bowen este o formă de terapie manuală non-invazivă care vizează restabilirea echilibrului. Originară din Geelong, Australia, abordează corpul holistic prin dimensiuni fizice, emoționale și energetice folosind mișcări delicate pe mușchi, tendoane, ligamente și fascie.',
       icon: 'Heart',
-      price: 200,
+      // price: eliminat - nu e afișat pe site-ul original
       duration: '30-60 min',
       featured: true,
       order: 1,
@@ -186,7 +181,7 @@ export const terapiiEnergeticeData = {
       shortDescription:
         'Access Bars este o metodă inovatoare de vindecare și eliberare energetică care utilizează atingerea cuantică a 32 de puncte specifice dispuse pe cap. Stimulează fluxul de energie prin sistemul nervos, eliberând tensiunea acumulată și blocajele.',
       icon: 'Brain',
-      price: 200,
+      // price: eliminat - nu e afișat pe site-ul original
       duration: '60-90 min',
       featured: true,
       order: 2,
@@ -196,7 +191,7 @@ export const terapiiEnergeticeData = {
         'Reducerea stresului și anxietății',
         'Îmbunătățirea clarității mentale și memoriei',
         'Suport pentru depresie și atacuri de panică',
-        'Practicată în peste 173 de țări',
+        'Recunoscută internațional prin Access Consciousness',
       ],
       // Rich text description
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -208,7 +203,7 @@ export const terapiiEnergeticeData = {
             'Terapia Access Bars este o metodă inovatoare de vindecare și eliberare energetică care țintește 32 de puncte specifice dispuse pe cap. Aceste puncte, numite "bare", sunt asociate cu diferite aspecte ale vieții, incluzând vindecarea, creativitatea, conștiința și multe altele.',
           ),
           createParagraph(
-            'Dezvoltată ca parte a sistemului Access Consciousness, această terapie este practicată în peste 173 de țări la nivel mondial, ajutând milioane de oameni să experimenteze o stare profundă de relaxare și eliberare.',
+            'Dezvoltată ca parte a sistemului Access Consciousness, această terapie ajută la experimentarea unei stări profunde de relaxare și eliberare.',
           ),
 
           // Cum funcționează
@@ -289,7 +284,7 @@ export const terapiiEnergeticeData = {
       shortDescription:
         'Access Facelift este o metodă de întinerire care inversează semnele îmbătrânirii prin mișcări delicate ce activează resursele celulare. Parte din sistemul Access Consciousness, restaurează corpul la forma sa originală.',
       icon: 'Sparkles',
-      price: 200,
+      // price: eliminat - nu e afișat pe site-ul original
       duration: '60-90 min',
       featured: true,
       order: 3,
@@ -386,7 +381,7 @@ export const terapiiEnergeticeData = {
       shortDescription:
         'Reiki este o tehnică de vindecare spirituală care utilizează fluxul de energie universală pentru a promova echilibrul și vindecarea în corp și minte. Practicianul canalizează această energie prin mâini, direcționată de intenție și concentrare.',
       icon: 'Sun',
-      price: 150,
+      // price: eliminat - nu e afișat pe site-ul original
       duration: '45-60 min',
       featured: true,
       order: 4,
@@ -481,7 +476,7 @@ export const terapiiEnergeticeData = {
       shortDescription:
         'Corecția Bioenergetică este o metodă terapeutică ce vizează normalizarea bioenergeticii corpului uman printr-o abordare integrativă a stării fizice, spirituale și psihice. Include masaj clasic, masaj punctiform, masaj terapeutic non-contact și metode de stretching.',
       icon: 'Zap',
-      price: 180,
+      // price: eliminat - nu e afișat pe site-ul original
       duration: '30-60 min',
       featured: false,
       order: 5,
@@ -585,7 +580,7 @@ export const terapiiEnergeticeData = {
       shortDescription:
         'Terapie specializată pentru eliberarea tensiunii și stresului acumulat. Contribuie la armonizarea energiilor, îmbunătățirea condiției fizice și psihologice, reducerea tensiunii musculare și facilitarea proceselor naturale de vindecare.',
       icon: 'Wind',
-      price: 180,
+      // price: eliminat - nu e afișat pe site-ul original
       duration: '30-60 min',
       featured: false,
       order: 6,
@@ -710,7 +705,7 @@ export const terapiiEnergeticeData = {
       shortDescription:
         'Plasturi Fototerapeutici pentru Stimularea Celulelor Stem. O metodă inovatoare bazată pe nanotehnologie care folosește lumina corpului pentru a activa procesele naturale de vindecare și regenerare celulară.',
       icon: 'Lightbulb',
-      price: 150,
+      // price: eliminat - nu e afișat pe site-ul original
       duration: '45 min',
       featured: false,
       order: 7,
@@ -804,7 +799,7 @@ export const terapiiEnergeticeData = {
       shortDescription:
         'Patul de masaj cu pietre de jad pentru relaxare profundă și detoxifiere. Combină căldura infraroșie cu masajul pentru beneficii terapeutice complete, stimulând circulația și reducând tensiunea musculară.',
       icon: 'Flame',
-      price: 100,
+      // price: eliminat - nu e afișat pe site-ul original
       duration: '45 min',
       featured: false,
       order: 8,
@@ -912,7 +907,7 @@ export const terapiiEnergeticeData = {
     {
       title: 'Curs Access Bars',
       shortDescription:
-        'Curs de o zi pentru a deveni practician certificat Access Bars. Învață să aplici tehnica celor 32 de puncte energetice pe tine și pe alții, cu certificare internațională recunoscută în 173 de țări.',
+        'Curs de o zi pentru a deveni practician certificat Access Bars. Învață să aplici tehnica celor 32 de puncte energetice pe tine și pe alții, cu certificare internațională.',
       price: 1460,
       priceRepeat: 730,
       priceAdolescent: 730,
@@ -929,66 +924,88 @@ export const terapiiEnergeticeData = {
         'Certificat Internațional Access Consciousness',
         'Acces la comunitatea globală Access Bars',
       ],
-      // Rich text description
+      // Rich text description - CONȚINUT REAL de pe site-ul original
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       get description(): any {
         return createRichTextRoot([
-          // Introducere
+          // Ce este Access Bars?
           createHeading('Ce este Access Bars?', 'h2'),
           createParagraph(
-            'Access Bars este o ramură a Access Consciousness, o tehnică de medicină alternativă practicată în peste 173 de țări. Metoda se concentrează pe 32 de puncte de pe cap care, atunci când sunt atinse, eliberează unde electromagnetice pentru a curăța blocajele și emoțiile negative.',
+            'Access Bars este o ramură din Access Consciousness, o tehnică de medicină alternativă implementată în peste 173 de țări din întreaga lume. Denumirea "Access Bars" tradusă literal înseamnă "Accesarea Conștiinței", relevând esența acestui concept – transformarea vieții pe toate planurile printr-o stare continuă de prezență și introspecție.',
           ),
           createParagraph(
-            'Conform cercetărilor, oamenii sunt „90% subconștient și doar 10% conștient". Access Bars permite accesarea nivelurilor mentale mai profunde, unde informațiile stocate pot fi procesate și eliberate.',
+            'Studiile arată că suntem 90% subconștient și doar 10% conștient, un procent insuficient pentru a canaliza și distribui resursele la un nivel optim de funcționare. Conștiința este poarta care ne permite accesul în lumea din umbra a subconștientului nostru, unde, asemenea unui computer, înmagazinăm informații atât din moși-strămoși, cât și din întreg parcursul vieții.',
           ),
 
-          // Ce înveți
-          createHeading('Ce Înveți la Curs?', 'h2'),
+          // Descoperirea Access Bars
+          createHeading('Descoperirea Access Bars', 'h2'),
           createParagraph(
-            'Cursul Access Bars îți oferă toate cunoștințele și abilitățile practice pentru a deveni practician certificat:',
-          ),
-          createList([
-            'Să aplici tehnica pe tine și pe alții',
-            'Să facilitezi fluxul de energie și să elimini constrângerile mentale/emoționale',
-            'Să abordezi probleme precum depresia, tulburările de somn, anxietatea, dificultățile de relație',
-            'Să obții rezultate comparabile cu terapiile pe termen lung, într-un format de o singură zi',
-          ]),
-
-          // Ce primești
-          createHeading('Ce Primești la Curs?', 'h2'),
-          createList([
-            'Tehnici practice pentru auto-aplicare și lucrul cu clienții',
-            'Înțelegerea celor 32 de puncte energetice de pe cap',
-            'Instrumente de lucru și informații valoroase',
-            'Training pentru a facilita vindecarea pentru tine și alții',
-            'Acces la experiența și cunoștințele facilitatorului Monica Batir',
-            'Certificat Internațional Access Consciousness',
-          ]),
-
-          createBanner(
-            'Cursul durează o zi și include transfer eficient de informații la nivel vibrațional. La finalul cursului primești Certificat Internațional Access Consciousness, recunoscut în 173 de țări.',
-            'info',
+            'Fondatorul Access Consciousness, Gary Douglas, a identificat cheia accesului către cele mai ascunse zone ale minții noastre: cele 32 de bare dispuse pe cap. Aceste puncte, atunci când sunt atinse, emit unde electromagnetice care eliberează blocajele, emoțiile negative și constrângerile de orice natură.',
           ),
 
-          // Opțiuni de preț
-          createHeading('Opțiuni de Preț', 'h2'),
+          // Beneficiile Cursului
+          createHeading('Beneficiile Cursului Access Bars', 'h2'),
+          createParagraph(
+            'Acest curs oferă o perspectivă nouă și posibilitatea de a descoperi secretele identității tale. Îți permite să-ți fructifici potențialul inestimabil, aplicând această tehnică într-un mod inedit și simplu cu propriile energii. Vei primi informații valoroase și instrumente de lucru pentru a facilita acest drum, atât pentru tine, cât și pentru cei cu care interacționezi.',
+          ),
+
+          // Cine poate practica
+          createHeading('Cine poate practica Access Bars?', 'h2'),
+          createParagraph(
+            'Oricine dorește să treacă de la intenții la certitudini, de la idei simpliste la filozofii complexe. Acest curs este ideal pentru cei care vor să exploreze și să exploateze într-un mod constructiv și benefic toate sursele de energie care duc către o nouă interpretare a vieții.',
+          ),
+
+          // Cui îi poți împărtăși
+          createHeading('Cui îi poți împărtăși această bucurie?', 'h2'),
+          createParagraph(
+            'Terapia Access Bars este benefică pentru cei care suferă de afecțiuni precum:',
+          ),
+          createList([
+            'Depresie și dificultăți de exprimare',
+            'Tulburări de somn și anxietate',
+            'Frigiditate și impotență',
+            'Autism și dificultăți în relații',
+            'Probleme financiare și probleme de greutate',
+            'Recuperare post-operatorie',
+          ]),
+          createParagraph(
+            'Aceste probleme sunt adesea cauzate de lipsa echilibrului interior și a energiei vitale, pe care această tehnică le poate restabili.',
+          ),
+
+          // Ce este minunat
+          createHeading('Ce este minunat la Access Bars?', 'h2'),
+          createParagraph(
+            'Practica Access Bars crește aportul de energie, depășind blocajele existente. Energia ta și a clientului interferează, permițând fluidizarea câmpului magnetic, astfel ambii beneficiind de acest proces de corp.',
+          ),
+
+          // Durata și cost
+          createHeading('Durata și Costul Cursului', 'h2'),
+          createParagraph(
+            'Cursul Access Bars se desfășoară pe parcursul unei singure zile, fiind concentrat și eficient în transmiterea informațiilor la nivel vibrațional. Efectele rapide ale tehnicii sunt comparabile cu multe alte terapii de lungă durată.',
+          ),
           createList([
             'Prima participare: 1.460 RON',
-            'Reluare curs (pentru practicieni certificați): 730 RON',
+            'Reluare curs: 730 RON',
             'Adolescenți (16-18 ani): 730 RON',
-            'Copii (sub 16 ani, însoțiți de adult participant): GRATUIT',
+            'Copii (sub 16 ani, însoțiți de adult): GRATUIT',
           ]),
 
           // Date următoare
-          createHeading('Date Următoare', 'h2'),
+          createHeading('Program Cursuri Access Bars', 'h2'),
           createList([
             '20 Decembrie 2025 – București',
             '17 Ianuarie 2026 – București',
             '21 Februarie 2026 – București',
           ]),
 
+          // Înscriere
+          createHeading('Cum te poți înscrie?', 'h2'),
+          createParagraph(
+            'Pentru înscrieri, trimite un mesaj la numărul de telefon 0774512905, un email la monabatir12@gmail.com, sau completează formularul de contact.',
+          ),
+
           createBanner(
-            'Locurile sunt limitate! Rezervă-ți locul acum pentru următorul curs Access Bars.',
+            'Te invităm să descoperi Access Bars și să pornești pe drumul către o viață transformată. Înscrie-te la curs și experimentează puterea acestei tehnici incredibile!',
             'success',
           ),
         ])
@@ -1094,7 +1111,7 @@ export const terapiiEnergeticeData = {
       role: 'Asistentă Medicală / Profesoară, București',
       rating: '5',
       featured: true,
-      therapy: 'Facelift Energetic',
+      serviceNames: 'Facelift Energetic',
     },
     {
       content:
@@ -1103,7 +1120,7 @@ export const terapiiEnergeticeData = {
       role: 'Terapeut Bowen, Bacău',
       rating: '5',
       featured: false,
-      therapy: 'Facelift Energetic',
+      serviceNames: 'Facelift Energetic',
     },
     {
       content:
@@ -1112,7 +1129,7 @@ export const terapiiEnergeticeData = {
       role: 'Profesoară, București',
       rating: '5',
       featured: false,
-      therapy: 'Facelift Energetic',
+      serviceNames: 'Facelift Energetic',
     },
     {
       content:
@@ -1121,7 +1138,7 @@ export const terapiiEnergeticeData = {
       role: 'Chimist, București',
       rating: '5',
       featured: false,
-      therapy: 'Facelift Energetic',
+      serviceNames: 'Facelift Energetic',
     },
     {
       content:
@@ -1130,7 +1147,7 @@ export const terapiiEnergeticeData = {
       role: 'Consilier Juridic, București',
       rating: '5',
       featured: false,
-      therapy: 'Facelift Energetic',
+      serviceNames: 'Facelift Energetic',
     },
 
     // ==================== TERAPIA REIKI ====================
@@ -1141,7 +1158,7 @@ export const terapiiEnergeticeData = {
       role: 'Consilier Juridic, București',
       rating: '5',
       featured: true,
-      therapy: 'Terapia Reiki',
+      serviceNames: 'Terapia Reiki',
     },
     {
       content:
@@ -1150,7 +1167,7 @@ export const terapiiEnergeticeData = {
       role: 'Economist, București',
       rating: '5',
       featured: false,
-      therapy: 'Terapia Reiki',
+      serviceNames: 'Terapia Reiki',
     },
 
     // ==================== ELIBERAREA TENSIUNII INTERIOARE ====================
@@ -1161,7 +1178,7 @@ export const terapiiEnergeticeData = {
       role: 'Economist',
       rating: '5',
       featured: true,
-      therapy: 'Eliberarea Tensiunii Interioare',
+      serviceNames: 'Eliberarea Tensiunii Interioare',
     },
     {
       content:
@@ -1170,7 +1187,7 @@ export const terapiiEnergeticeData = {
       role: 'Referent',
       rating: '5',
       featured: false,
-      therapy: 'Eliberarea Tensiunii Interioare',
+      serviceNames: 'Eliberarea Tensiunii Interioare',
     },
     {
       content:
@@ -1179,7 +1196,7 @@ export const terapiiEnergeticeData = {
       role: 'Manager Vânzări',
       rating: '5',
       featured: false,
-      therapy: 'Eliberarea Tensiunii Interioare',
+      serviceNames: 'Eliberarea Tensiunii Interioare',
     },
 
     // ==================== ACCESS BARS ====================
@@ -1190,7 +1207,7 @@ export const terapiiEnergeticeData = {
       role: 'Terapeut Holistic, Franța',
       rating: '5',
       featured: true,
-      therapy: 'Access Bars',
+      serviceNames: 'Access Bars',
     },
     {
       content:
@@ -1199,7 +1216,7 @@ export const terapiiEnergeticeData = {
       role: 'Barcelona',
       rating: '5',
       featured: false,
-      therapy: 'Access Bars',
+      serviceNames: 'Access Bars',
     },
     {
       content:
@@ -1208,7 +1225,7 @@ export const terapiiEnergeticeData = {
       role: 'Terapeut Maseor, Brașov',
       rating: '5',
       featured: false,
-      therapy: 'Access Bars',
+      serviceNames: 'Access Bars',
     },
     {
       content:
@@ -1217,7 +1234,7 @@ export const terapiiEnergeticeData = {
       role: 'Terapeut, București',
       rating: '5',
       featured: false,
-      therapy: 'Access Bars',
+      serviceNames: 'Access Bars',
     },
     {
       content:
@@ -1226,7 +1243,7 @@ export const terapiiEnergeticeData = {
       role: 'Economist, București',
       rating: '5',
       featured: false,
-      therapy: 'Access Bars',
+      serviceNames: 'Access Bars',
     },
     {
       content:
@@ -1235,7 +1252,7 @@ export const terapiiEnergeticeData = {
       role: 'Antreprenor, București',
       rating: '5',
       featured: false,
-      therapy: 'Access Bars',
+      serviceNames: 'Access Bars',
     },
     {
       content:
@@ -1244,7 +1261,7 @@ export const terapiiEnergeticeData = {
       role: 'Asistentă Medicală, București',
       rating: '5',
       featured: false,
-      therapy: 'Access Bars',
+      serviceNames: 'Access Bars',
     },
     {
       content:
@@ -1253,18 +1270,252 @@ export const terapiiEnergeticeData = {
       role: 'Artist Plastic, București',
       rating: '5',
       featured: false,
-      therapy: 'Access Bars',
+      serviceNames: 'Access Bars',
+    },
+
+    // ==================== CURS ACCESS BARS (Testimoniale Cursanți) ====================
+    {
+      content:
+        'Știam de existența energiei, o simțeam la nivelul corpului meu dar niciodată nu am simțit-o în contact cu altă persoană la nivel atât de subtil. Monica Batir știe să transforme împărtășirea informației prin multe exemple din experiența personală și de cabinet. Beneficiile tehnicii au fost deja descrise, oferă-ți doar șansa să experimentezi!',
+      name: 'Cristina Dimitrescu',
+      role: 'Psihoterapeut, București',
+      rating: '5',
+      featured: true,
+      serviceNames: 'Curs Access Bars',
+    },
+    {
+      content:
+        'Între teama de a nu fi lăsați pe dinafară (fear of missing out) și nevoia de a ne proteja de prea multele informații neverificate care ne invadează agresiv din toate părțile, apar și lucruri cu adevărat importante, dăruite de oameni deosebiți. Aici se așază cursurile de Access Bars și de Facelift Energetic susținute de Monica Batir. Îndemn pe cei care acceptă, cred și înțeleg că totul este Vibrație și Energie, să urmeze aceste cursuri. Nu veți regreta investiția făcută. Veți dobândi un prieten adevărat, miracolul energetic al întineririi și, nu în ultimul rând, arta de a vă ajuta și de a-i ajuta și pe ceilalți, pătrunzând într-o lume în care vindecarea și frumusețea vin din interior.',
+      name: 'Dr. Delia Miron',
+      role: 'Medic, Botoșani',
+      rating: '5',
+      featured: true,
+      serviceNames: 'Curs Access Bars',
+    },
+    {
+      content:
+        'Am participat la cursul de Access Bars mai mult ca să-mi lărgesc portofoliul de terapii pe care le practic. Când însă am auzit că se organizează și cursul de Facelift Energetic mi-am zis că nu trebuie să-l ratez! Auzisem atâtea lucruri bune despre el! Și așa este! În primul rând l-am aplicat pe mine și rezultatele sunt vizibile: o față mai relaxată, un ten mai luminos, ca să nu mai spun de partea energetică a terapiei! La cabinet este o terapie pentru care multe cliente au deschidere și o adoră.',
+      name: 'Mihaela Turcu',
+      role: 'Terapeut, Târgu Mureș',
+      rating: '5',
+      featured: false,
+      serviceNames: 'Curs Access Bars',
+    },
+    {
+      content:
+        'Bună ziua! Dacă vreți să primiți răspunsuri la întrebările frecvente din fiecare zi, Access vă ajută să înțelegeți cum UNIVERSUL poate schimba orice. Recomand la cât mai mulți oameni binecuvântați să schimbe din energia limitării. Succes noilor cursanți!',
+      name: 'Dorica Căslaru',
+      role: 'Terapeut, Botoșani',
+      rating: '5',
+      featured: false,
+      serviceNames: 'Curs Access Bars',
+    },
+    {
+      content:
+        'Super și recomand să urmați Cursul de Access Bars! Vă oferă o schimbare în bine a întregului organism, a psihicului și sufletului! MINTE-TRUP-SUFLET! Mulțumesc Monica, pentru tot ceea ce am învățat la curs și după curs!',
+      name: 'Agachi Simona',
+      role: 'Asistentă Medicală, Iași',
+      rating: '5',
+      featured: false,
+      serviceNames: 'Curs Access Bars',
+    },
+    {
+      content:
+        'Recomand din toată inima atât cursul cât și facilitatorul. Eu am urmat acest curs în ianuarie și consider că a fost una dintre cele mai bune investiții. Cel mai important mi se pare că pe lângă faptul că poți efectua această formă de terapie celor apropiați, clienților, îți poți efectua și autoterapie. Chiar se simte cum se echilibrează totul. Mulțumesc pentru tot Monica Batir!',
+      name: 'Ana Damian',
+      role: 'Iași',
+      rating: '5',
+      featured: false,
+      serviceNames: 'Curs Access Bars',
+    },
+    {
+      content:
+        'Îmi aduc aminte că am ajuns la acest curs deși nu mă impresiona auzind de frumusețe și energie. Când auzim de frumusețe ne gândim doar la ce am fost învățați despre ea... machiaj, chirurgie, etc., ceea ce este greșit. Nu credeam în mișcarea energiilor însă prin această tehnică m-am șocat și chiar m-am ridicat în picioare când am simțit în degete un fel de curent iar pielea doamnei pe care lucram se mișca armonios. Monica Batir a început să râdă și să spună "Eh, vezi, energia există". Recomand cursul de Facelift Energetic și de Access Bars făcute cu Monica, nu veți regreta. În urma cursului de Bars, prin aplicare pe fetița mea cu strabism divergent... am primit vestea că ochiul respectiv și-a revenit și că nu se mai impune o operație.',
+      name: 'Maria Vărasteanu',
+      role: 'Terapeut Holistic, Mihăilești',
+      rating: '5',
+      featured: true,
+      serviceNames: 'Curs Access Bars',
+    },
+    {
+      content:
+        'Recomand cu mare drag, am făcut cursul și îl practic, rezultatele se văd și clientele sunt mulțumite. Mare mulțumire lui Monica și recunoștință pentru împărtășirea lui cu drag!',
+      name: 'Angela Ștefan',
+      role: 'Terapeut Maseur, Târgu Mureș',
+      rating: '5',
+      featured: false,
+      serviceNames: 'Curs Access Bars',
+    },
+    {
+      content:
+        'Recomand cu mult drag atât cursul cât și facilitatorul! Este o terapie foarte simplă cu rezultate surprinzătoare și mai este și avantajul de a cunoaște un OM deosebit de frumos, de a cărui susținere te poți bucura în permanență și după parcurgerea cursului. Aștept cu drag să se alăture acestei comunități frumoase create de Monica Batir cât mai mulți doritori!',
+      name: 'Mihaela Istrate',
+      role: 'Antreprenor, București',
+      rating: '5',
+      featured: false,
+      serviceNames: 'Curs Access Bars',
+    },
+    {
+      content:
+        'Access Bars este o terapie eficientă și integrativă prin care omul își poate rezolva afecțiuni fizice, traume emoționale și dezechilibre cerebrale. Nu mă credeți pe cuvânt, testați singuri. Monica Batir este terapeutul care vă poate ghida în acest proces.',
+      name: 'Iulia Matei',
+      role: 'Specialist IT, București',
+      rating: '5',
+      featured: false,
+      serviceNames: 'Curs Access Bars',
+    },
+    {
+      content:
+        'Access Bars este tehnica prin care ne ajutăm în primul rând pe noi, dar și pe ceilalți. Este un proces de conștientizare, de a fi în prezent, dar este și un proces în care lucrăm cu subconștientul nostru. Și cum poate să fie mai bine decât atât când terapeutul lucrează neîncetat cu el? Monica Batir este acest terapeut minunat!',
+      name: 'Violeta Antohi',
+      role: 'Terapeut Holistic, Franța',
+      rating: '5',
+      featured: false,
+      serviceNames: 'Curs Access Bars',
+    },
+    {
+      content:
+        'Access este o terapie pe care o poate face oricine cu puțină implicare. Este o metodă de deblocare, de eliberare a traumelor atât conștiente, cât și a celor inconștiente. Este o metodă de autovindecare fizică, mentală, spirituală.',
+      name: 'Gabriela Roman',
+      role: 'Ofițer, București',
+      rating: '5',
+      featured: false,
+      serviceNames: 'Curs Access Bars',
+    },
+    {
+      content:
+        'Te felicit Monica pentru că duci la cât mai multă lume această tehnică minunată de a lucra cu mintea pentru claritate, liniște, focusare, rezultate bune în viață și prosperitate! Îți mulțumesc totdeauna pentru clipa când mi-ai oferit șansa de a învăța și practica această tehnică ușor de practicat și cu eficiență puternică în viață!',
+      name: 'Gheorghe Peagu',
+      role: 'Terapeut, București',
+      rating: '5',
+      featured: false,
+      serviceNames: 'Curs Access Bars',
+    },
+    {
+      content:
+        'La un curs de Access Bars am avut bucuria să cunosc un strop de Lumină într-o lume ce inconștient își șterge culoarea. Monica Batir, un suflet care prin dorința de a fi viu și a trăi în Pace și armonie cu ea însăși și tot Universul, este mâna întinsă către alte suflete, arătându-le că se poate. Da, poți fi Om într-o lume atât de mare. Da, poți păstra Lumina în tine și să îi înveți și pe ceilalți să și-o țină nestinsă, indiferent în ce timp trăim. Îți mulțumesc cu recunoștință! Te îmbrățișez cu bucurie, om drag sufletului meu.',
+      name: 'Mihaela Stoian',
+      role: 'Antreprenor, București',
+      rating: '5',
+      featured: false,
+      serviceNames: 'Curs Access Bars',
+    },
+    {
+      content:
+        'Bună Monica, voiam să îți trimit câteva observații "la cald", de la copii, după cursul de ieri. David căruia nu îi plăcea deloc sportul la școală, dimineața făceam ghiozdanul și când a auzit că are sport azi zice "Uuu, ora mea preferată". Și îl întreb "păi cum, parcă nu îți plăcea". David: "Am voie să mă răzgândesc: corpul meu, mintea mea, pot să mă răzgândesc când vreau. Doar la ideea că te iubesc mami, nu mă răzgândesc niciodată!" Amândoi s-au distrat și măcar că au învățat despre fluxul de energie, cum să fie recunoscători și cum să-și verbalizeze dorințele. Mulțumesc din suflet pentru tot ce ai făcut pentru ei.',
+      name: 'Denisa',
+      role: 'Mamă, București',
+      rating: '5',
+      featured: false,
+      serviceNames: 'Curs Access Bars',
+    },
+    {
+      content:
+        'Dacă ai curajul să renunți la convingeri nesuportive, judecăți, frici, emoții reprimate, dacă îți dai voie să începi o nouă viață dintr-un alt nivel de conștiință, Access Bars este pentru tine! Monica Batir îți mulțumesc că m-ai lăsat să mă văd dincolo de măști, pentru bunătatea, dragostea, dăruirea și empatia cu care oferi din ceea ce ești, astfel încât să ne reîntoarcem la noi! Să fie trezire și vindecare aici, acum și mereu!',
+      name: 'Gabriela Bocsi',
+      role: 'Timișoara',
+      rating: '5',
+      featured: false,
+      serviceNames: 'Curs Access Bars',
+    },
+    {
+      content:
+        '"Cum ar fi" să afli că există o terapie blândă prin care poți scăpa de tot bagajul emoțional pe care îl cari cu tine de ani și ani? Cum ar fi să afli că poți face asta atât pentru tine cât și pentru ceilalți cu "ușurință, bucurie și glorie"? Eu am aflat asta și muuult mai multe lucruri interesante și utile participând la Cursul Access Bars facilitat de Monica Batir. Mulțumesc cu recunoștință pentru tot ce ne-ai învățat și pentru tot ce ne-ai transmis!',
+      name: 'Lioara Vanvu',
+      role: 'Timișoara',
+      rating: '5',
+      featured: false,
+      serviceNames: 'Curs Access Bars',
+    },
+    {
+      content:
+        'Doamnă, te salut! Vreau doar să îți confirm că formula pe care ne-ai dat-o la cursul de Access Bars pentru învățare și nota perfectă, a funcționat strălucitor pentru mine! Am luat 79% din 100%, deci distincție, și formula m-a ajutat să dau, pur și simplu, peste materiale din cercetare care să îmi fie folositoare. M-a mai ajutat să conectez informația ușor, simplu, fluent, coerent! Eu cred în metodă doar atunci când văd rezultatele pe mine. Deci da, nu am avut speranță că voi reuși, pentru că înainte de a urma cursul Access Bars, îmi era extrem de greoi procesul de învățare. Funcționează, nu știu cum și de ce, dar funcționează, și asta este minunat!',
+      name: 'Mirela',
+      role: 'Studentă Științele Sănătății, Timișoara',
+      rating: '5',
+      featured: false,
+      serviceNames: 'Curs Access Bars',
+    },
+
+    // ==================== CURS ACCESS BARS - VIDEO TESTIMONIALE ====================
+    {
+      content:
+        'Testimonial video despre experiența cu cursul Access Bars și beneficiile acestuia.',
+      name: 'Mihai',
+      role: '8 ani, Brașov',
+      rating: '5',
+      featured: true,
+      serviceNames: 'Curs Access Bars',
+      videoUrl: 'https://www.youtube.com/shorts/7xHey5IcEC0',
+    },
+    {
+      content:
+        'Testimonial video despre transformarea personală după cursul Access Bars.',
+      name: 'Cursant Access Bars',
+      role: 'București',
+      rating: '5',
+      featured: false,
+      serviceNames: 'Curs Access Bars',
+      videoUrl: 'https://youtu.be/m3w6GgS1qeA',
+    },
+    {
+      content:
+        'Experiența mea cu tehnica Access Bars și cum m-a ajutat.',
+      name: 'Cursant Access Bars',
+      role: 'București',
+      rating: '5',
+      featured: false,
+      serviceNames: 'Curs Access Bars',
+      videoUrl: 'https://youtu.be/TdaBjncyzXI',
+    },
+    {
+      content:
+        'Scurt testimonial despre beneficiile Access Bars.',
+      name: 'Cursant Access Bars',
+      role: 'România',
+      rating: '5',
+      featured: false,
+      serviceNames: 'Curs Access Bars',
+      videoUrl: 'https://www.youtube.com/shorts/OjR1LxuuGZg',
+    },
+    {
+      content:
+        'Experiența mea de transformare cu Access Bars.',
+      name: 'Cursant Access Bars',
+      role: 'România',
+      rating: '5',
+      featured: false,
+      serviceNames: 'Curs Access Bars',
+      videoUrl: 'https://www.youtube.com/shorts/0LrphscODiI',
     },
 
     // ==================== CORECȚIE BIOENERGETICĂ ====================
     {
       content:
-        'O cunosc pe doamna Monica Batir de ceva timp. Când am venit la ea, eram într-o stare emoțională precară. Terapia m-a ajutat să-mi recapăt echilibrul și energia.',
+        'O cunosc pe doamna Monica Batir de ceva timp. Când am venit la ea, eram într-o stare emoțională precară. Mă supăram repede și des, făceam atacuri de panică în fiecare lună. Prin atingeri ușoare din care răzbătea duioșia ei față de oameni, reușea de fiecare dată să mă facă să mă simt bine. Are acest har. Dăruiește iubire, alină și vindecă sufletul, îți dă energie, încredere în propria persoană și poftă de viață.',
       name: 'Elena M.',
       role: 'Profesoară, București',
       rating: '5',
       featured: true,
-      therapy: 'Corecție Bioenergetică',
+      serviceNames: 'Corecție Bioenergetică',
+    },
+    {
+      content:
+        'Este incredibil ce eliberare poți simți cu adevărat după o ședință cu Monica Batir. Este atât la nivel fizic, cât și la nivel psihic și emoțional. Această terapie reușește să deblocheze incredibil atât de multe, încât experimentezi stări de la plâns eliberator, la liniște, pace și relaxare totală. Mulțumesc cu recunoștință, Monica!',
+      name: 'Adrian C.',
+      role: 'Specialist I.T., București',
+      rating: '5',
+      featured: false,
+      serviceNames: 'Corecție Bioenergetică',
+    },
+    {
+      content:
+        'Monica Batir a dobândit experiență în domeniul terapiilor alternative, combinând sensibilitatea ei emoțională, cu pasiune, pentru a dărui din harul Divin primit. Monica ajută la echilibrarea armonioasă a chakrelor, meridianelor energetice. Este specialistă în aceste terapii extraordinare, pe care aplicându-le, îți va dărui toată puterea pierdută în stresul cotidian.',
+      name: 'Maria P.',
+      role: 'Pacient, București',
+      rating: '5',
+      featured: false,
+      serviceNames: 'Corecție Bioenergetică',
     },
 
     // ==================== TERAPIA BOWEN ====================
@@ -1275,7 +1526,7 @@ export const terapiiEnergeticeData = {
       role: 'Pensionară, București',
       rating: '5',
       featured: true,
-      therapy: 'Terapia Bowen',
+      serviceNames: 'Terapia Bowen',
     },
     {
       content:
@@ -1284,7 +1535,7 @@ export const terapiiEnergeticeData = {
       role: 'Elev cls. a 12-a',
       rating: '5',
       featured: false,
-      therapy: 'Terapia Bowen',
+      serviceNames: 'Terapia Bowen',
     },
     {
       content:
@@ -1293,7 +1544,7 @@ export const terapiiEnergeticeData = {
       role: 'Economist',
       rating: '5',
       featured: false,
-      therapy: 'Terapia Bowen',
+      serviceNames: 'Terapia Bowen',
     },
     {
       content:
@@ -1302,7 +1553,7 @@ export const terapiiEnergeticeData = {
       role: 'Psiholog',
       rating: '5',
       featured: false,
-      therapy: 'Terapia Bowen',
+      serviceNames: 'Terapia Bowen',
     },
     {
       content:
@@ -1311,7 +1562,7 @@ export const terapiiEnergeticeData = {
       role: 'Elevă cls. 12-a',
       rating: '5',
       featured: false,
-      therapy: 'Terapia Bowen',
+      serviceNames: 'Terapia Bowen',
     },
     {
       content:
@@ -1320,7 +1571,70 @@ export const terapiiEnergeticeData = {
       role: 'Elev cls. 12',
       rating: '5',
       featured: false,
-      therapy: 'Terapia Bowen',
+      serviceNames: 'Terapia Bowen',
+    },
+    {
+      content:
+        'Terapia Bowen și Dna Monica Batir, atât prin optimismul dânsei, cât și prin efectele terapiei Bowen, mi-au redat starea de bine, energia. Durerile articulare și cele de cap provocate de sinuzită s-au ameliorat. Eu având probleme și cu vederea în urma radioterapiei, acum îmi este mult mai clară, și mi-am recăpătat încrederea de sine.',
+      name: 'Marinela I.',
+      role: 'Pacient',
+      rating: '5',
+      featured: false,
+      serviceNames: 'Terapia Bowen',
+    },
+    {
+      content:
+        'Am ajuns la d-na Monica Batir la recomandarea unei cunoștințe. Am constatat ulterior că nu e doar o practiciantă bună, dar este și un doctor de suflet. Pe lângă terapie discutam și de ce avea nevoie sufletul meu. Ambele au făcut ca starea mea generală să se îmbunătățească, inclusiv micșorarea numărului atacurilor de panică, cât și dispariția durerilor de coloană.',
+      name: 'Alexandru M.',
+      role: 'Ofițer armată',
+      rating: '5',
+      featured: false,
+      serviceNames: 'Terapia Bowen',
+    },
+    {
+      content:
+        'Mă numesc Daniela, și în urmă cu un an, din cauza durerilor de coloană vertebrală am apelat la dna terapeut-psiholog Batir Monica. După câteva ședințe, durerile au cedat și s-a instalat o stare de bine atât la nivel fizic cât și psihic. O recomand pe dna Monica Batir pentru dragostea, calmul și blândețea de care dă dovadă în această terapie.',
+      name: 'Daniela A.',
+      role: 'Asistentă Medicală',
+      rating: '5',
+      featured: false,
+      serviceNames: 'Terapia Bowen',
+    },
+    {
+      content:
+        'Terapia bowen este o terapie care poate să facă numai bine - relaxare totală - liniște sufletească. Orice durere dispare în momentul terapiei. În timpul terapiei se reglează tensiunea arterială, corpul intră într-o relaxare profundă, echivalentul a 4 ore de somn. Am venit pentru dureri de coloană, umăr și stres. Toate au dispărut. D-na Mona Batir este terapeutul perfect!',
+      name: 'Cristian V.',
+      role: 'Ofițer armată',
+      rating: '5',
+      featured: false,
+      serviceNames: 'Terapia Bowen',
+    },
+    {
+      content:
+        'În seara în care mi-am luxat piciorul la cursul de dans, am cerut ajutor. Monica Batir s-a oferit să mă ajute cu terapie Bowen. Nu a fost nevoie decât de două ședințe. Încă din prima zi piciorul s-a desumflat vizibil. A doua zi, după terapie, am mers fără nicio reținere. Într-o săptămână m-am întors în sala de dans. Monica are mâini și inimă de aur!',
+      name: 'Ana R.',
+      role: 'Dansatoare',
+      rating: '5',
+      featured: false,
+      serviceNames: 'Terapia Bowen',
+    },
+    {
+      content:
+        'Citisem despre terapia Bowen și cum ar fi foarte benefică. Am descoperit un om deosebit care face cu pasiune această meserie, dna. Batir Monica. Organismul meu a început ușor să se echilibreze, să-mi revin și cu greutatea. Mi-am echilibrat și problema cu insomniile. Eliberarea tensiunii interioare a fost cu adevărat revelatoare, ca o gură de aer proaspăt.',
+      name: 'Mihaela S.',
+      role: 'Manager magazin',
+      rating: '5',
+      featured: false,
+      serviceNames: 'Terapia Bowen',
+    },
+    {
+      content:
+        'În urmă cu un an m-am operat de hernie de disc. A 2-a zi după operație am beneficiat de terapie Bowen, în spital. Senzațiile de vomă, amețeală și durerea de cap au dispărut la 30 minute după terapie. Medicul m-a externat din spital mai repede cu 2 zile. Îi mulțumesc dnei Monica Batir pentru profesionalismul de care dă dovadă, și căldura cu care tratează oamenii.',
+      name: 'Luminița N.',
+      role: 'Confecționer',
+      rating: '5',
+      featured: false,
+      serviceNames: 'Terapia Bowen',
     },
   ],
 
@@ -1479,8 +1793,8 @@ export const terapiiEnergeticeData = {
     {
       name: 'Monica Batir',
       role: 'Fondator & Terapeut Principal',
-      // Bio scurt pentru carduri și liste
-      bio: 'Psiholog, terapeut holistic și Reiki Master cu peste 15 ani experiență. Fondatoarea centrului Revital Harmony, specializată în terapii energetice pentru echilibrarea corpului, minții și sufletului.',
+      // Bio scurt pentru carduri și liste (bazat pe informații de pe site)
+      bio: 'Psiholog, terapeut holistic și Reiki Master. Fondatoarea centrului Revital Harmony, specializată în terapii energetice pentru echilibrarea corpului, minții și sufletului.',
       // Descriere detaliată pentru pagina individuală (Lexical rich text)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       get description(): any {
@@ -1490,17 +1804,16 @@ export const terapiiEnergeticeData = {
           createParagraph(
             'Am creat Centrul Revital Harmony de Terapii Energetice pentru a vă oferi soluții practice de regăsire a echilibrului interior, atât fizic cât și mental, emoțional și spiritual, pentru a trăi zi de zi în armonie cu voi înșivă și cu cei din jur.',
           ),
-          createParagraph(
-            'Cu o experiență vastă în domenii multiple - de la psihologie la terapii holistice și nutriție - am capacitatea de a aborda nevoile clienților mei atât la nivel fiziologic, cât și la nivel subtil, acolo unde are loc vindecarea profundă.',
-          ),
-
-          // Filozofie personală
+          // Filozofie personală (text REAL de pe site-ul original)
           createHeading('Ce Mă Definește', 'h2'),
           createParagraph(
-            'Dincolo de toate calificările și certificările mele, ceea ce mă definește cel mai bine este că sunt un om pentru care iubirea este motorul tuturor activităților mele. Cred cu tărie că fiecare dintre noi are capacitatea de a se vindeca și de a-și transforma viața.',
+            'Dincolo de toate aceste titulaturi, ceea ce mă definește cel mai bine este că sunt un om pentru care iubirea este motorul tuturor activităților mele. În toți acești ani de studiu, am adunat din toate experiențele tot ce a fost mai valoros, astfel încât să pot împărtăși cu dăruire și profesionalism toate aceste informații.',
+          ),
+          createParagraph(
+            'Diversitatea domeniilor în care am activat și interacțiunea cu oameni de toate categoriile m-au ajutat să pășesc dincolo de nevoile lor fiziologice, trecând în sfera acelor necesități la nivel subtil, acolo unde mulți dintre noi căutăm cel mai puțin.',
           ),
           createBanner(
-            '"Rolul meu este să ghidez și să facilitez procesul de redescoperire a echilibrului interior. Fiecare client este unic, și abordarea mea este întotdeauna personalizată."',
+            '"Te aștept cu drag să pășim împreună în această călătorie, privind viața dintr-un unghi al tuturor posibilităților!"',
             'info',
           ),
 
@@ -1526,8 +1839,8 @@ export const terapiiEnergeticeData = {
           ),
           createList([
             'Abordare holistică - tratăm persoana, nu doar simptomele',
-            'Experiență de peste 15 ani în domeniul terapiilor energetice',
-            'Certificări internaționale recunoscute în 173 de țări',
+            'Calificări multiple în psihologie și terapii holistice',
+            'Certificări internaționale Access Consciousness',
             'Mediu relaxant și profesionist',
             'Program flexibil adaptat nevoilor clienților',
           ]),
@@ -1545,7 +1858,7 @@ export const terapiiEnergeticeData = {
           ),
         ])
       },
-      experience: '15+ ani',
+      // experience: eliminat - nu e menționat pe site-ul original
       featured: true,
       specializations: [
         { specialization: 'Terapia Bowen' },
@@ -1561,9 +1874,10 @@ export const terapiiEnergeticeData = {
         phone: '0774 512 905',
         whatsapp: '+40774512905',
       },
+      // Social media - linkuri generice (de actualizat de client cu cele reale)
       social: {
-        facebook: 'https://www.facebook.com/MonicaBatir.Terapeut/',
-        instagram: 'https://www.instagram.com/monicabatir/',
+        facebook: 'https://www.facebook.com',
+        instagram: 'https://www.instagram.com',
         linkedin: null,
         twitter: null,
       },
@@ -1577,28 +1891,37 @@ export const terapiiEnergeticeData = {
 
 export const terapiiEnergeticeImages = {
   hero: [
-    { filename: 'hero-1.png', alt: 'Terapii Energetice - Cabinet' },
-    { filename: 'hero-2.png', alt: 'Ședință de terapie' },
+    { filename: 'terapii/hero-1.png', alt: 'Terapii Energetice - Cabinet' },
+    { filename: 'terapii/hero-2.png', alt: 'Ședință de terapie' },
   ],
-  banner: { filename: 'hero-banner.png', alt: 'Terapii Energetice Banner' },
+  banner: { filename: 'terapii/hero-banner.png', alt: 'Terapii Energetice Banner' },
   services: [
-    { filename: 'service-bowen.png', alt: 'Terapia Bowen' },
-    { filename: 'service-eliberare.png', alt: 'Eliberare Emoțională' },
-    { filename: 'service-bowen-alt.png', alt: 'Terapia Bowen' },
+    { filename: 'terapii/service-bowen.png', alt: 'Terapia Bowen' },
+    { filename: 'terapii/service-eliberare.png', alt: 'Eliberare Emoțională' },
+    { filename: 'terapii/service-bowen-alt.png', alt: 'Terapia Bowen' },
   ],
-  // Course images - mapped by course title
+  // Course images - mapped by course title (original from terapiienergetice.ro)
   courseImages: [
-    { filename: 'curs-access-bars.png', alt: 'Curs Access Bars', courseTitle: 'Curs Access Bars' },
-    { filename: 'curs-facelift.png', alt: 'Curs Facelift Energetic', courseTitle: 'Curs Facelift Energetic' },
+    { filename: 'terapii/curs-access-bars-original.png', alt: 'Curs Access Bars', courseTitle: 'Curs Access Bars' },
+    { filename: 'terapii/curs-facelift.png', alt: 'Curs Facelift Energetic', courseTitle: 'Curs Facelift Energetic' },
   ],
-  logo: { filename: 'logo.png', alt: 'Revital Harmony Logo' },
+  logo: { filename: 'terapii/logo.png', alt: 'Revital Harmony Logo' },
   team: [{ filename: 'team/monica-batir.jpg', alt: 'Monica Batir - Fondator și Terapeut Principal' }],
+  // Gallery images - from original site
   gallery: [
-    { filename: 'hero-1.png', alt: 'Cabinet de terapie' },
-    { filename: 'hero-2.png', alt: 'Sala de tratament' },
-    { filename: 'service-bowen.png', alt: 'Ședință de terapie' },
+    { filename: 'terapii/galerie-1.jpg', alt: 'Cabinet de terapie', category: 'Cabinet' },
+    { filename: 'terapii/galerie-2.jpg', alt: 'Sala de tratament', category: 'Cabinet' },
+    { filename: 'terapii/monica-about.jpg', alt: 'Monica Batir în cabinet', category: 'Terapeut' },
+    { filename: 'terapii/hero-1.png', alt: 'Terapie energetică', category: 'Terapii' },
+    { filename: 'terapii/hero-2.png', alt: 'Ședință de relaxare', category: 'Terapii' },
+    { filename: 'terapii/terapie-bowen.png', alt: 'Terapia Bowen', category: 'Terapii' },
+    { filename: 'terapii/terapie-facelift.png', alt: 'Facelift Energetic', category: 'Terapii' },
   ],
-  // Therapy images - mapped by service title
+  // About section images
+  about: [
+    { filename: 'terapii/monica-about.jpg', alt: 'Monica Batir - Fondator Revital Harmony' },
+  ],
+  // Therapy images - mapped by service title (original from terapiienergetice.ro)
   therapies: [
     { filename: 'terapii/terapie-bowen.png', alt: 'Terapia Bowen', serviceTitle: 'Terapia Bowen' },
     { filename: 'terapii/terapie-access-bars.png', alt: 'Terapia Access Bars', serviceTitle: 'Terapia Access Bars' },

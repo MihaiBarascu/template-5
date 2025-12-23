@@ -37,9 +37,9 @@ export type HeroType = 'fullscreen' | 'centered' | 'split' | 'minimal' | 'video'
 export type HeroOverlay = 'dark' | 'light' | 'gradient' | 'none'
 export type HeroAlignment = 'left' | 'center' | 'right'
 
-export type ServicesVariant = 'grid-3' | 'grid-4' | 'list' | 'grid-2' | 'list-alternating' | 'price-list'
-export type TeamVariant = 'grid' | 'grid-centered' | 'list' | 'carousel'
-export type TestimonialsVariant = 'carousel' | 'grid' | 'masonry' | 'single-featured' | 'minimal' | 'cards-rotating'
+export type ServicesVariant = 'grid-3' | 'grid-2' | 'list' | 'price-list'
+export type TeamVariant = 'grid' | 'carousel'
+export type TestimonialsVariant = 'carousel' | 'grid'
 export type GalleryVariant = 'grid-3' | 'grid-4' | 'masonry' | 'carousel'
 export type PricingVariant = 'cards-3' | 'cards-4' | 'table' | 'list' | 'toggle' | 'featured-center'
 
@@ -125,7 +125,7 @@ export const seederConfigs: Record<string, SeederConfig> = {
     layout: {
       sections: ['announcementBar', 'services', 'openingHours', 'gallery', 'stats', 'team', 'testimonials', 'faq', 'latestPosts', 'newsletter', 'cta'],
       servicesVariant: 'grid-3',
-      teamVariant: 'grid-centered',
+      teamVariant: 'grid',
       testimonialsVariant: 'carousel',
       galleryVariant: 'masonry',
       pricingVariant: 'cards-3',
@@ -176,9 +176,9 @@ export const seederConfigs: Record<string, SeederConfig> = {
     },
     layout: {
       sections: ['services', 'gallery', 'team', 'stats', 'testimonials', 'faq', 'newsletter', 'cta'],
-      servicesVariant: 'grid-4',
+      servicesVariant: 'grid-3',
       teamVariant: 'carousel',
-      testimonialsVariant: 'masonry',
+      testimonialsVariant: 'carousel',
       galleryVariant: 'masonry',
       pricingVariant: 'cards-4',
     },
@@ -228,9 +228,9 @@ export const seederConfigs: Record<string, SeederConfig> = {
     },
     layout: {
       sections: ['trustBadges', 'services', 'howItWorks', 'team', 'stats', 'testimonials', 'faq', 'latestPosts', 'cta'],
-      servicesVariant: 'list-alternating',
+      servicesVariant: 'list',
       teamVariant: 'grid',
-      testimonialsVariant: 'single-featured',
+      testimonialsVariant: 'carousel',
       galleryVariant: 'grid-3',
       pricingVariant: 'list',
     },
@@ -280,7 +280,7 @@ export const seederConfigs: Record<string, SeederConfig> = {
     },
     layout: {
       sections: ['announcementBar', 'services', 'gallery', 'stats', 'testimonials', 'faq', 'newsletter', 'cta'],
-      servicesVariant: 'grid-4',
+      servicesVariant: 'grid-3',
       teamVariant: 'grid',
       testimonialsVariant: 'grid',
       galleryVariant: 'grid-4',

@@ -1,10 +1,12 @@
 'use client'
 
 import React, { useState, useCallback, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { cn } from '@/utilities/cn'
 import { Media } from '@/components/Media'
 import { Play, X } from 'lucide-react'
-import type { Media as MediaType } from '@/payload-types'
+import type { Media as MediaType, Testimonial as PayloadTestimonial } from '@/payload-types'
+import { TestimonialCard as SharedTestimonialCard } from '@/components/TestimonialCard'
 
 // Shared utilities
 import { getBgClasses, isDarkBackground, getCardClasses, getEmptyStateClasses } from '../_shared/themeHelpers'
@@ -12,13 +14,19 @@ import { isValidMedia } from '../_shared/mediaHelpers'
 import { StarRating, QuoteIcon, getSourceIcon, ChevronIcon, PlayButton, EmptyStateIcon } from '../_shared/iconComponents'
 
 // Helper to parse video URLs
-function parseVideoUrl(url: string): { type: 'youtube' | 'vimeo' | 'direct'; embedUrl: string } | null {
+function parseVideoUrl(url: string): { type: 'youtube' | 'vimeo' | 'direct'; embedUrl: string; thumbnailUrl?: string; videoId?: string } | null {
   if (!url) return null
 
-  // YouTube
-  const youtubeMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/)
+  // YouTube (standard, embed, shorts, and youtu.be)
+  const youtubeMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/)
   if (youtubeMatch) {
-    return { type: 'youtube', embedUrl: `https://www.youtube.com/embed/${youtubeMatch[1]}?autoplay=1` }
+    const videoId = youtubeMatch[1]
+    return {
+      type: 'youtube',
+      embedUrl: `https://www.youtube.com/embed/${videoId}?autoplay=1`,
+      thumbnailUrl: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+      videoId,
+    }
   }
 
   // Vimeo
@@ -50,19 +58,20 @@ interface Testimonial {
   role?: string | null
   content: string
   rating?: string | null
-  avatar?: {
+  image?: {
     url?: string | null
     alt?: string | null
   } | string | null
   source?: string | null
   featured?: boolean | null
-  date?: string | null
   videoUrl?: string | null
   videoPoster?: {
     url?: string | null
     alt?: string | null
   } | string | null
   category?: TestimonialCategory | string | null
+  createdAt?: string
+  updatedAt?: string
 }
 
 interface TestimonialsBlockProps {
@@ -103,6 +112,41 @@ export function TestimonialsBlock({
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [activeVideo, setActiveVideo] = useState<string | null>(null)
+  const [mounted, setMounted] = useState(false)
+
+  // For SSR safety - only render portal after mount
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Handle Escape key to close video modal (accessibility best practice)
+  useEffect(() => {
+    if (!activeVideo) return
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setActiveVideo(null)
+      }
+    }
+
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
+  }, [activeVideo])
+
+  // Prevent body scroll when modal is open (UX best practice)
+  useEffect(() => {
+    if (!mounted) return
+
+    if (activeVideo) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [activeVideo, mounted])
 
   // Use shared theme helpers
   const bgClass = getBgClasses(backgroundColor)
@@ -186,25 +230,65 @@ export function TestimonialsBlock({
     return { groups: sortedGroups, uncategorized }
   }
 
-  // Testimonial Card Component
-  const TestimonialCard = ({ testimonial, index, featured = false }: { testimonial: Testimonial; index: number; featured?: boolean }) => (
+  // Internal Testimonial Card Component (for carousel and single-featured variants)
+  const InternalTestimonialCard = ({ testimonial, index, featured = false }: { testimonial: Testimonial; index: number; featured?: boolean }) => {
+    const hasVideo = !!testimonial.videoUrl
+    const videoInfo = hasVideo ? parseVideoUrl(testimonial.videoUrl || '') : null
+    const isLongText = (testimonial.content?.length || 0) > 150
+
+    return (
     <div
       className={cn(
         'relative p-6 md:p-8 rounded-[var(--radius-card)]',
-        'animate-fade-in-up card-hover',
+        'animate-fade-in-up',
         featured ? 'text-center' : '',
         isDark
           ? 'bg-white/5 border border-white/10'
-          : 'bg-white shadow-lg hover:shadow-xl border border-theme-border/50',
+          : 'bg-white shadow-lg border border-theme-border/50',
         index < 8 && `animation-delay-${(index % 4) * 100 + 100}`
       )}
     >
-      {/* Quote Icon - decorative, only for non-featured cards */}
-      {!featured && (
+      {/* Quote Icon - decorative, only for non-featured cards without video */}
+      {!featured && !hasVideo && (
         <QuoteIcon className={cn(
           'absolute w-12 h-12 top-4 right-4',
           isDark ? 'text-white/10' : 'text-theme-primary/10'
         )} />
+      )}
+
+      {/* Video Thumbnail Preview - clickable to open modal */}
+      {hasVideo && videoInfo?.thumbnailUrl && (
+        <div
+          className="relative mb-4 rounded-lg overflow-hidden group/thumb cursor-pointer"
+          onClick={() => setActiveVideo(testimonial.id)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              setActiveVideo(testimonial.id)
+            }
+          }}
+          aria-label={`Redă video testimonial de la ${testimonial.name}`}
+        >
+          <div className="aspect-video relative">
+            <img
+              src={videoInfo.thumbnailUrl}
+              alt={`Video testimonial de la ${testimonial.name}`}
+              className="w-full h-full object-cover transition-transform duration-300 group-hover/thumb:scale-105"
+            />
+            {/* Play overlay */}
+            <div className="absolute inset-0 bg-black/30 group-hover/thumb:bg-black/40 transition-colors flex items-center justify-center">
+              <div className={cn(
+                'w-14 h-14 rounded-full flex items-center justify-center',
+                'bg-white/90 text-theme-primary shadow-lg',
+                'transition-all duration-300 group-hover/thumb:scale-110'
+              )}>
+                <Play className="w-6 h-6 ml-1" fill="currentColor" />
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Rating */}
@@ -216,12 +300,23 @@ export function TestimonialsBlock({
 
       {/* Content */}
       <blockquote className={cn(
-        'relative z-10 mb-6 leading-relaxed',
+        'relative z-10 mb-2 leading-relaxed',
         featured ? 'text-xl md:text-2xl font-medium' : 'text-base md:text-lg',
-        isDark ? 'text-white/90' : 'text-theme-text'
+        isDark ? 'text-white/90' : 'text-theme-text',
+        !featured && 'line-clamp-4'
       )}>
         &ldquo;{testimonial.content}&rdquo;
       </blockquote>
+
+      {/* Read more for long text */}
+      {isLongText && !hasVideo && !featured && (
+        <span className={cn(
+          'text-sm font-medium mb-4 inline-block transition-colors',
+          isDark ? 'text-theme-accent hover:text-white' : 'text-theme-primary hover:text-theme-primary-dark'
+        )}>
+          Citește mai mult →
+        </span>
+      )}
 
       {/* Author */}
       <div className={cn(
@@ -236,9 +331,9 @@ export function TestimonialsBlock({
             isDark ? 'ring-white/20' : 'ring-theme-primary/20',
             featured ? 'w-16 h-16' : 'w-12 h-12'
           )}>
-            {isValidMedia(testimonial.avatar) ? (
+            {isValidMedia(testimonial.image) ? (
               <Media
-                resource={testimonial.avatar as MediaType}
+                resource={testimonial.image as MediaType}
                 fill
                 size="64px"
                 imgClassName="object-cover"
@@ -272,12 +367,12 @@ export function TestimonialsBlock({
               {testimonial.role}
             </div>
           )}
-          {showDate && testimonial.date && (
+          {showDate && testimonial.createdAt && (
             <div className={cn(
               'text-xs mt-1',
               isDark ? 'text-white/40' : 'text-theme-text-muted'
             )}>
-              {testimonial.date}
+              {new Date(testimonial.createdAt).toLocaleDateString('ro-RO')}
             </div>
           )}
         </div>
@@ -298,6 +393,7 @@ export function TestimonialsBlock({
       </div>
     </div>
   )
+  }
 
   // Grouped by Category Variant
   if (groupByCategory && categories.length > 0) {
@@ -351,7 +447,15 @@ export function TestimonialsBlock({
                 {/* Testimonials Grid */}
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-cards">
                   {items.map((testimonial, index) => (
-                    <TestimonialCard key={testimonial.id} testimonial={testimonial} index={index} />
+                    <SharedTestimonialCard
+                      key={testimonial.id}
+                      testimonial={testimonial as unknown as PayloadTestimonial}
+                      index={index}
+                      isDark={isDark}
+                      showRating={showRating}
+                      showAvatar={showAvatar}
+                      showSource={showSource}
+                    />
                   ))}
                 </div>
               </div>
@@ -379,152 +483,221 @@ export function TestimonialsBlock({
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-cards">
                   {uncategorized.map((testimonial, index) => (
-                    <TestimonialCard key={testimonial.id} testimonial={testimonial} index={index} />
+                    <SharedTestimonialCard
+                      key={testimonial.id}
+                      testimonial={testimonial as unknown as PayloadTestimonial}
+                      index={index}
+                      isDark={isDark}
+                      showRating={showRating}
+                      showAvatar={showAvatar}
+                      showSource={showSource}
+                    />
                   ))}
                 </div>
               </div>
             )}
           </div>
         </div>
+
       </section>
+    )
+  }
+
+  // Helper function to render the video modal - reusable across variants
+  const renderVideoModal = () => {
+    if (!mounted || !activeVideo) return null
+
+    const currentTestimonial = testimonials.find(t => t.id === activeVideo)
+    if (!currentTestimonial?.videoUrl) return null
+
+    const videoInfo = parseVideoUrl(currentTestimonial.videoUrl)
+    if (!videoInfo) return null
+
+    return createPortal(
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Video testimonial de la ${currentTestimonial.name}`}
+        className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm"
+        onClick={() => setActiveVideo(null)}
+      >
+        <div className="relative w-full max-w-4xl mx-4 aspect-video" onClick={(e) => e.stopPropagation()}>
+          {/* Close Button */}
+          <button
+            onClick={() => setActiveVideo(null)}
+            className="absolute -top-12 right-0 p-2 text-white hover:text-theme-accent transition-colors"
+            aria-label="Închide video"
+          >
+            <X className="w-8 h-8" />
+          </button>
+
+          {/* Video Player */}
+          {videoInfo.type === 'direct' ? (
+            <video
+              src={videoInfo.embedUrl}
+              controls
+              autoPlay
+              className="w-full h-full rounded-lg"
+            />
+          ) : (
+            <iframe
+              src={videoInfo.embedUrl}
+              className="w-full h-full rounded-lg"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          )}
+        </div>
+      </div>,
+      document.body
     )
   }
 
   // Carousel Variant
   if (variant === 'carousel') {
     return (
-      <section className={cn('py-section overflow-hidden', bgClass)}>
-        <div className="container mx-auto px-4">
-          {/* Header */}
-          {(heading || subheading) && (
-            <div className="text-center mb-12">
-              {heading && (
-                <h2 className={cn(
-                  'heading-h2 font-bold mb-4',
-                  isDark ? 'text-white' : 'text-theme-text'
-                )}>
-                  {heading}
-                </h2>
-              )}
-              {subheading && (
-                <p className={cn('text-lg max-w-2xl mx-auto', isDark ? 'text-white/70' : 'text-theme-text-light')}>
-                  {subheading}
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* Carousel */}
-          <div className="relative max-w-4xl mx-auto">
-            {/* Cards */}
-            <div className="relative overflow-hidden">
-              <div
-                className="flex transition-transform duration-600 ease-out"
-                style={{ transform: `translateX(-${currentIndex * 100}%)` }}
-              >
-                {testimonials.map((testimonial, index) => (
-                  <div key={testimonial.id || index} className="w-full flex-shrink-0 px-4">
-                    <TestimonialCard testimonial={testimonial} index={0} featured />
-                  </div>
-                ))}
+      <>
+        <section className={cn('py-section overflow-hidden', bgClass)}>
+          <div className="container mx-auto px-4">
+            {/* Header */}
+            {(heading || subheading) && (
+              <div className="text-center mb-12">
+                {heading && (
+                  <h2 className={cn(
+                    'heading-h2 font-bold mb-4',
+                    isDark ? 'text-white' : 'text-theme-text'
+                  )}>
+                    {heading}
+                  </h2>
+                )}
+                {subheading && (
+                  <p className={cn('text-lg max-w-2xl mx-auto', isDark ? 'text-white/70' : 'text-theme-text-light')}>
+                    {subheading}
+                  </p>
+                )}
               </div>
-            </div>
-
-            {/* Navigation Arrows */}
-            {testimonials.length > 1 && (
-              <>
-                <button
-                  onClick={prevSlide}
-                  className={cn(
-                    'absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-12',
-                    'p-3 rounded-full transition-all duration-300 hover:scale-110',
-                    isDark
-                      ? 'bg-white/10 text-white hover:bg-white/20'
-                      : 'bg-white shadow-lg text-theme-text hover:bg-theme-primary hover:text-theme-text-on-primary'
-                  )}
-                  aria-label="Previous testimonial"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-                <button
-                  onClick={nextSlide}
-                  className={cn(
-                    'absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-12',
-                    'p-3 rounded-full transition-all duration-300 hover:scale-110',
-                    isDark
-                      ? 'bg-white/10 text-white hover:bg-white/20'
-                      : 'bg-white shadow-lg text-theme-text hover:bg-theme-primary hover:text-theme-text-on-primary'
-                  )}
-                  aria-label="Next testimonial"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-              </>
             )}
 
-            {/* Dots */}
-            {testimonials.length > 1 && (
-              <div className="flex justify-center gap-2 mt-8">
-                {testimonials.map((_, index) => (
+            {/* Carousel */}
+            <div className="relative max-w-4xl mx-auto">
+              {/* Cards */}
+              <div className="relative overflow-hidden">
+                <div
+                  className="flex transition-transform duration-600 ease-out"
+                  style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+                >
+                  {testimonials.map((testimonial, index) => (
+                    <div key={testimonial.id || index} className="w-full flex-shrink-0 px-4">
+                      <InternalTestimonialCard testimonial={testimonial} index={0} featured />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Navigation Arrows */}
+              {testimonials.length > 1 && (
+                <>
                   <button
-                    key={index}
-                    onClick={() => {
-                      if (!isTransitioning) {
-                        setIsTransitioning(true)
-                        setCurrentIndex(index)
-                        setTimeout(() => setIsTransitioning(false), 600)
-                      }
-                    }}
+                    onClick={prevSlide}
                     className={cn(
-                      'transition-all duration-300 rounded-full',
-                      index === currentIndex
-                        ? cn('w-8 h-2', isDark ? 'bg-white' : 'bg-theme-primary')
-                        : cn('w-2 h-2', isDark ? 'bg-white/30 hover:bg-white/50' : 'bg-theme-border hover:bg-theme-text-muted')
+                      'absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-12',
+                      'p-3 rounded-full transition-all duration-300 hover:scale-110',
+                      isDark
+                        ? 'bg-white/10 text-white hover:bg-white/20'
+                        : 'bg-white shadow-lg text-theme-text hover:bg-theme-primary hover:text-theme-text-on-primary'
                     )}
-                    aria-label={`Go to testimonial ${index + 1}`}
-                  />
-                ))}
-              </div>
-            )}
+                    aria-label="Previous testimonial"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={nextSlide}
+                    className={cn(
+                      'absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-12',
+                      'p-3 rounded-full transition-all duration-300 hover:scale-110',
+                      isDark
+                        ? 'bg-white/10 text-white hover:bg-white/20'
+                        : 'bg-white shadow-lg text-theme-text hover:bg-theme-primary hover:text-theme-text-on-primary'
+                    )}
+                    aria-label="Next testimonial"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </>
+              )}
+
+              {/* Dots */}
+              {testimonials.length > 1 && (
+                <div className="flex justify-center gap-2 mt-8">
+                  {testimonials.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        if (!isTransitioning) {
+                          setIsTransitioning(true)
+                          setCurrentIndex(index)
+                          setTimeout(() => setIsTransitioning(false), 600)
+                        }
+                      }}
+                      className={cn(
+                        'transition-all duration-300 rounded-full',
+                        index === currentIndex
+                          ? cn('w-8 h-2', isDark ? 'bg-white' : 'bg-theme-primary')
+                          : cn('w-2 h-2', isDark ? 'bg-white/30 hover:bg-white/50' : 'bg-theme-border hover:bg-theme-text-muted')
+                      )}
+                      aria-label={`Go to testimonial ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+
+        {/* Video Modal - rendered via Portal */}
+        {renderVideoModal()}
+      </>
     )
   }
 
   // Single Featured Variant
   if (variant === 'single-featured') {
     return (
-      <section className={cn('py-section', bgClass)}>
-        <div className="container mx-auto px-4">
-          {/* Header */}
-          {(heading || subheading) && (
-            <div className="text-center mb-12">
-              {heading && (
-                <h2 className={cn(
-                  'heading-h2 font-bold mb-4',
-                  isDark ? 'text-white' : 'text-theme-text'
-                )}>
-                  {heading}
-                </h2>
-              )}
-              {subheading && (
-                <p className={cn('text-lg max-w-2xl mx-auto', isDark ? 'text-white/70' : 'text-theme-text-light')}>
-                  {subheading}
-                </p>
-              )}
-            </div>
-          )}
+      <>
+        <section className={cn('py-section', bgClass)}>
+          <div className="container mx-auto px-4">
+            {/* Header */}
+            {(heading || subheading) && (
+              <div className="text-center mb-12">
+                {heading && (
+                  <h2 className={cn(
+                    'heading-h2 font-bold mb-4',
+                    isDark ? 'text-white' : 'text-theme-text'
+                  )}>
+                    {heading}
+                  </h2>
+                )}
+                {subheading && (
+                  <p className={cn('text-lg max-w-2xl mx-auto', isDark ? 'text-white/70' : 'text-theme-text-light')}>
+                    {subheading}
+                  </p>
+                )}
+              </div>
+            )}
 
-          <div className="max-w-3xl mx-auto">
-            <TestimonialCard testimonial={testimonials[0]} index={0} featured />
+            <div className="max-w-3xl mx-auto">
+              <InternalTestimonialCard testimonial={testimonials[0]} index={0} featured />
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+
+        {/* Video Modal - rendered via Portal */}
+        {renderVideoModal()}
+      </>
     )
   }
 
@@ -555,7 +728,14 @@ export function TestimonialsBlock({
           <div className="columns-1 md:columns-2 lg:columns-3 gap-6">
             {testimonials.map((testimonial, index) => (
               <div key={testimonial.id || index} className="break-inside-avoid mb-6">
-                <TestimonialCard testimonial={testimonial} index={index} />
+                <SharedTestimonialCard
+                  testimonial={testimonial as unknown as PayloadTestimonial}
+                  index={index}
+                  isDark={isDark}
+                  showRating={showRating}
+                  showAvatar={showAvatar}
+                  showSource={showSource}
+                />
               </div>
             ))}
           </div>
@@ -634,9 +814,9 @@ export function TestimonialsBlock({
                         size="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         imgClassName="object-cover transition-transform duration-500 group-hover:scale-105"
                       />
-                    ) : isValidMedia(testimonial.avatar) ? (
+                    ) : isValidMedia(testimonial.image) ? (
                       <Media
-                        resource={testimonial.avatar as MediaType}
+                        resource={testimonial.image as MediaType}
                         fill
                         size="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         imgClassName="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -687,9 +867,9 @@ export function TestimonialsBlock({
                           'ring-2',
                           isDark ? 'ring-white/20' : 'ring-theme-primary/20'
                         )}>
-                          {isValidMedia(testimonial.avatar) ? (
+                          {isValidMedia(testimonial.image) ? (
                             <Media
-                              resource={testimonial.avatar as MediaType}
+                              resource={testimonial.image as MediaType}
                               fill
                               size="40px"
                               imgClassName="object-cover"
@@ -727,18 +907,21 @@ export function TestimonialsBlock({
             })}
           </div>
 
-          {/* Video Modal */}
-          {activeVideo && (
+          {/* Video Modal - rendered via Portal to escape parent overflow constraints */}
+          {mounted && activeVideo && createPortal(
             <div
-              className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Video testimonial"
+              className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm"
               onClick={() => setActiveVideo(null)}
             >
-              <div className="relative w-full max-w-4xl mx-4 aspect-video">
+              <div className="relative w-full max-w-4xl mx-4 aspect-video" onClick={(e) => e.stopPropagation()}>
                 {/* Close Button */}
                 <button
                   onClick={() => setActiveVideo(null)}
                   className="absolute -top-12 right-0 p-2 text-white hover:text-theme-accent transition-colors"
-                  aria-label="Inchide"
+                  aria-label="Închide video"
                 >
                   <X className="w-8 h-8" />
                 </button>
@@ -772,7 +955,8 @@ export function TestimonialsBlock({
                   )
                 })()}
               </div>
-            </div>
+            </div>,
+            document.body
           )}
         </div>
       </section>
@@ -805,7 +989,15 @@ export function TestimonialsBlock({
         {/* Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-cards">
           {testimonials.map((testimonial, index) => (
-            <TestimonialCard key={testimonial.id || index} testimonial={testimonial} index={index} />
+            <SharedTestimonialCard
+              key={testimonial.id || index}
+              testimonial={testimonial as unknown as PayloadTestimonial}
+              index={index}
+              isDark={isDark}
+              showRating={showRating}
+              showAvatar={showAvatar}
+              showSource={showSource}
+            />
           ))}
         </div>
       </div>

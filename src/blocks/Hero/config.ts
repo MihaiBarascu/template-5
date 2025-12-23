@@ -1,6 +1,11 @@
 import type { Block } from 'payload'
 import { sectionWrapperFields } from '../_shared/sectionWrapperFields'
+import { advancedSettingsGroup } from '../_shared/commonFields'
 
+/**
+ * Hero Block - Main page header section
+ * Supports images, video backgrounds, and sliders
+ */
 export const HeroBlock: Block = {
   slug: 'hero',
   interfaceName: 'HeroBlock',
@@ -10,6 +15,7 @@ export const HeroBlock: Block = {
   },
   imageURL: '/blocks/hero.svg',
   fields: [
+    // === ESSENTIAL FIELDS ===
     {
       name: 'variant',
       type: 'select',
@@ -19,9 +25,7 @@ export const HeroBlock: Block = {
         { label: 'Centrat', value: 'centered' },
         { label: 'Aliniat stanga', value: 'left-aligned' },
         { label: 'Split (50/50)', value: 'split' },
-        { label: 'Fullscreen', value: 'fullscreen' },
         { label: 'Video background', value: 'video' },
-        { label: 'Minimal', value: 'minimal' },
         { label: 'Cu slider', value: 'slider' },
       ],
     },
@@ -43,7 +47,7 @@ export const HeroBlock: Block = {
       label: 'Imagine',
       admin: {
         condition: (_, siblingData) =>
-          ['centered', 'left-aligned', 'split', 'fullscreen'].includes(siblingData?.variant),
+          ['centered', 'left-aligned', 'split'].includes(siblingData?.variant),
       },
     },
     {
@@ -106,51 +110,40 @@ export const HeroBlock: Block = {
           options: [
             { label: 'Primary', value: 'default' },
             { label: 'Outline', value: 'outline' },
-            { label: 'Ghost', value: 'ghost' },
           ],
         },
       ],
     },
-    {
-      name: 'overlayOpacity',
-      type: 'select',
-      label: 'Opacitate overlay',
-      defaultValue: '50',
-      admin: {
-        condition: (_, siblingData) =>
-          ['fullscreen', 'video'].includes(siblingData?.variant),
-      },
-      options: [
-        { label: 'Fara', value: '0' },
-        { label: '25%', value: '25' },
-        { label: '50%', value: '50' },
-        { label: '75%', value: '75' },
+    // === ADVANCED SETTINGS (collapsible) ===
+    advancedSettingsGroup({
+      label: 'Setari avansate',
+      fields: [
+        {
+          name: 'overlayOpacity',
+          type: 'select',
+          label: 'Opacitate overlay',
+          defaultValue: '50',
+          options: [
+            { label: 'Fara', value: '0' },
+            { label: '25%', value: '25' },
+            { label: '50%', value: '50' },
+            { label: '75%', value: '75' },
+          ],
+        },
+        {
+          name: 'height',
+          type: 'select',
+          label: 'Inaltime',
+          defaultValue: 'large',
+          options: [
+            { label: 'Medie', value: 'medium' },
+            { label: 'Mare', value: 'large' },
+            { label: 'Fullscreen', value: 'fullscreen' },
+          ],
+        },
       ],
-    },
-    {
-      name: 'textColor',
-      type: 'select',
-      label: 'Culoare text',
-      defaultValue: 'auto',
-      options: [
-        { label: 'Auto', value: 'auto' },
-        { label: 'Inchis', value: 'dark' },
-        { label: 'Deschis', value: 'light' },
-      ],
-    },
-    {
-      name: 'height',
-      type: 'select',
-      label: 'Inaltime',
-      defaultValue: 'large',
-      options: [
-        { label: 'Mica', value: 'small' },
-        { label: 'Medie', value: 'medium' },
-        { label: 'Mare', value: 'large' },
-        { label: 'Fullscreen', value: 'fullscreen' },
-      ],
-    },
-    // Section wrapper fields for advanced layout options
+    }),
+    // Section wrapper fields
     ...sectionWrapperFields,
   ],
 }

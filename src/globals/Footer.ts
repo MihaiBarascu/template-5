@@ -6,6 +6,10 @@ import { linkFields } from '@/fields/link'
 export const Footer: GlobalConfig = {
   slug: 'footer',
   label: 'Footer',
+  admin: {
+    group: 'Setari Site',
+    description: 'Configurare footer: coloane, linkuri, contact',
+  },
   access: {
     read: () => true,
     update: authenticated,

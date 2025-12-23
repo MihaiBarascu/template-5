@@ -1,4 +1,6 @@
 import type { Block } from 'payload'
+import { sectionWrapperFields } from '../_shared/sectionWrapperFields'
+import { displayOptionsGroup, advancedSettingsGroup } from '../_shared/commonFields'
 
 export const BrandLogosBlock: Block = {
   slug: 'brandLogos',
@@ -9,6 +11,7 @@ export const BrandLogosBlock: Block = {
   interfaceName: 'BrandLogosBlock',
   imageURL: '/blocks/brand-logos.svg',
   fields: [
+    // === ESSENTIAL FIELDS ===
     {
       name: 'variant',
       type: 'select',
@@ -18,8 +21,6 @@ export const BrandLogosBlock: Block = {
         { label: 'Rand simplu', value: 'row' },
         { label: 'Grid', value: 'grid' },
         { label: 'Slider', value: 'slider' },
-        { label: 'Cu titlu deasupra', value: 'titled' },
-        { label: 'Cu sectiuni', value: 'sectioned' },
       ],
     },
     {
@@ -28,27 +29,9 @@ export const BrandLogosBlock: Block = {
       label: 'Titlu sectiune',
     },
     {
-      name: 'subheading',
-      type: 'textarea',
-      label: 'Subtitlu',
-    },
-    {
-      name: 'source',
-      type: 'select',
-      label: 'Sursa logo-uri',
-      defaultValue: 'custom',
-      options: [
-        { label: 'Logo-uri custom', value: 'custom' },
-        { label: 'Pe sectiuni', value: 'sections' },
-      ],
-    },
-    {
       name: 'logos',
       type: 'array',
       label: 'Logo-uri',
-      admin: {
-        condition: (_, siblingData) => siblingData?.source === 'custom',
-      },
       fields: [
         {
           name: 'image',
@@ -69,82 +52,57 @@ export const BrandLogosBlock: Block = {
         },
       ],
     },
-    {
-      name: 'sections',
-      type: 'array',
-      label: 'Sectiuni',
-      admin: {
-        condition: (_, siblingData) => siblingData?.source === 'sections',
-      },
+    // === DISPLAY OPTIONS (collapsible) ===
+    displayOptionsGroup({
+      label: 'Optiuni afisare',
+      collapsed: true,
       fields: [
         {
-          name: 'title',
-          type: 'text',
-          label: 'Titlu sectiune',
-          required: true,
+          name: 'grayscale',
+          type: 'checkbox',
+          label: 'Logo-uri grayscale (color la hover)',
+          defaultValue: true,
         },
         {
-          name: 'logos',
-          type: 'array',
-          label: 'Logo-uri',
-          fields: [
-            {
-              name: 'image',
-              type: 'upload',
-              relationTo: 'media',
-              label: 'Logo',
-              required: true,
-            },
-            {
-              name: 'name',
-              type: 'text',
-              label: 'Nume brand',
-            },
-            {
-              name: 'link',
-              type: 'text',
-              label: 'Link',
-            },
+          name: 'logoSize',
+          type: 'select',
+          label: 'Marime logo',
+          defaultValue: 'medium',
+          options: [
+            { label: 'Mic', value: 'small' },
+            { label: 'Mediu', value: 'medium' },
+            { label: 'Mare', value: 'large' },
+          ],
+        },
+        {
+          name: 'autoplay',
+          type: 'checkbox',
+          label: 'Autoplay slider',
+          defaultValue: true,
+          admin: {
+            condition: (_, siblingData) => siblingData?.variant === 'slider',
+          },
+        },
+      ],
+    }),
+    // === ADVANCED SETTINGS (collapsible) ===
+    advancedSettingsGroup({
+      label: 'Setari avansate',
+      fields: [
+        {
+          name: 'backgroundColor',
+          type: 'select',
+          label: 'Culoare fundal',
+          defaultValue: 'default',
+          options: [
+            { label: 'Default', value: 'default' },
+            { label: 'Light', value: 'light' },
+            { label: 'Dark', value: 'dark' },
           ],
         },
       ],
-    },
-    {
-      name: 'grayscale',
-      type: 'checkbox',
-      label: 'Logo-uri grayscale (color la hover)',
-      defaultValue: true,
-    },
-    {
-      name: 'autoplay',
-      type: 'checkbox',
-      label: 'Autoplay slider',
-      defaultValue: true,
-      admin: {
-        condition: (_, siblingData) => siblingData?.variant === 'slider',
-      },
-    },
-    {
-      name: 'logoSize',
-      type: 'select',
-      label: 'Marime logo',
-      defaultValue: 'medium',
-      options: [
-        { label: 'Mic', value: 'small' },
-        { label: 'Mediu', value: 'medium' },
-        { label: 'Mare', value: 'large' },
-      ],
-    },
-    {
-      name: 'backgroundColor',
-      type: 'select',
-      label: 'Culoare fundal',
-      defaultValue: 'default',
-      options: [
-        { label: 'Default', value: 'default' },
-        { label: 'Light', value: 'light' },
-        { label: 'Dark', value: 'dark' },
-      ],
-    },
+    }),
+    // Section wrapper fields
+    ...sectionWrapperFields,
   ],
 }

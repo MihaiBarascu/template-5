@@ -1,22 +1,23 @@
 import type { Block } from 'payload'
+import { sectionWrapperFields } from '../_shared/sectionWrapperFields'
 import {
   headingFields,
   ctaButtonFields,
-  backgroundColorField,
   allIconOptions,
-  showNumbersField,
-  showConnectorsField,
+  displayOptionsGroup,
+  advancedSettingsGroup,
 } from '../_shared/commonFields'
 
 export const ProcessStepsBlock: Block = {
   slug: 'process-steps',
   interfaceName: 'ProcessStepsBlock',
   labels: {
-    singular: 'Process Steps (Premium)',
-    plural: 'Process Steps',
+    singular: 'Pasi Proces',
+    plural: 'Pasi Proces',
   },
   imageURL: '/blocks/process-steps.svg',
   fields: [
+    // === ESSENTIAL FIELDS ===
     {
       name: 'variant',
       type: 'select',
@@ -54,9 +55,6 @@ export const ProcessStepsBlock: Block = {
           type: 'upload',
           relationTo: 'media',
           label: 'Imagine',
-          admin: {
-            description: 'Imagine pentru acest pas (recomandat 600x400px)',
-          },
         },
         {
           name: 'icon',
@@ -67,33 +65,61 @@ export const ProcessStepsBlock: Block = {
           },
           options: allIconOptions,
         },
+      ],
+    },
+    // === DISPLAY OPTIONS (collapsible) ===
+    displayOptionsGroup({
+      label: 'Optiuni afisare',
+      collapsed: true,
+      fields: [
         {
-          name: 'badge',
-          type: 'text',
-          label: 'Badge / eticheta (optional)',
+          name: 'showNumbers',
+          type: 'checkbox',
+          label: 'Afiseaza numerele pasilor',
+          defaultValue: true,
+        },
+        {
+          name: 'showConnectors',
+          type: 'checkbox',
+          label: 'Afiseaza linii conectoare',
+          defaultValue: true,
+        },
+        {
+          name: 'imagePosition',
+          type: 'select',
+          label: 'Pozitie imagine pentru primul pas',
+          defaultValue: 'right',
           admin: {
-            description: 'Ex: "Pas 1", "Etapa initiala", etc.',
+            condition: (_, siblingData) => siblingData?.variant === 'zigzag',
           },
+          options: [
+            { label: 'Dreapta', value: 'right' },
+            { label: 'Stanga', value: 'left' },
+          ],
         },
       ],
-    },
-    showNumbersField,
-    showConnectorsField,
-    {
-      name: 'imagePosition',
-      type: 'select',
-      label: 'Pozitie imagine pentru primul pas',
-      defaultValue: 'right',
-      admin: {
-        condition: (_, siblingData) => siblingData?.variant === 'zigzag',
-        description: 'Prima imagine va fi pe aceasta parte, urmatoarele alterneaza',
-      },
-      options: [
-        { label: 'Dreapta', value: 'right' },
-        { label: 'Stanga', value: 'left' },
-      ],
-    },
+    }),
+    // CTA Button
     ctaButtonFields(),
-    backgroundColorField({ showDescriptions: true }),
+    // === ADVANCED SETTINGS (collapsible) ===
+    advancedSettingsGroup({
+      label: 'Setari avansate',
+      fields: [
+        {
+          name: 'backgroundColor',
+          type: 'select',
+          label: 'Culoare fundal',
+          defaultValue: 'default',
+          options: [
+            { label: 'Default', value: 'default' },
+            { label: 'Light', value: 'light' },
+            { label: 'Dark', value: 'dark' },
+            { label: 'Primary', value: 'primary' },
+          ],
+        },
+      ],
+    }),
+    // Section wrapper fields
+    ...sectionWrapperFields,
   ],
 }
