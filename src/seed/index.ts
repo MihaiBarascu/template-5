@@ -27,6 +27,10 @@ import {
   setReuseExistingImages,
   triggerRevalidation,
 } from './helpers';
+import {
+  getOrCreateSeedTenant,
+  clearSeedTenant,
+} from './tenant-helpers';
 
 const seeders: Record<string, (payload: Payload) => Promise<void>> = {
   frizerie: seedFrizerie,
@@ -51,7 +55,7 @@ async function seed() {
 
   console.log(`\n🌱 Starting seed for: ${seedType}`);
   if (withImages) {
-    console.log('📸 --with-images: will clear media and upload fresh images');
+    console.log('📸 --with-images: will clear media and upload fresh images for this tenant');
   } else {
     console.log('♻️  Reusing existing images from media collection');
     setReuseExistingImages(true);
@@ -69,12 +73,41 @@ async function seed() {
   }
 
   try {
-    // Clear existing data
-    console.log('🗑️  Clearing existing data...');
-    await clearData(payload, withImages);
-    clearImageCache();
+    // First, check if tenant already exists
+    const existingTenant = await payload.find({
+      collection: 'tenants',
+      where: { slug: { equals: seedType } },
+      limit: 1,
+    });
 
-    // Run the seeder
+    // Clear ONLY this tenant's data (not other tenants!)
+    if (existingTenant.docs.length > 0) {
+      const tenantId = existingTenant.docs[0].id;
+      console.log(`🗑️  Clearing existing data for tenant: ${seedType} (${tenantId})...`);
+      await clearTenantData(payload, tenantId, withImages, seedType);
+    } else {
+      console.log(`🆕 No existing tenant found for: ${seedType} - creating fresh`);
+    }
+
+    clearImageCache();
+    clearSeedTenant();
+
+    // Create or get tenant for multi-tenant support
+    // Use actual seed type as slug/domain for proper multi-tenant testing
+    console.log('\n🏢 Setting up tenant...');
+    const tenantName = seedType
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ') + ' Demo';
+    const tenant = await getOrCreateSeedTenant(payload, {
+      name: tenantName,
+      slug: seedType,
+      domain: `${seedType}.local`,
+    });
+    console.log(`   Tenant ID: ${tenant.id}`);
+    console.log(`   Domain: ${tenant.domain}`);
+
+    // Run the seeder (tenant context is set via getCurrentSeedTenantId())
     console.log(`\n🌱 Running ${seedType} seeder...`);
     await seeder(payload);
 
@@ -83,9 +116,11 @@ async function seed() {
     await triggerRevalidation(process.env.NEXT_PUBLIC_SERVER_URL);
 
     console.log(`\n✅ Seed complete for: ${seedType}`);
-    console.log('\n👤 Default admin user:');
-    console.log('   Email: admin@example.com');
-    console.log('   Password: admin123');
+    console.log('\n👤 Tenant Admin (access only to this business):');
+    console.log(`   Email: admin@${seedType}.local`);
+    console.log(`   Password: ${seedType}123`);
+    console.log('\n💡 For Super Admin (access to all tenants):');
+    console.log('   Run: pnpm seed:super-admin');
     console.log(
       `\n🌐 Access the site at: ${process.env.NEXT_PUBLIC_SERVER_URL}`,
     );
@@ -103,114 +138,27 @@ async function seed() {
   process.exit(0);
 }
 
-async function clearData(payload: Payload, clearMedia: boolean = false) {
-  // Reset globals to clean state (fixes theme colors, announcementBar, etc. persisting between seeds)
-  console.log('   Resetting globals...');
-
-  // Reset site-theme to defaults
-  await payload.updateGlobal({
-    slug: 'site-theme',
-    data: {
-      variant: 'dark-gold',
-      borderRadius: undefined,
-      shadows: undefined,
-      animations: 'moderate',
-      containerWidth: '1280',
-      sectionSpacing: 'normal',
-      headingScale: 'normal',
-      bodyTextSize: 'normal',
-      cardGap: 'normal',
-      useCustomColors: false,
-      colors: {
-        primary: '#000000',
-        secondary: '#666666',
-        accent: '#c9a962',
-        dark: '#1a1a1a',
-        light: '#f5f5f5',
-        surface: '#ffffff',
-        text: '#1a1a1a',
-        textLight: '#666666',
-        border: '#e5e5e5',
-        textOnPrimary: '#ffffff',
-        textOnSecondary: '#ffffff',
-        textOnAccent: '#000000',
-        textOnDark: '#ffffff',
-        textOnLight: '#1a1a1a',
-        textOnSurface: '#1a1a1a',
-      },
-      headingFont: undefined,
-      bodyFont: undefined,
-    },
-  });
-
-  // Reset business-info - clear fields that persist between seeds (social, whatsappFloat, announcementBar)
-  // Note: We include a placeholder 'name' because it's required and in production the global might be empty
-  await payload.updateGlobal({
-    slug: 'business-info',
-    data: {
-      // Placeholder name (required field) - will be overwritten by seeder
-      name: 'Business Name',
-      // Reset social links to empty (prevents old values persisting)
-      social: {
-        facebook: '',
-        instagram: '',
-        tiktok: '',
-        youtube: '',
-        linkedin: '',
-      },
-      // Reset whatsappFloat completely
-      whatsappFloat: {
-        enabled: false,
-        position: 'bottom-right',
-        showOnMobile: true,
-        defaultMessage: '',
-        tooltipText: '',
-        pulseAnimation: false,
-      },
-      // Reset announcementBar completely
-      announcementBar: {
-        enabled: false,
-        message: '',
-        linkText: '',
-        linkUrl: '',
-      },
-    },
-  });
-
-  // Reset shop-settings - disable ecommerce by default (magazin seeder will enable it)
-  await payload.updateGlobal({
-    slug: 'shop-settings',
-    data: {
-      enabled: false, // IMPORTANT: disable cart/ecommerce for non-shop seeders
-    },
-  });
-  console.log('   Shop settings reset (ecommerce disabled)');
-
-  // Reset Footer badges when clearing media (to remove orphaned references)
-  if (clearMedia) {
-    await payload.updateGlobal({
-      slug: 'footer',
-      data: {
-        badges: [], // Clear badge references before media is deleted
-      },
-    });
-    console.log('   Footer badges cleared');
-  }
-
-  // Note: Header, Footer, Logo are fully set by each seeder, so no need to reset them
-  // The seeder's seedHeader, seedFooter, seedLogo calls will overwrite all values
-
-  console.log('   Globals reset to clean state');
-
-  // Collections to clear (media only if --with-images flag)
-  const collections: (keyof Config['collections'])[] = [
+/**
+ * Clear data ONLY for a specific tenant.
+ * This preserves data from other tenants - essential for multi-tenant isolation.
+ */
+async function clearTenantData(
+  payload: Payload,
+  tenantId: string,
+  clearMedia: boolean = false,
+  tenantSlug: string
+) {
+  // Collections that have tenant field - we filter by tenant ID
+  const tenantCollections: (keyof Config['collections'])[] = [
     'pages',
     'posts',
     'services',
+    'service-categories',
     'products',
     'team',
     'portfolio',
     'testimonials',
+    'testimonial-categories',
     'bookings',
     'subscription-orders',
     'newsletter-subscribers',
@@ -224,17 +172,27 @@ async function clearData(payload: Payload, clearMedia: boolean = false) {
     'orders',
     'addresses',
     'subscriptions',
+    // Tenant-global collections (per-tenant settings)
+    'tenant-site-themes',
+    'tenant-business-info',
+    'tenant-headers',
+    'tenant-footers',
+    'tenant-logos',
   ];
 
   // Add media to clear list if --with-images flag is present
   if (clearMedia) {
-    collections.push('media');
+    tenantCollections.push('media');
   }
 
-  for (const collection of collections) {
+  // Delete only documents belonging to this tenant
+  for (const collection of tenantCollections) {
     try {
       const docs = await payload.find({
         collection,
+        where: {
+          tenant: { equals: tenantId },
+        },
         limit: 1000,
       });
 
@@ -244,61 +202,29 @@ async function clearData(payload: Payload, clearMedia: boolean = false) {
           id: doc.id,
         });
       }
-      console.log(`   Cleared ${collection}: ${docs.docs.length} items`);
-    } catch (_e) {
-      // Collection might not exist, skip
-    }
-  }
 
-  // Clear users EXCEPT admin@example.com
-  try {
-    const users = await payload.find({
-      collection: 'users',
-      limit: 1000,
-      where: {
-        email: {
-          not_equals: 'admin@example.com',
-        },
-      },
-    });
-
-    for (const user of users.docs) {
-      await payload.delete({
-        collection: 'users',
-        id: user.id,
-      });
-    }
-    console.log(`   Cleared users (except admin): ${users.docs.length} items`);
-  } catch (_e) {
-    // Users collection error, skip
-  }
-
-  // Clear local media folder contents if --with-images
-  // Note: We only delete files inside, not the folder itself (Docker volume permissions)
-  if (clearMedia) {
-    const mediaDir = path.join(process.cwd(), 'media');
-    if (fs.existsSync(mediaDir)) {
-      const files = fs.readdirSync(mediaDir);
-      for (const file of files) {
-        const filePath = path.join(mediaDir, file);
-        try {
-          if (fs.statSync(filePath).isDirectory()) {
-            fs.rmSync(filePath, { recursive: true, force: true });
-          } else {
-            fs.unlinkSync(filePath);
-          }
-        } catch (_e) {
-          // Skip files we can't delete
-        }
+      if (docs.docs.length > 0) {
+        console.log(`   Cleared ${collection}: ${docs.docs.length} items`);
       }
-      console.log(`   Local media folder cleared: ${files.length} items`);
+    } catch (_e) {
+      // Collection might not exist or not have tenant field, skip
+    }
+  }
+
+  // Clear local media folder for this tenant only (subfolder structure)
+  if (clearMedia) {
+    const tenantMediaDir = path.join(process.cwd(), 'media', tenantSlug);
+    if (fs.existsSync(tenantMediaDir)) {
+      const files = fs.readdirSync(tenantMediaDir);
+      fs.rmSync(tenantMediaDir, { recursive: true, force: true });
+      console.log(`   Local media folder cleared for ${tenantSlug}: ${files.length} items`);
     }
   }
 
   // Clear Next.js image cache (supports both dev and production modes)
   const imageCachePaths = [
-    path.join(process.cwd(), '.next', 'cache', 'images'), // Production runtime (all versions)
-    path.join(process.cwd(), '.next', 'dev', 'cache', 'images'), // Development mode (Next.js 16+)
+    path.join(process.cwd(), '.next', 'cache', 'images'),
+    path.join(process.cwd(), '.next', 'dev', 'cache', 'images'),
   ];
 
   let cacheCleared = false;
@@ -311,6 +237,8 @@ async function clearData(payload: Payload, clearMedia: boolean = false) {
   if (cacheCleared) {
     console.log('   Next.js image cache cleared');
   }
+
+  console.log(`   ✅ Tenant data cleared: ${tenantSlug}`);
 }
 
 seed();

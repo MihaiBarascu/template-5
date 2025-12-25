@@ -1,6 +1,6 @@
 import type { Payload } from 'payload'
 import {
-  createAdminUser,
+  createTenantAdmin,
   seedSiteTheme,
   seedBusinessInfo,
   seedLogo,
@@ -22,6 +22,7 @@ import {
   createSeederPage,
   type FlexibleLayout,
 } from '../helpers'
+import { getCurrentSeedTenantId } from '../tenant-helpers'
 import { salonImages, salonData } from '../seed-data'
 import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
 
@@ -35,7 +36,15 @@ export async function seedSalon(payload: Payload) {
   console.log(`   ${variant.description}`)
   console.log('━'.repeat(50))
 
-  await createAdminUser(payload)
+  // 1. Create tenant admin for this business
+  const tenantId = getCurrentSeedTenantId()
+  await createTenantAdmin(payload, {
+    email: 'admin@salon.local',
+    password: 'salon123',
+    name: 'Admin Salon',
+    tenantId,
+    tenantName: 'Salon Demo',
+  })
 
   console.log('\n📸 Uploading images from local files...')
   const allImages = [...salonImages.hero, ...salonImages.team, ...salonImages.gallery]
@@ -164,7 +173,10 @@ export async function seedSalon(payload: Payload) {
   await seedPortfolio(payload, portfolioItems)
 
   console.log('\n🏠 Creating homepage...')
-  const homepageLayout = buildHomepageLayout(variant)
+  const homepageLayout = buildHomepageLayout(variant, {
+    galleryImages: salonImages.gallery,
+    getImageId,
+  })
   const overlaySettings = getHeroOverlaySettings(variant)
 
   // Build hero data using helper (supports carousel/slider/split)
@@ -244,7 +256,13 @@ interface BlockConfig {
   [key: string]: unknown
 }
 
-function buildHomepageLayout(variant: DesignVariant) {
+function buildHomepageLayout(
+  variant: DesignVariant,
+  imageOptions?: {
+    galleryImages: typeof salonImages.gallery
+    getImageId: (filename: string) => string | undefined
+  }
+) {
   const sectionConfigs: Record<string, BlockConfig> = {
     // NEW: Trust Badges - beauty salon credibility (cards variant - elegant)
     trustBadges: {
@@ -432,8 +450,13 @@ function buildHomepageLayout(variant: DesignVariant) {
       variant: variant.layout.galleryVariant,
       heading: 'Galeria Noastra',
       subheading: 'Lucrarile si salonul nostru',
-      source: 'portfolio',
-      limit: 6,
+      images: imageOptions?.galleryImages
+        ?.slice(0, 6)
+        .map((img) => ({
+          image: imageOptions.getImageId(img.filename),
+          caption: img.alt,
+        }))
+        .filter((item) => item.image) || [],
       backgroundColor: 'default',
     },
     faq: {
@@ -489,7 +512,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
       { blockType: 'services', variant: variant.layout.servicesVariant, heading: 'Toate Serviciile', limit: 20, showPrices: true, showIcons: true, backgroundColor: 'default' },
       { blockType: 'cta', variant: 'centered', headline: 'Programeaza-te', buttons: [{ label: 'Programeaza-te', link: '/programare', variant: 'default' }], backgroundColor: 'light' },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Services page')
 
@@ -501,7 +524,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
     layout: [
       { blockType: 'team', variant: variant.layout.teamVariant, heading: 'Echipa', limit: 20, backgroundColor: 'default' },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Team page')
 
@@ -513,7 +536,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
     layout: [
       { blockType: 'gallery', variant: variant.layout.galleryVariant, heading: 'Galerie', limit: 20, backgroundColor: 'default' },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Gallery page')
 
@@ -526,7 +549,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
       { blockType: 'priceListDotted', variant: 'single-column', heading: 'Lista de Preturi', limit: 20, backgroundColor: 'default' },
       { blockType: 'cta', variant: 'centered', headline: 'Preturi speciale pentru pachete', subheadline: 'Contacteaza-ne pentru oferte personalizate', buttons: [{ label: 'Programeaza-te', link: '/programare', variant: 'default' }], backgroundColor: 'light' },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Prices page')
 
@@ -539,7 +562,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
       ...(bookingFormId ? [{ blockType: 'formBlock', form: bookingFormId, enableIntro: true, heading: 'Cerere Programare', subheading: 'Completeaza formularul si te vom contacta pentru confirmare.' }] : []),
       { blockType: 'contact', variant: 'compact', heading: 'Informatii Salon', backgroundColor: 'light' },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Booking page')
 
@@ -549,7 +572,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
     heroType: 'minimal',
     hero: { headline: 'Contact', subheadline: 'Suntem aici pentru tine' },
     layout: createContactPageLayout(contactFormId) as FlexibleLayout,
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Contact page')
 }

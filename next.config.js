@@ -75,6 +75,9 @@ const nextConfig = {
   },
   reactStrictMode: true,
   redirects,
+  // Multi-tenant: Uses middleware.ts to rewrite requests
+  // Middleware extracts tenant from Host header and rewrites to [tenantDomain] route
+  // Reference: docs/MULTI-TENANT-OFFICIAL-REFERENCE.md
   // HTTP Caching Headers for performance
   async headers() {
     return [

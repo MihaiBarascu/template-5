@@ -1,7 +1,9 @@
 import type { Page, SiteTheme, Service, Product, Post, Form, SystemPage, Team } from '@/payload-types';
 import fs from 'fs';
 import path from 'path';
-import type { Payload } from 'payload';
+import type { Payload, Where } from 'payload';
+import { withTenant, getCurrentSeedTenantId, hasSeedTenant } from './tenant-helpers';
+import { IMAGE_BASE_URL } from './seed-data';
 
 /**
  * Flexible block type for seeding - allows extra properties that may not exist in strict types.
@@ -39,7 +41,7 @@ export async function createSeederPage(
 ): Promise<Page> {
   return await payload.create({
     collection: 'pages',
-    data: data as unknown as Page,
+    data: withTenant(data) as unknown as Page,
   });
 }
 
@@ -117,11 +119,14 @@ export async function triggerRevalidation(baseUrl: string = 'http://localhost:30
 
 // Helper to find existing image by filename in media collection
 async function findExistingImage(payload: Payload, filename: string): Promise<string | null> {
+  // Extract just the filename without path (e.g., 'barbershop/gallery/gallery-1.jpg' -> 'gallery-1.jpg')
+  const baseFilename = filename.split('/').pop() || filename;
+
   try {
     const existing = await payload.find({
       collection: 'media',
       where: {
-        filename: { equals: filename },
+        filename: { contains: baseFilename },
       },
       limit: 1,
     });
@@ -182,9 +187,9 @@ export async function uploadImageFromURL(
 
     const media = await payload.create({
       collection: 'media',
-      data: {
+      data: withTenant({
         alt,
-      },
+      }),
       filePath: tempFilePath,
     });
 
@@ -287,9 +292,9 @@ export async function uploadLocalImage(
 
     const media = await payload.create({
       collection: 'media',
-      data: {
+      data: withTenant({
         alt,
-      },
+      }),
       filePath: filePath,
     });
 
@@ -340,9 +345,9 @@ export async function uploadLocalVideo(
 
     const media = await payload.create({
       collection: 'media',
-      data: {
+      data: withTenant({
         alt,
-      },
+      }),
       filePath: filePath,
     });
 
@@ -356,7 +361,33 @@ export async function uploadLocalVideo(
   }
 }
 
-// Helper to upload local seed images from public/images folder
+// Helper to download image from GitHub and save locally
+async function downloadAndSaveImage(
+  remoteUrl: string,
+  localPath: string,
+): Promise<boolean> {
+  try {
+    const response = await fetch(remoteUrl);
+    if (!response.ok) {
+      return false;
+    }
+
+    const buffer = await response.arrayBuffer();
+
+    // Create directory if it doesn't exist
+    const dir = path.dirname(localPath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+
+    fs.writeFileSync(localPath, new Uint8Array(buffer));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// Helper to upload seed images - tries local first, downloads from GitHub if missing
 export async function uploadLocalSeedImages(
   payload: Payload,
   images: Array<{ filename: string; alt: string }>,
@@ -364,58 +395,132 @@ export async function uploadLocalSeedImages(
   const imageMap = new Map<string, string>();
   const publicImagesDir = path.join(process.cwd(), 'public', 'images');
 
-  console.log(`\n📸 Uploading ${images.length} local images...`);
+  console.log(`\n📸 Uploading ${images.length} images...`);
 
   for (const image of images) {
     const localPath = path.join(publicImagesDir, image.filename);
-    const mediaId = await uploadLocalImage(payload, localPath, image.alt);
-    if (mediaId) {
-      imageMap.set(image.filename, mediaId);
+
+    // Try local file first
+    if (fs.existsSync(localPath)) {
+      const mediaId = await uploadLocalImage(payload, localPath, image.alt);
+      if (mediaId) {
+        imageMap.set(image.filename, mediaId);
+        continue;
+      }
     }
+
+    // Download from GitHub and save locally for future use
+    const fullUrl = IMAGE_BASE_URL + image.filename;
+    const filenameOnly = image.filename.split('/').pop() || image.filename;
+    console.log(`   ⬇️  Downloading: ${filenameOnly}...`);
+
+    const downloaded = await downloadAndSaveImage(fullUrl, localPath);
+    if (downloaded) {
+      console.log(`   💾 Saved locally: ${image.filename}`);
+      const mediaId = await uploadLocalImage(payload, localPath, image.alt);
+      if (mediaId) {
+        imageMap.set(image.filename, mediaId);
+        continue;
+      }
+    }
+
+    console.log(`   ⚠️  Failed to download: ${filenameOnly}`);
   }
 
   console.log(`   ✅ Uploaded ${imageMap.size}/${images.length} images\n`);
   return imageMap;
 }
 
-// Helper to create admin user
-export async function createAdminUser(payload: Payload) {
+/**
+ * Create a Tenant Admin user for a specific business.
+ *
+ * This user can ONLY access their assigned tenant's content in the admin panel.
+ * For the platform Super Admin, use `pnpm seed:super-admin` instead.
+ *
+ * @param payload - Payload instance
+ * @param options - Tenant admin configuration
+ */
+export async function createTenantAdmin(
+  payload: Payload,
+  options: {
+    email: string
+    password: string
+    name: string
+    tenantId: string
+    tenantName?: string // For display purposes
+  }
+) {
+  const { email, password, name, tenantId, tenantName } = options
+
   const existingUser = await payload.find({
     collection: 'users',
     where: {
-      email: {
-        equals: 'admin@example.com',
-      },
+      email: { equals: email },
     },
-  });
+    limit: 1,
+  })
 
   if (existingUser.docs.length === 0) {
+    // The 'tenants' field is added by multiTenantPlugin at runtime,
+    // so we need to cast the data to bypass TypeScript's static checking
+    const userData = {
+      email,
+      password,
+      name,
+      roles: ['user'], // NOT super-admin - just regular user
+      tenants: [
+        {
+          tenant: tenantId,
+          roles: ['tenant-admin'], // Admin only for this tenant
+        },
+      ],
+    }
     await payload.create({
       collection: 'users',
-      data: {
-        email: 'admin@example.com',
-        password: 'admin123',
-        name: 'Administrator',
-        role: 'admin',
-      },
-    });
-    console.log('   Created admin user');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      data: userData as any,
+    })
+    console.log(`   ✅ Created tenant admin: ${email} (${tenantName || tenantId})`)
   } else {
-    // Ensure existing admin@example.com user has admin role
-    const user = existingUser.docs[0];
-    if (user.role !== 'admin') {
+    // User exists - ensure they have tenant-admin role for this tenant
+    const user = existingUser.docs[0]
+    const mtUser = user as typeof user & {
+      tenants?: Array<{ tenant: string | { id: string }; roles: string[] }>
+    }
+
+    // Check if user already has access to this tenant
+    const hasTenantAccess = mtUser.tenants?.some((t) => {
+      const tId = typeof t.tenant === 'string' ? t.tenant : t.tenant?.id
+      return tId === tenantId && t.roles?.includes('tenant-admin')
+    })
+
+    if (!hasTenantAccess) {
+      // Add this tenant to user's access
+      const updatedTenants = [
+        ...(mtUser.tenants || []),
+        { tenant: tenantId, roles: ['tenant-admin'] as ('tenant-admin' | 'tenant-viewer')[] },
+      ]
+
       await payload.update({
         collection: 'users',
         id: user.id,
-        data: {
-          role: 'admin',
-        },
-      });
-      console.log(`   Updated user ${user.email} role to admin (was: ${user.role || 'undefined'})`);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        data: { tenants: updatedTenants } as any,
+      })
+      console.log(`   ⬆️  Added tenant-admin access for: ${email} → ${tenantName || tenantId}`)
     } else {
-      console.log(`   Admin user already exists with correct role`);
+      console.log(`   ✓ Tenant admin already exists: ${email}`)
     }
   }
+}
+
+/**
+ * @deprecated Use createTenantAdmin() for business admins or pnpm seed:super-admin for platform admin.
+ * This function is kept for backwards compatibility during migration.
+ */
+export async function createAdminUser(payload: Payload) {
+  console.log('   ⚠️  createAdminUser() is deprecated. Use pnpm seed:super-admin instead.')
+  // No-op - super admin should be created via seed:super-admin script
 }
 
 // Helper to seed site theme (unified theme system)
@@ -446,33 +551,45 @@ export async function seedSiteTheme(
     buttonLetterSpacing?: SiteTheme['buttonLetterSpacing'];
   },
 ) {
-  await payload.updateGlobal({
-    slug: 'site-theme',
-    data: {
-      variant: options.variant,
-      borderRadius: options.borderRadius,
-      shadows: options.shadows,
-      animations: options.animations || 'moderate',
-      containerWidth: options.containerWidth || '1280',
-      sectionSpacing: options.sectionSpacing || 'normal',
-      headingScale: options.headingScale || 'normal',
-      bodyTextSize: options.bodyTextSize || 'normal',
-      cardGap: options.cardGap || 'normal',
-      useCustomColors: options.useCustomColors || false,
-      colors: options.colors,
-      // Typography - if not provided, uses variant defaults from generateThemeStyles
-      headingFont: options.headingFont,
-      bodyFont: options.bodyFont,
-      headingWeight: options.headingWeight,
-      // Button styling
-      useCustomButtons: options.useCustomButtons || false,
-      buttonRounding: options.buttonRounding,
-      buttonTextTransform: options.buttonTextTransform,
-      buttonFontWeight: options.buttonFontWeight,
-      buttonPadding: options.buttonPadding,
-      buttonLetterSpacing: options.buttonLetterSpacing,
-    },
-  });
+  const themeData = {
+    variant: options.variant,
+    borderRadius: options.borderRadius,
+    shadows: options.shadows,
+    animations: options.animations || 'moderate',
+    containerWidth: options.containerWidth || '1280',
+    sectionSpacing: options.sectionSpacing || 'normal',
+    headingScale: options.headingScale || 'normal',
+    bodyTextSize: options.bodyTextSize || 'normal',
+    cardGap: options.cardGap || 'normal',
+    useCustomColors: options.useCustomColors || false,
+    colors: options.colors,
+    // Typography - if not provided, uses variant defaults from generateThemeStyles
+    headingFont: options.headingFont,
+    bodyFont: options.bodyFont,
+    headingWeight: options.headingWeight,
+    // Button styling
+    useCustomButtons: options.useCustomButtons || false,
+    buttonRounding: options.buttonRounding,
+    buttonTextTransform: options.buttonTextTransform,
+    buttonFontWeight: options.buttonFontWeight,
+    buttonPadding: options.buttonPadding,
+    buttonLetterSpacing: options.buttonLetterSpacing,
+  };
+
+  // Multi-tenant: create in tenant-site-themes collection if tenant is set
+  if (hasSeedTenant()) {
+    await payload.create({
+      collection: 'tenant-site-themes',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      data: withTenant(themeData) as any,
+    });
+  } else {
+    // Single-tenant fallback: update TRUE global
+    await payload.updateGlobal({
+      slug: 'site-theme',
+      data: themeData,
+    });
+  }
   console.log(`   Site theme configured: ${options.variant}${options.headingFont ? ` (fonts: ${options.headingFont}/${options.bodyFont})` : ''}${options.headingWeight ? ` (weight: ${options.headingWeight})` : ''}${options.buttonRounding ? ` (btn: ${options.buttonRounding})` : ''}`);
 }
 
@@ -541,28 +658,40 @@ export async function seedBusinessInfo(
     };
   },
 ) {
-  await payload.updateGlobal({
-    slug: 'business-info',
-    data: {
-      name: data.name,
-      tagline: data.tagline,
-      description: data.description,
-      yearEstablished: data.yearEstablished,
-      phone: data.phone,
-      phoneSecondary: data.phoneSecondary,
-      email: data.email,
-      whatsapp: data.whatsapp,
-      address: data.address,
-      workingHours: data.workingHours,
-      social: data.social,
-      stats: data.stats,
-      googleMapsEmbed: data.googleMapsEmbed,
-      googleMapsLink: data.googleMapsLink,
-      whatsappFloat: data.whatsappFloat,
-      announcementBar: data.announcementBar,
-      floatingCta: data.floatingCta,
-    },
-  });
+  const businessData = {
+    name: data.name,
+    tagline: data.tagline,
+    description: data.description,
+    yearEstablished: data.yearEstablished,
+    phone: data.phone,
+    phoneSecondary: data.phoneSecondary,
+    email: data.email,
+    whatsapp: data.whatsapp,
+    address: data.address,
+    workingHours: data.workingHours,
+    social: data.social,
+    stats: data.stats,
+    googleMapsEmbed: data.googleMapsEmbed,
+    googleMapsLink: data.googleMapsLink,
+    whatsappFloat: data.whatsappFloat,
+    announcementBar: data.announcementBar,
+    floatingCta: data.floatingCta,
+  };
+
+  // Multi-tenant: create in tenant-business-info collection if tenant is set
+  if (hasSeedTenant()) {
+    await payload.create({
+      collection: 'tenant-business-info',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      data: withTenant(businessData) as any,
+    });
+  } else {
+    // Single-tenant fallback: update TRUE global
+    await payload.updateGlobal({
+      slug: 'business-info',
+      data: businessData,
+    });
+  }
   console.log('   Business info configured');
 }
 
@@ -580,21 +709,33 @@ export async function seedLogo(
     heightMobile?: number;
   },
 ) {
-  await payload.updateGlobal({
-    slug: 'logo',
-    data: {
-      type: data.type,
-      text: data.text,
-      image: data.imageId,
-      imageDark: data.imageDarkId,
-      imageLight: data.imageLightId,
-      favicon: data.faviconId,
-      size: {
-        height: data.height || 40,
-        heightMobile: data.heightMobile || 32,
-      },
+  const logoData = {
+    type: data.type,
+    text: data.text,
+    image: data.imageId,
+    imageDark: data.imageDarkId,
+    imageLight: data.imageLightId,
+    favicon: data.faviconId,
+    size: {
+      height: data.height || 40,
+      heightMobile: data.heightMobile || 32,
     },
-  });
+  };
+
+  // Multi-tenant: create in tenant-logos collection if tenant is set
+  if (hasSeedTenant()) {
+    await payload.create({
+      collection: 'tenant-logos',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      data: withTenant(logoData) as any,
+    });
+  } else {
+    // Single-tenant fallback: update TRUE global
+    await payload.updateGlobal({
+      slug: 'logo',
+      data: logoData,
+    });
+  }
   console.log('   Logo configured');
 }
 
@@ -651,33 +792,45 @@ export async function seedHeader(
     };
   },
 ) {
-  await payload.updateGlobal({
-    slug: 'header',
-    data: {
-      variant: data.variant || 'standard',
-      navItems: data.navItems,
-      ctaButton: {
-        enabled: data.ctaButton?.enabled ?? true,
-        label: data.ctaButton?.label || 'Contact',
-        link: data.ctaButton?.link || '/contact',
-        variant: data.ctaButton?.variant || 'default',
-      },
-      showTopBar: data.showTopBar ?? !!data.topBar,
-      topBar: data.topBar ? {
-        backgroundColor: data.topBar.backgroundColor || 'dark',
-        layout: data.topBar.layout || 'social-left',
-        showPhone: data.topBar.showPhone ?? true,
-        showEmail: data.topBar.showEmail ?? true,
-        showSocial: data.topBar.showSocial ?? true,
-        showWorkingHours: data.topBar.showWorkingHours ?? false,
-        customText: data.topBar.customText,
-        customSocialLinks: data.topBar.customSocialLinks,
-      } : undefined,
-      sticky: true,
-      isTransparent: data.isTransparent ?? false,
-      transparentTextColor: data.transparentTextColor || 'white',
+  const headerData = {
+    variant: data.variant || 'standard',
+    navItems: data.navItems,
+    ctaButton: {
+      enabled: data.ctaButton?.enabled ?? true,
+      label: data.ctaButton?.label || 'Contact',
+      link: data.ctaButton?.link || '/contact',
+      variant: data.ctaButton?.variant || 'default',
     },
-  });
+    showTopBar: data.showTopBar ?? !!data.topBar,
+    topBar: data.topBar ? {
+      backgroundColor: data.topBar.backgroundColor || 'dark',
+      layout: data.topBar.layout || 'social-left',
+      showPhone: data.topBar.showPhone ?? true,
+      showEmail: data.topBar.showEmail ?? true,
+      showSocial: data.topBar.showSocial ?? true,
+      showWorkingHours: data.topBar.showWorkingHours ?? false,
+      customText: data.topBar.customText,
+      customSocialLinks: data.topBar.customSocialLinks,
+    } : undefined,
+    sticky: true,
+    isTransparent: data.isTransparent ?? false,
+    transparentTextColor: data.transparentTextColor || 'white',
+  };
+
+  // Multi-tenant: create in tenant-headers collection if tenant is set
+  if (hasSeedTenant()) {
+    await payload.create({
+      collection: 'tenant-headers',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      data: withTenant(headerData) as any,
+    });
+  } else {
+    // Single-tenant fallback: update TRUE global
+    await payload.updateGlobal({
+      slug: 'header',
+      data: headerData,
+    });
+  }
   console.log('   Header configured');
 }
 
@@ -764,38 +917,50 @@ export async function seedFooter(
     badgeData = await uploadBadges(payload, badgeDefs)
   }
 
-  await payload.updateGlobal({
-    slug: 'footer',
-    data: {
-      variant: data.variant || 'columns-4',
-      colorScheme: data.colorScheme || 'dark',
-      columns: data.columns,
-      showSocialLinks: true,
-      showContactInfo: true,
-      copyright: '© {year} {businessName}. Toate drepturile rezervate.',
-      legalLinks: data.legalLinks || [
-        {
-          label: 'Politica de confidentialitate',
-          type: 'custom',
-          url: '/politica-confidentialitate',
-        },
-        {
-          label: 'Termeni si conditii',
-          type: 'custom',
-          url: '/termeni-conditii',
-        },
-      ],
-      badges: badgeData && badgeData.length > 0 ? badgeData : undefined,
-      // Background texture (imagine mare pe tot footer-ul)
-      backgroundImage: data.backgroundImageId || null,
-      backgroundOpacity: data.backgroundOpacity ?? 20,
-      // Decorative element (PNG pozitionat intr-o parte, ca la Elyssium)
-      decorativeImage: data.decorativeImageId || null,
-      decorativePosition: data.decorativePosition || 'left',
-      decorativeOpacity: data.decorativeOpacity ?? 30,
-      decorativeSize: data.decorativeSize || 'medium',
-    },
-  });
+  const footerData = {
+    variant: data.variant || 'columns-4',
+    colorScheme: data.colorScheme || 'dark',
+    columns: data.columns,
+    showSocialLinks: true,
+    showContactInfo: true,
+    copyright: '© {year} {businessName}. Toate drepturile rezervate.',
+    legalLinks: data.legalLinks || [
+      {
+        label: 'Politica de confidentialitate',
+        type: 'custom',
+        url: '/politica-confidentialitate',
+      },
+      {
+        label: 'Termeni si conditii',
+        type: 'custom',
+        url: '/termeni-conditii',
+      },
+    ],
+    badges: badgeData && badgeData.length > 0 ? badgeData : undefined,
+    // Background texture (imagine mare pe tot footer-ul)
+    backgroundImage: data.backgroundImageId || null,
+    backgroundOpacity: data.backgroundOpacity ?? 20,
+    // Decorative element (PNG pozitionat intr-o parte, ca la Elyssium)
+    decorativeImage: data.decorativeImageId || null,
+    decorativePosition: data.decorativePosition || 'left',
+    decorativeOpacity: data.decorativeOpacity ?? 30,
+    decorativeSize: data.decorativeSize || 'medium',
+  };
+
+  // Multi-tenant: create in tenant-footers collection if tenant is set
+  if (hasSeedTenant()) {
+    await payload.create({
+      collection: 'tenant-footers',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      data: withTenant(footerData) as any,
+    });
+  } else {
+    // Single-tenant fallback: update TRUE global
+    await payload.updateGlobal({
+      slug: 'footer',
+      data: footerData,
+    });
+  }
   console.log('   Footer configured');
 }
 
@@ -812,15 +977,19 @@ export async function seedServiceCategories(
   const createdCategories: Map<string, string> = new Map();
 
   for (const category of categories) {
-    // Check if category already exists by title
+    // Check if category already exists by title (and tenant in multi-tenant mode)
+    const whereClause: Where = { title: { equals: category.title } };
+    if (hasSeedTenant()) {
+      (whereClause as Record<string, unknown>).tenant = { equals: getCurrentSeedTenantId() };
+    }
     const existing = await payload.find({
       collection: 'service-categories',
-      where: { title: { equals: category.title } },
+      where: whereClause,
       limit: 1,
     });
 
     if (existing.docs.length > 0) {
-      // Use existing category
+      // Use existing category (from same tenant)
       createdCategories.set(category.title, existing.docs[0].id);
       console.log(`   ⏭️ Category "${category.title}" already exists`);
     } else {
@@ -829,13 +998,13 @@ export async function seedServiceCategories(
       const created = await payload.create({
         collection: 'service-categories',
         draft: false,
-        data: {
+        data: withTenant({
           title: category.title,
           slug,
           description: category.description,
           icon: category.icon,
           order: category.order || 0,
-        },
+        }),
       });
       createdCategories.set(category.title, created.id);
       console.log(`   ✅ Created category "${category.title}"`);
@@ -901,7 +1070,7 @@ export async function seedServices(
 
     const created = await payload.create({
       collection: 'services',
-      data: {
+      data: withTenant({
         title: service.title,
         slug,
         shortDescription: service.shortDescription,
@@ -936,7 +1105,7 @@ export async function seedServices(
         ctaLink: service.ctaLink || '/contact',
         backLabel: service.backLabel,
         backLink: service.backLink,
-      },
+      }),
     });
     createdServices.set(service.title, created.id);
   }
@@ -974,10 +1143,14 @@ export async function seedTeam(
     imageId?: string; // Optional media ID for photo
   }>,
 ) {
-  // Delete existing team members first to avoid duplicates
+  // Delete existing team members for this tenant only (multi-tenant aware)
+  const whereClause: Where = { id: { exists: true } };
+  if (hasSeedTenant()) {
+    (whereClause as Record<string, unknown>).tenant = { equals: getCurrentSeedTenantId() };
+  }
   await payload.delete({
     collection: 'team',
-    where: { id: { exists: true } },
+    where: whereClause,
   });
 
   for (const member of members) {
@@ -991,7 +1164,7 @@ export async function seedTeam(
 
     await payload.create({
       collection: 'team',
-      data: {
+      data: withTenant({
         name: member.name,
         slug: member.name
           .toLowerCase()
@@ -1015,7 +1188,7 @@ export async function seedTeam(
         } : undefined,
         schedule: member.schedule,
         image: member.imageId || undefined,
-      },
+      }),
     });
   }
   console.log(`   Created ${members.length} team members`);
@@ -1033,10 +1206,14 @@ export async function seedTestimonialCategories(
 ): Promise<Map<string, string>> {
   const categoryMap = new Map<string, string>();
 
-  // Delete existing testimonial categories first to avoid duplicates
+  // Delete existing testimonial categories for this tenant only
+  const whereClause: Where = { id: { exists: true } };
+  if (hasSeedTenant()) {
+    (whereClause as Record<string, unknown>).tenant = { equals: getCurrentSeedTenantId() };
+  }
   await payload.delete({
     collection: 'testimonial-categories',
-    where: { id: { exists: true } },
+    where: whereClause,
   });
 
   for (const category of categories) {
@@ -1055,13 +1232,13 @@ export async function seedTestimonialCategories(
 
     const created = await payload.create({
       collection: 'testimonial-categories',
-      data: {
+      data: withTenant({
         title: category.title,
         slug,
         description: category.description,
         icon: category.icon,
         order: category.order || 0,
-      },
+      }),
     });
     categoryMap.set(category.title, created.id);
   }
@@ -1087,7 +1264,7 @@ export async function seedTestimonials(
   for (const testimonial of testimonials) {
     await payload.create({
       collection: 'testimonials',
-      data: {
+      data: withTenant({
         name: testimonial.name,
         role: testimonial.role,
         content: testimonial.content,
@@ -1096,7 +1273,7 @@ export async function seedTestimonials(
         category: testimonial.categoryId || undefined,
         services: testimonial.serviceIds?.length ? testimonial.serviceIds : undefined,
         videoUrl: testimonial.videoUrl || undefined,
-      },
+      }),
     });
   }
   console.log(`   Created ${testimonials.length} testimonials`);
@@ -1114,7 +1291,7 @@ export async function seedFAQ(
   for (const faq of faqs) {
     await payload.create({
       collection: 'faq',
-      data: {
+      data: withTenant({
         question: faq.question,
         answer: {
           root: {
@@ -1145,7 +1322,7 @@ export async function seedFAQ(
           },
         },
         order: faq.order || 0,
-      },
+      }),
     });
   }
   console.log(`   Created ${faqs.length} FAQs`);
@@ -1332,7 +1509,7 @@ export async function seedHomePage(
 ) {
   await payload.create({
     collection: 'pages',
-    data: {
+    data: withTenant({
       title: 'Acasa',
       slug: 'home',
       heroType: (data.heroType || 'centered') as HeroType,
@@ -1365,8 +1542,8 @@ export async function seedHomePage(
         statsBadge: data.hero?.statsBadge,
       },
       layout: (data.layout || []) as Page['layout'],
-      _status: 'published',
-    },
+      // _status removed for multi-tenant
+    }),
   });
   console.log('   Created homepage');
 }
@@ -1386,7 +1563,7 @@ export async function seedPortfolio(
   for (const item of items) {
     await payload.create({
       collection: 'portfolio',
-      data: {
+      data: withTenant({
         title: item.title,
         slug: item.title
           .toLowerCase()
@@ -1397,7 +1574,7 @@ export async function seedPortfolio(
         featured: item.featured || false,
         order: item.order || 0,
         externalUrl: item.externalUrl,
-      },
+      }),
     });
   }
   console.log(`   Created ${items.length} portfolio items`);
@@ -1417,7 +1594,7 @@ export async function seedProductCategories(
   for (const category of categories) {
     const created = await payload.create({
       collection: 'product-categories',
-      data: {
+      data: withTenant({
         title: category.title,
         slug: category.title
           .toLowerCase()
@@ -1425,7 +1602,7 @@ export async function seedProductCategories(
           .replace(/[^\w-]/g, ''),
         description: category.description,
         order: category.order || 0,
-      },
+      }),
     });
     categoryMap.set(category.title, created.id);
   }
@@ -1434,9 +1611,10 @@ export async function seedProductCategories(
 }
 
 // Product data type for seeding - uses Payload generated types with Omit for auto-generated fields
+// Note: _status removed - versions disabled for multi-tenant compatibility
 type ProductSeedData = Partial<Omit<Product, 'id' | 'createdAt' | 'updatedAt'>> &
   Pick<Product, 'title' | 'slug'> &
-  { _status: 'published' | 'draft'; priceInRON?: number }
+  { priceInRON?: number }
 
 // Helper to create products (eCommerce plugin)
 export async function seedProducts(
@@ -1462,7 +1640,7 @@ export async function seedProducts(
       featured: product.featured || false,
       // Set inventory - default to random 5-50 if not specified
       inventory: product.inventory ?? Math.floor(Math.random() * 46) + 5,
-      _status: 'published',
+      // _status removed for multi-tenant
     };
 
     // Add category if present
@@ -1509,7 +1687,7 @@ export async function seedProducts(
 
     await payload.create({
       collection: 'products',
-      data: productData,
+      data: withTenant(productData) as unknown as Product,
     });
   }
   console.log(`   Created ${products.length} products`);
@@ -1687,22 +1865,30 @@ export async function seedPosts(
     imageId?: string;
   }>,
 ) {
-  // First create a default category if it doesn't exist
+  // First create a default category if it doesn't exist for THIS tenant
   let categoryId: string | undefined;
 
   try {
+    // Query categories for current tenant only
+    const whereClause: Where = { slug: { equals: 'blog' } };
+    if (hasSeedTenant()) {
+      (whereClause as Record<string, unknown>).tenant = { equals: getCurrentSeedTenantId() };
+    }
+
     const existingCategories = await payload.find({
       collection: 'categories',
+      where: whereClause,
       limit: 1,
     });
 
     if (existingCategories.docs.length === 0) {
+      // Create category for this tenant
       const category = await payload.create({
         collection: 'categories',
-        data: {
+        data: withTenant({
           title: 'Blog',
           slug: 'blog',
-        },
+        }),
       });
       categoryId = category.id;
     } else {
@@ -1751,7 +1937,7 @@ export async function seedPosts(
 
     await payload.create({
       collection: 'posts',
-      data: {
+      data: withTenant({
         title: post.title,
         slug: post.title
           .toLowerCase()
@@ -1771,8 +1957,8 @@ export async function seedPosts(
         publishedAt: post.publishedAt || new Date().toISOString(),
         category: categoryId,
         featuredImage: post.imageId || undefined,
-        _status: 'published',
-      },
+        // _status removed for multi-tenant
+      }),
     });
   }
   console.log(`   Created ${posts.length} blog posts`);
@@ -1791,13 +1977,13 @@ export async function seedBlogCategories(
   for (const category of categories) {
     const created = await payload.create({
       collection: 'categories',
-      data: {
+      data: withTenant({
         title: category.title,
         slug: category.title
           .toLowerCase()
           .replace(/\s+/g, '-')
           .replace(/[^\w-]/g, ''),
-      },
+      }),
     });
     categoryMap.set(category.title, created.id);
   }
@@ -1848,7 +2034,7 @@ export async function seedSubscriptions(
   for (const subscription of subscriptions) {
     await payload.create({
       collection: 'subscriptions',
-      data: {
+      data: withTenant({
         title: subscription.title,
         slug: subscription.title
           .toLowerCase()
@@ -1872,7 +2058,7 @@ export async function seedSubscriptions(
         highlightLabel: subscription.highlightLabel || 'Cel mai popular',
         order: subscription.order || 0,
         active: true,
-      },
+      }),
     });
   }
   console.log(`   Created ${subscriptions.length} subscriptions`);

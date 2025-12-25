@@ -1,6 +1,6 @@
 import type { Payload } from 'payload'
 import {
-  createAdminUser,
+  createTenantAdmin,
   seedSiteTheme,
   seedBusinessInfo,
   seedLogo,
@@ -22,6 +22,7 @@ import {
   createSeederPage,
   type FlexibleLayout,
 } from '../helpers'
+import { getCurrentSeedTenantId } from '../tenant-helpers'
 import { dentistImages, dentistData } from '../seed-data'
 import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
 
@@ -36,8 +37,15 @@ export async function seedDentist(payload: Payload) {
   console.log(`   ${variant.description}`)
   console.log('━'.repeat(50))
 
-  // 1. Create admin user
-  await createAdminUser(payload)
+  // 1. Create tenant admin for this business
+  const tenantId = getCurrentSeedTenantId()
+  await createTenantAdmin(payload, {
+    email: 'admin@dentist.local',
+    password: 'dentist123',
+    name: 'Admin Cabinet Dentar',
+    tenantId,
+    tenantName: 'Cabinet Dentar Demo',
+  })
 
   // 2. Upload all images first
   console.log('\n📸 Uploading images from local files...')
@@ -205,7 +213,10 @@ export async function seedDentist(payload: Payload) {
 
   // 13. Homepage with dynamic layout based on variant
   console.log('\n🏠 Creating homepage...')
-  const homepageLayout = buildHomepageLayout(variant, dentistData)
+  const homepageLayout = buildHomepageLayout(variant, dentistData, {
+    galleryImages: dentistImages.gallery,
+    getImageId,
+  })
   const overlaySettings = getHeroOverlaySettings(variant)
 
   // Build hero data using helper (supports carousel/slider/split)
@@ -287,7 +298,14 @@ interface BlockConfig {
 }
 
 // Build homepage layout based on variant configuration
-function buildHomepageLayout(variant: DesignVariant, _data: typeof dentistData) {
+function buildHomepageLayout(
+  variant: DesignVariant,
+  _data: typeof dentistData,
+  imageOptions?: {
+    galleryImages: typeof dentistImages.gallery
+    getImageId: (filename: string) => string | undefined
+  }
+) {
   const sectionConfigs: Record<string, BlockConfig> = {
     // NEW: Trust Badges - medical credibility (grid-4 variant, different from barbershop)
     trustBadges: {
@@ -446,7 +464,7 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof dentistData) 
         label: 'Programează Consultație',
         link: '/programare',
       },
-      backgroundColor: 'green',
+      backgroundColor: 'success',
     },
     services: {
       blockType: 'services',
@@ -492,8 +510,13 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof dentistData) 
       variant: variant.layout.galleryVariant,
       heading: 'Clinica Noastra',
       subheading: 'Echipamente moderne si spatii prietenoase',
-      source: 'portfolio',
-      limit: 6,
+      images: imageOptions?.galleryImages
+        ?.slice(0, 6)
+        .map((img) => ({
+          image: imageOptions.getImageId(img.filename),
+          caption: img.alt,
+        }))
+        .filter((item) => item.image) || [],
       backgroundColor: 'default',
     },
     faq: {
@@ -552,7 +575,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
       { blockType: 'services', variant: variant.layout.servicesVariant, heading: 'Lista Completa Servicii', limit: 20, showPrices: true, showIcons: true, backgroundColor: 'default' },
       { blockType: 'cta', variant: 'centered', headline: 'Vrei sa te programezi?', subheadline: 'Alege serviciul dorit si programeaza-te online', buttons: [{ label: 'Programeaza-te', link: '/programare', variant: 'default' }], backgroundColor: 'light' },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Services page')
 
@@ -565,7 +588,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
       { blockType: 'team', variant: variant.layout.teamVariant, heading: 'Medicii Nostri', subheading: 'Fiecare membru al echipei noastre este un specialist dedicat', limit: 20, backgroundColor: 'default' },
       { blockType: 'cta', variant: 'centered', headline: 'Alege-ti Medicul', subheadline: 'Programeaza-te la specialistul potrivit pentru nevoile tale', buttons: [{ label: 'Programeaza-te', link: '/programare', variant: 'default' }], backgroundColor: 'dark' },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Team page')
 
@@ -578,7 +601,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
       { blockType: 'gallery', variant: variant.layout.galleryVariant, heading: 'Clinica si Echipamente', subheading: 'Tehnologie de ultima generatie pentru cele mai bune rezultate', limit: 20, backgroundColor: 'default' },
       { blockType: 'cta', variant: 'centered', headline: 'Vino sa ne vizitezi!', subheadline: 'Programeaza o consultatie si convinge-te de calitatea serviciilor noastre', buttons: [{ label: 'Programeaza-te', link: '/programare', variant: 'default' }], backgroundColor: 'dark' },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Gallery page')
 
@@ -591,7 +614,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
       ...(bookingFormId ? [{ blockType: 'formBlock', form: bookingFormId, enableIntro: true, heading: 'Cerere de Programare', subheading: 'Alege serviciul dorit, iar noi te vom contacta pentru confirmare.' }] : []),
       { blockType: 'contact', variant: 'compact', heading: 'Informatii Clinica', backgroundColor: 'light' },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Booking page')
 
@@ -601,7 +624,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
     heroType: 'minimal',
     hero: { headline: 'Contact', subheadline: 'Suntem aici pentru zambetul tau. Contacteaza-ne pentru programari.' },
     layout: createContactPageLayout(contactFormId) as FlexibleLayout,
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Contact page')
 }

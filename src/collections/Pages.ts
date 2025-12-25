@@ -385,13 +385,15 @@ export const Pages: CollectionConfig = {
     afterChange: [revalidatePageAfterChange],
     afterDelete: [revalidatePageAfterDelete],
   },
-  versions: {
-    drafts: {
-      autosave: {
-        interval: 100,
-      },
-      schedulePublish: true,
-    },
-    maxPerDoc: 50,
-  },
+  // TODO: Re-enable after Payload fixes multi-tenant + versions bug
+  // See: https://github.com/payloadcms/payload/issues/11071
+  // versions: {
+  //   drafts: {
+  //     autosave: {
+  //       interval: 100,
+  //     },
+  //     schedulePublish: true,
+  //   },
+  //   maxPerDoc: 50,
+  // },
 }

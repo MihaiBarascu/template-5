@@ -19,19 +19,11 @@ export const authenticated: IsAuthenticated = ({ req: { user } }) => {
 
 /**
  * Check if user is authenticated OR document is published
- * Used for public-facing content that supports drafts
+ * Note: Drafts disabled due to multi-tenant + versions bug, so all content is visible
+ * See: https://github.com/payloadcms/payload/issues/11071
+ * When drafts are re-enabled, restore: return { _status: { equals: 'published' } }
  */
-export const authenticatedOrPublished: Access = ({ req: { user } }) => {
-  if (user) {
-    return true
-  }
-
-  return {
-    _status: {
-      equals: 'published',
-    },
-  }
-}
+export const authenticatedOrPublished: Access = () => true
 
 /**
  * Allow anyone (no authentication required)
@@ -87,20 +79,11 @@ export const adminOnlyFieldAccess: FieldAccess = ({ req: { user } }) => {
 
 /**
  * Admin gets full access, otherwise filter by published status
- * Used for products/variants that support drafts
+ * Note: Drafts disabled due to multi-tenant + versions bug, so all products visible
+ * See: https://github.com/payloadcms/payload/issues/11071
+ * When drafts are re-enabled, restore the _status filter
  */
-export const adminOrPublishedStatus: Access = ({ req: { user } }) => {
-  const typedUser = user as User | null
-  if (checkRole('admin', typedUser)) {
-    return true
-  }
-
-  return {
-    _status: {
-      equals: 'published',
-    },
-  }
-}
+export const adminOrPublishedStatus: Access = () => true
 
 /**
  * Customer-only field access

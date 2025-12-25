@@ -1,6 +1,27 @@
 import type { CollectionConfig } from 'payload'
-import { isAdmin, isAdminBoolean, isAdminOrSelf, isAdminFieldLevel } from '@/access'
+import {
+  isSuperAdmin,
+  isSuperAdminAccess,
+  isSuperAdminFieldAccess,
+  multiTenantUserReadAccess,
+  multiTenantUserUpdateAccess,
+} from '@/access/multiTenant'
+import { setCookieBasedOnDomain } from '@/hooks/setCookieBasedOnDomain'
 
+/**
+ * Users Collection with Multi-Tenant Support
+ *
+ * Global roles (roles field):
+ * - super-admin: Full access to all tenants (platform owner)
+ * - user: Regular user, access controlled by tenant assignments
+ *
+ * Per-tenant roles (tenants array, added by plugin):
+ * - tenant-admin: Can manage content within assigned tenant
+ * - tenant-viewer: Read-only access to assigned tenant
+ *
+ * Based on official Payload multi-tenant example:
+ * https://github.com/payloadcms/payload/tree/main/examples/multi-tenant
+ */
 export const Users: CollectionConfig = {
   slug: 'users',
   labels: {
@@ -8,19 +29,26 @@ export const Users: CollectionConfig = {
     plural: 'Utilizatori',
   },
   access: {
-    // Only admins can access admin panel for users
-    admin: isAdminBoolean,
-    // Anyone can register (create account) - required for ecommerce
+    // Admin panel access: super-admins or tenant-admins
+    admin: ({ req }) => {
+      const user = req.user
+      if (!user) return false
+      if (isSuperAdmin(user)) return true
+      // Check if user has any tenant-admin role (field added by plugin)
+      const mtUser = user as { tenants?: Array<{ roles?: string[] }> }
+      return mtUser.tenants?.some(t => t.roles?.includes('tenant-admin')) ?? false
+    },
+    // Anyone can register (required for ecommerce customer accounts)
     create: () => true,
-    // Only admins can delete users
-    delete: isAdmin,
-    // Users can read their own data, admins can read all
-    read: isAdminOrSelf,
-    // Users can update their own data, admins can update all
-    update: isAdminOrSelf,
+    // Super-admins can delete, tenant-admins can delete within their tenant
+    delete: multiTenantUserUpdateAccess,
+    // Users can read self, super-admins read all, tenant-admins read their tenants
+    read: multiTenantUserReadAccess,
+    // Users can update self, super-admins update all, tenant-admins update their tenants
+    update: multiTenantUserUpdateAccess,
   },
   admin: {
-    defaultColumns: ['name', 'email', 'role'],
+    defaultColumns: ['name', 'email', 'roles', 'tenants'],
     useAsTitle: 'name',
     group: 'Administrare',
   },
@@ -32,40 +60,65 @@ export const Users: CollectionConfig = {
       label: 'Nume',
     },
     {
+      name: 'phone',
+      type: 'text',
+      label: 'Telefon',
+    },
+    // Global roles - determines platform-level access
+    {
+      name: 'roles',
+      type: 'select',
+      label: 'Rol Global',
+      hasMany: true,
+      defaultValue: ['user'],
+      options: [
+        { label: 'Super Admin', value: 'super-admin' },
+        { label: 'Utilizator', value: 'user' },
+      ],
+      // IMPORTANT: Include roles in JWT for access control without DB queries
+      saveToJWT: true,
+      access: {
+        // Only super-admins can assign global roles
+        create: isSuperAdminFieldAccess,
+        update: isSuperAdminFieldAccess,
+      },
+      admin: {
+        position: 'sidebar',
+        description: 'Super Admin are acces la toți tenants. Utilizator are acces doar la tenants asignați.',
+      },
+    },
+    // NOTE: The 'tenants' array field is automatically added by the multiTenantPlugin
+    // It includes per-tenant roles: 'tenant-admin' and 'tenant-viewer'
+    // Configuration is in payload.config.ts
+
+    // Legacy role field - kept for backwards compatibility during migration
+    // TODO: Remove after migration is complete and data is migrated
+    {
       name: 'role',
       type: 'select',
-      label: 'Rol',
-      required: true,
+      label: 'Rol (Legacy)',
       defaultValue: 'customer',
       options: [
         { label: 'Administrator', value: 'admin' },
         { label: 'Client', value: 'customer' },
       ],
-      // IMPORTANT: Include role in JWT token for access control without DB queries
-      saveToJWT: true,
-      access: {
-        // Only admins can set or change roles
-        create: isAdminFieldLevel,
-        update: isAdminFieldLevel,
-      },
       admin: {
         position: 'sidebar',
-        description: 'Doar administratorii pot modifica rolurile',
+        description: 'DEPRECAT: Folosit pentru migrare. Va fi eliminat.',
+        condition: (data) => {
+          // Only show if user has legacy role set
+          return Boolean(data?.role)
+        },
       },
     },
-    {
-      name: 'phone',
-      type: 'text',
-      label: 'Telefon',
-    },
-    // Ecommerce plugin has a BUG: requests select[carts]=true (plural)
-    // but reads user.cart?.docs (singular). Field must be 'cart' to match reading.
+
+    // Ecommerce fields - join with customer's data
     {
       name: 'cart',
       type: 'join',
       collection: 'carts',
       on: 'customer',
-      // Only return active carts (not purchased) - plugin takes first cart from docs
+      // Only return active carts (not purchased)
       where: {
         purchasedAt: {
           exists: false,
@@ -97,5 +150,9 @@ export const Users: CollectionConfig = {
       },
     },
   ],
+  hooks: {
+    // Set tenant cookie based on login domain
+    afterLogin: [setCookieBasedOnDomain],
+  },
   timestamps: true,
 }

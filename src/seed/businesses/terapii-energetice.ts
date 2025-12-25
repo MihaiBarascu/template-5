@@ -1,7 +1,7 @@
 import type { Payload } from 'payload';
 import { getVariant, type DesignVariant } from '../design-variants';
 import {
-  createAdminUser,
+  createTenantAdmin,
   createContactPageLayout,
   createSeederPage,
   formTemplates,
@@ -25,6 +25,7 @@ import {
   terapiiEnergeticeData,
   terapiiEnergeticeImages,
 } from '../terapii-energetice-data';
+import { withTenant, getCurrentSeedTenantId } from '../tenant-helpers';
 
 const VARIANT_INDEX = parseInt(process.env.DESIGN_VARIANT || '0', 10);
 
@@ -38,7 +39,15 @@ export async function seedTerapiiEnergetice(payload: Payload) {
   console.log(`   ${variant.description}`);
   console.log('━'.repeat(50));
 
-  await createAdminUser(payload);
+  // 1. Create tenant admin for this business
+  const tenantId = getCurrentSeedTenantId();
+  await createTenantAdmin(payload, {
+    email: 'admin@terapii.local',
+    password: 'terapii123',
+    name: 'Admin Terapii Energetice',
+    tenantId,
+    tenantName: 'Terapii Energetice Demo',
+  });
 
   // Upload all images first
   console.log('\n📸 Uploading images from local files...');
@@ -832,10 +841,10 @@ async function createPlasturiHomepage(
   // Create homepage with Plasturi design
   await payload.create({
     collection: 'pages',
-    data: {
+    data: withTenant({
       title: 'Acasă',
       slug: 'home',
-      _status: 'published',
+      // _status removed for multi-tenant
       heroType: 'none', // No traditional hero, using video-hero block instead
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       layout: plasturiLayout as any,
@@ -845,7 +854,7 @@ async function createPlasturiHomepage(
         description:
           'Cabinet de terapii energetice în București. Oferim Access Bars, Tehnica Bowen, Facelift Energetic, Reiki și cursuri de certificare. Programează o consultație gratuită.',
       },
-    },
+    }),
   });
 }
 
@@ -868,7 +877,7 @@ async function createAdditionalPages(
   await createSeederPage(payload, {
     title: 'Terapii',
     slug: 'terapii',
-    _status: 'published',
+    // _status removed for multi-tenant
     heroType: 'none',
     layout: [
         // Mini video hero for services page (Local MP4)
@@ -1026,7 +1035,7 @@ async function createAdditionalPages(
   await createSeederPage(payload, {
     title: 'Cursuri',
       slug: 'cursuri',
-      _status: 'published',
+      // _status removed for multi-tenant
       heroType: 'none',
       layout: [
         // Video hero for courses page (Local MP4)
@@ -1155,7 +1164,7 @@ async function createAdditionalPages(
   await createSeederPage(payload, {
     title: 'Media',
       slug: 'media',
-      _status: 'published',
+      // _status removed for multi-tenant
       headerSettings: {
         headerVariant: 'inherit',
         headerTransparency: 'solid',
@@ -1191,7 +1200,7 @@ async function createAdditionalPages(
     await createSeederPage(payload, {
       title: 'Galerie Foto',
         slug: 'galerie',
-        _status: 'published',
+        // _status removed for multi-tenant
         headerSettings: {
           headerVariant: 'inherit',
           headerTransparency: 'solid',
@@ -1242,7 +1251,7 @@ async function createAdditionalPages(
   await createSeederPage(payload, {
     title: 'Testimoniale',
       slug: 'testimoniale',
-      _status: 'published',
+      // _status removed for multi-tenant
       headerSettings: {
         headerVariant: 'inherit',
         headerTransparency: 'solid',
@@ -1280,7 +1289,7 @@ async function createAdditionalPages(
   await createSeederPage(payload, {
     title: 'Despre Mine',
     slug: 'despre',
-    _status: 'published',
+    // _status removed for multi-tenant
     heroType: 'none',
     layout: [
         // Video hero for about page (Local MP4)
@@ -1404,7 +1413,7 @@ async function createAdditionalPages(
   await createSeederPage(payload, {
     title: 'Contact',
     slug: 'contact',
-    _status: 'published',
+    // _status removed for multi-tenant
     headerSettings: {
       headerVariant: 'inherit',
       headerTransparency: 'solid',

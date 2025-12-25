@@ -1,6 +1,6 @@
 import type { Payload } from 'payload'
 import {
-  createAdminUser,
+  createTenantAdmin,
   seedSiteTheme,
   seedBusinessInfo,
   seedSystemPages,
@@ -21,6 +21,7 @@ import {
   createSeederPage,
   type FlexibleLayout,
 } from '../helpers'
+import { getCurrentSeedTenantId } from '../tenant-helpers'
 import { multiwebImages, multiwebData } from '../multiweb-data'
 import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
 
@@ -34,7 +35,15 @@ export async function seedMultiweb(payload: Payload) {
   console.log(`   ${variant.description}`)
   console.log('━'.repeat(50))
 
-  await createAdminUser(payload)
+  // 1. Create tenant admin for this business
+  const tenantId = getCurrentSeedTenantId()
+  await createTenantAdmin(payload, {
+    email: 'admin@multiweb.local',
+    password: 'multiweb123',
+    name: 'Admin MultiWeb',
+    tenantId,
+    tenantName: 'MultiWeb Agency Demo',
+  })
 
   console.log('\n📸 Uploading images from local files...')
   const allImages = [
@@ -392,7 +401,7 @@ async function createAdditionalPages(
         backgroundColor: 'dark',
       },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Portfolio page')
 
@@ -437,7 +446,7 @@ async function createAdditionalPages(
         backgroundColor: 'dark',
       },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Services page')
 
@@ -550,7 +559,7 @@ async function createAdditionalPages(
         backgroundColor: 'dark',
       },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created About page')
 
@@ -573,7 +582,7 @@ async function createAdditionalPages(
         backgroundColor: 'default',
       },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Contact page')
 }

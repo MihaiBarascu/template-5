@@ -1,6 +1,6 @@
 import type { Payload } from 'payload'
 import {
-  createAdminUser,
+  createTenantAdmin,
   seedSiteTheme,
   seedBusinessInfo,
   seedLogo,
@@ -21,6 +21,7 @@ import {
   createSeederPage,
   type FlexibleLayout,
 } from '../helpers'
+import { withTenant, getCurrentSeedTenantId } from '../tenant-helpers'
 import { fitnessImages, fitnessData } from '../fitness-data'
 import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
 
@@ -35,8 +36,15 @@ export async function seedFitness(payload: Payload) {
   console.log(`   ${variant.description}`)
   console.log('━'.repeat(50))
 
-  // 1. Create admin user
-  await createAdminUser(payload)
+  // 1. Create tenant admin for this business
+  const tenantId = getCurrentSeedTenantId()
+  await createTenantAdmin(payload, {
+    email: 'admin@fitness.local',
+    password: 'fitness123',
+    name: 'Admin Fitness',
+    tenantId,
+    tenantName: 'Fitness Demo',
+  })
 
   // 2. Upload all images first
   console.log('\n📸 Uploading images from local files...')
@@ -225,7 +233,10 @@ export async function seedFitness(payload: Payload) {
 
   // 14. Homepage with dynamic layout based on variant
   console.log('\n🏠 Creating homepage...')
-  const homepageLayout = buildHomepageLayout(variant)
+  const homepageLayout = buildHomepageLayout(variant, {
+    galleryImages: fitnessImages.gallery,
+    getImageId,
+  })
   const overlaySettings = getHeroOverlaySettings(variant)
 
   // Build hero data using helper (supports carousel/slider/split)
@@ -304,7 +315,7 @@ async function seedTeamAndGetIds(
   for (const member of members) {
     const created = await payload.create({
       collection: 'team',
-      data: {
+      data: withTenant({
         name: member.name,
         slug: member.name
           .toLowerCase()
@@ -318,7 +329,7 @@ async function seedTeamAndGetIds(
           specialization: s,
         })),
         image: member.imageId || undefined,
-      },
+      }),
     })
     teamMap.set(member.name, created.id)
   }
@@ -352,7 +363,13 @@ interface BlockConfig {
 }
 
 // Build homepage layout based on variant configuration
-function buildHomepageLayout(variant: DesignVariant) {
+function buildHomepageLayout(
+  variant: DesignVariant,
+  imageOptions?: {
+    galleryImages: typeof fitnessImages.gallery
+    getImageId: (filename: string) => string | undefined
+  }
+) {
   const sectionConfigs: Record<string, BlockConfig> = {
     stats: {
       blockType: 'stats',
@@ -425,8 +442,13 @@ function buildHomepageLayout(variant: DesignVariant) {
       variant: variant.layout.galleryVariant,
       heading: 'Galerie',
       subheading: 'Descopera spatiul nostru modern si echipamentele premium',
-      source: 'portfolio',
-      limit: 6,
+      images: imageOptions?.galleryImages
+        ?.slice(0, 6)
+        .map((img) => ({
+          image: imageOptions.getImageId(img.filename),
+          caption: img.alt,
+        }))
+        .filter((item) => item.image) || [],
       backgroundColor: 'default',
     },
     testimonials: {
@@ -691,7 +713,7 @@ async function createAdditionalPages(
         backgroundColor: 'dark',
       },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Classes page')
 
@@ -758,7 +780,7 @@ async function createAdditionalPages(
           },
         },
       ],
-      _status: 'published',
+      // _status removed for multi-tenant
     })
     console.log(`   Created class page: /clase/${slug}`)
   }
@@ -784,7 +806,7 @@ async function createAdditionalPages(
         backgroundColor: 'default',
       },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Schedule page')
 
@@ -814,7 +836,7 @@ async function createAdditionalPages(
         backgroundColor: 'light',
       },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Subscriptions page')
 
@@ -847,7 +869,7 @@ async function createAdditionalPages(
         backgroundColor: 'dark',
       },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Trainers page')
 
@@ -914,7 +936,7 @@ async function createAdditionalPages(
           },
         },
       ],
-      _status: 'published',
+      // _status removed for multi-tenant
     })
     console.log(`   Created trainer page: /antrenori/${slug}`)
   }
@@ -938,7 +960,7 @@ async function createAdditionalPages(
         backgroundColor: 'default',
       },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Gallery page')
 
@@ -952,7 +974,7 @@ async function createAdditionalPages(
       subheadline: 'Suntem aici sa te ajutam. Contacteaza-ne pentru orice intrebare.',
     },
     layout: createContactPageLayout(contactFormId) as FlexibleLayout,
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Contact page')
 
@@ -974,7 +996,7 @@ async function createAdditionalPages(
       ...(bookingFormId ? [{ blockType: 'formBlock', form: bookingFormId, enableIntro: true, heading: 'Formular de Inscriere', subheading: 'Completeaza formularul pentru a te inscrie la clasele noastre de fitness. Te vom contacta pentru confirmare.' }] : []),
       { blockType: 'contact', variant: 'compact', heading: 'Vino la Sala', backgroundColor: 'light' },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Class Registration page (/clase/inscriere)')
 
@@ -1004,7 +1026,7 @@ async function createAdditionalPages(
         ...(subscriptionFormId ? [{ blockType: 'formBlock', form: subscriptionFormId, enableIntro: true, heading: 'Formular Comanda Abonament', subheading: 'Completeaza datele si te vom contacta pentru finalizarea comenzii.' }] : []),
         { blockType: 'contact', variant: 'compact', heading: 'Ai intrebari?', backgroundColor: 'light' },
       ],
-      _status: 'published',
+      // _status removed for multi-tenant
     })
     console.log('   Created Subscription Order page (/abonamente/comanda)')
   }

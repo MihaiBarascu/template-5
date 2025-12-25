@@ -4,6 +4,7 @@ import configPromise from '@payload-config'
 import type { Page, Portfolio, Service, Media as MediaType } from '@/payload-types'
 import type { Where } from 'payload'
 import { getDisplayPrice, type TaxCategory, type TaxSettings } from '@/utilities/tax'
+import { withTenantFilter, withTenantFilterAnd } from '@/utilities/getTenantFromHeaders'
 // getServerSideURL not needed here - JSON-LD schemas don't need absolute URLs in RenderBlocks
 
 // Import block components
@@ -92,17 +93,21 @@ interface BlockParams {
 
 interface RenderBlocksProps {
   blocks: LayoutBlock[]
+  tenantDomain?: string | null
 }
 
-// Fetch services data
-async function getServices(block: BlockParams & { filterByCategory?: string | string[] | null }) {
+// Fetch services data (with multi-tenant filtering)
+async function getServices(
+  block: BlockParams & { filterByCategory?: string | string[] | null },
+  tenantDomain?: string | null
+) {
   const payload = await getPayload({ config: configPromise })
 
-  const where: Where = {
+  const baseWhere: Where = {
     active: { equals: true },
   }
   if (block.onlyFeatured) {
-    where.featured = { equals: true }
+    baseWhere.featured = { equals: true }
   }
   // Filter by service category (can be single ID or array of IDs)
   if (block.filterByCategory) {
@@ -111,11 +116,14 @@ async function getServices(block: BlockParams & { filterByCategory?: string | st
       : [block.filterByCategory]
 
     if (categoryIds.length === 1) {
-      where.category = { equals: categoryIds[0] }
+      baseWhere.category = { equals: categoryIds[0] }
     } else if (categoryIds.length > 1) {
-      where.category = { in: categoryIds }
+      baseWhere.category = { in: categoryIds }
     }
   }
+
+  // Add tenant filtering for multi-tenant isolation (using ID, not domain)
+  const where = await withTenantFilter(baseWhere, tenantDomain)
 
   const services = await payload.find({
     collection: 'services',
@@ -128,14 +136,17 @@ async function getServices(block: BlockParams & { filterByCategory?: string | st
   return services.docs
 }
 
-// Fetch team members
-async function getTeamMembers(block: BlockParams) {
+// Fetch team members (with multi-tenant filtering)
+async function getTeamMembers(block: BlockParams, tenantDomain?: string | null) {
   const payload = await getPayload({ config: configPromise })
 
-  const where: Where = {}
+  const baseWhere: Where = {}
   if (block.onlyFeatured) {
-    where.featured = { equals: true }
+    baseWhere.featured = { equals: true }
   }
+
+  // Add tenant filtering for multi-tenant isolation (using ID, not domain)
+  const where = await withTenantFilter(baseWhere, tenantDomain)
 
   const team = await payload.find({
     collection: 'team',
@@ -147,13 +158,16 @@ async function getTeamMembers(block: BlockParams) {
   return team.docs
 }
 
-// Fetch testimonials
-async function getTestimonials(block: BlockParams & { filterByCategory?: string | string[] | null }) {
+// Fetch testimonials (with multi-tenant filtering)
+async function getTestimonials(
+  block: BlockParams & { filterByCategory?: string | string[] | null },
+  tenantDomain?: string | null
+) {
   const payload = await getPayload({ config: configPromise })
 
-  const where: Where = {}
+  const baseWhere: Where = {}
   if (block.onlyFeatured) {
-    where.featured = { equals: true }
+    baseWhere.featured = { equals: true }
   }
 
   // Filter by testimonial category (can be single ID or array of IDs)
@@ -163,11 +177,14 @@ async function getTestimonials(block: BlockParams & { filterByCategory?: string 
       : [block.filterByCategory]
 
     if (categoryIds.length === 1) {
-      where.category = { equals: categoryIds[0] }
+      baseWhere.category = { equals: categoryIds[0] }
     } else if (categoryIds.length > 1) {
-      where.category = { in: categoryIds }
+      baseWhere.category = { in: categoryIds }
     }
   }
+
+  // Add tenant filtering for multi-tenant isolation (using ID, not domain)
+  const where = await withTenantFilter(baseWhere, tenantDomain)
 
   const testimonials = await payload.find({
     collection: 'testimonials',
@@ -194,12 +211,18 @@ async function getTestimonialCategories() {
   return categories.docs
 }
 
-// Fetch FAQs
-async function getFAQs(block: BlockParams) {
+// Fetch FAQs (with multi-tenant filtering)
+async function getFAQs(block: BlockParams, tenantDomain?: string | null) {
   const payload = await getPayload({ config: configPromise })
+
+  const baseWhere: Where = {}
+
+  // Add tenant filtering for multi-tenant isolation (using ID, not domain)
+  const where = await withTenantFilter(baseWhere, tenantDomain)
 
   const faqs = await payload.find({
     collection: 'faq',
+    where,
     limit: block.limit || 10,
     sort: 'order',
   })
@@ -207,13 +230,13 @@ async function getFAQs(block: BlockParams) {
   return faqs.docs
 }
 
-// Fetch posts (blog articles)
-async function getPosts(block: BlockParams) {
+// Fetch posts (blog articles) with multi-tenant filtering
+async function getPosts(block: BlockParams, tenantDomain?: string | null) {
   const payload = await getPayload({ config: configPromise })
 
-  const where: Where = {
-    _status: { equals: 'published' },
-  }
+  // Note: _status filter removed - drafts disabled due to multi-tenant + versions bug
+  // See: https://github.com/payloadcms/payload/issues/11071
+  const baseWhere: Where = {}
 
   // Handle filterByCategory as array or single value
   if (block.filterByCategory) {
@@ -221,11 +244,14 @@ async function getPosts(block: BlockParams) {
       ? block.filterByCategory.map((c) => (typeof c === 'string' ? c : (c as { id: string }).id))
       : [block.filterByCategory]
     if (categoryIds.length === 1) {
-      where.category = { equals: categoryIds[0] }
+      baseWhere.category = { equals: categoryIds[0] }
     } else if (categoryIds.length > 1) {
-      where.category = { in: categoryIds }
+      baseWhere.category = { in: categoryIds }
     }
   }
+
+  // Add tenant filtering for multi-tenant isolation (using ID, not domain)
+  const where = await withTenantFilter(baseWhere, tenantDomain)
 
   const posts = await payload.find({
     collection: 'posts',
@@ -265,12 +291,18 @@ async function getShopSettings() {
 
 // getPricePackages removed - use getSubscriptions instead
 
-// Fetch portfolio items
-async function getPortfolioItems(block: BlockParams) {
+// Fetch portfolio items (with multi-tenant filtering)
+async function getPortfolioItems(block: BlockParams, tenantDomain?: string | null) {
   const payload = await getPayload({ config: configPromise })
+
+  const baseWhere: Where = {}
+
+  // Add tenant filtering for multi-tenant isolation (using ID, not domain)
+  const where = await withTenantFilter(baseWhere, tenantDomain)
 
   const portfolio = await payload.find({
     collection: 'portfolio',
+    where,
     limit: block.limit || 12,
     sort: '-createdAt',
     depth: 1, // Populate relationships like featuredImage
@@ -465,7 +497,7 @@ async function getRelatedServices(currentId: string, categoryId: string | null, 
   return result.docs
 }
 
-export async function RenderBlocks({ blocks }: RenderBlocksProps) {
+export async function RenderBlocks({ blocks, tenantDomain }: RenderBlocksProps) {
   if (!blocks || blocks.length === 0) {
     return null
   }
@@ -508,7 +540,7 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                 limit: block.limit,
                 onlyFeatured: block.onlyFeatured,
                 filterByCategory: categoryIds,
-              })
+              }, tenantDomain)
 
               const detailBasePath = (block as { detailBasePath?: string | null }).detailBasePath ?? '/clase'
 
@@ -555,7 +587,7 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
               const members = await getTeamMembers({
                 limit: block.limit,
                 onlyFeatured: block.onlyFeatured,
-              })
+              }, tenantDomain)
 
               return (
                 <TeamBlock
@@ -574,7 +606,7 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
               const testimonials = await getTestimonials({
                 limit: block.limit,
                 onlyFeatured: block.onlyFeatured,
-              })
+              }, tenantDomain)
 
               return (
                 <TestimonialsBlock
@@ -591,7 +623,7 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
             case 'faq': {
               const faqs = await getFAQs({
                 limit: block.limit,
-              })
+              }, tenantDomain)
 
               // Generate FAQPage JSON-LD Schema for SEO
               const faqJsonLd = faqs.length > 0 ? {
@@ -659,7 +691,8 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
             }
 
             case 'gallery': {
-              // Transform images from block
+              // Gallery block uses inline images only (no source field in schema)
+              // For portfolio items, use the separate 'portfolio' block instead
               type GalleryImage = {
                 id: string
                 url?: string
@@ -699,9 +732,9 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
             case 'portfolio': {
               // Fetch portfolio items with proper filters and error handling
               try {
-                const where: Where = {}
+                const baseWhere: Where = {}
                 if (block.onlyFeatured) {
-                  where.featured = { equals: true }
+                  baseWhere.featured = { equals: true }
                 }
                 // Handle filterByCategory as array from relationship field
                 if (block.filterByCategory && Array.isArray(block.filterByCategory) && block.filterByCategory.length > 0) {
@@ -709,11 +742,14 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
                     typeof cat === 'string' ? cat : cat.id
                   )
                   if (categoryIds.length === 1) {
-                    where.category = { equals: categoryIds[0] }
+                    baseWhere.category = { equals: categoryIds[0] }
                   } else {
-                    where.category = { in: categoryIds }
+                    baseWhere.category = { in: categoryIds }
                   }
                 }
+
+                // Add tenant filtering for multi-tenant isolation
+                const where = await withTenantFilter(baseWhere, tenantDomain)
 
                 const payload = await getPayload({ config: configPromise })
                 const portfolioResult = await payload.find({
@@ -769,8 +805,8 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
             // 'pricing' case removed - use 'subscriptionCards' instead
 
             case 'booking': {
-              const services = await getServices({ limit: 50 })
-              const staff = await getTeamMembers({ limit: 20 })
+              const services = await getServices({ limit: 50 }, tenantDomain)
+              const staff = await getTeamMembers({ limit: 20 }, tenantDomain)
               return (
                 <BookingBlock
                   key={block.id || index}
@@ -885,7 +921,7 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
               const priceListServices = block.source === 'services'
                 ? await getServices({
                     limit: block.limit,
-                  })
+                  }, tenantDomain)
                 : []
 
               return (
@@ -990,7 +1026,7 @@ export async function RenderBlocks({ blocks }: RenderBlocksProps) {
               const posts = await getPosts({
                 limit: block.limit,
                 filterByCategory: categoryIds,
-              })
+              }, tenantDomain)
               return (
                 <LatestPostsBlock
                   key={block.id || index}

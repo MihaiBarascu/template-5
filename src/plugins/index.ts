@@ -8,7 +8,6 @@ import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
 import { redirectsPlugin } from '@payloadcms/plugin-redirects'
 import { searchPlugin } from '@payloadcms/plugin-search'
 import { seoPlugin } from '@payloadcms/plugin-seo'
-import { s3Storage } from '@payloadcms/storage-s3'
 import { GenerateTitle, GenerateURL, GenerateDescription, GenerateImage } from '@payloadcms/plugin-seo/types'
 import { FixedToolbarFeature, HeadingFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import { Plugin } from 'payload'
@@ -16,43 +15,8 @@ import { Plugin } from 'payload'
 import type { Page as _Page, Post as _Post } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
 
-// S3/R2 Storage configuration (optional - for production)
-// Supports both Cloudflare R2 and standard S3-compatible storage
-// R2 requires: R2_BUCKET, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_ENDPOINT
-// Optional: R2_PUBLIC_URL for custom domain/CDN URL
-const s3StoragePlugin: Plugin | null =
-  process.env.R2_BUCKET &&
-  process.env.R2_ACCESS_KEY_ID &&
-  process.env.R2_SECRET_ACCESS_KEY &&
-  process.env.R2_ENDPOINT
-    ? s3Storage({
-        collections: {
-          media: {
-            prefix: 'media',
-            // Generate public URLs if R2_PUBLIC_URL is set (for CDN/custom domain)
-            // Otherwise uses the default S3 URL format
-            generateFileURL: process.env.R2_PUBLIC_URL
-              ? ({ filename, prefix }) => {
-                  const baseUrl = process.env.R2_PUBLIC_URL!.replace(/\/$/, '')
-                  return `${baseUrl}/${prefix ? prefix + '/' : ''}${filename}`
-                }
-              : undefined,
-          },
-        },
-        bucket: process.env.R2_BUCKET,
-        config: {
-          credentials: {
-            accessKeyId: process.env.R2_ACCESS_KEY_ID,
-            secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
-          },
-          region: 'auto',
-          endpoint: process.env.R2_ENDPOINT,
-          forcePathStyle: true,
-        },
-        // Enable ACL for public read access (required for public files)
-        acl: 'public-read',
-      })
-    : null
+// NOTE: S3/R2 Storage is configured directly in payload.config.ts
+// with per-tenant prefix support via Media collection's prefix field
 
 // SEO Generation Functions - following Payload official documentation
 // https://payloadcms.com/docs/plugins/seo
@@ -293,6 +257,5 @@ export const plugins: Plugin[] = [
       'newsletter-subscribers',
     ],
   }),
-  // S3/R2 storage for production (optional - only if env vars are set)
-  ...(s3StoragePlugin ? [s3StoragePlugin] : []),
+  // NOTE: S3/R2 storage is configured in payload.config.ts with per-tenant prefix
 ]

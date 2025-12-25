@@ -13,6 +13,98 @@ tags: [lessons, bugs, fixes, tips]
 
 ---
 
+## MULTI-TENANT R2 STORAGE (2025-12-24) - NOU!
+
+### Implementare prefix per tenant pentru fișiere R2/S3
+
+| Aspect | Detalii |
+|--------|---------|
+| **Pattern** | `beforeOperation` hook pe Media setează `prefix` field |
+| **Organizare fișiere** | `media/{tenant-slug}/filename.jpg` |
+| **Fallback** | `media/shared/` pentru fișiere fără tenant |
+| **Bug cunoscut** | [#14561](https://github.com/payloadcms/payload/issues/14561) - suffix adăugat chiar și cu prefix diferit |
+
+### Fișiere modificate
+
+| Fișier | Modificare |
+|--------|-----------|
+| `src/collections/Media.ts` | `prefix` field + `setTenantPrefix` hook |
+| `src/payload.config.ts` | s3Storage fără prefix static |
+| `src/plugins/index.ts` | Removed duplicate s3Storage |
+
+### Cod cheie (Media.ts)
+
+```typescript
+// Import oficial din plugin
+import { getTenantFromCookie } from '@payloadcms/plugin-multi-tenant/utilities'
+
+const setTenantPrefix: CollectionBeforeOperationHook = async ({ args, operation, req }) => {
+  if ((operation === 'create' || operation === 'update') && req.file) {
+    // Get tenant from: 1) data, 2) cookie, 3) user
+    const tenantFromData = data?.tenant
+    const tenantFromCookie = getTenantFromCookie(req.headers, 'text')
+    const tenantFromUser = req.user?.tenants?.[0]?.tenant
+
+    // Resolve tenant ID → fetch slug → set prefix
+    const tenantSlug = await resolveTenantSlug(tenantId, req)
+    args.data = {
+      ...args.data,
+      prefix: tenantSlug ? `media/${tenantSlug}` : 'media/shared',
+    }
+  }
+  return args
+}
+```
+
+### ⚠️ TRACKING: Payload Bug #14561
+
+**Problemă:** Payload adaugă suffix (-1, -2) la filename chiar și când fișierele sunt în prefixuri diferite.
+
+**Impact:** Cosmetic - funcționalitatea OK, doar filename arată urât.
+
+**Status:** Deschis (Dec 2025)
+
+**Verifică periodic:** https://github.com/payloadcms/payload/issues/14561
+
+### Colecții plugin adăugate la multi-tenant (Dec 2024)
+
+| Plugin | Colecții | Referință |
+|--------|----------|-----------|
+| Form Builder | `forms`, `form-submissions` | [#13660](https://github.com/payloadcms/payload/issues/13660) |
+| Redirects | `redirects` | - |
+| Search | `search` | - |
+
+### Probleme rezolvate în versiuni recente
+
+| Issue | Fix în | Descriere |
+|-------|--------|-----------|
+| [#11240](https://github.com/payloadcms/payload/issues/11240) | v3.24.0 | Versions + multi-tenant |
+| [#10952](https://github.com/payloadcms/payload/issues/10952) | v3.x | Form submissions disabled |
+| [#13518](https://github.com/payloadcms/payload/issues/13518) | v3.53 | Folders + multi-tenant |
+
+### Configurație completă
+
+```typescript
+// payload.config.ts - multiTenantPlugin collections
+multiTenantPlugin({
+  collections: {
+    // Content
+    pages: {}, posts: {}, services: {}, media: {},
+    // Ecommerce
+    products: {}, orders: {}, carts: {}, addresses: {},
+    // Form Builder (IMPORTANT!)
+    forms: {}, 'form-submissions': {},
+    // Other plugins
+    redirects: {}, search: {},
+    // Tenant globals
+    'tenant-site-themes': {}, 'tenant-business-info': {},
+    // ... etc
+  },
+})
+```
+
+---
+
 ## PLAYWRIGHT MCP ADMIN TESTING (2025-12-21) - NOU!
 
 ### Ce am învățat despre testarea admin-ului cu Playwright MCP

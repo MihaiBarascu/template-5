@@ -5,10 +5,12 @@ import {
   isAdmin,
   isDocumentOwner,
 } from '@/access';
+import { isSuperAdmin, getUserTenantIDs } from '@/access/multiTenant';
 import { manualAdapter } from '@/payments';
 import { mongooseAdapter } from '@payloadcms/db-mongodb';
 import { resendAdapter } from '@payloadcms/email-resend';
 import { ecommercePlugin } from '@payloadcms/plugin-ecommerce';
+import { multiTenantPlugin } from '@payloadcms/plugin-multi-tenant';
 import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs';
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
 import { s3Storage } from '@payloadcms/storage-s3';
@@ -42,15 +44,29 @@ import { ProductCategories } from './collections/ProductCategories';
 // Classes collection removed - use Services with serviceType: 'class' instead
 import { SubscriptionOrders } from './collections/SubscriptionOrders';
 import { Subscriptions } from './collections/Subscriptions';
+import { Tenants } from './collections/Tenants';
 
-// Globals
+// Tenant Globals (converted from globals - one per tenant)
+import {
+  SiteThemeCollection,
+  BusinessInfoCollection,
+  HeaderCollection,
+  FooterCollection,
+  LogoCollection,
+} from './collections/tenant-globals';
+
+// Globals (shared across all tenants - will be converted later)
+// TODO: Convert ShopSettings and SystemPages to tenant collections
+import { ShopSettings } from './globals/ShopSettings';
+import { SystemPages } from './globals/SystemPages';
+
+// Legacy globals - kept for backwards compatibility during migration
+// These will be removed after data migration
 import { BusinessInfo } from './globals/BusinessInfo';
 import { Footer } from './globals/Footer';
 import { Header } from './globals/Header';
 import { Logo } from './globals/Logo';
-import { ShopSettings } from './globals/ShopSettings';
 import { SiteTheme } from './globals/SiteTheme';
-import { SystemPages } from './globals/SystemPages';
 
 // Blocks
 import { blocks } from './blocks';
@@ -683,6 +699,17 @@ export default buildConfig({
 
     // ===== ADMINISTRARE =====
     Users,
+    Tenants,
+
+    // ===== TENANT GLOBALS (per-tenant settings) =====
+    // These coexist with legacy globals during migration
+    // Frontend uses legacy globals, tenant-collections store per-tenant data
+    // Types are generated as SiteTheme1, Header1, etc. to avoid conflicts
+    SiteThemeCollection,
+    BusinessInfoCollection,
+    HeaderCollection,
+    FooterCollection,
+    LogoCollection,
   ],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [
@@ -698,9 +725,75 @@ export default buildConfig({
     ShopSettings,   // 7. Configurare magazin
   ],
   plugins: [
+    // Other plugins first (form-builder, etc.)
     ...plugins,
-    // Ecommerce plugin cu Orders email notifications
+    // Ecommerce plugin creates products, orders, carts, addresses collections
     ecommercePlugin(ecommerceConfig),
+    // ⚠️ MULTI-TENANT PLUGIN MUST BE AFTER PLUGINS THAT CREATE COLLECTIONS
+    // This ensures all collections exist before adding tenant field
+    multiTenantPlugin({
+      collections: {
+        // Content collections - each tenant has their own content
+        pages: {},
+        posts: {},
+        services: {},
+        'service-categories': {},
+        team: {},
+        portfolio: {},
+        testimonials: {},
+        'testimonial-categories': {},
+        faq: {},
+        subscriptions: {},
+        'subscription-orders': {},
+        bookings: {},
+        'newsletter-subscribers': {},
+        categories: {},
+        media: {},
+        'product-categories': {},
+        'product-tags': {},
+        // Ecommerce plugin collections (created by ecommercePlugin above)
+        products: {},
+        orders: {},
+        carts: {},
+        addresses: {},
+
+        // Form Builder plugin collections (created by formBuilderPlugin)
+        // Required for multi-tenant forms - see: https://github.com/payloadcms/payload/issues/13660
+        forms: {},
+        'form-submissions': {},
+
+        // Redirects plugin collection (created by redirectsPlugin)
+        redirects: {},
+
+        // Search plugin collection (created by searchPlugin)
+        search: {},
+
+        // Tenant Globals - per-tenant settings (prefixed to avoid type conflicts with legacy globals)
+        // Note: isGlobal flag requires separate migration - using as regular collections for now
+        'tenant-site-themes': {},
+        'tenant-business-info': {},
+        'tenant-headers': {},
+        'tenant-footers': {},
+        'tenant-logos': {},
+      },
+      tenantField: {
+        access: {
+          read: () => true, // Anyone can read tenant field
+          update: ({ req }) => {
+            // Super-admins can always update tenant
+            if (isSuperAdmin(req.user)) return true
+            // Tenant-admins can update within their tenant
+            return getUserTenantIDs(req.user).length > 0
+          },
+        },
+      },
+      tenantsArrayField: {
+        // Don't add a default field, we define it in Users collection
+        includeDefaultField: false,
+      },
+      // Super-admins bypass tenant filtering
+      userHasAccessToAllTenants: (user) => isSuperAdmin(user),
+    }),
     // Nested docs plugin for hierarchical pages (e.g., /clase/yoga, /servicii/consultatie)
     nestedDocsPlugin({
       collections: ['pages'],
@@ -709,13 +802,21 @@ export default buildConfig({
     }),
     // Cloudflare R2 Storage (via S3-compatible API)
     // Local: fara R2_BUCKET -> foloseste ./media folder
-    // Productie: fiecare afacere are propriul R2 bucket pe Dokploy
+    // Productie: prefix per tenant via Media collection's prefix field
+    //
+    // Multi-tenant file organization:
+    //   media/{tenant-slug}/filename.jpg
+    //   media/shared/filename.jpg (fallback for files without tenant)
+    //
+    // See: src/collections/Media.ts (setTenantPrefix hook)
+    // Known issue: https://github.com/payloadcms/payload/issues/14561
     ...(process.env.R2_BUCKET
       ? [
           s3Storage({
             collections: {
               media: {
-                prefix: 'media',
+                // No static prefix - uses prefix field from document
+                // Set by beforeOperation hook in Media collection
               },
             },
             bucket: process.env.R2_BUCKET,
@@ -727,6 +828,8 @@ export default buildConfig({
               region: 'auto',
               endpoint: process.env.R2_ENDPOINT,
             },
+            // Enable ACL for public read access
+            acl: 'public-read',
           }),
         ]
       : []),

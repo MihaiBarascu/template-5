@@ -90,6 +90,12 @@ export interface Config {
     'subscription-orders': SubscriptionOrder;
     'newsletter-subscribers': NewsletterSubscriber;
     users: User;
+    tenants: Tenant;
+    'tenant-site-themes': TenantSiteTheme;
+    'tenant-business-info': TenantBusinessInfo;
+    'tenant-headers': TenantHeader;
+    'tenant-footers': TenantFooter;
+    'tenant-logos': TenantLogo;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -147,6 +153,12 @@ export interface Config {
     'subscription-orders': SubscriptionOrdersSelect<false> | SubscriptionOrdersSelect<true>;
     'newsletter-subscribers': NewsletterSubscribersSelect<false> | NewsletterSubscribersSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
+    tenants: TenantsSelect<false> | TenantsSelect<true>;
+    'tenant-site-themes': TenantSiteThemesSelect<false> | TenantSiteThemesSelect<true>;
+    'tenant-business-info': TenantBusinessInfoSelect<false> | TenantBusinessInfoSelect<true>;
+    'tenant-headers': TenantHeadersSelect<false> | TenantHeadersSelect<true>;
+    'tenant-footers': TenantFootersSelect<false> | TenantFootersSelect<true>;
+    'tenant-logos': TenantLogosSelect<false> | TenantLogosSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -195,7 +207,6 @@ export interface Config {
   jobs: {
     tasks: {
       createCollectionExport: TaskCreateCollectionExport;
-      schedulePublish: TaskSchedulePublish;
       inline: {
         input: unknown;
         output: unknown;
@@ -244,6 +255,7 @@ export interface UserAuthOperations {
  */
 export interface Page {
   id: string;
+  tenant?: (string | null) | Tenant;
   title: string;
   /**
    * URL-ul paginii (generat automat din titlu)
@@ -376,7 +388,39 @@ export interface Page {
     | null;
   updatedAt: string;
   createdAt: string;
-  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Gestionare clienți/site-uri multiple
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenants".
+ */
+export interface Tenant {
+  id: string;
+  /**
+   * Numele afacerii/tenant-ului
+   */
+  name: string;
+  /**
+   * Folosit în URL: /[slug]/pagina
+   */
+  slug: string;
+  /**
+   * Pentru domain-based routing (ex: frizerie.multiwebsite.org)
+   */
+  domain?: string | null;
+  /**
+   * Dacă e bifat, paginile sunt publice fără autentificare
+   */
+  allowPublicRead?: boolean | null;
+  status: 'active' | 'trial' | 'suspended';
+  plan: 'basic' | 'pro' | 'enterprise';
+  /**
+   * Data expirării abonamentului (opțional)
+   */
+  expiresAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -384,6 +428,7 @@ export interface Page {
  */
 export interface Media {
   id: string;
+  tenant?: (string | null) | Tenant;
   alt: string;
   caption?: string | null;
   updatedAt: string;
@@ -534,6 +579,7 @@ export interface ServicesBlock {
  */
 export interface ServiceCategory {
   id: string;
+  tenant?: (string | null) | Tenant;
   title: string;
   /**
    * URL-ul paginii (generat automat din titlu)
@@ -567,6 +613,7 @@ export interface ServiceCategory {
  */
 export interface Service {
   id: string;
+  tenant?: (string | null) | Tenant;
   title: string;
   /**
    * URL-ul paginii (generat automat din titlu)
@@ -678,6 +725,7 @@ export interface Service {
  */
 export interface Team {
   id: string;
+  tenant?: (string | null) | Tenant;
   name: string;
   /**
    * URL-ul paginii (generat automat din titlu)
@@ -806,6 +854,7 @@ export interface TestimonialsBlock {
  */
 export interface TestimonialCategory {
   id: string;
+  tenant?: (string | null) | Tenant;
   title: string;
   /**
    * URL-ul paginii (generat automat din titlu)
@@ -837,6 +886,7 @@ export interface TestimonialCategory {
  */
 export interface Testimonial {
   id: string;
+  tenant?: (string | null) | Tenant;
   name: string;
   role?: string | null;
   image?: (string | null) | Media;
@@ -902,6 +952,7 @@ export interface PortfolioBlock {
  */
 export interface Category {
   id: string;
+  tenant?: (string | null) | Tenant;
   title: string;
   /**
    * URL-ul paginii (generat automat din titlu)
@@ -1471,6 +1522,7 @@ export interface ProductsBlock {
  */
 export interface ProductCategory {
   id: string;
+  tenant?: (string | null) | Tenant;
   title: string;
   /**
    * URL-ul paginii (generat automat din titlu)
@@ -2583,6 +2635,7 @@ export interface DownloadLinksBlock {
  */
 export interface Post {
   id: string;
+  tenant?: (string | null) | Tenant;
   title: string;
   /**
    * URL-ul paginii (generat automat din titlu)
@@ -2622,7 +2675,6 @@ export interface Post {
   };
   updatedAt: string;
   createdAt: string;
-  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2631,11 +2683,15 @@ export interface Post {
 export interface User {
   id: string;
   name?: string | null;
-  /**
-   * Doar administratorii pot modifica rolurile
-   */
-  role: 'admin' | 'customer';
   phone?: string | null;
+  /**
+   * Super Admin are acces la toți tenants. Utilizator are acces doar la tenants asignați.
+   */
+  roles?: ('super-admin' | 'user')[] | null;
+  /**
+   * DEPRECAT: Folosit pentru migrare. Va fi eliminat.
+   */
+  role?: ('admin' | 'customer') | null;
   cart?: {
     docs?: (string | Cart)[];
     hasNextPage?: boolean;
@@ -2675,6 +2731,7 @@ export interface User {
  */
 export interface Cart {
   id: string;
+  tenant?: (string | null) | Tenant;
   items?:
     | {
         product?: (string | null) | Product;
@@ -2698,6 +2755,7 @@ export interface Cart {
  */
 export interface Product {
   id: string;
+  tenant?: (string | null) | Tenant;
   title: string;
   slug: string;
   /**
@@ -2830,6 +2888,7 @@ export interface Variant {
  */
 export interface ProductTag {
   id: string;
+  tenant?: (string | null) | Tenant;
   /**
    * Ex: Nou, Promoție, Bestseller, Eco-friendly
    */
@@ -2856,6 +2915,7 @@ export interface ProductTag {
  */
 export interface Order {
   id: string;
+  tenant?: (string | null) | Tenant;
   items?:
     | {
         product?: (string | null) | Product;
@@ -2941,6 +3001,7 @@ export interface Transaction {
  */
 export interface Address {
   id: string;
+  tenant?: (string | null) | Tenant;
   customer?: (string | null) | User;
   title?: string | null;
   firstName?: string | null;
@@ -3002,6 +3063,7 @@ export interface Address {
  */
 export interface Faq {
   id: string;
+  tenant?: (string | null) | Tenant;
   question: string;
   answer: {
     root: {
@@ -3029,6 +3091,7 @@ export interface Faq {
  */
 export interface Portfolio {
   id: string;
+  tenant?: (string | null) | Tenant;
   title: string;
   /**
    * URL-ul paginii (generat automat din titlu)
@@ -3082,6 +3145,7 @@ export interface Portfolio {
  */
 export interface Subscription {
   id: string;
+  tenant?: (string | null) | Tenant;
   title: string;
   /**
    * URL-ul paginii (generat automat din titlu)
@@ -3137,6 +3201,7 @@ export interface Subscription {
  */
 export interface Booking {
   id: string;
+  tenant?: (string | null) | Tenant;
   clientName: string;
   clientEmail: string;
   clientPhone?: string | null;
@@ -3173,6 +3238,7 @@ export interface Booking {
  */
 export interface SubscriptionOrder {
   id: string;
+  tenant?: (string | null) | Tenant;
   clientName: string;
   clientEmail: string;
   clientPhone?: string | null;
@@ -3209,6 +3275,7 @@ export interface SubscriptionOrder {
  */
 export interface NewsletterSubscriber {
   id: string;
+  tenant?: (string | null) | Tenant;
   /**
    * Adresa de email a abonatului
    */
@@ -3225,6 +3292,285 @@ export interface NewsletterSubscriber {
    */
   ipAddress?: string | null;
   userAgent?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Configurare tema și design pentru tenant
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenant-site-themes".
+ */
+export interface TenantSiteTheme {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  variant:
+    | 'dark-gold'
+    | 'modern-red'
+    | 'classic-blue'
+    | 'fresh-green'
+    | 'minimal-black'
+    | 'purple-premium'
+    | 'warm-orange'
+    | 'teal-modern'
+    | 'brown-vintage'
+    | 'pink-soft'
+    | 'fitness-orange'
+    | 'fitness-dark'
+    | 'gold-navy-healing'
+    | 'revital-harmony'
+    | 'purple-wellness';
+  borderRadius?: ('none' | 'small' | 'medium' | 'large' | 'full') | null;
+  shadows?: ('none' | 'subtle' | 'moderate' | 'strong') | null;
+  animations?: ('none' | 'subtle' | 'moderate' | 'dynamic') | null;
+  containerWidth?: ('1024' | '1280' | '1400' | '1600') | null;
+  sectionSpacing?: ('compact' | 'normal' | 'spacious') | null;
+  headingScale?: ('small' | 'compact' | 'normal' | 'large' | 'xlarge') | null;
+  bodyTextSize?: ('small' | 'normal' | 'large') | null;
+  useCustomColors?: boolean | null;
+  colors?: {
+    primary?: string | null;
+    secondary?: string | null;
+    accent?: string | null;
+    dark?: string | null;
+    light?: string | null;
+    surface?: string | null;
+  };
+  headingFont?:
+    | (
+        | 'Playfair_Display'
+        | 'Lora'
+        | 'Inter'
+        | 'Montserrat'
+        | 'Poppins'
+        | 'Work_Sans'
+        | 'DM_Sans'
+        | 'Raleway'
+        | 'Space_Grotesk'
+        | 'Sora'
+        | 'Outfit'
+        | 'Plus_Jakarta_Sans'
+        | 'Manrope'
+        | 'Prompt'
+        | 'Open_Sans'
+        | 'Lato'
+        | 'Source_Sans_3'
+      )
+    | null;
+  bodyFont?:
+    | (
+        | 'Inter'
+        | 'Open_Sans'
+        | 'Lato'
+        | 'Poppins'
+        | 'Source_Sans_3'
+        | 'Montserrat'
+        | 'Work_Sans'
+        | 'Lora'
+        | 'Space_Grotesk'
+        | 'Sora'
+        | 'Outfit'
+        | 'Plus_Jakarta_Sans'
+        | 'Manrope'
+        | 'DM_Sans'
+        | 'Raleway'
+        | 'Prompt'
+      )
+    | null;
+  headingWeight?: ('300' | '400' | '500' | '600' | '700') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Informatii despre afacere: contact, program, social media
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenant-business-info".
+ */
+export interface TenantBusinessInfo {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  name: string;
+  tagline?: string | null;
+  description?: string | null;
+  yearEstablished?: number | null;
+  address?: {
+    street?: string | null;
+    city?: string | null;
+    county?: string | null;
+    postalCode?: string | null;
+    country?: string | null;
+  };
+  phone?: string | null;
+  phoneSecondary?: string | null;
+  email?: string | null;
+  whatsapp?: string | null;
+  workingHours?:
+    | {
+        days?: string | null;
+        hours?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  social?: {
+    facebook?: string | null;
+    instagram?: string | null;
+    tiktok?: string | null;
+    youtube?: string | null;
+    linkedin?: string | null;
+  };
+  googleMapsEmbed?: string | null;
+  googleMapsLink?: string | null;
+  coordinates?: {
+    lat?: number | null;
+    lng?: number | null;
+  };
+  legal?: {
+    companyName?: string | null;
+    cui?: string | null;
+    regCom?: string | null;
+    bankAccount?: string | null;
+    bank?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Configurare header: navigatie, logo, top bar
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenant-headers".
+ */
+export interface TenantHeader {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  variant?: ('standard' | 'centered' | 'with-topbar' | 'full-width' | 'minimal') | null;
+  showTopBar?: boolean | null;
+  topBar?: {
+    backgroundColor?: ('dark' | 'primary' | 'transparent' | 'light') | null;
+    showPhone?: boolean | null;
+    showEmail?: boolean | null;
+    showSocial?: boolean | null;
+    customText?: string | null;
+  };
+  navItems?:
+    | {
+        label: string;
+        type?: ('reference' | 'custom') | null;
+        reference?: {
+          relationTo: 'pages';
+          value: string | Page;
+        } | null;
+        url?: string | null;
+        newTab?: boolean | null;
+        hasSubmenu?: boolean | null;
+        submenu?:
+          | {
+              label: string;
+              type?: ('reference' | 'custom') | null;
+              reference?: {
+                relationTo: 'pages';
+                value: string | Page;
+              } | null;
+              url?: string | null;
+              newTab?: boolean | null;
+              description?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  showSearch?: boolean | null;
+  showCart?: boolean | null;
+  ctaButton?: {
+    enabled?: boolean | null;
+    label?: string | null;
+    link?: string | null;
+    variant?: ('default' | 'outline' | 'ghost') | null;
+  };
+  sticky?: boolean | null;
+  isTransparent?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Configurare footer: coloane, linkuri, contact
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenant-footers".
+ */
+export interface TenantFooter {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  variant?: ('columns-4' | 'columns-3' | 'minimal' | 'centered' | 'with-newsletter') | null;
+  colorScheme?: ('dark' | 'light') | null;
+  columns?:
+    | {
+        title?: string | null;
+        type?: ('links' | 'contact' | 'schedule' | 'text' | 'social') | null;
+        links?:
+          | {
+              label: string;
+              type?: ('reference' | 'custom') | null;
+              reference?: {
+                relationTo: 'pages';
+                value: string | Page;
+              } | null;
+              url?: string | null;
+              newTab?: boolean | null;
+              id?: string | null;
+            }[]
+          | null;
+        text?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  showSocialLinks?: boolean | null;
+  showContactInfo?: boolean | null;
+  showWorkingHours?: boolean | null;
+  copyright?: string | null;
+  legalLinks?:
+    | {
+        label: string;
+        type?: ('reference' | 'custom') | null;
+        reference?: {
+          relationTo: 'pages';
+          value: string | Page;
+        } | null;
+        url?: string | null;
+        newTab?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Logo-ul site-ului: text, imagine sau ambele
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenant-logos".
+ */
+export interface TenantLogo {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  type?: ('text' | 'image' | 'both') | null;
+  text?: string | null;
+  image?: (string | null) | Media;
+  /**
+   * Pentru utilizare pe fundal deschis
+   */
+  imageDark?: (string | null) | Media;
+  /**
+   * Pentru utilizare pe fundal inchis
+   */
+  imageLight?: (string | null) | Media;
+  favicon?: (string | null) | Media;
+  size?: {
+    height?: number | null;
+    heightMobile?: number | null;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -3400,7 +3746,7 @@ export interface PayloadJob {
     | {
         executedAt: string;
         completedAt: string;
-        taskSlug: 'inline' | 'createCollectionExport' | 'schedulePublish';
+        taskSlug: 'inline' | 'createCollectionExport';
         taskID: string;
         input?:
           | {
@@ -3433,7 +3779,7 @@ export interface PayloadJob {
         id?: string | null;
       }[]
     | null;
-  taskSlug?: ('inline' | 'createCollectionExport' | 'schedulePublish') | null;
+  taskSlug?: ('inline' | 'createCollectionExport') | null;
   queue?: string | null;
   waitUntil?: string | null;
   processing?: boolean | null;
@@ -3518,6 +3864,30 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'users';
         value: string | User;
+      } | null)
+    | ({
+        relationTo: 'tenants';
+        value: string | Tenant;
+      } | null)
+    | ({
+        relationTo: 'tenant-site-themes';
+        value: string | TenantSiteTheme;
+      } | null)
+    | ({
+        relationTo: 'tenant-business-info';
+        value: string | TenantBusinessInfo;
+      } | null)
+    | ({
+        relationTo: 'tenant-headers';
+        value: string | TenantHeader;
+      } | null)
+    | ({
+        relationTo: 'tenant-footers';
+        value: string | TenantFooter;
+      } | null)
+    | ({
+        relationTo: 'tenant-logos';
+        value: string | TenantLogo;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -3618,6 +3988,7 @@ export interface PayloadMigration {
  * via the `definition` "pages_select".
  */
 export interface PagesSelect<T extends boolean = true> {
+  tenant?: T;
   title?: T;
   slug?: T;
   headerSettings?:
@@ -3731,7 +4102,6 @@ export interface PagesSelect<T extends boolean = true> {
       };
   updatedAt?: T;
   createdAt?: T;
-  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -4878,6 +5248,7 @@ export interface DownloadLinksBlockSelect<T extends boolean = true> {
  * via the `definition` "posts_select".
  */
 export interface PostsSelect<T extends boolean = true> {
+  tenant?: T;
   title?: T;
   slug?: T;
   excerpt?: T;
@@ -4896,13 +5267,13 @@ export interface PostsSelect<T extends boolean = true> {
       };
   updatedAt?: T;
   createdAt?: T;
-  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
+  tenant?: T;
   alt?: T;
   caption?: T;
   updatedAt?: T;
@@ -4996,6 +5367,7 @@ export interface MediaSelect<T extends boolean = true> {
  * via the `definition` "faq_select".
  */
 export interface FaqSelect<T extends boolean = true> {
+  tenant?: T;
   question?: T;
   answer?: T;
   category?: T;
@@ -5008,6 +5380,7 @@ export interface FaqSelect<T extends boolean = true> {
  * via the `definition` "categories_select".
  */
 export interface CategoriesSelect<T extends boolean = true> {
+  tenant?: T;
   title?: T;
   slug?: T;
   description?: T;
@@ -5028,6 +5401,7 @@ export interface CategoriesSelect<T extends boolean = true> {
  * via the `definition` "services_select".
  */
 export interface ServicesSelect<T extends boolean = true> {
+  tenant?: T;
   title?: T;
   slug?: T;
   category?: T;
@@ -5087,6 +5461,7 @@ export interface ServicesSelect<T extends boolean = true> {
  * via the `definition` "service-categories_select".
  */
 export interface ServiceCategoriesSelect<T extends boolean = true> {
+  tenant?: T;
   title?: T;
   slug?: T;
   description?: T;
@@ -5101,6 +5476,7 @@ export interface ServiceCategoriesSelect<T extends boolean = true> {
  * via the `definition` "team_select".
  */
 export interface TeamSelect<T extends boolean = true> {
+  tenant?: T;
   name?: T;
   slug?: T;
   role?: T;
@@ -5147,6 +5523,7 @@ export interface TeamSelect<T extends boolean = true> {
  * via the `definition` "portfolio_select".
  */
 export interface PortfolioSelect<T extends boolean = true> {
+  tenant?: T;
   title?: T;
   slug?: T;
   shortDescription?: T;
@@ -5181,6 +5558,7 @@ export interface PortfolioSelect<T extends boolean = true> {
  * via the `definition` "testimonials_select".
  */
 export interface TestimonialsSelect<T extends boolean = true> {
+  tenant?: T;
   name?: T;
   role?: T;
   image?: T;
@@ -5201,6 +5579,7 @@ export interface TestimonialsSelect<T extends boolean = true> {
  * via the `definition` "testimonial-categories_select".
  */
 export interface TestimonialCategoriesSelect<T extends boolean = true> {
+  tenant?: T;
   title?: T;
   slug?: T;
   description?: T;
@@ -5215,6 +5594,7 @@ export interface TestimonialCategoriesSelect<T extends boolean = true> {
  * via the `definition` "subscriptions_select".
  */
 export interface SubscriptionsSelect<T extends boolean = true> {
+  tenant?: T;
   title?: T;
   slug?: T;
   subtitle?: T;
@@ -5256,6 +5636,7 @@ export interface SubscriptionsSelect<T extends boolean = true> {
  * via the `definition` "product-categories_select".
  */
 export interface ProductCategoriesSelect<T extends boolean = true> {
+  tenant?: T;
   title?: T;
   slug?: T;
   description?: T;
@@ -5272,6 +5653,7 @@ export interface ProductCategoriesSelect<T extends boolean = true> {
  * via the `definition` "product-tags_select".
  */
 export interface ProductTagsSelect<T extends boolean = true> {
+  tenant?: T;
   name?: T;
   slug?: T;
   color?: T;
@@ -5285,6 +5667,7 @@ export interface ProductTagsSelect<T extends boolean = true> {
  * via the `definition` "bookings_select".
  */
 export interface BookingsSelect<T extends boolean = true> {
+  tenant?: T;
   clientName?: T;
   clientEmail?: T;
   clientPhone?: T;
@@ -5306,6 +5689,7 @@ export interface BookingsSelect<T extends boolean = true> {
  * via the `definition` "subscription-orders_select".
  */
 export interface SubscriptionOrdersSelect<T extends boolean = true> {
+  tenant?: T;
   clientName?: T;
   clientEmail?: T;
   clientPhone?: T;
@@ -5327,6 +5711,7 @@ export interface SubscriptionOrdersSelect<T extends boolean = true> {
  * via the `definition` "newsletter-subscribers_select".
  */
 export interface NewsletterSubscribersSelect<T extends boolean = true> {
+  tenant?: T;
   email?: T;
   status?: T;
   source?: T;
@@ -5343,8 +5728,9 @@ export interface NewsletterSubscribersSelect<T extends boolean = true> {
  */
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
-  role?: T;
   phone?: T;
+  roles?: T;
+  role?: T;
   cart?: T;
   orders?: T;
   addresses?: T;
@@ -5364,6 +5750,229 @@ export interface UsersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenants_select".
+ */
+export interface TenantsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  domain?: T;
+  allowPublicRead?: T;
+  status?: T;
+  plan?: T;
+  expiresAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenant-site-themes_select".
+ */
+export interface TenantSiteThemesSelect<T extends boolean = true> {
+  tenant?: T;
+  variant?: T;
+  borderRadius?: T;
+  shadows?: T;
+  animations?: T;
+  containerWidth?: T;
+  sectionSpacing?: T;
+  headingScale?: T;
+  bodyTextSize?: T;
+  useCustomColors?: T;
+  colors?:
+    | T
+    | {
+        primary?: T;
+        secondary?: T;
+        accent?: T;
+        dark?: T;
+        light?: T;
+        surface?: T;
+      };
+  headingFont?: T;
+  bodyFont?: T;
+  headingWeight?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenant-business-info_select".
+ */
+export interface TenantBusinessInfoSelect<T extends boolean = true> {
+  tenant?: T;
+  name?: T;
+  tagline?: T;
+  description?: T;
+  yearEstablished?: T;
+  address?:
+    | T
+    | {
+        street?: T;
+        city?: T;
+        county?: T;
+        postalCode?: T;
+        country?: T;
+      };
+  phone?: T;
+  phoneSecondary?: T;
+  email?: T;
+  whatsapp?: T;
+  workingHours?:
+    | T
+    | {
+        days?: T;
+        hours?: T;
+        id?: T;
+      };
+  social?:
+    | T
+    | {
+        facebook?: T;
+        instagram?: T;
+        tiktok?: T;
+        youtube?: T;
+        linkedin?: T;
+      };
+  googleMapsEmbed?: T;
+  googleMapsLink?: T;
+  coordinates?:
+    | T
+    | {
+        lat?: T;
+        lng?: T;
+      };
+  legal?:
+    | T
+    | {
+        companyName?: T;
+        cui?: T;
+        regCom?: T;
+        bankAccount?: T;
+        bank?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenant-headers_select".
+ */
+export interface TenantHeadersSelect<T extends boolean = true> {
+  tenant?: T;
+  variant?: T;
+  showTopBar?: T;
+  topBar?:
+    | T
+    | {
+        backgroundColor?: T;
+        showPhone?: T;
+        showEmail?: T;
+        showSocial?: T;
+        customText?: T;
+      };
+  navItems?:
+    | T
+    | {
+        label?: T;
+        type?: T;
+        reference?: T;
+        url?: T;
+        newTab?: T;
+        hasSubmenu?: T;
+        submenu?:
+          | T
+          | {
+              label?: T;
+              type?: T;
+              reference?: T;
+              url?: T;
+              newTab?: T;
+              description?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  showSearch?: T;
+  showCart?: T;
+  ctaButton?:
+    | T
+    | {
+        enabled?: T;
+        label?: T;
+        link?: T;
+        variant?: T;
+      };
+  sticky?: T;
+  isTransparent?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenant-footers_select".
+ */
+export interface TenantFootersSelect<T extends boolean = true> {
+  tenant?: T;
+  variant?: T;
+  colorScheme?: T;
+  columns?:
+    | T
+    | {
+        title?: T;
+        type?: T;
+        links?:
+          | T
+          | {
+              label?: T;
+              type?: T;
+              reference?: T;
+              url?: T;
+              newTab?: T;
+              id?: T;
+            };
+        text?: T;
+        id?: T;
+      };
+  showSocialLinks?: T;
+  showContactInfo?: T;
+  showWorkingHours?: T;
+  copyright?: T;
+  legalLinks?:
+    | T
+    | {
+        label?: T;
+        type?: T;
+        reference?: T;
+        url?: T;
+        newTab?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenant-logos_select".
+ */
+export interface TenantLogosSelect<T extends boolean = true> {
+  tenant?: T;
+  type?: T;
+  text?: T;
+  image?: T;
+  imageDark?: T;
+  imageLight?: T;
+  favicon?: T;
+  size?:
+    | T
+    | {
+        height?: T;
+        heightMobile?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -5591,6 +6200,7 @@ export interface ExportsSelect<T extends boolean = true> {
  * via the `definition` "addresses_select".
  */
 export interface AddressesSelect<T extends boolean = true> {
+  tenant?: T;
   customer?: T;
   title?: T;
   firstName?: T;
@@ -5652,6 +6262,7 @@ export interface VariantOptionsSelect<T extends boolean = true> {
  * via the `definition` "products_select".
  */
 export interface ProductsSelect<T extends boolean = true> {
+  tenant?: T;
   title?: T;
   slug?: T;
   shortDescription?: T;
@@ -5694,6 +6305,7 @@ export interface ProductsSelect<T extends boolean = true> {
  * via the `definition` "carts_select".
  */
 export interface CartsSelect<T extends boolean = true> {
+  tenant?: T;
   items?:
     | T
     | {
@@ -5716,6 +6328,7 @@ export interface CartsSelect<T extends boolean = true> {
  * via the `definition` "orders_select".
  */
 export interface OrdersSelect<T extends boolean = true> {
+  tenant?: T;
   items?:
     | T
     | {
@@ -7108,28 +7721,6 @@ export interface TaskCreateCollectionExport {
     user?: string | null;
     userCollection?: string | null;
     exportsCollection?: string | null;
-  };
-  output?: unknown;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "TaskSchedulePublish".
- */
-export interface TaskSchedulePublish {
-  input: {
-    type?: ('publish' | 'unpublish') | null;
-    locale?: string | null;
-    doc?:
-      | ({
-          relationTo: 'pages';
-          value: string | Page;
-        } | null)
-      | ({
-          relationTo: 'posts';
-          value: string | Post;
-        } | null);
-    global?: string | null;
-    user?: (string | null) | User;
   };
   output?: unknown;
 }

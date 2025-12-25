@@ -1,4 +1,4 @@
-import type { SiteTheme } from '@/payload-types'
+import type { SiteTheme, TenantSiteTheme } from '@/payload-types'
 import {
   THEME_VARIANTS,
   radiusPresets,
@@ -31,19 +31,22 @@ export type { ThemeVariant, ThemeColors } from '@/theme/variants'
  * Generates inline CSS styles for the theme to prevent FOUC
  * This runs server-side and injects CSS before hydration
  */
-export function generateThemeStyles(siteTheme: SiteTheme | null): string {
+export function generateThemeStyles(siteTheme: SiteTheme | TenantSiteTheme | null): string {
+  // Cast to SiteTheme to access all fields (TenantSiteTheme may be missing some)
+  const theme = siteTheme as SiteTheme | null
+
   // Get the selected variant or default to dark-gold
-  const variantKey = siteTheme?.variant || 'dark-gold'
+  const variantKey = theme?.variant || 'dark-gold'
   const variant = THEME_VARIANTS[variantKey] || THEME_VARIANTS['dark-gold']
 
   // Apply colors - auto-generate from primary, use custom if enabled, otherwise use variant
   let colors = variant.colors
 
-  if (siteTheme?.useCustomColors && siteTheme.colors) {
-    const primaryColor = siteTheme.colors.primary || variant.colors.primary
+  if (theme?.useCustomColors && theme.colors) {
+    const primaryColor = theme.colors.primary || variant.colors.primary
 
     // If auto-generate palette is enabled, generate all colors from primary
-    if (siteTheme.autoGeneratePalette && primaryColor) {
+    if (theme.autoGeneratePalette && primaryColor) {
       const generatedPalette = generatePalette(primaryColor)
       // generateContrastColors expects OklchColor objects, returns OklchColor objects
       const contrastColorsOklch = generateContrastColors({
@@ -76,47 +79,47 @@ export function generateThemeStyles(siteTheme: SiteTheme | null): string {
       // Use manual custom colors
       colors = {
         primary: primaryColor,
-        secondary: siteTheme.colors.secondary || variant.colors.secondary,
-        accent: siteTheme.colors.accent || variant.colors.accent,
-        dark: siteTheme.colors.dark || variant.colors.dark,
-        light: siteTheme.colors.light || variant.colors.light,
-        surface: siteTheme.colors.surface || variant.colors.surface,
-        text: siteTheme.colors.text || variant.colors.text,
-        textLight: siteTheme.colors.textLight || variant.colors.textLight,
-        border: siteTheme.colors.border || variant.colors.border,
+        secondary: theme.colors.secondary || variant.colors.secondary,
+        accent: theme.colors.accent || variant.colors.accent,
+        dark: theme.colors.dark || variant.colors.dark,
+        light: theme.colors.light || variant.colors.light,
+        surface: theme.colors.surface || variant.colors.surface,
+        text: theme.colors.text || variant.colors.text,
+        textLight: theme.colors.textLight || variant.colors.textLight,
+        border: theme.colors.border || variant.colors.border,
         // Contrast colors - use custom if set, otherwise use variant defaults
         textOnPrimary:
-          (siteTheme.colors as Record<string, string | undefined>).textOnPrimary ||
+          (theme.colors as Record<string, string | undefined>).textOnPrimary ||
           variant.colors.textOnPrimary,
         textOnSecondary:
-          (siteTheme.colors as Record<string, string | undefined>).textOnSecondary ||
+          (theme.colors as Record<string, string | undefined>).textOnSecondary ||
           variant.colors.textOnSecondary,
         textOnAccent:
-          (siteTheme.colors as Record<string, string | undefined>).textOnAccent ||
+          (theme.colors as Record<string, string | undefined>).textOnAccent ||
           variant.colors.textOnAccent,
         textOnDark:
-          (siteTheme.colors as Record<string, string | undefined>).textOnDark ||
+          (theme.colors as Record<string, string | undefined>).textOnDark ||
           variant.colors.textOnDark,
         textOnLight:
-          (siteTheme.colors as Record<string, string | undefined>).textOnLight ||
+          (theme.colors as Record<string, string | undefined>).textOnLight ||
           variant.colors.textOnLight,
         textOnSurface:
-          (siteTheme.colors as Record<string, string | undefined>).textOnSurface ||
+          (theme.colors as Record<string, string | undefined>).textOnSurface ||
           variant.colors.textOnSurface,
       }
     }
   }
 
   // Apply border radius - use override if set, otherwise use variant
-  const borderRadiusKey = siteTheme?.borderRadius || variant.borderRadius
+  const borderRadiusKey = theme?.borderRadius || variant.borderRadius
   const radius = radiusPresets[borderRadiusKey as keyof typeof radiusPresets] || radiusPresets.medium
 
   // Apply shadows - use override if set, otherwise use variant
-  const shadowsKey = siteTheme?.shadows || variant.shadows
+  const shadowsKey = theme?.shadows || variant.shadows
   const shadows = shadowPresets[shadowsKey as keyof typeof shadowPresets] || shadowPresets.subtle
 
   // Apply section spacing
-  const spacingKey = siteTheme?.sectionSpacing || 'normal'
+  const spacingKey = theme?.sectionSpacing || 'normal'
   const spacing = spacingPresets[spacingKey as keyof typeof spacingPresets] || spacingPresets.normal
 
   // Fonts are now configured via .env and loaded via next/font (self-hosted)
@@ -156,8 +159,8 @@ export function generateThemeStyles(siteTheme: SiteTheme | null): string {
   const serifFonts = ['Playfair Display', 'Playfair_Display', 'Lora']
 
   // Get fonts from admin settings, fallback to variant fonts, then defaults
-  const headingFontName = siteTheme?.headingFont || variant.fonts.heading || 'Playfair_Display'
-  const bodyFontName = siteTheme?.bodyFont || variant.fonts.body || 'Inter'
+  const headingFontName = theme?.headingFont || variant.fonts.heading || 'Playfair_Display'
+  const bodyFontName = theme?.bodyFont || variant.fonts.body || 'Inter'
 
   const headingFont = fontToCssVar[headingFontName] || 'var(--font-inter)'
   const bodyFont = fontToCssVar[bodyFontName] || 'var(--font-inter)'
@@ -166,42 +169,42 @@ export function generateThemeStyles(siteTheme: SiteTheme | null): string {
   const bodyFallback = serifFonts.includes(bodyFontName) ? 'serif' : 'sans-serif'
 
   // Container width
-  const containerWidth = siteTheme?.containerWidth ? `${siteTheme.containerWidth}px` : '1280px'
+  const containerWidth = theme?.containerWidth ? `${theme.containerWidth}px` : '1280px'
 
   // Extract advanced typography settings
-  const letterSpacing = siteTheme?.useAdvancedTypography
-    ? letterSpacingPresets[siteTheme?.letterSpacing || 'normal'] || '0'
+  const letterSpacing = theme?.useAdvancedTypography
+    ? letterSpacingPresets[theme?.letterSpacing || 'normal'] || '0'
     : '0'
-  const headingLineHeight = siteTheme?.useAdvancedTypography
-    ? siteTheme?.headingLineHeight || '1.2'
+  const headingLineHeight = theme?.useAdvancedTypography
+    ? theme?.headingLineHeight || '1.2'
     : '1.2'
-  const bodyLineHeight = siteTheme?.useAdvancedTypography
-    ? siteTheme?.bodyLineHeight || '1.6'
+  const bodyLineHeight = theme?.useAdvancedTypography
+    ? theme?.bodyLineHeight || '1.6'
     : '1.6'
 
   // Extract button style settings
-  const buttonPadding = siteTheme?.useCustomButtons
-    ? buttonPaddingPresets[siteTheme?.buttonPadding || 'normal'] || buttonPaddingPresets.normal
+  const buttonPadding = theme?.useCustomButtons
+    ? buttonPaddingPresets[theme?.buttonPadding || 'normal'] || buttonPaddingPresets.normal
     : buttonPaddingPresets.normal
-  const buttonTextTransform = siteTheme?.useCustomButtons
-    ? siteTheme?.buttonTextTransform || 'none'
+  const buttonTextTransform = theme?.useCustomButtons
+    ? theme?.buttonTextTransform || 'none'
     : 'none'
-  const buttonFontWeight = siteTheme?.useCustomButtons
-    ? siteTheme?.buttonFontWeight || '600'
+  const buttonFontWeight = theme?.useCustomButtons
+    ? theme?.buttonFontWeight || '600'
     : '600'
-  const buttonLetterSpacing = siteTheme?.useCustomButtons
-    ? buttonLetterSpacingPresets[siteTheme?.buttonLetterSpacing || 'normal'] || '0'
+  const buttonLetterSpacing = theme?.useCustomButtons
+    ? buttonLetterSpacingPresets[theme?.buttonLetterSpacing || 'normal'] || '0'
     : '0'
   // Button rounding: use custom if set, otherwise inherit from theme's radius.button
-  const buttonRounding = siteTheme?.useCustomButtons && siteTheme?.buttonRounding
-    ? buttonRoundingPresets[siteTheme.buttonRounding] || radius.button
+  const buttonRounding = theme?.useCustomButtons && theme?.buttonRounding
+    ? buttonRoundingPresets[theme.buttonRounding!] || radius.button
     : radius.button
 
   // Heading weight for typography (plasturi uses 400 for clean/flat look)
-  const headingWeight = siteTheme?.headingWeight || '600'
+  const headingWeight = theme?.headingWeight || '600'
 
   // Apply animations - use override if set, otherwise use moderate as default
-  const animationsKey = siteTheme?.animations || 'moderate'
+  const animationsKey = theme?.animations || 'moderate'
   const animations =
     animationPresets[animationsKey as keyof typeof animationPresets] || animationPresets.moderate
 
@@ -209,15 +212,15 @@ export function generateThemeStyles(siteTheme: SiteTheme | null): string {
   const animationPlayState = animations.enabled === '1' ? 'running' : 'paused'
 
   // Apply heading scale - affects H1-H6 sizes
-  const headingScaleKey = siteTheme?.headingScale || 'normal'
+  const headingScaleKey = theme?.headingScale || 'normal'
   const headingScale = headingScalePresets[headingScaleKey as keyof typeof headingScalePresets] || headingScalePresets.normal
 
   // Apply body text size - affects paragraph and body text
-  const bodyTextSizeKey = siteTheme?.bodyTextSize || 'normal'
+  const bodyTextSizeKey = theme?.bodyTextSize || 'normal'
   const bodyTextSize = bodyTextSizePresets[bodyTextSizeKey as keyof typeof bodyTextSizePresets] || bodyTextSizePresets.normal
 
   // Apply card gap - spacing between cards in grids
-  const cardGapKey = siteTheme?.cardGap || 'normal'
+  const cardGapKey = theme?.cardGap || 'normal'
   const cardGap = cardGapPresets[cardGapKey as keyof typeof cardGapPresets] || cardGapPresets.normal
 
   // Generate OKLCH values for colors (for advanced color manipulation in CSS)

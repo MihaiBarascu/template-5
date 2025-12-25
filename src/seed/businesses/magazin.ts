@@ -1,6 +1,6 @@
 import type { Payload } from 'payload'
 import {
-  createAdminUser,
+  createTenantAdmin,
   seedSiteTheme,
   seedBusinessInfo,
   seedSystemPages,
@@ -24,6 +24,7 @@ import {
   createSeederPage,
   type FlexibleLayout,
 } from '../helpers'
+import { getCurrentSeedTenantId } from '../tenant-helpers'
 import { magazinImages, magazinData } from '../seed-data'
 import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
 
@@ -37,7 +38,15 @@ export async function seedMagazin(payload: Payload) {
   console.log(`   ${variant.description}`)
   console.log('━'.repeat(50))
 
-  await createAdminUser(payload)
+  // 1. Create tenant admin for this business
+  const tenantId = getCurrentSeedTenantId()
+  await createTenantAdmin(payload, {
+    email: 'admin@magazin.local',
+    password: 'magazin123',
+    name: 'Admin Magazin',
+    tenantId,
+    tenantName: 'Magazin Online Demo',
+  })
 
   console.log('\n📸 Uploading images from local files...')
   const allImages = [
@@ -184,7 +193,10 @@ export async function seedMagazin(payload: Payload) {
   await seedPortfolio(payload, portfolioItems)
 
   console.log('\n🏠 Creating homepage...')
-  const homepageLayout = buildHomepageLayout(variant, getImageId)
+  const homepageLayout = buildHomepageLayout(variant, {
+    galleryImages: magazinImages.gallery,
+    getImageId,
+  })
   const overlaySettings = getHeroOverlaySettings(variant)
 
   // Build hero data using helper (supports carousel/slider/split)
@@ -272,7 +284,13 @@ interface BlockConfig {
   [key: string]: unknown
 }
 
-function buildHomepageLayout(variant: DesignVariant, getImageId: (filename: string) => string | undefined) {
+function buildHomepageLayout(
+  variant: DesignVariant,
+  imageOptions: {
+    galleryImages: typeof magazinImages.gallery
+    getImageId: (filename: string) => string | undefined
+  }
+) {
   const sectionConfigs: Record<string, BlockConfig> = {
     // NEW: Trust Badges - ecommerce credibility (bar variant - ecommerce style)
     trustBadges: {
@@ -371,7 +389,7 @@ function buildHomepageLayout(variant: DesignVariant, getImageId: (filename: stri
           name: 'EcoShop Showroom',
           address: 'Bulevardul Magheru 50, București',
           phone: '0722 444 555',
-          image: getImageId(magazinImages.locations[0]?.filename),
+          image: imageOptions.getImageId(magazinImages.locations[0]?.filename),
           googleMapsLink: 'https://maps.google.com',
         },
       ],
@@ -442,7 +460,7 @@ function buildHomepageLayout(variant: DesignVariant, getImageId: (filename: stri
           link: '/politica-retur',
         },
       ],
-      backgroundColor: 'green',
+      backgroundColor: 'success',
     },
     products: {
       blockType: 'products',
@@ -483,8 +501,13 @@ function buildHomepageLayout(variant: DesignVariant, getImageId: (filename: stri
       variant: variant.layout.galleryVariant,
       heading: 'Galeria Noastra',
       subheading: 'Magazinul nostru',
-      source: 'portfolio',
-      limit: 6,
+      images: imageOptions.galleryImages
+        .slice(0, 6)
+        .map((img) => ({
+          image: imageOptions.getImageId(img.filename),
+          caption: img.alt,
+        }))
+        .filter((item) => item.image),
       backgroundColor: 'default',
     },
     faq: {
@@ -538,7 +561,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
     layout: [
       { blockType: 'content', columns: [{ width: 'full', contentType: 'richText' }], backgroundColor: 'default' },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Categories page')
 
@@ -552,7 +575,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
       { blockType: 'stats', variant: 'grid-4', backgroundColor: 'light' },
       { blockType: 'testimonials', variant: variant.layout.testimonialsVariant, heading: 'Ce Spun Clientii', onlyFeatured: true, backgroundColor: 'default' },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created About page')
 
@@ -564,7 +587,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
     layout: [
       { blockType: 'cart', variant: 'full', heading: 'Produsele din cos', checkoutButtonText: 'Finalizeaza Comanda', checkoutLink: '/checkout', emptyCartMessage: 'Cosul tau este gol. Adauga produse pentru a continua.', continueShoppingLink: '/produse', backgroundColor: 'default' },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Cart page')
 
@@ -576,7 +599,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
     layout: [
       { blockType: 'checkout', variant: 'full', heading: 'Detalii Comanda', submitButtonText: 'Plaseaza Comanda', successMessage: 'Multumim pentru comanda! Vei primi un email de confirmare.', backgroundColor: 'light' },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Checkout page')
 
@@ -589,7 +612,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
       ...(createContactPageLayout(contactFormId) || []) as FlexibleLayout,
       { blockType: 'faq', variant: 'accordion', heading: 'Intrebari Frecvente', limit: 5, backgroundColor: 'default' },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Contact page')
 }

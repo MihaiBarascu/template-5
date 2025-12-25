@@ -9,22 +9,22 @@ export const revalidatePageAfterChange: CollectionAfterChangeHook<Page> = ({
   req: { payload, context },
 }) => {
   if (!context.disableRevalidate) {
-    if (doc._status === 'published') {
-      const path = doc.slug === 'home' ? '/' : `/${doc.slug}`
+    // Note: versions/drafts disabled for multi-tenant compatibility
+    // All pages are effectively "published"
+    const path = doc.slug === 'home' ? '/' : `/${doc.slug}`
 
-      payload.logger.info(`Revalidating page at path: ${path}`)
+    payload.logger.info(`Revalidating page at path: ${path}`)
 
-      // Only revalidate if we're in a Next.js context (not during seed)
-      try {
-        revalidatePath(path)
-        revalidateTag('pages-sitemap', 'max')
-      } catch (_e) {
-        payload.logger.warn(`Could not revalidate ${path} (likely running outside Next.js context)`)
-      }
+    // Only revalidate if we're in a Next.js context (not during seed)
+    try {
+      revalidatePath(path)
+      revalidateTag('pages-sitemap', 'max')
+    } catch (_e) {
+      payload.logger.warn(`Could not revalidate ${path} (likely running outside Next.js context)`)
     }
 
-    // If the page was previously published, we need to revalidate the old path
-    if (previousDoc?._status === 'published' && doc._status !== 'published') {
+    // If slug changed, revalidate old path too
+    if (previousDoc?.slug && previousDoc.slug !== doc.slug) {
       const oldPath = previousDoc.slug === 'home' ? '/' : `/${previousDoc.slug}`
 
       payload.logger.info(`Revalidating old page at path: ${oldPath}`)

@@ -2,58 +2,47 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 /**
- * HTTP Basic Auth Proxy (fost Middleware în Next.js < 16)
+ * Next.js Proxy (replaces middleware in Next.js 16+)
  *
- * Protejează site-ul cu user/parolă în staging/development.
- * Se activează automat dacă BASIC_AUTH_USER și BASIC_AUTH_PASS sunt setate în .env
+ * Handles:
+ * 1. HTTP Basic Auth for staging protection
+ * 2. Multi-tenant domain routing via URL rewrite
  *
- * Configurare în .env:
- *   BASIC_AUTH_USER=admin
- *   BASIC_AUTH_PASS=parola-secreta
- *
- * Pentru a dezactiva: șterge sau comentează variabilele din .env
+ * Reference: docs/MULTI-TENANT-OFFICIAL-REFERENCE.md
  */
-export function proxy(request: NextRequest) {
-  // Auth-ul e activat doar dacă AMBELE variabile sunt setate
+
+// ═══════════════════════════════════════════════════════════════════════════
+// HTTP BASIC AUTH
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Check HTTP Basic Auth credentials
+ */
+function checkBasicAuth(request: NextRequest): NextResponse | null {
   const authUser = process.env.BASIC_AUTH_USER
   const authPass = process.env.BASIC_AUTH_PASS
 
+  // Auth disabled if credentials not set
   if (!authUser || !authPass) {
-    return NextResponse.next()
+    return null
   }
 
-  // Exclude anumite rute de la auth (API-uri, imagini, etc.)
-  const { pathname } = request.nextUrl
-  const excludedPaths = [
-    '/api/',
-    '/_next/',
-    '/favicon.ico',
-    '/robots.txt',
-    '/sitemap.xml',
-  ]
-
-  if (excludedPaths.some(path => pathname.startsWith(path))) {
-    return NextResponse.next()
-  }
-
-  // Verifică header-ul Authorization
   const authHeader = request.headers.get('authorization')
 
   if (!authHeader || !authHeader.startsWith('Basic ')) {
     return unauthorizedResponse()
   }
 
-  // Decodează credențialele
   try {
     const base64Credentials = authHeader.split(' ')[1]
     const credentials = Buffer.from(base64Credentials, 'base64').toString('utf-8')
     const [user, pass] = credentials.split(':')
 
     if (user === authUser && pass === authPass) {
-      return NextResponse.next()
+      return null // Auth passed
     }
   } catch {
-    // Credențiale invalide
+    // Invalid credentials
   }
 
   return unauthorizedResponse()
@@ -66,6 +55,59 @@ function unauthorizedResponse() {
       'WWW-Authenticate': 'Basic realm="Site protejat", charset="UTF-8"',
     },
   })
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MAIN PROXY FUNCTION
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Paths that bypass tenant routing (served directly from /public or internal routes)
+const BYPASS_PATHS = [
+  '/api/',
+  '/api',
+  '/_next/',
+  '/admin',
+  '/media/',
+  '/videos/', // Static video files in /public/videos
+  '/images/', // Static image files in /public/images
+  '/fonts/',  // Static font files in /public/fonts
+  '/favicon.ico',
+  '/robots.txt',
+  '/sitemap.xml',
+  '/sitemap-0.xml',
+  '/manifest.json',
+]
+
+export async function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl
+
+  // Skip processing for API, admin, static, etc.
+  if (BYPASS_PATHS.some(path => pathname.startsWith(path) || pathname === path)) {
+    return NextResponse.next()
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // 1. HTTP BASIC AUTH CHECK
+  // ─────────────────────────────────────────────────────────────────────────
+  const authResponse = checkBasicAuth(request)
+  if (authResponse) {
+    return authResponse
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // 2. MULTI-TENANT URL REWRITE
+  // ─────────────────────────────────────────────────────────────────────────
+  // Rewrite /path to /[tenantDomain]/path where tenantDomain comes from Host header
+  // This follows the official Payload multi-tenant pattern with params-based routing
+
+  const host = request.headers.get('host') || 'localhost'
+
+  // Rewrite to [tenantDomain] route
+  // Example: frizerie.local/servicii -> /frizerie.local/servicii
+  const url = request.nextUrl.clone()
+  url.pathname = `/${host}${pathname}`
+
+  return NextResponse.rewrite(url)
 }
 
 // Aplică proxy pe toate rutele

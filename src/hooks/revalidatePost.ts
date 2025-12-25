@@ -9,25 +9,25 @@ export const revalidatePostAfterChange: CollectionAfterChangeHook<Post> = ({
   req: { payload, context },
 }) => {
   if (!context.disableRevalidate) {
-    if (doc._status === 'published') {
-      const path = `/blog/${doc.slug}`
+    // Note: versions/drafts disabled for multi-tenant compatibility
+    // All posts are effectively "published"
+    const path = `/blog/${doc.slug}`
 
-      payload.logger.info(`Revalidating post at path: ${path}`)
+    payload.logger.info(`Revalidating post at path: ${path}`)
 
-      // Only revalidate if we're in a Next.js context (not during seed)
-      try {
-        revalidatePath(path)
-        revalidateTag('posts-sitemap', 'max')
-        // Also revalidate blog listing and homepage (for LatestPosts block)
-        revalidatePath('/blog')
-        revalidatePath('/')
-      } catch (_e) {
-        payload.logger.warn(`Could not revalidate ${path} (likely running outside Next.js context)`)
-      }
+    // Only revalidate if we're in a Next.js context (not during seed)
+    try {
+      revalidatePath(path)
+      revalidateTag('posts-sitemap', 'max')
+      // Also revalidate blog listing and homepage (for LatestPosts block)
+      revalidatePath('/blog')
+      revalidatePath('/')
+    } catch (_e) {
+      payload.logger.warn(`Could not revalidate ${path} (likely running outside Next.js context)`)
     }
 
-    // If the post was previously published, we need to revalidate the old path
-    if (previousDoc?._status === 'published' && doc._status !== 'published') {
+    // If slug changed, revalidate old path too
+    if (previousDoc?.slug && previousDoc.slug !== doc.slug) {
       const oldPath = `/blog/${previousDoc.slug}`
 
       payload.logger.info(`Revalidating old post at path: ${oldPath}`)

@@ -1,6 +1,6 @@
 import type { Payload } from 'payload'
 import {
-  createAdminUser,
+  createTenantAdmin,
   seedSiteTheme,
   seedBusinessInfo,
   seedLogo,
@@ -23,6 +23,7 @@ import {
   createSeederPage,
   type FlexibleLayout,
 } from '../helpers'
+import { getCurrentSeedTenantId } from '../tenant-helpers'
 import { barbershopImages, barbershopData } from '../seed-data'
 import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
 
@@ -37,8 +38,15 @@ export async function seedFrizerie(payload: Payload) {
   console.log(`   ${variant.description}`)
   console.log('━'.repeat(50))
 
-  // 1. Create admin user
-  await createAdminUser(payload)
+  // 1. Create tenant admin for this business
+  const tenantId = getCurrentSeedTenantId()
+  await createTenantAdmin(payload, {
+    email: 'admin@frizerie.local',
+    password: 'frizerie123',
+    name: 'Admin Frizerie',
+    tenantId,
+    tenantName: 'Frizerie Demo',
+  })
 
   // 2. Upload all images first
   console.log('\n📸 Uploading images from local files...')
@@ -189,7 +197,10 @@ export async function seedFrizerie(payload: Payload) {
 
   // 14. Homepage with dynamic layout based on variant
   console.log('\n🏠 Creating homepage...')
-  const homepageLayout = buildHomepageLayout(variant, barbershopData)
+  const homepageLayout = buildHomepageLayout(variant, barbershopData, {
+    galleryImages: barbershopImages.gallery,
+    getImageId,
+  })
   const overlaySettings = getHeroOverlaySettings(variant)
 
   // Build hero data using helper (supports carousel/slider/split)
@@ -275,7 +286,14 @@ interface BlockConfig {
 }
 
 // Build homepage layout based on variant configuration
-function buildHomepageLayout(variant: DesignVariant, _data: typeof barbershopData) {
+function buildHomepageLayout(
+  variant: DesignVariant,
+  _data: typeof barbershopData,
+  imageOptions?: {
+    galleryImages: typeof barbershopImages.gallery
+    getImageId: (filename: string) => string | undefined
+  }
+) {
   const sectionConfigs: Record<string, BlockConfig> = {
     // New: Price list with dotted lines (barbershop specific)
     priceList: {
@@ -519,9 +537,14 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof barbershopDat
       variant: variant.layout.galleryVariant,
       heading: 'Galeria Noastra',
       subheading: 'Rezultate din activitatea noastra',
-      source: 'portfolio',
-      limit: 6,
-
+      // Gallery uses inline images array (NOT source: 'portfolio' - that field doesn't exist)
+      images: imageOptions?.galleryImages
+        ?.slice(0, 6)
+        .map((img) => ({
+          image: imageOptions.getImageId(img.filename),
+          caption: img.alt,
+        }))
+        .filter((item) => item.image) || [],
       backgroundColor: 'default',
     },
     faq: {
@@ -581,7 +604,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
       { blockType: 'services', variant: variant.layout.servicesVariant, heading: 'Lista Completa Servicii', limit: 20, showPrices: true, showIcons: true, backgroundColor: 'default' },
       { blockType: 'cta', variant: 'centered', headline: 'Vrei sa te programezi?', subheadline: 'Alege serviciul dorit si programeaza-te online', buttons: [{ label: 'Programeaza-te', link: '/programare', variant: 'default' }], backgroundColor: 'light' },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Services page')
 
@@ -598,7 +621,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
       { blockType: 'team', variant: variant.layout.teamVariant, heading: 'Barberii Nostri', subheading: 'Fiecare membru al echipei noastre este un profesionist dedicat meseriei sale', limit: 20, backgroundColor: 'default' },
       { blockType: 'cta', variant: 'centered', headline: 'Alege-ti Barberul Preferat', subheadline: 'Programeaza-te acum si alege cu cine vrei sa lucrezi', buttons: [{ label: 'Programeaza-te', link: '/programare', variant: 'default' }], backgroundColor: 'dark' },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Team page')
 
@@ -615,7 +638,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
       { blockType: 'gallery', variant: variant.layout.galleryVariant, heading: 'Lucrarile Noastre', subheading: 'De la tunsori clasice la stiluri moderne, fiecare client pleaca multumit', limit: 20, backgroundColor: 'default' },
       { blockType: 'cta', variant: 'centered', headline: 'Iti place ce vezi?', subheadline: 'Programeaza-te si arata-ne ce stil iti doresti', buttons: [{ label: 'Programeaza-te', link: '/programare', variant: 'default' }], backgroundColor: 'dark' },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Gallery page')
 
@@ -632,7 +655,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
       { blockType: 'subscriptionCards', variant: 'cards-3', heading: 'Pachete si Abonamente', subheading: 'Alege pachetul potrivit pentru tine', limit: 4, backgroundColor: 'default' },
       { blockType: 'services', variant: 'price-list', heading: 'Lista Completa Preturi Servicii', subheading: 'Toate serviciile noastre cu preturi detaliate', limit: 20, showPrices: true, backgroundColor: 'light' },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Pricing page')
 
@@ -649,7 +672,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
     layout: bookingFormId
       ? [{ blockType: 'formBlock', form: bookingFormId, variant: 'card', enableIntro: true, heading: 'Cerere de Programare', subheading: 'Alege serviciul dorit, iar noi te vom contacta pentru confirmare', backgroundColor: 'light' }]
       : [],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Booking page')
 
@@ -664,7 +687,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
       subheadline: 'Suntem aici sa te ajutam. Contacteaza-ne pentru programari sau intrebari.',
     },
     layout: createContactPageLayout(contactFormId) as FlexibleLayout,
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Contact page')
 }

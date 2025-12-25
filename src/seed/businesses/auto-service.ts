@@ -1,6 +1,6 @@
 import type { Payload } from 'payload'
 import {
-  createAdminUser,
+  createTenantAdmin,
   seedSiteTheme,
   seedBusinessInfo,
   seedLogo,
@@ -22,6 +22,7 @@ import {
   createSeederPage,
   type FlexibleLayout,
 } from '../helpers'
+import { getCurrentSeedTenantId } from '../tenant-helpers'
 import { autoServiceImages, autoServiceData } from '../seed-data'
 import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
 
@@ -35,7 +36,15 @@ export async function seedAutoService(payload: Payload) {
   console.log(`   ${variant.description}`)
   console.log('━'.repeat(50))
 
-  await createAdminUser(payload)
+  // 1. Create tenant admin for this business
+  const tenantId = getCurrentSeedTenantId()
+  await createTenantAdmin(payload, {
+    email: 'admin@auto-service.local',
+    password: 'autoservice123',
+    name: 'Admin Service Auto',
+    tenantId,
+    tenantName: 'Auto Service Demo',
+  })
 
   console.log('\n📸 Uploading images from local files...')
   const allImages = [...autoServiceImages.hero, ...autoServiceImages.team, ...autoServiceImages.gallery]
@@ -164,7 +173,10 @@ export async function seedAutoService(payload: Payload) {
   await seedPortfolio(payload, portfolioItems)
 
   console.log('\n🏠 Creating homepage...')
-  const homepageLayout = buildHomepageLayout(variant)
+  const homepageLayout = buildHomepageLayout(variant, {
+    galleryImages: autoServiceImages.gallery,
+    getImageId,
+  })
   const overlaySettings = getHeroOverlaySettings(variant)
 
   // Build hero data using helper (supports carousel/slider/split)
@@ -244,7 +256,13 @@ interface BlockConfig {
   [key: string]: unknown
 }
 
-function buildHomepageLayout(variant: DesignVariant) {
+function buildHomepageLayout(
+  variant: DesignVariant,
+  imageOptions?: {
+    galleryImages: typeof autoServiceImages.gallery
+    getImageId: (filename: string) => string | undefined
+  }
+) {
   const sectionConfigs: Record<string, BlockConfig> = {
     // NEW: Trust Badges - auto service credibility (grid-3 variant - industrial)
     trustBadges: {
@@ -389,7 +407,7 @@ function buildHomepageLayout(variant: DesignVariant) {
           link: '/programare',
         },
       ],
-      backgroundColor: 'red',
+      backgroundColor: 'urgent',
     },
     services: {
       blockType: 'services',
@@ -435,8 +453,13 @@ function buildHomepageLayout(variant: DesignVariant) {
       variant: variant.layout.galleryVariant,
       heading: 'Galeria Noastra',
       subheading: 'Echipamente si spatii moderne',
-      source: 'portfolio',
-      limit: 6,
+      images: imageOptions?.galleryImages
+        ?.slice(0, 6)
+        .map((img) => ({
+          image: imageOptions.getImageId(img.filename),
+          caption: img.alt,
+        }))
+        .filter((item) => item.image) || [],
       backgroundColor: 'default',
     },
     faq: {
@@ -492,7 +515,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
       { blockType: 'services', variant: variant.layout.servicesVariant, heading: 'Lista Servicii', limit: 20, showPrices: true, showIcons: true, backgroundColor: 'default' },
       { blockType: 'cta', variant: 'centered', headline: 'Ai nevoie de ajutor?', subheadline: 'Programeaza-te acum', buttons: [{ label: 'Programeaza-te', link: '/programare', variant: 'default' }], backgroundColor: 'light' },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Services page')
 
@@ -504,7 +527,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
     layout: [
       { blockType: 'team', variant: variant.layout.teamVariant, heading: 'Mecanicii Nostri', limit: 20, backgroundColor: 'default' },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Team page')
 
@@ -517,7 +540,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
       { blockType: 'priceListDotted', variant: 'two-columns', heading: 'Preturi Servicii Auto', limit: 20, backgroundColor: 'default' },
       { blockType: 'cta', variant: 'centered', headline: 'Ai nevoie de o oferta personalizata?', subheadline: 'Contacteaza-ne pentru diagnosticare si deviz gratuit', buttons: [{ label: 'Programeaza-te', link: '/programare', variant: 'default' }], backgroundColor: 'light' },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Prices page')
 
@@ -537,7 +560,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
       }] : []),
       { blockType: 'contact', variant: 'compact', heading: 'Informatii Service', backgroundColor: 'light' },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Booking page')
 
@@ -548,7 +571,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
     heroType: 'minimal',
     hero: { headline: 'Contact', subheadline: 'Suntem aici sa te ajutam' },
     layout: createContactPageLayout(contactFormId) as FlexibleLayout,
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Contact page')
 }

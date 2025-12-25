@@ -1,6 +1,6 @@
 import type { Payload } from 'payload'
 import {
-  createAdminUser,
+  createTenantAdmin,
   seedSiteTheme,
   seedBusinessInfo,
   seedLogo,
@@ -22,6 +22,7 @@ import {
   createSeederPage,
   type FlexibleLayout,
 } from '../helpers'
+import { getCurrentSeedTenantId } from '../tenant-helpers'
 import { avocatImages, avocatData } from '../seed-data'
 import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
 
@@ -35,7 +36,15 @@ export async function seedAvocat(payload: Payload) {
   console.log(`   ${variant.description}`)
   console.log('━'.repeat(50))
 
-  await createAdminUser(payload)
+  // 1. Create tenant admin for this business
+  const tenantId = getCurrentSeedTenantId()
+  await createTenantAdmin(payload, {
+    email: 'admin@avocat.local',
+    password: 'avocat123',
+    name: 'Admin Cabinet Avocat',
+    tenantId,
+    tenantName: 'Cabinet Avocatură Demo',
+  })
 
   console.log('\n📸 Uploading images from local files...')
   const allImages = [...avocatImages.hero, ...avocatImages.team, ...avocatImages.gallery]
@@ -163,7 +172,10 @@ export async function seedAvocat(payload: Payload) {
   await seedPortfolio(payload, portfolioItems)
 
   console.log('\n🏠 Creating homepage...')
-  const homepageLayout = buildHomepageLayout(variant)
+  const homepageLayout = buildHomepageLayout(variant, {
+    galleryImages: avocatImages.gallery,
+    getImageId,
+  })
   const overlaySettings = getHeroOverlaySettings(variant)
 
   // Build hero data using helper (supports carousel/slider/split)
@@ -243,7 +255,13 @@ interface BlockConfig {
   [key: string]: unknown
 }
 
-function buildHomepageLayout(variant: DesignVariant) {
+function buildHomepageLayout(
+  variant: DesignVariant,
+  imageOptions?: {
+    galleryImages: typeof avocatImages.gallery
+    getImageId: (filename: string) => string | undefined
+  }
+) {
   const sectionConfigs: Record<string, BlockConfig> = {
     // NEW: Trust Badges - law firm credibility (minimal variant - formal)
     trustBadges: {
@@ -432,8 +450,13 @@ function buildHomepageLayout(variant: DesignVariant) {
       variant: variant.layout.galleryVariant,
       heading: 'Cabinetul Nostru',
       subheading: 'Un spatiu profesional pentru consultari',
-      source: 'portfolio',
-      limit: 6,
+      images: imageOptions?.galleryImages
+        ?.slice(0, 6)
+        .map((img) => ({
+          image: imageOptions.getImageId(img.filename),
+          caption: img.alt,
+        }))
+        .filter((item) => item.image) || [],
       backgroundColor: 'default',
     },
     faq: {
@@ -488,7 +511,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
       { blockType: 'services', variant: variant.layout.servicesVariant, heading: 'Toate Serviciile', limit: 20, showPrices: true, showIcons: true, backgroundColor: 'default' },
       { blockType: 'cta', variant: 'centered', headline: 'Ai nevoie de ajutor juridic?', buttons: [{ label: 'Contacteaza-ne', link: '/contact', variant: 'default' }], backgroundColor: 'light' },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Services page')
 
@@ -500,7 +523,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
     layout: [
       { blockType: 'team', variant: variant.layout.teamVariant, heading: 'Avocatii Nostri', limit: 20, backgroundColor: 'default' },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Team page')
 
@@ -514,7 +537,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
       { blockType: 'testimonials', variant: variant.layout.testimonialsVariant, heading: 'Feedback Clienti', subheading: 'Ce spun clientii despre colaborarea cu noi', backgroundColor: 'light' },
       { blockType: 'cta', variant: 'centered', headline: 'Ai un caz similar?', subheadline: 'Contacteaza-ne pentru o evaluare gratuita', buttons: [{ label: 'Solicita Consultatie', link: '/contact', variant: 'default' }], backgroundColor: 'dark' },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Cases page')
 
@@ -524,7 +547,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
     heroType: 'minimal',
     hero: { headline: 'Contact', subheadline: 'Programeaza o consultatie' },
     layout: createContactPageLayout(contactFormId) as FlexibleLayout,
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Contact page')
 }

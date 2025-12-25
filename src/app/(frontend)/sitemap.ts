@@ -16,12 +16,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ]
 
-  // Add pages
+  // Add pages (versions disabled for multi-tenant compatibility)
   const pages = await payload.find({
     collection: 'pages',
-    where: {
-      _status: { equals: 'published' },
-    },
     limit: 1000,
     depth: 0,
     select: {
@@ -40,12 +37,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })
   }
 
-  // Add blog posts
+  // Add blog posts (versions disabled for multi-tenant compatibility)
   const posts = await payload.find({
     collection: 'posts',
-    where: {
-      _status: { equals: 'published' },
-    },
     limit: 1000,
     depth: 0,
     select: {

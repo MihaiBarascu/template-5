@@ -1,6 +1,6 @@
 import type { Payload } from 'payload'
 import {
-  createAdminUser,
+  createTenantAdmin,
   seedSiteTheme,
   seedBusinessInfo,
   seedLogo,
@@ -23,6 +23,7 @@ import {
   createSeederPage,
   type FlexibleLayout,
 } from '../helpers'
+import { getCurrentSeedTenantId } from '../tenant-helpers'
 import path from 'path'
 import { restaurantImages, restaurantData } from '../seed-data'
 import { getVariant, getHeroOverlaySettings, type DesignVariant } from '../design-variants'
@@ -38,8 +39,15 @@ export async function seedRestaurant(payload: Payload) {
   console.log(`   ${variant.description}`)
   console.log('━'.repeat(50))
 
-  // 1. Create admin user
-  await createAdminUser(payload)
+  // 1. Create tenant admin for this business
+  const tenantId = getCurrentSeedTenantId()
+  await createTenantAdmin(payload, {
+    email: 'admin@restaurant.local',
+    password: 'restaurant123',
+    name: 'Admin Restaurant',
+    tenantId,
+    tenantName: 'Restaurant Demo',
+  })
 
   // 2. Upload all images first
   console.log('\n📸 Uploading images from local files...')
@@ -285,7 +293,10 @@ export async function seedRestaurant(payload: Payload) {
 
   // 13. Homepage with dynamic layout based on variant
   console.log('\n🏠 Creating homepage...')
-  const homepageLayout = buildHomepageLayout(variant, restaurantData)
+  const homepageLayout = buildHomepageLayout(variant, restaurantData, {
+    galleryImages: restaurantImages.gallery,
+    getImageId,
+  })
   const overlaySettings = getHeroOverlaySettings(variant)
 
   // Build hero data using helper (supports carousel/slider/split)
@@ -377,7 +388,14 @@ interface BlockConfig {
 }
 
 // Build homepage layout based on variant configuration
-function buildHomepageLayout(variant: DesignVariant, _data: typeof restaurantData) {
+function buildHomepageLayout(
+  variant: DesignVariant,
+  _data: typeof restaurantData,
+  imageOptions?: {
+    galleryImages: typeof restaurantImages.gallery
+    getImageId: (filename: string) => string | undefined
+  }
+) {
   const sectionConfigs: Record<string, BlockConfig> = {
     // NEW: Trust Badges - restaurant credibility (inline variant - different layout)
     trustBadges: {
@@ -568,8 +586,13 @@ function buildHomepageLayout(variant: DesignVariant, _data: typeof restaurantDat
       variant: variant.layout.galleryVariant,
       heading: 'Galeria Noastra',
       subheading: 'Imagini din restaurantul nostru',
-      source: 'portfolio',
-      limit: 6,
+      images: imageOptions?.galleryImages
+        ?.slice(0, 6)
+        .map((img) => ({
+          image: imageOptions.getImageId(img.filename),
+          caption: img.alt,
+        }))
+        .filter((item) => item.image) || [],
       backgroundColor: 'default',
     },
     faq: {
@@ -628,7 +651,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
       { blockType: 'services', variant: variant.layout.servicesVariant, heading: 'Toate Preparatele', limit: 20, showPrices: true, showIcons: true, backgroundColor: 'default' },
       { blockType: 'cta', variant: 'centered', headline: 'Ai gasit ce iti doresti?', subheadline: 'Rezerva o masa si bucura-te de preparatele noastre', buttons: [{ label: 'Rezerva Masa', link: '/rezervare', variant: 'default' }], backgroundColor: 'light' },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Menu page')
 
@@ -641,7 +664,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
       { blockType: 'gallery', variant: variant.layout.galleryVariant, heading: 'Atmosfera Restaurantului', subheading: 'Un loc unde gustul intalneste eleganta', limit: 20, backgroundColor: 'default' },
       { blockType: 'cta', variant: 'centered', headline: 'Vino sa ne vizitezi!', subheadline: 'Rezerva o masa si descopera atmosfera noastra unica', buttons: [{ label: 'Rezerva Masa', link: '/rezervare', variant: 'default' }], backgroundColor: 'dark' },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Gallery page')
 
@@ -655,7 +678,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
       { blockType: 'stats', variant: 'grid-4', backgroundColor: 'dark' },
       { blockType: 'testimonials', variant: variant.layout.testimonialsVariant, heading: 'Pareri Clienti', subheading: 'Ce spun oaspetii nostri', onlyFeatured: true, backgroundColor: 'light' },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created About page')
 
@@ -668,7 +691,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
       ...(bookingFormId ? [{ blockType: 'formBlock', form: bookingFormId, enableIntro: true, heading: 'Formular Rezervare', subheading: 'Alege data si numarul de persoane.' }] : []),
       { blockType: 'contact', variant: 'compact', heading: 'Informatii Restaurant', backgroundColor: 'light' },
     ],
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Reservation page')
 
@@ -678,7 +701,7 @@ async function createAdditionalPages(payload: Payload, variant: DesignVariant, f
     heroType: 'minimal',
     hero: { headline: 'Contact', subheadline: 'Suntem aici pentru tine. Contacteaza-ne pentru rezervari sau intrebari.' },
     layout: createContactPageLayout(contactFormId) as FlexibleLayout,
-    _status: 'published',
+    // _status removed for multi-tenant
   })
   console.log('   Created Contact page')
 }
