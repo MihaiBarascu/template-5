@@ -11,6 +11,7 @@ import { mongooseAdapter } from '@payloadcms/db-mongodb';
 import { resendAdapter } from '@payloadcms/email-resend';
 import { ecommercePlugin } from '@payloadcms/plugin-ecommerce';
 import { multiTenantPlugin } from '@payloadcms/plugin-multi-tenant';
+import { getTenantFromCookie } from '@payloadcms/plugin-multi-tenant/utilities';
 import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs';
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
 import { s3Storage } from '@payloadcms/storage-s3';
@@ -368,6 +369,60 @@ const ecommerceConfig: Parameters<typeof ecommercePlugin>[0] = {
       },
       hooks: {
         ...defaultCollection.hooks,
+        // Auto-assign tenant from cookie or domain for guest carts
+        // This ensures the multi-tenant plugin's required tenant field is always populated
+        beforeChange: [
+          ...(defaultCollection.hooks?.beforeChange || []),
+          async ({ data, req, operation }) => {
+            // Only auto-assign on create, not update (to prevent overwriting)
+            if (operation !== 'create') return data;
+
+            // If tenant already set, don't override
+            if (data?.tenant) return data;
+
+            // Try 1: Get tenant from cookie (authenticated user or previous session)
+            const tenantFromCookie = getTenantFromCookie(req.headers, 'text') as string | null;
+            if (tenantFromCookie) {
+              return { ...data, tenant: tenantFromCookie };
+            }
+
+            // Try 2: Get tenant from host header (domain-based routing)
+            const host = req.headers.get?.('host') || req.headers.get?.('x-forwarded-host') || '';
+            if (host) {
+              const domain = host.split(':')[0]; // Remove port
+
+              // Skip localhost - no tenant assignment needed in dev
+              if (domain.includes('localhost') || domain.includes('127.0.0.1')) {
+                // For localhost, get first tenant as fallback
+                const firstTenant = await req.payload.find({
+                  collection: 'tenants',
+                  limit: 1,
+                  depth: 0,
+                  sort: 'createdAt',
+                });
+                if (firstTenant.docs[0]?.id) {
+                  return { ...data, tenant: firstTenant.docs[0].id };
+                }
+                return data;
+              }
+
+              // Lookup tenant by domain
+              const tenant = await req.payload.find({
+                collection: 'tenants',
+                where: { domain: { equals: domain } },
+                limit: 1,
+                depth: 0,
+              });
+
+              if (tenant.docs[0]?.id) {
+                return { ...data, tenant: tenant.docs[0].id };
+              }
+            }
+
+            // No tenant found - let validation handle it (will fail if required)
+            return data;
+          },
+        ],
         // Ensure taxCategory is populated for each cart item's product
         // This is needed because the plugin might not fetch all custom product fields
         afterRead: [

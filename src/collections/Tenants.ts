@@ -1,5 +1,34 @@
-import type { CollectionConfig, FieldHook } from 'payload'
+import type { CollectionConfig, CollectionAfterChangeHook, FieldHook } from 'payload'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { isSuperAdmin, isSuperAdminAccess } from '@/access/multiTenant'
+
+/**
+ * Revalidate cache when tenant changes (especially domain)
+ */
+const revalidateTenant: CollectionAfterChangeHook = ({ doc, req }) => {
+  if (!req.context?.disableRevalidate) {
+    // Revalidate tenant-specific tags
+    // Tags MUST match cache tags in getTenantGlobal.ts and getDocument.ts:
+    // - getTenantGlobal uses: tenant_${domain}, tenant_${tenantKey}
+    // - getDocument uses: tenant_${tenantKey}
+    revalidateTag(`tenant_${doc.id}`, { expire: 0 })
+    revalidateTag(`tenant_${doc.slug}`, { expire: 0 })
+
+    // Revalidate domain routing - CRITICAL: use tenant_ prefix to match cache tags
+    if (doc.domain) {
+      revalidateTag(`tenant_${doc.domain}`, { expire: 0 })
+      // Also invalidate tenants collection cache for domain lookups
+      revalidateTag('tenants', { expire: 0 })
+    }
+
+    // Revalidate root paths
+    revalidatePath('/', 'layout')
+    revalidatePath(`/${doc.slug}`, 'layout')
+
+    req.payload.logger.info(`[Revalidate] Tenant ${doc.name} - slug: ${doc.slug}, domain: ${doc.domain}`)
+  }
+  return doc
+}
 
 /**
  * Generate URL-friendly slug from text
@@ -102,6 +131,9 @@ export const Tenants: CollectionConfig = {
     group: 'Administrare',
     defaultColumns: ['name', 'slug', 'domain', 'status', 'plan'],
     description: 'Gestionare clienți/site-uri multiple',
+  },
+  hooks: {
+    afterChange: [revalidateTenant],
   },
   fields: [
     {
