@@ -37,7 +37,7 @@
 // └── ... (alte nise)
 
 export const IMAGE_BASE_URL =
-  'https://raw.githubusercontent.com/MihaiBarascu/seed-assets/master/template-5/'
+  (process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3100') + '/images/'
 
 // =============================================================================
 // IMAGINI BARBERSHOP / FRIZERIE

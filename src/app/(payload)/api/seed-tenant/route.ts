@@ -251,7 +251,7 @@ export async function POST(request: NextRequest) {
     clearImageCache()
     clearSeedTenant()
     setSeedTenantId(tenantId)
-    setReuseExistingImages(true) // Reuse images for faster seeding
+    setReuseExistingImages(false) // Upload fresh images
 
     // Run the seeder
     const template = SEED_TEMPLATES[seedType as SeedTemplateType]
