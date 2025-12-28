@@ -99,7 +99,7 @@ export function TemplateSelectorDashboard() {
         throw new Error(result.error || 'Eroare la populare')
       }
 
-      setSeedProgress('Finalizat cu succes!')
+      setSeedProgress('✅ Finalizat cu succes!')
 
       // Refresh data after successful seed
       setTimeout(() => {

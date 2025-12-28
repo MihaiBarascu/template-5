@@ -15,6 +15,9 @@ import configPromise from '@payload-config'
 import { NextRequest, NextResponse } from 'next/server'
 import { isSuperAdmin } from '@/access/multiTenant'
 
+// Allow longer execution time for seeding (official Payload pattern)
+export const maxDuration = 120 // 2 minutes
+
 // Import seeders
 import { seedAutoService } from '@/seed/businesses/auto-service'
 import { seedAvocat } from '@/seed/businesses/avocat'
@@ -253,7 +256,7 @@ export async function POST(request: NextRequest) {
     setSeedTenantId(tenantId)
     setReuseExistingImages(false) // Upload fresh images
 
-    // Run the seeder
+    // Run the seeder (sync - uses maxDuration for timeout)
     const template = SEED_TEMPLATES[seedType as SeedTemplateType]
     await template.seeder(payload)
 
