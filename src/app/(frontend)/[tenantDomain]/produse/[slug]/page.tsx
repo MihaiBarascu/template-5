@@ -4,13 +4,14 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import type { Metadata } from 'next'
-import { ArrowLeft, ShoppingCart, Tag, Package, Check } from 'lucide-react'
+import { ArrowLeft, Tag, Package, Check } from 'lucide-react'
 import RichText from '@/components/RichText'
 import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical'
 import type { Product, TenantHeader, TenantLogo, TenantBusinessInfo, Media } from '@/payload-types'
 import { PageWrapper } from '@/components/PageWrapper'
 import { getCachedTenantGlobalByDomain, getEffectiveTenantDomain } from '@/utilities/getTenantGlobal'
 import { getServerSideURL } from '@/utilities/getURL'
+import { AddToCart } from '@/components/cart/AddToCart'
 
 // Static generation with ISR
 export const dynamic = 'force-static'
@@ -330,14 +331,11 @@ export default async function ProductPage({ params }: PageProps) {
                 </div>
               </div>
 
-              {/* Add to cart button */}
-              <button
-                type="button"
-                className="w-full md:w-auto px-8 py-4 bg-theme-primary text-theme-text-on-primary font-semibold rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-              >
-                <ShoppingCart className="w-5 h-5" />
-                Adauga in cos
-              </button>
+              {/* Add to cart button - uses official Payload ecommerce hook */}
+              <AddToCart
+                product={productData as Product}
+                className="w-full md:w-auto px-8 py-4"
+              />
 
               {/* Description */}
               {productData.description && (
