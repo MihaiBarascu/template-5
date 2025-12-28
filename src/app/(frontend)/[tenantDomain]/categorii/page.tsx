@@ -4,8 +4,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { PageWrapper } from '@/components/PageWrapper'
 import { getCachedTenantGlobalByDomain, getEffectiveTenantDomain } from '@/utilities/getTenantGlobal'
-import { getCachedGlobal } from '@/utilities/getGlobals'
-import type { TenantHeader, TenantLogo, TenantBusinessInfo } from '@/payload-types'
+import type { TenantHeader, TenantLogo, TenantBusinessInfo, TenantShopSetting } from '@/payload-types'
 
 // Revalidate page every 60 seconds for ISR
 export const revalidate = 60
@@ -48,12 +47,12 @@ export default async function CategoriesPage({ params }: PageProps) {
   // Get tenant ID for filtering
   const tenantId = await getTenantIdFromDomain(payload, tenantDomain)
 
-  // Fetch header globals and shop settings
+  // Fetch header globals and shop settings (all per-tenant now)
   const [headerData, logoData, businessInfo, shopSettings] = await Promise.all([
     getCachedTenantGlobalByDomain<TenantHeader>('header', tenantDomain),
     getCachedTenantGlobalByDomain<TenantLogo>('logo', tenantDomain),
     getCachedTenantGlobalByDomain<TenantBusinessInfo>('business-info', tenantDomain),
-    getCachedGlobal('shop-settings'),
+    getCachedTenantGlobalByDomain<TenantShopSetting>('shop-settings', tenantDomain),
   ])
 
   // Get all product categories for this tenant

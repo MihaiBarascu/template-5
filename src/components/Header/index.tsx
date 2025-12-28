@@ -6,7 +6,7 @@ import { Logo } from '@/components/Logo'
 import { Cart } from '@/components/cart'
 import { useAuth } from '@/providers/Auth'
 import { cn } from '@/utilities/cn'
-import type { Header as HeaderType, Logo as LogoType, BusinessInfo, Page } from '@/payload-types'
+import type { TenantHeader as HeaderType, TenantLogo as LogoType, TenantBusinessInfo as BusinessInfo, Page } from '@/payload-types'
 import { SocialIcons, PhoneIcon, EmailIcon } from '@/blocks/_shared/iconComponents'
 
 type NavItem = NonNullable<HeaderType['navItems']>[number]
@@ -82,7 +82,7 @@ function TopBarContent({
       <div className="flex items-center gap-3">
         {links.map((link, idx) => {
           const icon = SocialIcons[link.platform as keyof typeof SocialIcons]
-          if (!icon) return null
+          if (!icon || !link.url) return null
           return (
             <a
               key={idx}
@@ -90,7 +90,7 @@ function TopBarContent({
               target="_blank"
               rel="noopener noreferrer"
               className={cn("flex items-center justify-center hover:opacity-80 [&_svg]:w-4 [&_svg]:h-4", textColorClass)}
-              aria-label={link.platform}
+              aria-label={link.platform || undefined}
             >
               {icon}
             </a>

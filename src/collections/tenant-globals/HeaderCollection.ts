@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { superAdminOrTenantAdminAccess } from '@/access/multiTenant'
-import { revalidateTag } from 'next/cache'
+import { createTenantRevalidateHook } from '@/hooks/revalidateTenantGlobal'
 import { linkFields } from '@/fields/link'
 
 /**
@@ -10,13 +10,13 @@ import { linkFields } from '@/fields/link'
 export const HeaderCollection: CollectionConfig = {
   slug: 'tenant-headers',
   labels: {
-    singular: 'Header Tenant',
-    plural: 'Headers Tenant',
+    singular: 'Header',
+    plural: 'Headers',
   },
   admin: {
     useAsTitle: 'variant',
-    group: 'Setari Tenant',
-    description: 'Configurare header: navigatie, logo, top bar',
+    group: 'Setari',
+    description: 'Navigatie, logo, top bar',
     defaultColumns: ['tenant', 'variant', 'updatedAt'],
   },
   access: {
@@ -26,20 +26,7 @@ export const HeaderCollection: CollectionConfig = {
     delete: superAdminOrTenantAdminAccess,
   },
   hooks: {
-    afterChange: [
-      async ({ doc, req }) => {
-        const tenantId = typeof doc.tenant === 'string' ? doc.tenant : doc.tenant?.id
-        if (tenantId) {
-          try {
-            revalidateTag(`tenant-${tenantId}`, "max")
-            revalidateTag(`tenant-headers-${tenantId}`, "max")
-          } catch (e) {
-            req.payload.logger.warn('Could not revalidate header cache')
-          }
-        }
-        return doc
-      },
-    ],
+    afterChange: [createTenantRevalidateHook('tenant-headers')],
   },
   fields: [
     {
@@ -68,6 +55,20 @@ export const HeaderCollection: CollectionConfig = {
       admin: { condition: (_, siblingData) => siblingData?.showTopBar === true },
       fields: [
         {
+          name: 'layout',
+          type: 'select',
+          label: 'Layout',
+          defaultValue: 'social-left',
+          options: [
+            { label: 'Social stanga, contact dreapta', value: 'social-left' },
+            { label: 'Contact stanga, social dreapta', value: 'contact-left' },
+            { label: 'Tot centrat', value: 'centered' },
+            { label: 'Doar contact', value: 'contact-only' },
+            { label: 'Doar mesaj', value: 'message-only' },
+            { label: 'Mesaj + contact stanga, social dreapta', value: 'message-left' },
+          ],
+        },
+        {
           name: 'backgroundColor',
           type: 'select',
           label: 'Culoare fundal',
@@ -83,6 +84,28 @@ export const HeaderCollection: CollectionConfig = {
         { name: 'showEmail', type: 'checkbox', label: 'Afiseaza email', defaultValue: true },
         { name: 'showSocial', type: 'checkbox', label: 'Afiseaza social media', defaultValue: true },
         { name: 'customText', type: 'text', label: 'Mesaj personalizat' },
+        {
+          name: 'customSocialLinks',
+          type: 'array',
+          label: 'Linkuri social personalizate',
+          admin: { description: 'Lasa gol pentru a folosi linkurile din Business Info' },
+          fields: [
+            {
+              name: 'platform',
+              type: 'select',
+              label: 'Platforma',
+              options: [
+                { label: 'Facebook', value: 'facebook' },
+                { label: 'Instagram', value: 'instagram' },
+                { label: 'TikTok', value: 'tiktok' },
+                { label: 'YouTube', value: 'youtube' },
+                { label: 'LinkedIn', value: 'linkedin' },
+                { label: 'Twitter/X', value: 'twitter' },
+              ],
+            },
+            { name: 'url', type: 'text', label: 'URL' },
+          ],
+        },
       ],
     },
     {
@@ -132,6 +155,20 @@ export const HeaderCollection: CollectionConfig = {
     },
     { name: 'sticky', type: 'checkbox', label: 'Header sticky', defaultValue: true },
     { name: 'isTransparent', type: 'checkbox', label: 'Header transparent', defaultValue: false },
+    {
+      name: 'transparentTextColor',
+      type: 'select',
+      label: 'Culoare text header transparent',
+      defaultValue: 'white',
+      options: [
+        { label: 'Alb', value: 'white' },
+        { label: 'Inchis', value: 'dark' },
+        { label: 'Auto', value: 'auto' },
+      ],
+      admin: {
+        condition: (_, siblingData) => siblingData?.isTransparent,
+      },
+    },
   ],
   timestamps: true,
 }

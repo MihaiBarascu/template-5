@@ -53,20 +53,12 @@ import {
   HeaderCollection,
   FooterCollection,
   LogoCollection,
+  ShopSettingsCollection,
+  SystemPagesCollection,
 } from './collections/tenant-globals';
 
-// Globals (shared across all tenants - will be converted later)
-// TODO: Convert ShopSettings and SystemPages to tenant collections
-import { ShopSettings } from './globals/ShopSettings';
-import { SystemPages } from './globals/SystemPages';
-
-// Legacy globals - kept for backwards compatibility during migration
-// These will be removed after data migration
-import { BusinessInfo } from './globals/BusinessInfo';
-import { Footer } from './globals/Footer';
-import { Header } from './globals/Header';
-import { Logo } from './globals/Logo';
-import { SiteTheme } from './globals/SiteTheme';
+// NOTA: Toate setarile sunt acum tenant-collections (per-tenant)
+// Nu mai exista globals pentru setari - fiecare tenant are propriile setari
 
 // Blocks
 import { blocks } from './blocks';
@@ -156,17 +148,32 @@ const orderEmailHook: CollectionAfterChangeHook = async ({
       return doc;
     }
 
-    // Get business info for client email
-    const businessInfo = await req.payload.findGlobal({
-      slug: 'business-info',
-      req, // Threading req for transaction safety (Payload best practice)
-    });
+    // Get tenant ID from order document for multi-tenant queries
+    const tenantId = typeof doc.tenant === 'string'
+      ? doc.tenant
+      : (doc.tenant as { id?: string } | undefined)?.id;
 
-    // Get shop settings for TVA calculation
-    const shopSettings = await req.payload.findGlobal({
-      slug: 'shop-settings',
-      req,
-    }) as {
+    // Get business info for client email (per-tenant)
+    const businessInfoResult = tenantId
+      ? await req.payload.find({
+          collection: 'tenant-business-info',
+          where: { tenant: { equals: tenantId } },
+          limit: 1,
+          req,
+        })
+      : null;
+    const businessInfo = businessInfoResult?.docs?.[0];
+
+    // Get shop settings for TVA calculation (per-tenant)
+    const shopSettingsResult = tenantId
+      ? await req.payload.find({
+          collection: 'tenant-shop-settings',
+          where: { tenant: { equals: tenantId } },
+          limit: 1,
+          req,
+        })
+      : null;
+    const shopSettings = shopSettingsResult?.docs?.[0] as {
       vatEnabled?: boolean;
       pricesIncludeVat?: boolean;
       vatRates?: { standard?: number; reduced?: number };
@@ -633,6 +640,8 @@ export default buildConfig({
     components: {
       beforeLogin: ['@/components/BeforeLogin'],
       beforeDashboard: ['@/components/BeforeDashboard'],
+      // Template selector for empty tenants - shows when tenant has no content
+      afterDashboard: ['@/components/admin/TemplateSelectorDashboard'],
       graphics: {
         // Replace Payload logo with custom logo for white-label admin
         Logo: '@/components/admin/Logo',
@@ -702,27 +711,18 @@ export default buildConfig({
     Tenants,
 
     // ===== TENANT GLOBALS (per-tenant settings) =====
-    // These coexist with legacy globals during migration
-    // Frontend uses legacy globals, tenant-collections store per-tenant data
-    // Types are generated as SiteTheme1, Header1, etc. to avoid conflicts
+    // These behave like globals but are per-tenant
     SiteThemeCollection,
     BusinessInfoCollection,
     HeaderCollection,
     FooterCollection,
     LogoCollection,
+    ShopSettingsCollection,
+    SystemPagesCollection,
   ],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [
-    // Setari Site - in ordinea logica de configurare
-    SiteTheme,      // 1. Tema si design
-    Logo,           // 2. Logo
-    Header,         // 3. Header/navigatie
-    Footer,         // 4. Footer
-    BusinessInfo,   // 5. Informatii business
-    SystemPages,    // 6. Pagini sistem
-
-    // Setari Magazin
-    ShopSettings,   // 7. Configurare magazin
+    // Nu mai avem globals - toate setarile sunt per-tenant
   ],
   plugins: [
     // Other plugins first (form-builder, etc.)
@@ -768,13 +768,15 @@ export default buildConfig({
         // Search plugin collection (created by searchPlugin)
         search: {},
 
-        // Tenant Globals - per-tenant settings (prefixed to avoid type conflicts with legacy globals)
-        // Note: isGlobal flag requires separate migration - using as regular collections for now
+        // Tenant Globals - per-tenant settings
+        // Each tenant has their own settings document
         'tenant-site-themes': {},
         'tenant-business-info': {},
         'tenant-headers': {},
         'tenant-footers': {},
         'tenant-logos': {},
+        'tenant-shop-settings': {},
+        'tenant-system-pages': {},
       },
       tenantField: {
         access: {

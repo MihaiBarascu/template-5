@@ -3,6 +3,7 @@ import configPromise from '@payload-config'
 import { NextResponse } from 'next/server'
 import { checkRateLimit, getClientIP } from '@/utilities/rateLimit'
 import { escapeHtml } from '@/utilities/escapeHtml'
+import { getTenantIdByDomain, normalizeDomain, getEffectiveTenantDomain } from '@/utilities/getTenantGlobal'
 
 /**
  * Bookings API Endpoint - Public endpoint for creating bookings
@@ -12,6 +13,7 @@ import { escapeHtml } from '@/utilities/escapeHtml'
  * - Using Local API with overrideAccess: true for trusted server operations
  * - Rate limiting to prevent spam
  * - Input validation
+ * - Multi-tenant: automatically assigns tenant from Host header
  *
  * Note: The Bookings collection has `create: () => true` for public access,
  * but we use overrideAccess: true explicitly for clarity and to ensure
@@ -51,13 +53,34 @@ export async function POST(request: Request) {
 
     const payload = await getPayload({ config: configPromise })
 
-    // Find service by title if provided
+    // Get tenant from Host header for multi-tenant isolation
+    // Uses getEffectiveTenantDomain for localhost fallback (returns first tenant)
+    const host = request.headers.get('host') || ''
+    const normalizedDomain = normalizeDomain(host)
+    const effectiveDomain = await getEffectiveTenantDomain(normalizedDomain)
+    const tenantId = await getTenantIdByDomain(effectiveDomain)
+
+    if (!tenantId) {
+      console.warn(`[bookings] No tenant found for domain: ${effectiveDomain}`)
+      return NextResponse.json(
+        { error: 'Configurare invalida. Te rugam contacteaza administratorul.' },
+        { status: 500 }
+      )
+    }
+
+    // Find service by title if provided (filter by tenant for security)
     // overrideAccess: true - trusted server operation for public lookup
     let serviceId: string | undefined
     if (service) {
       const services = await payload.find({
         collection: 'services',
-        where: { title: { contains: service.split(' - ')[0] } },
+        where: {
+          and: [
+            { title: { contains: service.split(' - ')[0] } },
+            // Multi-tenant: only match services from this tenant (tenantId is always set)
+            { tenant: { equals: tenantId } },
+          ],
+        },
         limit: 1,
         overrideAccess: true,
       })
@@ -66,13 +89,19 @@ export async function POST(request: Request) {
       }
     }
 
-    // Find team member by name if provided
+    // Find team member by name if provided (filter by tenant for security)
     // overrideAccess: true - trusted server operation for public lookup
     let teamMemberId: string | undefined
     if (staff && staff !== 'Fara preferinta') {
       const teamMembers = await payload.find({
         collection: 'team',
-        where: { name: { contains: staff.split(' - ')[0] } },
+        where: {
+          and: [
+            { name: { contains: staff.split(' - ')[0] } },
+            // Multi-tenant: only match team members from this tenant (tenantId is always set)
+            { tenant: { equals: tenantId } },
+          ],
+        },
         limit: 1,
         overrideAccess: true,
       })
@@ -83,6 +112,7 @@ export async function POST(request: Request) {
 
     // Save to bookings collection
     // overrideAccess: true - trusted server operation to set all fields including status/source
+    // tenant: automatically assigned from Host header for multi-tenant isolation
     await payload.create({
       collection: 'bookings',
       data: {
@@ -96,13 +126,23 @@ export async function POST(request: Request) {
         notes: notes || undefined,
         status: 'pending',
         source: 'website',
+        // Multi-tenant: assign to correct tenant (always required)
+        tenant: tenantId,
       },
       overrideAccess: true,
     })
 
     // Optionally send email notification
     try {
-      const businessInfo = await payload.findGlobal({ slug: 'business-info' })
+      // Get business info for this tenant
+      const businessInfoResult = tenantId
+        ? await payload.find({
+            collection: 'tenant-business-info',
+            where: { tenant: { equals: tenantId } },
+            limit: 1,
+          })
+        : null
+      const businessInfo = businessInfoResult?.docs?.[0]
 
       if (businessInfo?.email) {
         await payload.sendEmail({

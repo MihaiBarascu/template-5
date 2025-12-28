@@ -2,6 +2,7 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { NextResponse } from 'next/server'
 import { checkRateLimit, getClientIP } from '@/utilities/rateLimit'
+import { getTenantIdByDomain, normalizeDomain, getEffectiveTenantDomain } from '@/utilities/getTenantGlobal'
 
 /**
  * Newsletter Subscription API Endpoint
@@ -12,6 +13,7 @@ import { checkRateLimit, getClientIP } from '@/utilities/rateLimit'
  * - Rate limiting to prevent spam
  * - Input validation with email regex
  * - GDPR compliance: storing IP and user agent
+ * - Multi-tenant: automatically assigns tenant from Host header
  *
  * @see https://payloadcms.com/docs/local-api/overview
  * @see https://payloadcms.com/docs/email/overview
@@ -44,6 +46,21 @@ export async function POST(request: Request) {
 
     const { email, source = 'website' } = body
 
+    // Get tenant from Host header for multi-tenant isolation
+    // Uses getEffectiveTenantDomain for localhost fallback (returns first tenant)
+    const host = request.headers.get('host') || ''
+    const normalizedDomain = normalizeDomain(host)
+    const effectiveDomain = await getEffectiveTenantDomain(normalizedDomain)
+    const tenantId = await getTenantIdByDomain(effectiveDomain)
+
+    if (!tenantId) {
+      console.warn(`[newsletter] No tenant found for domain: ${effectiveDomain}`)
+      return NextResponse.json(
+        { success: false, error: 'Configurare invalida. Te rugam contacteaza administratorul.' },
+        { status: 500 }
+      )
+    }
+
     // Validate email
     if (!email) {
       return NextResponse.json(
@@ -64,12 +81,16 @@ export async function POST(request: Request) {
     // Normalize email (lowercase, trim)
     const normalizedEmail = email.toLowerCase().trim()
 
-    // Check if already subscribed
+    // Check if already subscribed (filter by tenant for multi-tenant isolation)
     // overrideAccess: true - trusted server operation for public lookup
     const existing = await payload.find({
       collection: 'newsletter-subscribers',
       where: {
-        email: { equals: normalizedEmail },
+        and: [
+          { email: { equals: normalizedEmail } },
+          // Multi-tenant: only match subscribers from this tenant (tenantId is always set)
+          { tenant: { equals: tenantId } },
+        ],
       },
       limit: 1,
       overrideAccess: true,
@@ -110,6 +131,7 @@ export async function POST(request: Request) {
 
     // Create new subscriber using Local API
     // overrideAccess: true is required because create is public but we want to set all fields
+    // tenant: automatically assigned from Host header for multi-tenant isolation (always set)
     await payload.create({
       collection: 'newsletter-subscribers',
       data: {
@@ -118,6 +140,8 @@ export async function POST(request: Request) {
         source,
         ipAddress: clientIP,
         userAgent,
+        // Multi-tenant: assign to correct tenant (always required)
+        tenant: tenantId,
       },
       overrideAccess: true,
     })
@@ -154,6 +178,7 @@ export async function POST(request: Request) {
 
 /**
  * Unsubscribe endpoint
+ * Multi-tenant: filters by tenant from Host header
  */
 export async function DELETE(request: Request) {
   try {
@@ -170,12 +195,23 @@ export async function DELETE(request: Request) {
 
     const normalizedEmail = email.toLowerCase().trim()
 
-    // Find subscriber
+    // Get tenant from Host header for multi-tenant isolation
+    // Uses getEffectiveTenantDomain for localhost fallback (returns first tenant)
+    const host = request.headers.get('host') || ''
+    const normalizedDomain = normalizeDomain(host)
+    const effectiveDomain = await getEffectiveTenantDomain(normalizedDomain)
+    const tenantId = await getTenantIdByDomain(effectiveDomain)
+
+    // Find subscriber (filter by tenant for multi-tenant isolation)
     // overrideAccess: true - trusted server operation for public lookup
     const existing = await payload.find({
       collection: 'newsletter-subscribers',
       where: {
-        email: { equals: normalizedEmail },
+        and: [
+          { email: { equals: normalizedEmail } },
+          // Multi-tenant: only match subscribers from this tenant (may be null for legacy)
+          ...(tenantId ? [{ tenant: { equals: tenantId } }] : []),
+        ],
       },
       limit: 1,
       overrideAccess: true,

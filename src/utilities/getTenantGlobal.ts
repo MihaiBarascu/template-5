@@ -12,22 +12,16 @@ const TENANT_COLLECTION_MAP: Record<string, string> = {
   'logo': 'tenant-logos',
   'site-theme': 'tenant-site-themes',
   'business-info': 'tenant-business-info',
-  // These are still actual globals, not tenant collections yet
-  'shop-settings': 'shop-settings',
-  'system-pages': 'system-pages',
+  'shop-settings': 'tenant-shop-settings',
+  'system-pages': 'tenant-system-pages',
 }
 
 /**
  * Mapping from short names to TRUE Payload global slugs (fallback)
+ * NOTE: No more true globals for settings - all are per-tenant now
  */
 const TRUE_GLOBAL_MAP: Record<string, string> = {
-  'header': 'header',
-  'footer': 'footer',
-  'logo': 'logo',
-  'site-theme': 'site-theme',
-  'business-info': 'business-info',
-  'shop-settings': 'shop-settings',
-  'system-pages': 'system-pages',
+  // All settings are now tenant-collections, no true globals
 }
 
 /**
@@ -151,33 +145,10 @@ async function getTenantGlobalByDomainInternal<T>(
       }
     }
 
-    // Fallback to TRUE Payload global (for backwards compatibility)
-    if (trueGlobalSlug) {
-      try {
-        const globalResult = await payload.findGlobal({
-          slug: trueGlobalSlug as 'header',
-          depth: 2,
-        })
-        return globalResult as T
-      } catch {
-        // Global doesn't exist or error - return null
-      }
-    }
-
+    // No tenant document found - return null
+    // (All settings are now tenant-collections, no more true globals as fallback)
     return null
   } catch (error) {
-    // Collection might not exist - try TRUE global as fallback
-    if (trueGlobalSlug) {
-      try {
-        const globalResult = await payload.findGlobal({
-          slug: trueGlobalSlug as 'header',
-          depth: 2,
-        })
-        return globalResult as T
-      } catch {
-        // Global doesn't exist or error
-      }
-    }
     console.error(`[getTenantGlobal] Error fetching ${actualSlug} for domain ${tenantDomain}:`, error)
     return null
   }
@@ -216,18 +187,8 @@ export async function getTenantGlobal<T>(collectionSlug: string): Promise<T | nu
       // Collection might not exist
     }
 
-    // Fallback to TRUE global
-    if (trueGlobalSlug) {
-      try {
-        const globalResult = await payload.findGlobal({
-          slug: trueGlobalSlug as 'header',
-          depth: 2,
-        })
-        return globalResult as T
-      } catch {
-        // Global doesn't exist
-      }
-    }
+    // No tenant document found - return null
+    // (All settings are now tenant-collections, no more true globals as fallback)
     return null
   }
 
@@ -257,7 +218,7 @@ export async function getCachedTenantGlobal<T>(collectionSlug: string): Promise<
       async () => {
         const payload = await getPayload({ config: configPromise })
 
-        // Try tenant collection first
+        // Try tenant collection
         try {
           const result = await payload.find({
             collection: actualSlug as 'pages',
@@ -271,18 +232,8 @@ export async function getCachedTenantGlobal<T>(collectionSlug: string): Promise<
           // Collection might not exist
         }
 
-        // Fallback to TRUE global
-        if (trueGlobalSlug) {
-          try {
-            const globalResult = await payload.findGlobal({
-              slug: trueGlobalSlug as 'header',
-              depth: 2,
-            })
-            return globalResult as T
-          } catch {
-            // Global doesn't exist
-          }
-        }
+        // No tenant document found - return null
+        // (All settings are now tenant-collections, no more true globals as fallback)
         return null
       },
       [`tenant-global-${actualSlug}-default`],

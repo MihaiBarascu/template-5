@@ -96,6 +96,8 @@ export interface Config {
     'tenant-headers': TenantHeader;
     'tenant-footers': TenantFooter;
     'tenant-logos': TenantLogo;
+    'tenant-shop-settings': TenantShopSetting;
+    'tenant-system-pages': TenantSystemPage;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -159,6 +161,8 @@ export interface Config {
     'tenant-headers': TenantHeadersSelect<false> | TenantHeadersSelect<true>;
     'tenant-footers': TenantFootersSelect<false> | TenantFootersSelect<true>;
     'tenant-logos': TenantLogosSelect<false> | TenantLogosSelect<true>;
+    'tenant-shop-settings': TenantShopSettingsSelect<false> | TenantShopSettingsSelect<true>;
+    'tenant-system-pages': TenantSystemPagesSelect<false> | TenantSystemPagesSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -182,24 +186,8 @@ export interface Config {
     defaultIDType: string;
   };
   fallbackLocale: null;
-  globals: {
-    'site-theme': SiteTheme;
-    logo: Logo;
-    header: Header;
-    footer: Footer;
-    'business-info': BusinessInfo;
-    'system-pages': SystemPage;
-    'shop-settings': ShopSetting;
-  };
-  globalsSelect: {
-    'site-theme': SiteThemeSelect<false> | SiteThemeSelect<true>;
-    logo: LogoSelect<false> | LogoSelect<true>;
-    header: HeaderSelect<false> | HeaderSelect<true>;
-    footer: FooterSelect<false> | FooterSelect<true>;
-    'business-info': BusinessInfoSelect<false> | BusinessInfoSelect<true>;
-    'system-pages': SystemPagesSelect<false> | SystemPagesSelect<true>;
-    'shop-settings': ShopSettingsSelect<false> | ShopSettingsSelect<true>;
-  };
+  globals: {};
+  globalsSelect: {};
   locale: null;
   user: User & {
     collection: 'users';
@@ -402,7 +390,7 @@ export interface Tenant {
    */
   name: string;
   /**
-   * Folosit în URL: /[slug]/pagina
+   * Auto-generat din nume (ex: "Salon Bella" → "salon-bella")
    */
   slug: string;
   /**
@@ -431,6 +419,7 @@ export interface Media {
   tenant?: (string | null) | Tenant;
   alt: string;
   caption?: string | null;
+  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -1281,6 +1270,7 @@ export interface FormBlock {
  */
 export interface Form {
   id: string;
+  tenant?: (string | null) | Tenant;
   /**
    * Tipul formularului determina cum sunt procesate trimiterile (email-uri, salvare newsletter, etc.)
    */
@@ -3296,7 +3286,7 @@ export interface NewsletterSubscriber {
   createdAt: string;
 }
 /**
- * Configurare tema și design pentru tenant
+ * Configurare tema și design
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tenant-site-themes".
@@ -3327,7 +3317,9 @@ export interface TenantSiteTheme {
   sectionSpacing?: ('compact' | 'normal' | 'spacious') | null;
   headingScale?: ('small' | 'compact' | 'normal' | 'large' | 'xlarge') | null;
   bodyTextSize?: ('small' | 'normal' | 'large') | null;
+  cardGap?: ('compact' | 'small' | 'normal' | 'medium' | 'spacious' | 'large' | 'xl') | null;
   useCustomColors?: boolean | null;
+  autoGeneratePalette?: boolean | null;
   colors?: {
     primary?: string | null;
     secondary?: string | null;
@@ -3335,11 +3327,21 @@ export interface TenantSiteTheme {
     dark?: string | null;
     light?: string | null;
     surface?: string | null;
+    text?: string | null;
+    textLight?: string | null;
+    border?: string | null;
+    textOnPrimary?: string | null;
+    textOnSecondary?: string | null;
+    textOnAccent?: string | null;
+    textOnDark?: string | null;
+    textOnLight?: string | null;
+    textOnSurface?: string | null;
   };
   headingFont?:
     | (
         | 'Playfair_Display'
         | 'Lora'
+        | 'DM_Serif_Display'
         | 'Inter'
         | 'Montserrat'
         | 'Poppins'
@@ -3378,11 +3380,21 @@ export interface TenantSiteTheme {
       )
     | null;
   headingWeight?: ('300' | '400' | '500' | '600' | '700') | null;
+  useAdvancedTypography?: boolean | null;
+  letterSpacing?: ('tight' | 'normal' | 'wide' | 'wider') | null;
+  headingLineHeight?: ('1.1' | '1.2' | '1.3' | '1.4') | null;
+  bodyLineHeight?: ('1.4' | '1.6' | '1.8' | '2.0') | null;
+  useCustomButtons?: boolean | null;
+  buttonRounding?: ('none' | 'default' | 'medium' | 'pill' | 'full') | null;
+  buttonTextTransform?: ('none' | 'uppercase' | 'capitalize') | null;
+  buttonFontWeight?: ('400' | '500' | '600' | '700') | null;
+  buttonPadding?: ('compact' | 'default' | 'normal' | 'large' | 'xl') | null;
+  buttonLetterSpacing?: ('normal' | 'wide' | 'wider') | null;
   updatedAt: string;
   createdAt: string;
 }
 /**
- * Informatii despre afacere: contact, program, social media
+ * Contact, program, social media
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tenant-business-info".
@@ -3418,6 +3430,7 @@ export interface TenantBusinessInfo {
     tiktok?: string | null;
     youtube?: string | null;
     linkedin?: string | null;
+    twitter?: string | null;
   };
   googleMapsEmbed?: string | null;
   googleMapsLink?: string | null;
@@ -3432,11 +3445,21 @@ export interface TenantBusinessInfo {
     bankAccount?: string | null;
     bank?: string | null;
   };
+  /**
+   * Adauga statistici (ex: "10+" - "ani experienta", "500+" - "clienti multumiti")
+   */
+  stats?:
+    | {
+        value: string;
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }
 /**
- * Configurare header: navigatie, logo, top bar
+ * Navigatie, logo, top bar
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tenant-headers".
@@ -3447,11 +3470,22 @@ export interface TenantHeader {
   variant?: ('standard' | 'centered' | 'with-topbar' | 'full-width' | 'minimal') | null;
   showTopBar?: boolean | null;
   topBar?: {
+    layout?: ('social-left' | 'contact-left' | 'centered' | 'contact-only' | 'message-only' | 'message-left') | null;
     backgroundColor?: ('dark' | 'primary' | 'transparent' | 'light') | null;
     showPhone?: boolean | null;
     showEmail?: boolean | null;
     showSocial?: boolean | null;
     customText?: string | null;
+    /**
+     * Lasa gol pentru a folosi linkurile din Business Info
+     */
+    customSocialLinks?:
+      | {
+          platform?: ('facebook' | 'instagram' | 'tiktok' | 'youtube' | 'linkedin' | 'twitter') | null;
+          url?: string | null;
+          id?: string | null;
+        }[]
+      | null;
   };
   navItems?:
     | {
@@ -3491,11 +3525,12 @@ export interface TenantHeader {
   };
   sticky?: boolean | null;
   isTransparent?: boolean | null;
+  transparentTextColor?: ('white' | 'dark' | 'auto') | null;
   updatedAt: string;
   createdAt: string;
 }
 /**
- * Configurare footer: coloane, linkuri, contact
+ * Coloane, linkuri, contact
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tenant-footers".
@@ -3543,11 +3578,38 @@ export interface TenantFooter {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Imagine de fundal pentru footer (optional)
+   */
+  backgroundImage?: (string | null) | Media;
+  backgroundOpacity?: number | null;
+  /**
+   * Imagine decorativa (ex: logo mare, mascota)
+   */
+  decorativeImage?: (string | null) | Media;
+  decorativePosition?: ('left' | 'right' | 'center' | 'bottom-left' | 'bottom-right') | null;
+  decorativeOpacity?: number | null;
+  decorativeSize?: ('small' | 'medium' | 'large' | 'xl') | null;
+  showPaymentIcons?: boolean | null;
+  paymentMethods?:
+    | {
+        method?: ('visa' | 'mastercard' | 'paypal' | 'applepay' | 'googlepay' | 'cash' | 'transfer') | null;
+        id?: string | null;
+      }[]
+    | null;
+  badges?:
+    | {
+        image: string | Media;
+        alt?: string | null;
+        link?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }
 /**
- * Logo-ul site-ului: text, imagine sau ambele
+ * Logo text, imagine sau ambele
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tenant-logos".
@@ -3575,11 +3637,158 @@ export interface TenantLogo {
   createdAt: string;
 }
 /**
+ * Moneda, TVA, livrare, plati
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenant-shop-settings".
+ */
+export interface TenantShopSetting {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  /**
+   * Activeaza functionalitatea de magazin cu cos de cumparaturi
+   */
+  enabled?: boolean | null;
+  /**
+   * Ex: Magazin Online, Shop, Produse
+   */
+  shopName?: string | null;
+  currency?: ('RON' | 'EUR' | 'USD') | null;
+  /**
+   * Ex: lei, €, $
+   */
+  currencySymbol?: string | null;
+  pricePosition?: ('before' | 'after') | null;
+  vatEnabled?: boolean | null;
+  /**
+   * RECOMANDAT pentru B2C Romania: ON
+   */
+  pricesIncludeVat?: boolean | null;
+  displayPricesWithVat?: boolean | null;
+  vatRates: {
+    standard: number;
+    reduced: number;
+    zero?: number | null;
+  };
+  defaultVatRate?: ('standard' | 'reduced' | 'zero') | null;
+  showVatBreakdown?: boolean | null;
+  vatNumber?: string | null;
+  /**
+   * Lasa gol pentru fara minim
+   */
+  orderMinimum?: number | null;
+  freeShippingThreshold?: number | null;
+  shippingCost?: number | null;
+  shippingMethods?:
+    | {
+        id: string | null;
+        enabled?: boolean | null;
+        label: string;
+        deliveryTime?: string | null;
+        price: number;
+        freeAbove?: number | null;
+      }[]
+    | null;
+  paymentMethods?:
+    | {
+        method: 'cod' | 'stripe' | 'bank';
+        enabled?: boolean | null;
+        instructions?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  orderNotificationEmail?: string | null;
+  sendCustomerConfirmation?: boolean | null;
+  confirmationEmailSubject?: string | null;
+  addToCartText?: string | null;
+  viewCartText?: string | null;
+  checkoutText?: string | null;
+  emptyCartMessage?: string | null;
+  orderSuccessMessage?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Setari pagini: produse, cos, checkout, cont
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenant-system-pages".
+ */
+export interface TenantSystemPage {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  productsPage?: {
+    title?: string | null;
+    description?: string | null;
+    productsPerPage?: number | null;
+    gridColumns?: ('2' | '3' | '4') | null;
+    defaultSort?: ('newest' | 'price_asc' | 'price_desc' | 'name_asc' | 'name_desc') | null;
+    showFilters?: boolean | null;
+    showSearch?: boolean | null;
+    showSort?: boolean | null;
+    filterOptions?: {
+      showCategoryFilter?: boolean | null;
+      showPriceFilter?: boolean | null;
+      showStockFilter?: boolean | null;
+    };
+    seo?: {
+      metaTitle?: string | null;
+      metaDescription?: string | null;
+    };
+  };
+  labels?: {
+    filtersTitle?: string | null;
+    categoriesTitle?: string | null;
+    priceTitle?: string | null;
+    stockTitle?: string | null;
+    inStockLabel?: string | null;
+    sortLabel?: string | null;
+    resultsText?: string | null;
+    noResultsText?: string | null;
+    clearFiltersText?: string | null;
+    searchPlaceholder?: string | null;
+    mobileFiltersButton?: string | null;
+    mobileApplyFilters?: string | null;
+  };
+  cartPage?: {
+    title?: string | null;
+    emptyCartMessage?: string | null;
+    continueShoppingText?: string | null;
+    continueShoppingLink?: string | null;
+  };
+  checkoutPage?: {
+    title?: string | null;
+    successMessage?: string | null;
+  };
+  accountPages?: {
+    dashboardTitle?: string | null;
+    dashboardDescription?: string | null;
+    addressesTitle?: string | null;
+    addressesDescription?: string | null;
+    ordersTitle?: string | null;
+    ordersDescription?: string | null;
+    noOrdersMessage?: string | null;
+    loginTitle?: string | null;
+    loginDescription?: string | null;
+    loginButton?: string | null;
+    registerTitle?: string | null;
+    registerDescription?: string | null;
+    registerButton?: string | null;
+    menuDashboard?: string | null;
+    menuOrders?: string | null;
+    menuAddresses?: string | null;
+    menuLogout?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
   id: string;
+  tenant?: (string | null) | Tenant;
   /**
    * Trebuie sa reconstruiesti site-ul dupa modificarea acestui camp.
    */
@@ -3606,6 +3815,7 @@ export interface Redirect {
  */
 export interface FormSubmission {
   id: string;
+  tenant?: (string | null) | Tenant;
   form: string | Form;
   submissionData?:
     | {
@@ -3625,6 +3835,7 @@ export interface FormSubmission {
  */
 export interface Search {
   id: string;
+  tenant?: (string | null) | Tenant;
   title?: string | null;
   priority?: number | null;
   doc: {
@@ -3888,6 +4099,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'tenant-logos';
         value: string | TenantLogo;
+      } | null)
+    | ({
+        relationTo: 'tenant-shop-settings';
+        value: string | TenantShopSetting;
+      } | null)
+    | ({
+        relationTo: 'tenant-system-pages';
+        value: string | TenantSystemPage;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -5276,6 +5495,7 @@ export interface MediaSelect<T extends boolean = true> {
   tenant?: T;
   alt?: T;
   caption?: T;
+  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -5780,7 +6000,9 @@ export interface TenantSiteThemesSelect<T extends boolean = true> {
   sectionSpacing?: T;
   headingScale?: T;
   bodyTextSize?: T;
+  cardGap?: T;
   useCustomColors?: T;
+  autoGeneratePalette?: T;
   colors?:
     | T
     | {
@@ -5790,10 +6012,29 @@ export interface TenantSiteThemesSelect<T extends boolean = true> {
         dark?: T;
         light?: T;
         surface?: T;
+        text?: T;
+        textLight?: T;
+        border?: T;
+        textOnPrimary?: T;
+        textOnSecondary?: T;
+        textOnAccent?: T;
+        textOnDark?: T;
+        textOnLight?: T;
+        textOnSurface?: T;
       };
   headingFont?: T;
   bodyFont?: T;
   headingWeight?: T;
+  useAdvancedTypography?: T;
+  letterSpacing?: T;
+  headingLineHeight?: T;
+  bodyLineHeight?: T;
+  useCustomButtons?: T;
+  buttonRounding?: T;
+  buttonTextTransform?: T;
+  buttonFontWeight?: T;
+  buttonPadding?: T;
+  buttonLetterSpacing?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -5835,6 +6076,7 @@ export interface TenantBusinessInfoSelect<T extends boolean = true> {
         tiktok?: T;
         youtube?: T;
         linkedin?: T;
+        twitter?: T;
       };
   googleMapsEmbed?: T;
   googleMapsLink?: T;
@@ -5853,6 +6095,13 @@ export interface TenantBusinessInfoSelect<T extends boolean = true> {
         bankAccount?: T;
         bank?: T;
       };
+  stats?:
+    | T
+    | {
+        value?: T;
+        label?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -5867,11 +6116,19 @@ export interface TenantHeadersSelect<T extends boolean = true> {
   topBar?:
     | T
     | {
+        layout?: T;
         backgroundColor?: T;
         showPhone?: T;
         showEmail?: T;
         showSocial?: T;
         customText?: T;
+        customSocialLinks?:
+          | T
+          | {
+              platform?: T;
+              url?: T;
+              id?: T;
+            };
       };
   navItems?:
     | T
@@ -5907,6 +6164,7 @@ export interface TenantHeadersSelect<T extends boolean = true> {
       };
   sticky?: T;
   isTransparent?: T;
+  transparentTextColor?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -5950,6 +6208,27 @@ export interface TenantFootersSelect<T extends boolean = true> {
         newTab?: T;
         id?: T;
       };
+  backgroundImage?: T;
+  backgroundOpacity?: T;
+  decorativeImage?: T;
+  decorativePosition?: T;
+  decorativeOpacity?: T;
+  decorativeSize?: T;
+  showPaymentIcons?: T;
+  paymentMethods?:
+    | T
+    | {
+        method?: T;
+        id?: T;
+      };
+  badges?:
+    | T
+    | {
+        image?: T;
+        alt?: T;
+        link?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -5976,9 +6255,151 @@ export interface TenantLogosSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenant-shop-settings_select".
+ */
+export interface TenantShopSettingsSelect<T extends boolean = true> {
+  tenant?: T;
+  enabled?: T;
+  shopName?: T;
+  currency?: T;
+  currencySymbol?: T;
+  pricePosition?: T;
+  vatEnabled?: T;
+  pricesIncludeVat?: T;
+  displayPricesWithVat?: T;
+  vatRates?:
+    | T
+    | {
+        standard?: T;
+        reduced?: T;
+        zero?: T;
+      };
+  defaultVatRate?: T;
+  showVatBreakdown?: T;
+  vatNumber?: T;
+  orderMinimum?: T;
+  freeShippingThreshold?: T;
+  shippingCost?: T;
+  shippingMethods?:
+    | T
+    | {
+        id?: T;
+        enabled?: T;
+        label?: T;
+        deliveryTime?: T;
+        price?: T;
+        freeAbove?: T;
+      };
+  paymentMethods?:
+    | T
+    | {
+        method?: T;
+        enabled?: T;
+        instructions?: T;
+        id?: T;
+      };
+  orderNotificationEmail?: T;
+  sendCustomerConfirmation?: T;
+  confirmationEmailSubject?: T;
+  addToCartText?: T;
+  viewCartText?: T;
+  checkoutText?: T;
+  emptyCartMessage?: T;
+  orderSuccessMessage?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenant-system-pages_select".
+ */
+export interface TenantSystemPagesSelect<T extends boolean = true> {
+  tenant?: T;
+  productsPage?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        productsPerPage?: T;
+        gridColumns?: T;
+        defaultSort?: T;
+        showFilters?: T;
+        showSearch?: T;
+        showSort?: T;
+        filterOptions?:
+          | T
+          | {
+              showCategoryFilter?: T;
+              showPriceFilter?: T;
+              showStockFilter?: T;
+            };
+        seo?:
+          | T
+          | {
+              metaTitle?: T;
+              metaDescription?: T;
+            };
+      };
+  labels?:
+    | T
+    | {
+        filtersTitle?: T;
+        categoriesTitle?: T;
+        priceTitle?: T;
+        stockTitle?: T;
+        inStockLabel?: T;
+        sortLabel?: T;
+        resultsText?: T;
+        noResultsText?: T;
+        clearFiltersText?: T;
+        searchPlaceholder?: T;
+        mobileFiltersButton?: T;
+        mobileApplyFilters?: T;
+      };
+  cartPage?:
+    | T
+    | {
+        title?: T;
+        emptyCartMessage?: T;
+        continueShoppingText?: T;
+        continueShoppingLink?: T;
+      };
+  checkoutPage?:
+    | T
+    | {
+        title?: T;
+        successMessage?: T;
+      };
+  accountPages?:
+    | T
+    | {
+        dashboardTitle?: T;
+        dashboardDescription?: T;
+        addressesTitle?: T;
+        addressesDescription?: T;
+        ordersTitle?: T;
+        ordersDescription?: T;
+        noOrdersMessage?: T;
+        loginTitle?: T;
+        loginDescription?: T;
+        loginButton?: T;
+        registerTitle?: T;
+        registerDescription?: T;
+        registerButton?: T;
+        menuDashboard?: T;
+        menuOrders?: T;
+        menuAddresses?: T;
+        menuLogout?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects_select".
  */
 export interface RedirectsSelect<T extends boolean = true> {
+  tenant?: T;
   from?: T;
   to?:
     | T
@@ -5995,6 +6416,7 @@ export interface RedirectsSelect<T extends boolean = true> {
  * via the `definition` "forms_select".
  */
 export interface FormsSelect<T extends boolean = true> {
+  tenant?: T;
   formType?: T;
   title?: T;
   fields?:
@@ -6139,6 +6561,7 @@ export interface FormsSelect<T extends boolean = true> {
  * via the `definition` "form-submissions_select".
  */
 export interface FormSubmissionsSelect<T extends boolean = true> {
+  tenant?: T;
   form?: T;
   submissionData?:
     | T
@@ -6155,6 +6578,7 @@ export interface FormSubmissionsSelect<T extends boolean = true> {
  * via the `definition` "search_select".
  */
 export interface SearchSelect<T extends boolean = true> {
+  tenant?: T;
   title?: T;
   priority?: T;
   doc?: T;
@@ -6477,1221 +6901,6 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
-}
-/**
- * Schimba instantaneu aspectul complet al site-ului. Variantele functioneaza pentru orice tip de afacere.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "site-theme".
- */
-export interface SiteTheme {
-  id: string;
-  /**
-   * Varianta selectata schimba culorile, fonturile si stilul intregului site
-   */
-  variant:
-    | 'dark-gold'
-    | 'modern-red'
-    | 'classic-blue'
-    | 'fresh-green'
-    | 'minimal-black'
-    | 'purple-premium'
-    | 'warm-orange'
-    | 'teal-modern'
-    | 'brown-vintage'
-    | 'pink-soft'
-    | 'fitness-orange'
-    | 'fitness-dark'
-    | 'gold-navy-healing'
-    | 'revital-harmony'
-    | 'purple-wellness';
-  /**
-   * Lasa gol pentru default din varianta
-   */
-  borderRadius?: ('none' | 'small' | 'medium' | 'large' | 'full') | null;
-  /**
-   * Lasa gol pentru default din varianta
-   */
-  shadows?: ('none' | 'subtle' | 'moderate' | 'strong') | null;
-  animations?: ('none' | 'subtle' | 'moderate' | 'dynamic') | null;
-  containerWidth?: ('1024' | '1280' | '1400' | '1600') | null;
-  sectionSpacing?: ('compact' | 'normal' | 'spacious') | null;
-  /**
-   * Scala pentru H1-H6
-   */
-  headingScale?: ('small' | 'compact' | 'normal' | 'large' | 'xlarge') | null;
-  /**
-   * Tot textul: paragrafe, liste, tabele, formulare, etc.
-   */
-  bodyTextSize?: ('small' | 'normal' | 'large') | null;
-  /**
-   * Distanta intre carduri in grid-uri
-   */
-  cardGap?: ('compact' | 'normal' | 'spacious') | null;
-  /**
-   * Bifat = culorile de mai jos suprascriu varianta. Nebifat = culorile din varianta.
-   */
-  useCustomColors?: boolean | null;
-  /**
-   * Activeaza pentru a genera automat toate culorile din culoarea primara folosind algoritmul OKLCH.
-   */
-  autoGeneratePalette?: boolean | null;
-  colors?: {
-    primary?: string | null;
-    secondary?: string | null;
-    accent?: string | null;
-    dark?: string | null;
-    light?: string | null;
-    surface?: string | null;
-    text?: string | null;
-    textLight?: string | null;
-    border?: string | null;
-    /**
-     * Text pe fundal primar (butoane, etc.)
-     */
-    textOnPrimary?: string | null;
-    textOnSecondary?: string | null;
-    textOnAccent?: string | null;
-    textOnDark?: string | null;
-    textOnLight?: string | null;
-    textOnSurface?: string | null;
-  };
-  /**
-   * Fontul folosit pentru titluri (H1-H6)
-   */
-  headingFont?:
-    | (
-        | 'Playfair_Display'
-        | 'Lora'
-        | 'Inter'
-        | 'Montserrat'
-        | 'Poppins'
-        | 'Work_Sans'
-        | 'Open_Sans'
-        | 'Lato'
-        | 'Source_Sans_3'
-        | 'Space_Grotesk'
-        | 'Sora'
-        | 'Outfit'
-        | 'Plus_Jakarta_Sans'
-        | 'Manrope'
-        | 'DM_Sans'
-        | 'DM_Serif_Display'
-        | 'Raleway'
-        | 'Prompt'
-      )
-    | null;
-  /**
-   * Fontul folosit pentru text si paragrafe
-   */
-  bodyFont?:
-    | (
-        | 'Inter'
-        | 'Open_Sans'
-        | 'Lato'
-        | 'Poppins'
-        | 'Source_Sans_3'
-        | 'Montserrat'
-        | 'Work_Sans'
-        | 'Lora'
-        | 'Space_Grotesk'
-        | 'Sora'
-        | 'Outfit'
-        | 'Plus_Jakarta_Sans'
-        | 'Manrope'
-        | 'DM_Sans'
-        | 'Raleway'
-        | 'Prompt'
-      )
-    | null;
-  /**
-   * Font weight pentru titluri (H1-H6). "Light" pentru design clean/flat.
-   */
-  headingWeight?: ('300' | '400' | '500' | '600' | '700') | null;
-  /**
-   * Permite controlul fin asupra letter-spacing si line-height
-   */
-  useAdvancedTypography?: boolean | null;
-  letterSpacing?: ('tight' | 'normal' | 'wide' | 'wider') | null;
-  headingLineHeight?: ('1.1' | '1.2' | '1.3') | null;
-  bodyLineHeight?: ('1.5' | '1.6' | '1.8') | null;
-  /**
-   * Permite controlul fin asupra aspectului butoanelor
-   */
-  useCustomButtons?: boolean | null;
-  buttonRounding?: ('none' | 'small' | 'default' | 'medium' | 'large' | 'pill' | 'full') | null;
-  buttonPadding?: ('compact' | 'normal' | 'large' | 'xl') | null;
-  buttonTextTransform?: ('none' | 'uppercase' | 'capitalize') | null;
-  buttonFontWeight?: ('400' | '500' | '600' | '700') | null;
-  buttonLetterSpacing?: ('normal' | 'wide' | 'wider' | 'extra-wide') | null;
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * Logo-ul site-ului: text, imagine sau ambele
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "logo".
- */
-export interface Logo {
-  id: string;
-  type?: ('text' | 'image' | 'both') | null;
-  text?: string | null;
-  image?: (string | null) | Media;
-  /**
-   * Pentru utilizare pe fundal deschis (optional)
-   */
-  imageDark?: (string | null) | Media;
-  /**
-   * Pentru utilizare pe fundal inchis (optional)
-   */
-  imageLight?: (string | null) | Media;
-  /**
-   * Icon-ul care apare in tab-ul browser-ului (32x32 sau 64x64)
-   */
-  favicon?: (string | null) | Media;
-  size?: {
-    height?: number | null;
-    heightMobile?: number | null;
-  };
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * Configurare header: navigatie, logo, top bar
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "header".
- */
-export interface Header {
-  id: string;
-  variant?: ('standard' | 'centered' | 'with-topbar' | 'full-width' | 'minimal') | null;
-  /**
-   * Bara superioara cu social media, contact, mesaj etc.
-   */
-  showTopBar?: boolean | null;
-  topBar?: {
-    backgroundColor?: ('dark' | 'primary' | 'transparent' | 'light') | null;
-    layout?: ('social-left' | 'message-left' | 'contact-left' | 'centered') | null;
-    showPhone?: boolean | null;
-    showEmail?: boolean | null;
-    showSocial?: boolean | null;
-    /**
-     * Daca nu sunt setate, se folosesc link-urile din BusinessInfo
-     */
-    customSocialLinks?:
-      | {
-          platform: 'youtube' | 'facebook' | 'instagram' | 'tiktok' | 'twitter' | 'linkedin' | 'whatsapp';
-          url: string;
-          id?: string | null;
-        }[]
-      | null;
-    showWorkingHours?: boolean | null;
-    /**
-     * Ex: Te rugam sa te intorci la persoana care te-a recomandat!
-     */
-    customText?: string | null;
-  };
-  navItems?:
-    | {
-        label: string;
-        type?: ('reference' | 'custom') | null;
-        reference?: {
-          relationTo: 'pages';
-          value: string | Page;
-        } | null;
-        url?: string | null;
-        newTab?: boolean | null;
-        hasSubmenu?: boolean | null;
-        submenu?:
-          | {
-              label: string;
-              type?: ('reference' | 'custom') | null;
-              reference?: {
-                relationTo: 'pages';
-                value: string | Page;
-              } | null;
-              url?: string | null;
-              newTab?: boolean | null;
-              description?: string | null;
-              icon?: string | null;
-              id?: string | null;
-            }[]
-          | null;
-        id?: string | null;
-      }[]
-    | null;
-  showSearch?: boolean | null;
-  showCart?: boolean | null;
-  ctaButton?: {
-    enabled?: boolean | null;
-    label?: string | null;
-    link?: string | null;
-    variant?: ('default' | 'outline' | 'ghost') | null;
-  };
-  sticky?: boolean | null;
-  /**
-   * Header-ul va fi transparent și suprapus peste primul block (ideal pentru Video Hero)
-   */
-  isTransparent?: boolean | null;
-  /**
-   * Culoarea textului și logo-ului când header-ul este transparent
-   */
-  transparentTextColor?: ('white' | 'dark' | 'auto') | null;
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * Configurare footer: coloane, linkuri, contact
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "footer".
- */
-export interface Footer {
-  id: string;
-  variant?: ('columns-4' | 'columns-3' | 'minimal' | 'centered' | 'with-newsletter' | 'with-map') | null;
-  /**
-   * Determină culorile textului din footer
-   */
-  colorScheme?: ('dark' | 'light') | null;
-  columns?:
-    | {
-        title?: string | null;
-        type?: ('links' | 'contact' | 'schedule' | 'text' | 'social') | null;
-        links?:
-          | {
-              label: string;
-              type?: ('reference' | 'custom') | null;
-              reference?: {
-                relationTo: 'pages';
-                value: string | Page;
-              } | null;
-              url?: string | null;
-              newTab?: boolean | null;
-              id?: string | null;
-            }[]
-          | null;
-        text?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  newsletter?: {
-    title?: string | null;
-    description?: string | null;
-    buttonText?: string | null;
-  };
-  showSocialLinks?: boolean | null;
-  showContactInfo?: boolean | null;
-  showWorkingHours?: boolean | null;
-  /**
-   * Foloseste {year} pentru an si {businessName} pentru numele afacerii
-   */
-  copyright?: string | null;
-  legalLinks?:
-    | {
-        label: string;
-        type?: ('reference' | 'custom') | null;
-        reference?: {
-          relationTo: 'pages';
-          value: string | Page;
-        } | null;
-        url?: string | null;
-        newTab?: boolean | null;
-        id?: string | null;
-      }[]
-    | null;
-  showPaymentIcons?: boolean | null;
-  paymentMethods?: ('visa' | 'mastercard' | 'paypal' | 'cash' | 'bank')[] | null;
-  badges?:
-    | {
-        image?: (string | null) | Media;
-        link?: string | null;
-        alt?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Imagine mare pentru fundalul footer-ului (grunge, textura, abstract). Se intinde pe tot footer-ul, nu se repeta.
-   */
-  backgroundImage?: (string | null) | Media;
-  /**
-   * Opacitatea imaginii de fundal (0-100%). Implicit: 20%
-   */
-  backgroundOpacity?: number | null;
-  /**
-   * Imagine decorativa pozitionata intr-o parte a footer-ului (ex: grunge, siluete, pattern artistic). PNG transparent recomandat.
-   */
-  decorativeImage?: (string | null) | Media;
-  decorativePosition?: ('left' | 'right' | 'bottom-left' | 'bottom-right') | null;
-  /**
-   * Opacitatea elementului decorativ (0-100%). Implicit: 30%
-   */
-  decorativeOpacity?: number | null;
-  decorativeSize?: ('small' | 'medium' | 'large' | 'xl') | null;
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * Informatii despre afacere: contact, program, social media
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "business-info".
- */
-export interface BusinessInfo {
-  id: string;
-  name: string;
-  /**
-   * Ex: Frumusete cu pasiune de peste 10 ani
-   */
-  tagline?: string | null;
-  /**
-   * Folosit pentru SEO si despre noi
-   */
-  description?: string | null;
-  yearEstablished?: number | null;
-  address?: {
-    street?: string | null;
-    city?: string | null;
-    county?: string | null;
-    postalCode?: string | null;
-    country?: string | null;
-  };
-  phone?: string | null;
-  phoneSecondary?: string | null;
-  email?: string | null;
-  whatsapp?: string | null;
-  whatsappFloat?: {
-    enabled?: boolean | null;
-    position?: ('bottom-right' | 'bottom-left') | null;
-    showOnMobile?: boolean | null;
-    /**
-     * Mesajul care va fi pre-completat in WhatsApp
-     */
-    defaultMessage?: string | null;
-    tooltipText?: string | null;
-    pulseAnimation?: boolean | null;
-  };
-  workingHours?:
-    | {
-        /**
-         * Ex: Luni - Vineri
-         */
-        days?: string | null;
-        /**
-         * Ex: 09:00 - 18:00 sau Inchis
-         */
-        hours?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  social?: {
-    facebook?: string | null;
-    instagram?: string | null;
-    tiktok?: string | null;
-    youtube?: string | null;
-    linkedin?: string | null;
-    twitter?: string | null;
-  };
-  /**
-   * Copiaza codul iframe de la Google Maps
-   */
-  googleMapsEmbed?: string | null;
-  /**
-   * Link direct catre locatie pe Google Maps
-   */
-  googleMapsLink?: string | null;
-  coordinates?: {
-    lat?: number | null;
-    lng?: number | null;
-  };
-  /**
-   * Ex: 10+ ani experienta, 500+ clienti, etc.
-   */
-  stats?:
-    | {
-        value?: string | null;
-        label?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  legal?: {
-    companyName?: string | null;
-    cui?: string | null;
-    regCom?: string | null;
-    bankAccount?: string | null;
-    bank?: string | null;
-  };
-  /**
-   * Bara pentru promotii sau anunturi importante in header
-   */
-  announcementBar?: {
-    enabled?: boolean | null;
-    message?: string | null;
-    linkText?: string | null;
-    linkUrl?: string | null;
-    backgroundColor?: ('primary' | 'secondary' | 'accent' | 'dark' | 'gradient' | 'urgent' | 'success') | null;
-    icon?: ('megaphone' | 'gift' | 'star' | 'fire' | 'sparkles' | 'none') | null;
-    dismissible?: boolean | null;
-  };
-  /**
-   * Buton call-to-action flotant (stil Plasturi)
-   */
-  floatingCta?: {
-    enabled?: boolean | null;
-    text?: string | null;
-    href?: string | null;
-    variant?: ('primary' | 'accent' | 'secondary' | 'dark' | 'gradient') | null;
-    icon?: ('arrow' | 'phone' | 'message' | 'calendar' | 'none') | null;
-    position?: ('bottom-right' | 'bottom-left' | 'bottom-center' | 'right-center' | 'left-center') | null;
-    shape?: ('pill' | 'rectangle') | null;
-    showOnMobile?: boolean | null;
-    pulseAnimation?: boolean | null;
-    dismissible?: boolean | null;
-    /**
-     * Butonul apare după ce utilizatorul derulează X pixeli
-     */
-    showAfterScroll?: number | null;
-    /**
-     * Ex: /contact, /programare - pagini unde butonul nu apare
-     */
-    hideOnPaths?: string | null;
-  };
-  /**
-   * Configurare banner cookie conform GDPR și Legea 506/2004 România
-   */
-  cookieConsent?: {
-    enabled?: boolean | null;
-    title?: string | null;
-    description?: string | null;
-    privacyPolicyUrl?: string | null;
-    acceptButtonText?: string | null;
-    rejectButtonText?: string | null;
-    customizeButtonText?: string | null;
-    saveButtonText?: string | null;
-    necessaryTitle?: string | null;
-    necessaryDescription?: string | null;
-    analyticsTitle?: string | null;
-    analyticsDescription?: string | null;
-    marketingTitle?: string | null;
-    marketingDescription?: string | null;
-    preferencesTitle?: string | null;
-    preferencesDescription?: string | null;
-    /**
-     * Format: G-XXXXXXXXXX
-     */
-    googleAnalyticsId?: string | null;
-    /**
-     * Format: GTM-XXXXXXX
-     */
-    googleTagManagerId?: string | null;
-    /**
-     * ID numeric Facebook Pixel
-     */
-    facebookPixelId?: string | null;
-    /**
-     * ID TikTok Pixel pentru tracking conversii
-     */
-    tiktokPixelId?: string | null;
-    /**
-     * ID numeric Hotjar pentru heatmaps și session recordings
-     */
-    hotjarId?: string | null;
-    /**
-     * Număr de zile până când utilizatorul va fi întrebat din nou
-     */
-    consentExpiry?: number | null;
-    /**
-     * Buton discret în colț pentru a permite utilizatorilor să-și schimbe preferințele
-     */
-    showFloatingButton?: boolean | null;
-    position?: ('bottom' | 'bottom-left' | 'bottom-right') | null;
-  };
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * Configurare pagini sistem (produse, cos, checkout)
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "system-pages".
- */
-export interface SystemPage {
-  id: string;
-  productsPage?: {
-    title?: string | null;
-    description?: string | null;
-    productsPerPage?: number | null;
-    gridColumns?: ('2' | '3' | '4') | null;
-    defaultSort?: ('newest' | 'price_asc' | 'price_desc' | 'name_asc' | 'name_desc') | null;
-    showFilters?: boolean | null;
-    showSearch?: boolean | null;
-    showSort?: boolean | null;
-    filterOptions?: {
-      showCategoryFilter?: boolean | null;
-      showPriceFilter?: boolean | null;
-      showStockFilter?: boolean | null;
-    };
-    seo?: {
-      /**
-       * Foloseste {siteName} pentru numele site-ului
-       */
-      metaTitle?: string | null;
-      metaDescription?: string | null;
-    };
-  };
-  labels?: {
-    filtersTitle?: string | null;
-    categoriesTitle?: string | null;
-    priceTitle?: string | null;
-    stockTitle?: string | null;
-    inStockLabel?: string | null;
-    sortLabel?: string | null;
-    /**
-     * Placeholders: {count}, {total}
-     */
-    resultsText?: string | null;
-    noResultsText?: string | null;
-    clearFiltersText?: string | null;
-    searchPlaceholder?: string | null;
-    mobileFiltersButton?: string | null;
-    mobileApplyFilters?: string | null;
-  };
-  cartPage?: {
-    title?: string | null;
-    emptyCartMessage?: string | null;
-    continueShoppingText?: string | null;
-    continueShoppingLink?: string | null;
-  };
-  checkoutPage?: {
-    title?: string | null;
-    successMessage?: string | null;
-  };
-  accountPages?: {
-    dashboardTitle?: string | null;
-    dashboardDescription?: string | null;
-    addressesTitle?: string | null;
-    addressesDescription?: string | null;
-    ordersTitle?: string | null;
-    ordersDescription?: string | null;
-    noOrdersMessage?: string | null;
-    loginTitle?: string | null;
-    loginDescription?: string | null;
-    loginButton?: string | null;
-    registerTitle?: string | null;
-    registerDescription?: string | null;
-    registerButton?: string | null;
-    menuDashboard?: string | null;
-    menuOrders?: string | null;
-    menuAddresses?: string | null;
-    menuLogout?: string | null;
-  };
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * Configureaza functionalitatea de magazin/cos cumparaturi
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "shop-settings".
- */
-export interface ShopSetting {
-  id: string;
-  /**
-   * Activeaza functionalitatea de magazin cu cos de cumparaturi
-   */
-  enabled?: boolean | null;
-  /**
-   * Ex: Magazin Online, Shop, Produse
-   */
-  shopName?: string | null;
-  currency?: ('RON' | 'EUR' | 'USD') | null;
-  /**
-   * Ex: lei, €, $
-   */
-  currencySymbol?: string | null;
-  pricePosition?: ('before' | 'after') | null;
-  /**
-   * Activeaza calculul si afisarea TVA pe site
-   */
-  vatEnabled?: boolean | null;
-  /**
-   * RECOMANDAT pentru B2C Romania: ON. Preturile introduse in admin sunt preturile finale (cu TVA inclus) afisate clientilor.
-   */
-  pricesIncludeVat?: boolean | null;
-  /**
-   * Pentru B2C (clienti persoane fizice) este obligatoriu sa afisezi pretul final cu TVA
-   */
-  displayPricesWithVat?: boolean | null;
-  /**
-   * Cotele TVA aplicabile in Romania (din august 2025)
-   */
-  vatRates: {
-    /**
-     * TVA standard Romania: 21%
-     */
-    standard: number;
-    /**
-     * TVA redus Romania: 11%
-     */
-    reduced: number;
-    /**
-     * Pentru produse scutite
-     */
-    zero?: number | null;
-  };
-  /**
-   * Cota aplicata produselor fara categorie TVA specificata
-   */
-  defaultVatRate?: ('standard' | 'reduced' | 'zero') | null;
-  /**
-   * Afiseaza subtotal, TVA si total separat
-   */
-  showVatBreakdown?: boolean | null;
-  /**
-   * Codul fiscal al firmei pentru facturi
-   */
-  vatNumber?: string | null;
-  /**
-   * Valoarea minima pentru a putea plasa comanda. Lasa gol pentru fara minim.
-   */
-  orderMinimum?: number | null;
-  /**
-   * Valoarea de la care transportul devine gratuit. Lasa gol daca nu se aplica.
-   */
-  freeShippingThreshold?: number | null;
-  /**
-   * Cost implicit pentru livrare standard. Folosit daca nu sunt configurate metode de livrare.
-   */
-  shippingCost?: number | null;
-  /**
-   * Configureaza metodele de livrare disponibile. Daca lista e goala, se foloseste doar livrarea standard.
-   */
-  shippingMethods?:
-    | {
-        id: string | null;
-        enabled?: boolean | null;
-        /**
-         * Ex: Livrare standard, Livrare express, Ridicare din magazin
-         */
-        label: string;
-        /**
-         * Ex: 2-4 zile lucratoare, 24 ore, Imediat
-         */
-        deliveryTime?: string | null;
-        /**
-         * 0 = gratuit
-         */
-        price: number;
-        /**
-         * Lasa gol daca nu se aplica
-         */
-        freeAbove?: number | null;
-      }[]
-    | null;
-  paymentMethods?:
-    | {
-        method: 'cod' | 'stripe' | 'bank';
-        enabled?: boolean | null;
-        /**
-         * Instructiuni afisate clientului pentru aceasta metoda
-         */
-        instructions?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Adresa unde primesti notificari pentru comenzi noi
-   */
-  orderNotificationEmail?: string | null;
-  /**
-   * Trimite email de confirmare automat catre client
-   */
-  sendCustomerConfirmation?: boolean | null;
-  confirmationEmailSubject?: string | null;
-  addToCartText?: string | null;
-  viewCartText?: string | null;
-  checkoutText?: string | null;
-  emptyCartMessage?: string | null;
-  orderSuccessMessage?: string | null;
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "site-theme_select".
- */
-export interface SiteThemeSelect<T extends boolean = true> {
-  variant?: T;
-  borderRadius?: T;
-  shadows?: T;
-  animations?: T;
-  containerWidth?: T;
-  sectionSpacing?: T;
-  headingScale?: T;
-  bodyTextSize?: T;
-  cardGap?: T;
-  useCustomColors?: T;
-  autoGeneratePalette?: T;
-  colors?:
-    | T
-    | {
-        primary?: T;
-        secondary?: T;
-        accent?: T;
-        dark?: T;
-        light?: T;
-        surface?: T;
-        text?: T;
-        textLight?: T;
-        border?: T;
-        textOnPrimary?: T;
-        textOnSecondary?: T;
-        textOnAccent?: T;
-        textOnDark?: T;
-        textOnLight?: T;
-        textOnSurface?: T;
-      };
-  headingFont?: T;
-  bodyFont?: T;
-  headingWeight?: T;
-  useAdvancedTypography?: T;
-  letterSpacing?: T;
-  headingLineHeight?: T;
-  bodyLineHeight?: T;
-  useCustomButtons?: T;
-  buttonRounding?: T;
-  buttonPadding?: T;
-  buttonTextTransform?: T;
-  buttonFontWeight?: T;
-  buttonLetterSpacing?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "logo_select".
- */
-export interface LogoSelect<T extends boolean = true> {
-  type?: T;
-  text?: T;
-  image?: T;
-  imageDark?: T;
-  imageLight?: T;
-  favicon?: T;
-  size?:
-    | T
-    | {
-        height?: T;
-        heightMobile?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "header_select".
- */
-export interface HeaderSelect<T extends boolean = true> {
-  variant?: T;
-  showTopBar?: T;
-  topBar?:
-    | T
-    | {
-        backgroundColor?: T;
-        layout?: T;
-        showPhone?: T;
-        showEmail?: T;
-        showSocial?: T;
-        customSocialLinks?:
-          | T
-          | {
-              platform?: T;
-              url?: T;
-              id?: T;
-            };
-        showWorkingHours?: T;
-        customText?: T;
-      };
-  navItems?:
-    | T
-    | {
-        label?: T;
-        type?: T;
-        reference?: T;
-        url?: T;
-        newTab?: T;
-        hasSubmenu?: T;
-        submenu?:
-          | T
-          | {
-              label?: T;
-              type?: T;
-              reference?: T;
-              url?: T;
-              newTab?: T;
-              description?: T;
-              icon?: T;
-              id?: T;
-            };
-        id?: T;
-      };
-  showSearch?: T;
-  showCart?: T;
-  ctaButton?:
-    | T
-    | {
-        enabled?: T;
-        label?: T;
-        link?: T;
-        variant?: T;
-      };
-  sticky?: T;
-  isTransparent?: T;
-  transparentTextColor?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "footer_select".
- */
-export interface FooterSelect<T extends boolean = true> {
-  variant?: T;
-  colorScheme?: T;
-  columns?:
-    | T
-    | {
-        title?: T;
-        type?: T;
-        links?:
-          | T
-          | {
-              label?: T;
-              type?: T;
-              reference?: T;
-              url?: T;
-              newTab?: T;
-              id?: T;
-            };
-        text?: T;
-        id?: T;
-      };
-  newsletter?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-        buttonText?: T;
-      };
-  showSocialLinks?: T;
-  showContactInfo?: T;
-  showWorkingHours?: T;
-  copyright?: T;
-  legalLinks?:
-    | T
-    | {
-        label?: T;
-        type?: T;
-        reference?: T;
-        url?: T;
-        newTab?: T;
-        id?: T;
-      };
-  showPaymentIcons?: T;
-  paymentMethods?: T;
-  badges?:
-    | T
-    | {
-        image?: T;
-        link?: T;
-        alt?: T;
-        id?: T;
-      };
-  backgroundImage?: T;
-  backgroundOpacity?: T;
-  decorativeImage?: T;
-  decorativePosition?: T;
-  decorativeOpacity?: T;
-  decorativeSize?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "business-info_select".
- */
-export interface BusinessInfoSelect<T extends boolean = true> {
-  name?: T;
-  tagline?: T;
-  description?: T;
-  yearEstablished?: T;
-  address?:
-    | T
-    | {
-        street?: T;
-        city?: T;
-        county?: T;
-        postalCode?: T;
-        country?: T;
-      };
-  phone?: T;
-  phoneSecondary?: T;
-  email?: T;
-  whatsapp?: T;
-  whatsappFloat?:
-    | T
-    | {
-        enabled?: T;
-        position?: T;
-        showOnMobile?: T;
-        defaultMessage?: T;
-        tooltipText?: T;
-        pulseAnimation?: T;
-      };
-  workingHours?:
-    | T
-    | {
-        days?: T;
-        hours?: T;
-        id?: T;
-      };
-  social?:
-    | T
-    | {
-        facebook?: T;
-        instagram?: T;
-        tiktok?: T;
-        youtube?: T;
-        linkedin?: T;
-        twitter?: T;
-      };
-  googleMapsEmbed?: T;
-  googleMapsLink?: T;
-  coordinates?:
-    | T
-    | {
-        lat?: T;
-        lng?: T;
-      };
-  stats?:
-    | T
-    | {
-        value?: T;
-        label?: T;
-        id?: T;
-      };
-  legal?:
-    | T
-    | {
-        companyName?: T;
-        cui?: T;
-        regCom?: T;
-        bankAccount?: T;
-        bank?: T;
-      };
-  announcementBar?:
-    | T
-    | {
-        enabled?: T;
-        message?: T;
-        linkText?: T;
-        linkUrl?: T;
-        backgroundColor?: T;
-        icon?: T;
-        dismissible?: T;
-      };
-  floatingCta?:
-    | T
-    | {
-        enabled?: T;
-        text?: T;
-        href?: T;
-        variant?: T;
-        icon?: T;
-        position?: T;
-        shape?: T;
-        showOnMobile?: T;
-        pulseAnimation?: T;
-        dismissible?: T;
-        showAfterScroll?: T;
-        hideOnPaths?: T;
-      };
-  cookieConsent?:
-    | T
-    | {
-        enabled?: T;
-        title?: T;
-        description?: T;
-        privacyPolicyUrl?: T;
-        acceptButtonText?: T;
-        rejectButtonText?: T;
-        customizeButtonText?: T;
-        saveButtonText?: T;
-        necessaryTitle?: T;
-        necessaryDescription?: T;
-        analyticsTitle?: T;
-        analyticsDescription?: T;
-        marketingTitle?: T;
-        marketingDescription?: T;
-        preferencesTitle?: T;
-        preferencesDescription?: T;
-        googleAnalyticsId?: T;
-        googleTagManagerId?: T;
-        facebookPixelId?: T;
-        tiktokPixelId?: T;
-        hotjarId?: T;
-        consentExpiry?: T;
-        showFloatingButton?: T;
-        position?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "system-pages_select".
- */
-export interface SystemPagesSelect<T extends boolean = true> {
-  productsPage?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-        productsPerPage?: T;
-        gridColumns?: T;
-        defaultSort?: T;
-        showFilters?: T;
-        showSearch?: T;
-        showSort?: T;
-        filterOptions?:
-          | T
-          | {
-              showCategoryFilter?: T;
-              showPriceFilter?: T;
-              showStockFilter?: T;
-            };
-        seo?:
-          | T
-          | {
-              metaTitle?: T;
-              metaDescription?: T;
-            };
-      };
-  labels?:
-    | T
-    | {
-        filtersTitle?: T;
-        categoriesTitle?: T;
-        priceTitle?: T;
-        stockTitle?: T;
-        inStockLabel?: T;
-        sortLabel?: T;
-        resultsText?: T;
-        noResultsText?: T;
-        clearFiltersText?: T;
-        searchPlaceholder?: T;
-        mobileFiltersButton?: T;
-        mobileApplyFilters?: T;
-      };
-  cartPage?:
-    | T
-    | {
-        title?: T;
-        emptyCartMessage?: T;
-        continueShoppingText?: T;
-        continueShoppingLink?: T;
-      };
-  checkoutPage?:
-    | T
-    | {
-        title?: T;
-        successMessage?: T;
-      };
-  accountPages?:
-    | T
-    | {
-        dashboardTitle?: T;
-        dashboardDescription?: T;
-        addressesTitle?: T;
-        addressesDescription?: T;
-        ordersTitle?: T;
-        ordersDescription?: T;
-        noOrdersMessage?: T;
-        loginTitle?: T;
-        loginDescription?: T;
-        loginButton?: T;
-        registerTitle?: T;
-        registerDescription?: T;
-        registerButton?: T;
-        menuDashboard?: T;
-        menuOrders?: T;
-        menuAddresses?: T;
-        menuLogout?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "shop-settings_select".
- */
-export interface ShopSettingsSelect<T extends boolean = true> {
-  enabled?: T;
-  shopName?: T;
-  currency?: T;
-  currencySymbol?: T;
-  pricePosition?: T;
-  vatEnabled?: T;
-  pricesIncludeVat?: T;
-  displayPricesWithVat?: T;
-  vatRates?:
-    | T
-    | {
-        standard?: T;
-        reduced?: T;
-        zero?: T;
-      };
-  defaultVatRate?: T;
-  showVatBreakdown?: T;
-  vatNumber?: T;
-  orderMinimum?: T;
-  freeShippingThreshold?: T;
-  shippingCost?: T;
-  shippingMethods?:
-    | T
-    | {
-        id?: T;
-        enabled?: T;
-        label?: T;
-        deliveryTime?: T;
-        price?: T;
-        freeAbove?: T;
-      };
-  paymentMethods?:
-    | T
-    | {
-        method?: T;
-        enabled?: T;
-        instructions?: T;
-        id?: T;
-      };
-  orderNotificationEmail?: T;
-  sendCustomerConfirmation?: T;
-  confirmationEmailSubject?: T;
-  addToCartText?: T;
-  viewCartText?: T;
-  checkoutText?: T;
-  emptyCartMessage?: T;
-  orderSuccessMessage?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

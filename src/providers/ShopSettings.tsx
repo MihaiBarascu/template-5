@@ -8,7 +8,7 @@
  */
 
 import React, { createContext, useContext, useState, useEffect } from 'react'
-import type { ShopSetting } from '@/payload-types'
+import type { TenantShopSetting as ShopSetting } from '@/payload-types'
 
 // Tax category type
 export type TaxCategory = 'standard' | 'reduced' | 'zero'

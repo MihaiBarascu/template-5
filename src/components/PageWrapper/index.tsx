@@ -1,7 +1,7 @@
 import React from 'react'
 import { Header } from '@/components/Header'
 import { mergeHeaderSettings } from '@/utilities/mergeHeaderSettings'
-import type { Header as HeaderType, Logo, BusinessInfo, Page } from '@/payload-types'
+import type { TenantHeader as HeaderType, TenantLogo as Logo, TenantBusinessInfo as BusinessInfo, Page } from '@/payload-types'
 
 interface PageWrapperProps {
   children: React.ReactNode

@@ -84,11 +84,20 @@ export const Bookings: CollectionConfig = {
 
           // Email 2: Către CLIENT - confirmare programare
           if (populatedDoc.clientEmail) {
-            // Get business info for client email
-            const businessInfo = await req.payload.findGlobal({
-              slug: 'business-info',
-              req, // Threading req for transaction safety (Payload best practice)
-            })
+            // Get business info for client email (per-tenant)
+            // Multi-tenant: query tenant-business-info collection with tenant ID from doc
+            const tenantId = typeof doc.tenant === 'string'
+              ? doc.tenant
+              : (doc.tenant as { id?: string } | undefined)?.id
+            const businessInfoResult = tenantId
+              ? await req.payload.find({
+                  collection: 'tenant-business-info',
+                  where: { tenant: { equals: tenantId } },
+                  limit: 1,
+                  req,
+                })
+              : null
+            const businessInfo = businessInfoResult?.docs?.[0]
 
             const clientEmailHtml = formatBookingConfirmationEmail({
               clientName: populatedDoc.clientName,

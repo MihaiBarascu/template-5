@@ -1,38 +1,19 @@
-import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'payload'
-import { revalidatePath } from 'next/cache'
+import {
+  createContentRevalidateHook,
+  createContentDeleteHook,
+} from '@/hooks/revalidateTenantGlobal'
 
-import type { Category } from '@/payload-types'
+/**
+ * Multi-tenant category (blog) revalidation hooks
+ *
+ * Uses tenant-specific cache tags instead of revalidatePath
+ * because revalidatePath doesn't work with middleware in multi-tenant apps.
+ *
+ * When categories change, we also revalidate posts since they display category info.
+ *
+ * @see https://github.com/vercel/next.js/issues/59825
+ */
 
-export const revalidateCategoryAfterChange: CollectionAfterChangeHook<Category> = ({
-  doc,
-  req: { payload, context },
-}) => {
-  if (!context.disableRevalidate) {
-    payload.logger.info(`Revalidating blog listing after category change: ${doc.title}`)
-
-    try {
-      // Revalidate blog listing page which shows categories
-      revalidatePath('/blog')
-    } catch (_e) {
-      payload.logger.warn(`Could not revalidate /blog (likely running outside Next.js context)`)
-    }
-  }
-  return doc
-}
-
-export const revalidateCategoryAfterDelete: CollectionAfterDeleteHook<Category> = ({
-  doc,
-  req: { context, payload },
-}) => {
-  if (!context.disableRevalidate) {
-    payload.logger.info(`Revalidating blog listing after category deletion: ${doc?.title}`)
-
-    try {
-      revalidatePath('/blog')
-    } catch (_e) {
-      payload.logger.warn(`Could not revalidate /blog (likely running outside Next.js context)`)
-    }
-  }
-
-  return doc
-}
+// Revalidate categories collection and related posts for the specific tenant
+export const revalidateCategoryAfterChange = createContentRevalidateHook('categories', ['posts'])
+export const revalidateCategoryAfterDelete = createContentDeleteHook('categories', ['posts'])

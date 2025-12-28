@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { superAdminOrTenantAdminAccess } from '@/access/multiTenant'
-import { revalidateTag } from 'next/cache'
+import { createTenantRevalidateHook } from '@/hooks/revalidateTenantGlobal'
 
 /**
  * SiteTheme Collection (converted from Global)
@@ -13,13 +13,13 @@ import { revalidateTag } from 'next/cache'
 export const SiteThemeCollection: CollectionConfig = {
   slug: 'tenant-site-themes',
   labels: {
-    singular: 'Tema Site Tenant',
-    plural: 'Teme Site Tenant',
+    singular: 'Tema Site',
+    plural: 'Teme Site',
   },
   admin: {
     useAsTitle: 'variant',
-    group: 'Setari Tenant',
-    description: 'Configurare tema și design pentru tenant',
+    group: 'Setari',
+    description: 'Configurare tema și design',
     defaultColumns: ['tenant', 'variant', 'updatedAt'],
   },
   access: {
@@ -29,21 +29,7 @@ export const SiteThemeCollection: CollectionConfig = {
     delete: superAdminOrTenantAdminAccess,
   },
   hooks: {
-    afterChange: [
-      async ({ doc, req }) => {
-        // Revalidate tenant-specific cache
-        const tenantId = typeof doc.tenant === 'string' ? doc.tenant : doc.tenant?.id
-        if (tenantId) {
-          try {
-            revalidateTag(`tenant-${tenantId}`, "max")
-            revalidateTag(`tenant-site-themes-${tenantId}`, "max")
-          } catch (e) {
-            req.payload.logger.warn('Could not revalidate site-theme cache')
-          }
-        }
-        return doc
-      },
-    ],
+    afterChange: [createTenantRevalidateHook('tenant-site-themes')],
   },
   fields: [
     {
@@ -184,6 +170,21 @@ export const SiteThemeCollection: CollectionConfig = {
                 },
               ],
             },
+            {
+              name: 'cardGap',
+              type: 'select',
+              label: 'Spatiu intre carduri',
+              defaultValue: 'normal',
+              options: [
+                { label: 'Compact (16px)', value: 'compact' },
+                { label: 'Mic (20px)', value: 'small' },
+                { label: 'Normal (24px)', value: 'normal' },
+                { label: 'Mediu (28px)', value: 'medium' },
+                { label: 'Spatios (32px)', value: 'spacious' },
+                { label: 'Mare (40px)', value: 'large' },
+                { label: 'Foarte mare (48px)', value: 'xl' },
+              ],
+            },
           ],
         },
 
@@ -196,6 +197,13 @@ export const SiteThemeCollection: CollectionConfig = {
               type: 'checkbox',
               label: 'Foloseste culori personalizate',
               defaultValue: false,
+            },
+            {
+              name: 'autoGeneratePalette',
+              type: 'checkbox',
+              label: 'Genereaza automat paleta din culoarea primara',
+              defaultValue: true,
+              admin: { condition: (_, siblingData) => siblingData?.useCustomColors },
             },
             {
               name: 'colors',
@@ -216,6 +224,30 @@ export const SiteThemeCollection: CollectionConfig = {
                     { name: 'dark', type: 'text', label: 'Inchisa', admin: { width: '33%' } },
                     { name: 'light', type: 'text', label: 'Deschisa', admin: { width: '33%' } },
                     { name: 'surface', type: 'text', label: 'Surface', admin: { width: '33%' } },
+                  ],
+                },
+                {
+                  type: 'row',
+                  fields: [
+                    { name: 'text', type: 'text', label: 'Text', admin: { width: '33%' } },
+                    { name: 'textLight', type: 'text', label: 'Text Light', admin: { width: '33%' } },
+                    { name: 'border', type: 'text', label: 'Border', admin: { width: '33%' } },
+                  ],
+                },
+                {
+                  type: 'row',
+                  fields: [
+                    { name: 'textOnPrimary', type: 'text', label: 'Text pe Primary', admin: { width: '33%' } },
+                    { name: 'textOnSecondary', type: 'text', label: 'Text pe Secondary', admin: { width: '33%' } },
+                    { name: 'textOnAccent', type: 'text', label: 'Text pe Accent', admin: { width: '33%' } },
+                  ],
+                },
+                {
+                  type: 'row',
+                  fields: [
+                    { name: 'textOnDark', type: 'text', label: 'Text pe Dark', admin: { width: '33%' } },
+                    { name: 'textOnLight', type: 'text', label: 'Text pe Light', admin: { width: '33%' } },
+                    { name: 'textOnSurface', type: 'text', label: 'Text pe Surface', admin: { width: '33%' } },
                   ],
                 },
               ],
@@ -239,6 +271,7 @@ export const SiteThemeCollection: CollectionConfig = {
                   options: [
                     { label: 'Playfair Display (Serif Elegant)', value: 'Playfair_Display' },
                     { label: 'Lora (Serif, Elegant)', value: 'Lora' },
+                    { label: 'DM Serif Display (Serif Bold)', value: 'DM_Serif_Display' },
                     { label: 'Inter (Modern)', value: 'Inter' },
                     { label: 'Montserrat (Modern)', value: 'Montserrat' },
                     { label: 'Poppins (Geometric)', value: 'Poppins' },
@@ -294,6 +327,148 @@ export const SiteThemeCollection: CollectionConfig = {
                 { label: 'Medium (500)', value: '500' },
                 { label: 'Semibold (600)', value: '600' },
                 { label: 'Bold (700)', value: '700' },
+              ],
+            },
+          ],
+        },
+
+        // TAB 5: TYPOGRAPHY ADVANCED
+        {
+          label: 'Tipografie Avansata',
+          fields: [
+            {
+              name: 'useAdvancedTypography',
+              type: 'checkbox',
+              label: 'Foloseste setari tipografice avansate',
+              defaultValue: false,
+            },
+            {
+              type: 'row',
+              admin: { condition: (data) => data?.useAdvancedTypography },
+              fields: [
+                {
+                  name: 'letterSpacing',
+                  type: 'select',
+                  label: 'Spatiere litere',
+                  defaultValue: 'normal',
+                  admin: { width: '33%' },
+                  options: [
+                    { label: 'Condensat', value: 'tight' },
+                    { label: 'Normal', value: 'normal' },
+                    { label: 'Spatiat', value: 'wide' },
+                    { label: 'Foarte spatiat', value: 'wider' },
+                  ],
+                },
+                {
+                  name: 'headingLineHeight',
+                  type: 'select',
+                  label: 'Inaltime linie titluri',
+                  defaultValue: '1.2',
+                  admin: { width: '33%' },
+                  options: [
+                    { label: 'Compact (1.1)', value: '1.1' },
+                    { label: 'Normal (1.2)', value: '1.2' },
+                    { label: 'Relaxat (1.3)', value: '1.3' },
+                    { label: 'Spatios (1.4)', value: '1.4' },
+                  ],
+                },
+                {
+                  name: 'bodyLineHeight',
+                  type: 'select',
+                  label: 'Inaltime linie text',
+                  defaultValue: '1.6',
+                  admin: { width: '33%' },
+                  options: [
+                    { label: 'Compact (1.4)', value: '1.4' },
+                    { label: 'Normal (1.6)', value: '1.6' },
+                    { label: 'Relaxat (1.8)', value: '1.8' },
+                    { label: 'Spatios (2.0)', value: '2.0' },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+
+        // TAB 6: BUTTON STYLES
+        {
+          label: 'Stiluri Butoane',
+          fields: [
+            {
+              name: 'useCustomButtons',
+              type: 'checkbox',
+              label: 'Foloseste stiluri personalizate pentru butoane',
+              defaultValue: false,
+            },
+            {
+              type: 'row',
+              admin: { condition: (data) => data?.useCustomButtons },
+              fields: [
+                {
+                  name: 'buttonRounding',
+                  type: 'select',
+                  label: 'Rotunjire butoane',
+                  defaultValue: 'default',
+                  admin: { width: '25%' },
+                  options: [
+                    { label: 'Fara rotunjire', value: 'none' },
+                    { label: 'Default', value: 'default' },
+                    { label: 'Mediu', value: 'medium' },
+                    { label: 'Pill (foarte rotunjit)', value: 'pill' },
+                    { label: 'Complet rotund', value: 'full' },
+                  ],
+                },
+                {
+                  name: 'buttonTextTransform',
+                  type: 'select',
+                  label: 'Transform text',
+                  defaultValue: 'none',
+                  admin: { width: '25%' },
+                  options: [
+                    { label: 'Normal', value: 'none' },
+                    { label: 'MAJUSCULE', value: 'uppercase' },
+                    { label: 'Capitalize', value: 'capitalize' },
+                  ],
+                },
+                {
+                  name: 'buttonFontWeight',
+                  type: 'select',
+                  label: 'Grosime font',
+                  defaultValue: '600',
+                  admin: { width: '25%' },
+                  options: [
+                    { label: 'Normal (400)', value: '400' },
+                    { label: 'Medium (500)', value: '500' },
+                    { label: 'Semibold (600)', value: '600' },
+                    { label: 'Bold (700)', value: '700' },
+                  ],
+                },
+                {
+                  name: 'buttonPadding',
+                  type: 'select',
+                  label: 'Padding butoane',
+                  defaultValue: 'normal',
+                  admin: { width: '25%' },
+                  options: [
+                    { label: 'Compact', value: 'compact' },
+                    { label: 'Default', value: 'default' },
+                    { label: 'Normal', value: 'normal' },
+                    { label: 'Mare', value: 'large' },
+                    { label: 'Foarte mare', value: 'xl' },
+                  ],
+                },
+              ],
+            },
+            {
+              name: 'buttonLetterSpacing',
+              type: 'select',
+              label: 'Spatiere litere butoane',
+              defaultValue: 'normal',
+              admin: { condition: (data) => data?.useCustomButtons },
+              options: [
+                { label: 'Normal', value: 'normal' },
+                { label: 'Spatiat', value: 'wide' },
+                { label: 'Foarte spatiat', value: 'wider' },
               ],
             },
           ],

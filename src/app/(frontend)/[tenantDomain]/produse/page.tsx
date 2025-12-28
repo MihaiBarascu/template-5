@@ -5,19 +5,18 @@ import type { Metadata } from 'next'
 
 import { PageWrapper } from '@/components/PageWrapper'
 import { getCachedTenantGlobalByDomain, getEffectiveTenantDomain } from '@/utilities/getTenantGlobal'
-import { getCachedGlobal } from '@/utilities/getGlobals'
 import { Breadcrumbs } from '@/components/ecommerce/Breadcrumbs'
 import { ProductCard } from '@/components/ecommerce/ProductCard'
 import { ProductSort } from '@/components/ecommerce/ProductSort'
 import { ShopSearch, ShopFilters, ActiveFilters, MobileFilters, getSortField } from '@/components/shop'
 import type { SortOption } from '@/components/shop'
-import type { SystemPage, Product, ProductTag, Media, ShopSetting, TenantHeader, TenantLogo, TenantBusinessInfo } from '@/payload-types'
+import type { Product, ProductTag, Media, TenantHeader, TenantLogo, TenantBusinessInfo, TenantShopSetting, TenantSystemPage } from '@/payload-types'
 import type { Where } from 'payload'
 
 // Helper to calculate display price on server
 function calculateDisplayPrice(
   priceInDb: number,
-  shopSettings: ShopSetting | null,
+  shopSettings: TenantShopSetting | null,
   taxCategory?: 'standard' | 'reduced' | 'zero' | null
 ): number {
   if (!shopSettings || !shopSettings.vatEnabled) {
@@ -72,13 +71,13 @@ export default async function ShopPage({ params, searchParams }: PageProps) {
   // Get tenant ID for filtering
   const tenantId = await getTenantIdFromDomain(payload, tenantDomain)
 
-  // Fetch header globals + system pages config and shop settings
+  // Fetch header globals + system pages config and shop settings (all per-tenant now)
   const [headerData, logoData, businessInfo, systemPages, shopSettings] = await Promise.all([
     getCachedTenantGlobalByDomain<TenantHeader>('header', tenantDomain),
     getCachedTenantGlobalByDomain<TenantLogo>('logo', tenantDomain),
     getCachedTenantGlobalByDomain<TenantBusinessInfo>('business-info', tenantDomain),
-    payload.findGlobal({ slug: 'system-pages' }).catch(() => null) as Promise<SystemPage | null>,
-    payload.findGlobal({ slug: 'shop-settings' }).catch(() => null) as Promise<ShopSetting | null>,
+    getCachedTenantGlobalByDomain<TenantSystemPage>('system-pages', tenantDomain),
+    getCachedTenantGlobalByDomain<TenantShopSetting>('shop-settings', tenantDomain),
   ])
   const config = systemPages?.productsPage || {}
   const labels = systemPages?.labels || {}

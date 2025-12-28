@@ -1,4 +1,4 @@
-import type { BusinessInfo } from '@/payload-types'
+import type { TenantBusinessInfo } from '@/payload-types'
 import type { CollectionAfterChangeHook, PayloadRequest } from 'payload'
 
 /**
@@ -58,7 +58,7 @@ const getDisplayName = (submissionData: Array<{ field: string; value: string }>)
 const sendNotificationEmail = async (
   doc: FormSubmissionData,
   req: PayloadRequest,
-  businessInfo: BusinessInfo | null,
+  businessInfo: TenantBusinessInfo | null,
 ): Promise<void> => {
   const { submissionData, form } = doc
   const businessName = businessInfo?.name || 'Website'
@@ -190,6 +190,7 @@ const sendNotificationEmail = async (
 const handleBookingSubmission = async (
   doc: FormSubmissionData,
   req: PayloadRequest,
+  tenantId?: string,
 ): Promise<void> => {
   const { submissionData } = doc
 
@@ -253,6 +254,7 @@ const handleBookingSubmission = async (
 
   // Create the booking (this will trigger the Bookings collection hook for emails)
   // Threading req for transaction safety (Payload best practice)
+  // Multi-tenant: inherit tenant from form submission
   await req.payload.create({
     collection: 'bookings',
     data: {
@@ -267,6 +269,8 @@ const handleBookingSubmission = async (
       notes,
       status: 'pending',
       source: 'website',
+      // Multi-tenant: assign to same tenant as form submission
+      ...(tenantId && { tenant: tenantId }),
     },
     overrideAccess: true,
     req, // Transaction safety
@@ -279,6 +283,7 @@ const handleBookingSubmission = async (
 const handleOrderSubmission = async (
   doc: FormSubmissionData,
   req: PayloadRequest,
+  tenantId?: string,
 ): Promise<void> => {
   const { submissionData } = doc
 
@@ -320,6 +325,7 @@ const handleOrderSubmission = async (
 
   // Create the subscription order (this will trigger the SubscriptionOrders collection hook for emails)
   // Threading req for transaction safety (Payload best practice)
+  // Multi-tenant: inherit tenant from form submission
   await req.payload.create({
     collection: 'subscription-orders',
     data: {
@@ -332,6 +338,8 @@ const handleOrderSubmission = async (
       notes,
       status: 'pending',
       source: 'website',
+      // Multi-tenant: assign to same tenant as form submission
+      ...(tenantId && { tenant: tenantId }),
     },
     overrideAccess: true,
     req, // Transaction safety
@@ -344,6 +352,7 @@ const handleOrderSubmission = async (
 const handleNewsletterSubmission = async (
   doc: FormSubmissionData,
   req: PayloadRequest,
+  tenantId?: string,
 ): Promise<void> => {
   const { submissionData } = doc
   const email = getFieldValue(submissionData, 'email')
@@ -383,12 +392,15 @@ const handleNewsletterSubmission = async (
 
   // Create new subscriber (this will trigger the welcome email hook)
   // Threading req for transaction safety (Payload best practice)
+  // Multi-tenant: inherit tenant from form submission
   await req.payload.create({
     collection: 'newsletter-subscribers',
     data: {
       email: normalizedEmail,
       status: 'active',
       source: 'website',
+      // Multi-tenant: assign to same tenant as form submission
+      ...(tenantId && { tenant: tenantId }),
     },
     overrideAccess: true,
     req, // Transaction safety
@@ -402,6 +414,7 @@ const handleNewsletterSubmission = async (
  * This is added to form-submissions collection via formSubmissionOverrides
  *
  * All nested operations thread `req` for transaction atomicity.
+ * Multi-tenant: extracts tenant from form-submission and passes to handlers.
  */
 export const processFormSubmission: CollectionAfterChangeHook = async ({ doc, operation, req }) => {
   // Only process new submissions
@@ -420,13 +433,24 @@ export const processFormSubmission: CollectionAfterChangeHook = async ({ doc, op
     const form = submission.form as FormSubmissionData['form']
     const formType = (form?.formType || 'contact') as FormType
 
-    // Get business info for emails
-    // Threading req for transaction safety (Payload best practice)
-    const businessInfo = await req.payload.findGlobal({
-      slug: 'business-info',
-      depth: 0, // No need to populate relationships
-      req,
-    })
+    // Multi-tenant: extract tenant ID from form submission
+    // The multi-tenant plugin adds tenant field to form-submissions
+    const tenantId = typeof doc.tenant === 'string'
+      ? doc.tenant
+      : (doc.tenant as { id?: string } | undefined)?.id
+
+    // Get business info for emails (per-tenant)
+    // Multi-tenant: query tenant-business-info collection with tenant ID from form submission
+    const businessInfoResult = tenantId
+      ? await req.payload.find({
+          collection: 'tenant-business-info',
+          where: { tenant: { equals: tenantId } },
+          limit: 1,
+          depth: 0, // No need to populate relationships
+          req,
+        })
+      : null
+    const businessInfo = businessInfoResult?.docs?.[0] as TenantBusinessInfo | undefined
 
     // Prepare data structure
     const formData: FormSubmissionData = {
@@ -442,26 +466,26 @@ export const processFormSubmission: CollectionAfterChangeHook = async ({ doc, op
       `Processing form submission - Type: ${formType}, Form: ${formData.form.title}`,
     )
 
-    // Handle based on formType - pass req to all handlers
+    // Handle based on formType - pass req and tenantId to all handlers
     switch (formType) {
       case 'newsletter':
         // Newsletter: add to subscribers list (no email to business)
-        await handleNewsletterSubmission(formData, req)
+        await handleNewsletterSubmission(formData, req, tenantId)
         break
 
       case 'booking':
         // Booking: create in Bookings collection (this triggers its own email hook)
-        await handleBookingSubmission(formData, req)
+        await handleBookingSubmission(formData, req, tenantId)
         break
 
       case 'order':
         // Order: create in SubscriptionOrders collection (this triggers its own email hook)
-        await handleOrderSubmission(formData, req)
+        await handleOrderSubmission(formData, req, tenantId)
         break
 
       default:
         // Contact, feedback, other: just send email notification
-        await sendNotificationEmail(formData, req, businessInfo)
+        await sendNotificationEmail(formData, req, businessInfo || null)
     }
   } catch (error) {
     // Log but don't fail the submission

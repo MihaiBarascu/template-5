@@ -1,7 +1,7 @@
 import React from 'react'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
-import type { Page, Portfolio, Service, Media as MediaType } from '@/payload-types'
+import type { Page, Portfolio, Service, Media as MediaType, TenantBusinessInfo, TenantShopSetting } from '@/payload-types'
 import type { Where } from 'payload'
 import { getDisplayPrice, type TaxCategory, type TaxSettings } from '@/utilities/tax'
 import { withTenantFilter, withTenantFilterAnd } from '@/utilities/getTenantFromHeaders'
@@ -264,25 +264,26 @@ async function getPosts(block: BlockParams, tenantDomain?: string | null) {
   return posts.docs
 }
 
-// Fetch business info
-async function getBusinessInfo() {
-  const payload = await getPayload({ config: configPromise })
-
-  const businessInfo = await payload.findGlobal({
-    slug: 'business-info',
-  })
-
-  return businessInfo
-}
-
-// Fetch shop settings (for TVA/VAT)
-async function getShopSettings() {
-  const payload = await getPayload({ config: configPromise })
+// Fetch business info (per-tenant)
+async function getBusinessInfo(tenantDomain?: string | null): Promise<TenantBusinessInfo | null> {
+  if (!tenantDomain) return null
 
   try {
-    const shopSettings = await payload.findGlobal({
-      slug: 'shop-settings',
-    })
+    const { getCachedTenantGlobalByDomain } = await import('@/utilities/getTenantGlobal')
+    const businessInfo = await getCachedTenantGlobalByDomain<TenantBusinessInfo>('business-info', tenantDomain)
+    return businessInfo
+  } catch {
+    return null
+  }
+}
+
+// Fetch shop settings (for TVA/VAT) - per-tenant
+async function getShopSettings(tenantDomain?: string | null): Promise<TenantShopSetting | null> {
+  if (!tenantDomain) return null
+
+  try {
+    const { getCachedTenantGlobalByDomain } = await import('@/utilities/getTenantGlobal')
+    const shopSettings = await getCachedTenantGlobalByDomain<TenantShopSetting>('shop-settings', tenantDomain)
     return shopSettings
   } catch {
     return null
@@ -502,9 +503,9 @@ export async function RenderBlocks({ blocks, tenantDomain }: RenderBlocksProps) 
     return null
   }
 
-  // Pre-fetch business info and shop settings
-  const businessInfo = await getBusinessInfo()
-  const shopSettings = await getShopSettings()
+  // Pre-fetch business info and shop settings (per-tenant)
+  const businessInfo = await getBusinessInfo(tenantDomain)
+  const shopSettings = await getShopSettings(tenantDomain)
 
   // Transform shop settings to TaxSettings format
   const taxSettings: TaxSettings | null = shopSettings ? {

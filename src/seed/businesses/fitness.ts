@@ -77,24 +77,10 @@ export async function seedFitness(payload: Payload) {
     bodyFont: variant.theme.bodyFont,
   })
 
-  // Update advanced typography and button styles
-  await payload.updateGlobal({
-    slug: 'site-theme',
-    data: {
-      // Typography Advanced (Tab 5)
-      useAdvancedTypography: true,
-      letterSpacing: 'normal',
-      headingLineHeight: '1.1', // Compact like Template-2
-      bodyLineHeight: '1.6',
-      // Button Styles (Tab 6)
-      useCustomButtons: true,
-      buttonPadding: 'large', // 16px 32px like Template-2
-      buttonTextTransform: 'uppercase',
-      buttonFontWeight: '700', // Bold
-      buttonLetterSpacing: 'wide',
-    },
-  })
-  console.log('   Applied advanced typography and button styles')
+  // NOTE: Advanced typography and button styles are now configured per-tenant
+  // in tenant-site-themes collection via the helpers.ts seedSiteTheme() function.
+  // The legacy updateGlobal call is no longer needed.
+  console.log('   Advanced typography and button styles are set in tenant-site-themes')
 
   // 4. Business info
   console.log('\n🏪 Setting up business info...')

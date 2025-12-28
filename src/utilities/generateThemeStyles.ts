@@ -1,4 +1,7 @@
-import type { SiteTheme, TenantSiteTheme } from '@/payload-types'
+import type { TenantSiteTheme } from '@/payload-types'
+
+// Type alias for backward compatibility
+type SiteTheme = TenantSiteTheme
 import {
   THEME_VARIANTS,
   radiusPresets,

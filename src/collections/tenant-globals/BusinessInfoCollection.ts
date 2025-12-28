@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { superAdminOrTenantAdminAccess } from '@/access/multiTenant'
-import { revalidateTag } from 'next/cache'
+import { createTenantRevalidateHook } from '@/hooks/revalidateTenantGlobal'
 
 /**
  * BusinessInfo Collection (converted from Global)
@@ -9,13 +9,13 @@ import { revalidateTag } from 'next/cache'
 export const BusinessInfoCollection: CollectionConfig = {
   slug: 'tenant-business-info',
   labels: {
-    singular: 'Informatii Business Tenant',
-    plural: 'Informatii Business Tenant',
+    singular: 'Informatii Afacere',
+    plural: 'Informatii Afacere',
   },
   admin: {
     useAsTitle: 'name',
-    group: 'Setari Tenant',
-    description: 'Informatii despre afacere: contact, program, social media',
+    group: 'Setari',
+    description: 'Contact, program, social media',
     defaultColumns: ['tenant', 'name', 'phone', 'updatedAt'],
   },
   access: {
@@ -25,20 +25,7 @@ export const BusinessInfoCollection: CollectionConfig = {
     delete: superAdminOrTenantAdminAccess,
   },
   hooks: {
-    afterChange: [
-      async ({ doc, req }) => {
-        const tenantId = typeof doc.tenant === 'string' ? doc.tenant : doc.tenant?.id
-        if (tenantId) {
-          try {
-            revalidateTag(`tenant-${tenantId}`, "max")
-            revalidateTag(`tenant-business-info-${tenantId}`, "max")
-          } catch (e) {
-            req.payload.logger.warn('Could not revalidate business-info cache')
-          }
-        }
-        return doc
-      },
-    ],
+    afterChange: [createTenantRevalidateHook('tenant-business-info')],
   },
   fields: [
     {
@@ -125,6 +112,7 @@ export const BusinessInfoCollection: CollectionConfig = {
                 { name: 'tiktok', type: 'text', label: 'TikTok' },
                 { name: 'youtube', type: 'text', label: 'YouTube' },
                 { name: 'linkedin', type: 'text', label: 'LinkedIn' },
+                { name: 'twitter', type: 'text', label: 'Twitter/X' },
               ],
             },
           ],
@@ -167,6 +155,29 @@ export const BusinessInfoCollection: CollectionConfig = {
                 { name: 'bankAccount', type: 'text', label: 'Cont bancar (IBAN)' },
                 { name: 'bank', type: 'text', label: 'Banca' },
               ],
+            },
+          ],
+        },
+        {
+          label: 'Statistici',
+          description: 'Statistici afisate in blocul Stats (ex: 10+ ani experienta)',
+          fields: [
+            {
+              name: 'stats',
+              type: 'array',
+              label: 'Statistici',
+              fields: [
+                {
+                  type: 'row',
+                  fields: [
+                    { name: 'value', type: 'text', label: 'Valoare', required: true, admin: { width: '40%' } },
+                    { name: 'label', type: 'text', label: 'Eticheta', required: true, admin: { width: '60%' } },
+                  ],
+                },
+              ],
+              admin: {
+                description: 'Adauga statistici (ex: "10+" - "ani experienta", "500+" - "clienti multumiti")',
+              },
             },
           ],
         },

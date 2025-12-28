@@ -1,6 +1,6 @@
 import React from 'react'
 import Image from 'next/image'
-import type { Logo as LogoType, Media } from '@/payload-types'
+import type { TenantLogo as LogoType, Media } from '@/payload-types'
 
 interface LogoProps {
   data: LogoType | null

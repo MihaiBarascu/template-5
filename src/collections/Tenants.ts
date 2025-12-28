@@ -1,5 +1,69 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, FieldHook } from 'payload'
 import { isSuperAdmin, isSuperAdminAccess } from '@/access/multiTenant'
+
+/**
+ * Generate URL-friendly slug from text
+ */
+function generateSlug(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
+    .replace(/[^a-z0-9]+/g, '-')     // Replace non-alphanumeric with dash
+    .replace(/^-+|-+$/g, '')          // Trim dashes from start/end
+    .slice(0, 50)                     // Limit length
+}
+
+/**
+ * Generate short random ID (4 chars)
+ */
+function generateShortId(): string {
+  return Math.random().toString(36).substring(2, 6)
+}
+
+/**
+ * Hook to auto-generate unique slug from name
+ * If slug exists, adds random suffix (e.g., salon-bella-a7x3)
+ */
+const generateUniqueSlug: FieldHook = async ({ data, operation, req, originalDoc }) => {
+  // Keep existing slug on update
+  if (operation !== 'create' && originalDoc?.slug) {
+    return originalDoc.slug
+  }
+
+  if (!data?.name) return undefined
+
+  const baseSlug = generateSlug(data.name)
+
+  // Check if slug exists
+  const existing = await req.payload.find({
+    collection: 'tenants',
+    where: { slug: { equals: baseSlug } },
+    limit: 1,
+  })
+
+  if (existing.docs.length === 0) {
+    return baseSlug
+  }
+
+  // Add random suffix until unique
+  for (let i = 0; i < 10; i++) {
+    const candidateSlug = `${baseSlug}-${generateShortId()}`
+
+    const check = await req.payload.find({
+      collection: 'tenants',
+      where: { slug: { equals: candidateSlug } },
+      limit: 1,
+    })
+
+    if (check.docs.length === 0) {
+      return candidateSlug
+    }
+  }
+
+  // Fallback cu timestamp
+  return `${baseSlug}-${Date.now().toString(36)}`
+}
 
 /**
  * Tenants Collection
@@ -56,8 +120,12 @@ export const Tenants: CollectionConfig = {
       required: true,
       unique: true,
       index: true,
+      hooks: {
+        beforeValidate: [generateUniqueSlug],
+      },
       admin: {
-        description: 'Folosit în URL: /[slug]/pagina',
+        readOnly: true,
+        description: 'Auto-generat din nume (ex: "Salon Bella" → "salon-bella")',
       },
     },
     {

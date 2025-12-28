@@ -1,7 +1,7 @@
 'use client'
 
 import React, { createContext, useContext } from 'react'
-import type { SiteTheme } from '@/payload-types'
+import type { TenantSiteTheme as SiteTheme } from '@/payload-types'
 
 interface ThemeContextType {
   siteTheme: SiteTheme | null

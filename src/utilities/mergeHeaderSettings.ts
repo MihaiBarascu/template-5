@@ -1,4 +1,4 @@
-import type { Header as HeaderType, Page } from '@/payload-types'
+import type { TenantHeader as HeaderType, Page } from '@/payload-types'
 
 type PageHeaderSettings = Page['headerSettings']
 

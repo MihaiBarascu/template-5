@@ -1,33 +1,33 @@
 import type { GlobalAfterChangeHook } from 'payload'
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { revalidateTag } from 'next/cache'
 
 /**
- * Revalidate global hook - triggers Next.js cache invalidation when globals change
+ * @deprecated This hook is for Payload Globals, but in multi-tenant architecture
+ * we use tenant-scoped collections instead (tenant-site-themes, tenant-business-info, etc.).
  *
- * Uses revalidatePath for layout-affecting globals (theme, header, footer, etc.)
- * This ensures the frontend immediately reflects admin changes.
+ * The globals array in payload.config.ts is empty: `globals: []`
  *
- * @see https://payloadcms.com/community-help/discord/using-next-payload-how-to-revalidate
- * @see https://nextjs.org/docs/app/api-reference/functions/revalidatePath
+ * For tenant-scoped settings, use:
+ * - createTenantRevalidateHook() from @/hooks/revalidateTenantGlobal
+ *
+ * This file is kept for backwards compatibility only.
+ *
+ * IMPORTANT: revalidatePath() doesn't work with middleware in multi-tenant apps.
+ * @see https://github.com/vercel/next.js/issues/59825
  */
 export const revalidateGlobal: GlobalAfterChangeHook = ({ doc, req, global }) => {
-  req.payload.logger.info(`Revalidating global: ${global.slug}`)
+  req.payload.logger.warn(
+    `[Deprecated] revalidateGlobal called for ${global.slug}. ` +
+    `Use tenant-scoped collections with createTenantRevalidateHook instead.`
+  )
 
   // Only revalidate if we're in a Next.js context (not during seed)
   try {
-    // Globals that affect the entire layout need full path revalidation
-    const layoutGlobals = ['site-theme', 'header', 'footer', 'logo', 'business-info', 'shop-settings']
-
-    // Always revalidate the cache tag for this global (matches getCachedGlobal tags)
+    // Revalidate the cache tag for this global
+    // Note: This doesn't work well in multi-tenant - use tenant collections instead
     const cacheTag = `global_${global.slug}`
-    revalidateTag(cacheTag, 'max')
+    revalidateTag(cacheTag, { expire: 0 })
     req.payload.logger.info(`Revalidated cache tag: ${cacheTag}`)
-
-    if (layoutGlobals.includes(global.slug)) {
-      // Revalidate entire layout - all pages will re-render with new global data
-      revalidatePath('/', 'layout')
-      req.payload.logger.info(`Revalidated entire layout for global: ${global.slug}`)
-    }
   } catch (_e) {
     // Ignore revalidation errors during seeding or generate:types
     req.payload.logger.warn(`Could not revalidate ${global.slug} (likely running outside Next.js context)`)

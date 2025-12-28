@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { superAdminOrTenantAdminAccess } from '@/access/multiTenant'
-import { revalidateTag } from 'next/cache'
+import { createTenantRevalidateHook } from '@/hooks/revalidateTenantGlobal'
 import { linkFields } from '@/fields/link'
 
 /**
@@ -10,13 +10,13 @@ import { linkFields } from '@/fields/link'
 export const FooterCollection: CollectionConfig = {
   slug: 'tenant-footers',
   labels: {
-    singular: 'Footer Tenant',
-    plural: 'Footers Tenant',
+    singular: 'Footer',
+    plural: 'Footers',
   },
   admin: {
     useAsTitle: 'variant',
-    group: 'Setari Tenant',
-    description: 'Configurare footer: coloane, linkuri, contact',
+    group: 'Setari',
+    description: 'Coloane, linkuri, contact',
     defaultColumns: ['tenant', 'variant', 'updatedAt'],
   },
   access: {
@@ -26,20 +26,7 @@ export const FooterCollection: CollectionConfig = {
     delete: superAdminOrTenantAdminAccess,
   },
   hooks: {
-    afterChange: [
-      async ({ doc, req }) => {
-        const tenantId = typeof doc.tenant === 'string' ? doc.tenant : doc.tenant?.id
-        if (tenantId) {
-          try {
-            revalidateTag(`tenant-${tenantId}`, "max")
-            revalidateTag(`tenant-footers-${tenantId}`, "max")
-          } catch (e) {
-            req.payload.logger.warn('Could not revalidate footer cache')
-          }
-        }
-        return doc
-      },
-    ],
+    afterChange: [createTenantRevalidateHook('tenant-footers')],
   },
   fields: [
     {
@@ -119,6 +106,127 @@ export const FooterCollection: CollectionConfig = {
       fields: [
         { name: 'label', type: 'text', label: 'Text', required: true },
         ...linkFields,
+      ],
+    },
+    // Background settings
+    {
+      name: 'backgroundImage',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Imagine fundal',
+      admin: {
+        description: 'Imagine de fundal pentru footer (optional)',
+      },
+    },
+    {
+      name: 'backgroundOpacity',
+      type: 'number',
+      label: 'Opacitate fundal (%)',
+      defaultValue: 20,
+      min: 0,
+      max: 100,
+      admin: {
+        condition: (data) => !!data?.backgroundImage,
+      },
+    },
+    // Decorative element settings
+    {
+      name: 'decorativeImage',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Element decorativ',
+      admin: {
+        description: 'Imagine decorativa (ex: logo mare, mascota)',
+      },
+    },
+    {
+      name: 'decorativePosition',
+      type: 'select',
+      label: 'Pozitie element decorativ',
+      defaultValue: 'left',
+      options: [
+        { label: 'Stanga', value: 'left' },
+        { label: 'Dreapta', value: 'right' },
+        { label: 'Centru', value: 'center' },
+        { label: 'Stanga jos', value: 'bottom-left' },
+        { label: 'Dreapta jos', value: 'bottom-right' },
+      ],
+      admin: {
+        condition: (data) => !!data?.decorativeImage,
+      },
+    },
+    {
+      name: 'decorativeOpacity',
+      type: 'number',
+      label: 'Opacitate element decorativ (%)',
+      defaultValue: 30,
+      min: 0,
+      max: 100,
+      admin: {
+        condition: (data) => !!data?.decorativeImage,
+      },
+    },
+    {
+      name: 'decorativeSize',
+      type: 'select',
+      label: 'Marime element decorativ',
+      defaultValue: 'medium',
+      options: [
+        { label: 'Mic', value: 'small' },
+        { label: 'Mediu', value: 'medium' },
+        { label: 'Mare', value: 'large' },
+        { label: 'Foarte mare', value: 'xl' },
+      ],
+      admin: {
+        condition: (data) => !!data?.decorativeImage,
+      },
+    },
+    // Payment methods (for shops)
+    {
+      name: 'showPaymentIcons',
+      type: 'checkbox',
+      label: 'Afiseaza metode de plata',
+      defaultValue: false,
+    },
+    {
+      name: 'paymentMethods',
+      type: 'array',
+      label: 'Metode de plata',
+      admin: {
+        condition: (data) => data?.showPaymentIcons,
+      },
+      fields: [
+        {
+          name: 'method',
+          type: 'select',
+          label: 'Metoda',
+          options: [
+            { label: 'Visa', value: 'visa' },
+            { label: 'Mastercard', value: 'mastercard' },
+            { label: 'PayPal', value: 'paypal' },
+            { label: 'Apple Pay', value: 'applepay' },
+            { label: 'Google Pay', value: 'googlepay' },
+            { label: 'Plata la livrare', value: 'cash' },
+            { label: 'Transfer bancar', value: 'transfer' },
+          ],
+        },
+      ],
+    },
+    // Badges (trust badges, certificates)
+    {
+      name: 'badges',
+      type: 'array',
+      label: 'Badge-uri si Certificari',
+      fields: [
+        {
+          name: 'image',
+          type: 'upload',
+          relationTo: 'media',
+          label: 'Imagine',
+          required: true,
+        },
+        { name: 'alt', type: 'text', label: 'Text alternativ' },
+        { name: 'link', type: 'text', label: 'Link (optional)' },
       ],
     },
   ],

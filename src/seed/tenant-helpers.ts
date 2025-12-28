@@ -87,6 +87,44 @@ export function clearSeedTenant(): void {
 }
 
 /**
+ * Set an existing tenant ID for seeding content.
+ * Use this when seeding content for a tenant that was created via Admin UI.
+ *
+ * @example
+ * // In seed/index.ts when TENANT_ID is provided:
+ * setSeedTenantId(existingTenantId)
+ * await seedFrizerie(payload) // Will use the existing tenant
+ */
+export function setSeedTenantId(tenantId: string): void {
+  currentSeedTenantId = tenantId
+}
+
+/**
+ * Get tenant by ID and set it as current seed tenant.
+ * Validates that tenant exists before setting.
+ */
+export async function useExistingTenant(
+  payload: Payload,
+  tenantId: string
+): Promise<Tenant> {
+  const tenant = await payload.findByID({
+    collection: 'tenants',
+    id: tenantId,
+  })
+
+  if (!tenant) {
+    throw new Error(`Tenant not found: ${tenantId}`)
+  }
+
+  currentSeedTenantId = tenant.id
+  console.log(`   Using existing tenant: ${tenant.name} (${tenant.id})`)
+  console.log(`   Slug: ${tenant.slug}`)
+  console.log(`   Domain: ${tenant.domain}`)
+
+  return tenant
+}
+
+/**
  * Helper to add tenant field to data object if tenant is set.
  * This makes it easy to add tenant to payload.create() calls.
  *

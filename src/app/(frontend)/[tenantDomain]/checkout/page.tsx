@@ -2,8 +2,7 @@ import type { Metadata } from 'next'
 import { CheckoutPage as CheckoutPageComponent } from '@/components/checkout'
 import { PageWrapper } from '@/components/PageWrapper'
 import { getCachedTenantGlobalByDomain, getEffectiveTenantDomain } from '@/utilities/getTenantGlobal'
-import { getCachedGlobal } from '@/utilities/getGlobals'
-import type { TenantHeader, TenantLogo, TenantBusinessInfo } from '@/payload-types'
+import type { TenantHeader, TenantLogo, TenantBusinessInfo, TenantShopSetting } from '@/payload-types'
 
 export const metadata: Metadata = {
   title: 'Finalizare comandă',
@@ -25,7 +24,7 @@ export default async function CheckoutPage({ params }: PageProps) {
     getCachedTenantGlobalByDomain<TenantHeader>('header', tenantDomain),
     getCachedTenantGlobalByDomain<TenantLogo>('logo', tenantDomain),
     getCachedTenantGlobalByDomain<TenantBusinessInfo>('business-info', tenantDomain),
-    getCachedGlobal('shop-settings'),
+    getCachedTenantGlobalByDomain<TenantShopSetting>('shop-settings', tenantDomain),
   ])
 
   return (

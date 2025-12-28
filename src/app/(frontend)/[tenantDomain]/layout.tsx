@@ -1,7 +1,5 @@
-import type { TenantSiteTheme, TenantBusinessInfo, TenantFooter, TenantLogo, BusinessInfo } from '@/payload-types'
+import type { TenantSiteTheme, TenantBusinessInfo, TenantFooter, TenantLogo, TenantShopSetting } from '@/payload-types'
 import { notFound } from 'next/navigation'
-
-import { getCachedGlobal } from '@/utilities/getGlobals'
 import {
   getCachedTenantGlobalByDomain,
   validateTenant,
@@ -24,8 +22,8 @@ import { CookieConsent } from '@/components/CookieConsent'
 import { ScriptLoader } from '@/components/ScriptLoader'
 import { AnnouncementBar } from '@/components/AnnouncementBar'
 
-// BusinessInfo can be either tenant-scoped or legacy global
-type BusinessInfoType = TenantBusinessInfo | BusinessInfo
+// BusinessInfo is now tenant-scoped
+type BusinessInfoType = TenantBusinessInfo
 
 interface TenantLayoutProps {
   children: React.ReactNode
@@ -62,18 +60,18 @@ export default async function TenantLayout({ children, params }: TenantLayoutPro
   const tenantDomain = await getEffectiveTenantDomain(rawTenantDomain)
 
   // Fetch tenant-scoped data with cache tags for proper revalidation
-  // Uses getCachedTenantGlobalByDomain for multi-tenant support (params-based)
-  // Uses getCachedGlobal for TRUE globals (shop-settings - not tenant-scoped yet)
+  // All settings are now per-tenant via getCachedTenantGlobalByDomain
   const [siteThemeData, footerData, businessInfoData, logoData, shopSettingsData] = await Promise.all([
     getCachedTenantGlobalByDomain<TenantSiteTheme>('site-theme', tenantDomain),
     getCachedTenantGlobalByDomain<TenantFooter>('footer', tenantDomain),
-    getCachedTenantGlobalByDomain<BusinessInfoType>('business-info', tenantDomain),
+    getCachedTenantGlobalByDomain<TenantBusinessInfo>('business-info', tenantDomain),
     getCachedTenantGlobalByDomain<TenantLogo>('logo', tenantDomain),
-    getCachedGlobal('shop-settings'),
+    getCachedTenantGlobalByDomain<TenantShopSetting>('shop-settings', tenantDomain),
   ])
 
-  // Extract widget settings from businessInfo (may be tenant or legacy global)
-  const businessInfoWithWidgets = businessInfoData as BusinessInfo | null
+  // Extract widget settings from businessInfo
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const businessInfoWithWidgets = businessInfoData as any
   const announcementBar = businessInfoWithWidgets?.announcementBar as {
     enabled?: boolean
     message?: string

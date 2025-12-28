@@ -1,7 +1,5 @@
-import { getPayload } from 'payload'
-import config from '@payload-config'
-import { unstable_cache } from 'next/cache'
-import type { SiteTheme } from '@/payload-types'
+import type { TenantSiteTheme as SiteTheme } from '@/payload-types'
+import { getCachedTenantGlobal } from './getTenantGlobal'
 
 // Theme variant type with all the properties
 export interface ThemeVariant {
@@ -222,7 +220,7 @@ const THEME_VARIANTS: Record<string, ThemeVariant> = {
 }
 
 /**
- * Get site theme from admin global with caching and revalidation
+ * Get site theme for the current tenant with caching and revalidation
  *
  * Usage in Server Components:
  * ```ts
@@ -230,14 +228,9 @@ const THEME_VARIANTS: Record<string, ThemeVariant> = {
  * // Use theme.variant, theme.colors, etc.
  * ```
  */
-export const getSiteTheme = unstable_cache(
-  async (): Promise<SiteTheme> => {
-    const payload = await getPayload({ config })
-    return payload.findGlobal({ slug: 'site-theme' })
-  },
-  ['site-theme'],
-  { tags: ['site-theme'] }
-)
+export async function getSiteTheme(): Promise<SiteTheme | null> {
+  return getCachedTenantGlobal<SiteTheme>('site-theme')
+}
 
 /**
  * Get resolved theme variant (with all computed values)

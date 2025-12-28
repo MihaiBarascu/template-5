@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { superAdminOrTenantAdminAccess } from '@/access/multiTenant'
-import { revalidateTag } from 'next/cache'
+import { createTenantRevalidateHook } from '@/hooks/revalidateTenantGlobal'
 
 /**
  * Logo Collection (converted from Global)
@@ -9,13 +9,13 @@ import { revalidateTag } from 'next/cache'
 export const LogoCollection: CollectionConfig = {
   slug: 'tenant-logos',
   labels: {
-    singular: 'Logo Tenant',
-    plural: 'Logos Tenant',
+    singular: 'Logo',
+    plural: 'Logos',
   },
   admin: {
     useAsTitle: 'text',
-    group: 'Setari Tenant',
-    description: 'Logo-ul site-ului: text, imagine sau ambele',
+    group: 'Setari',
+    description: 'Logo text, imagine sau ambele',
     defaultColumns: ['tenant', 'type', 'text', 'updatedAt'],
   },
   access: {
@@ -25,20 +25,7 @@ export const LogoCollection: CollectionConfig = {
     delete: superAdminOrTenantAdminAccess,
   },
   hooks: {
-    afterChange: [
-      async ({ doc, req }) => {
-        const tenantId = typeof doc.tenant === 'string' ? doc.tenant : doc.tenant?.id
-        if (tenantId) {
-          try {
-            revalidateTag(`tenant-${tenantId}`, "max")
-            revalidateTag(`tenant-logos-${tenantId}`, "max")
-          } catch (e) {
-            req.payload.logger.warn('Could not revalidate logo cache')
-          }
-        }
-        return doc
-      },
-    ],
+    afterChange: [createTenantRevalidateHook('tenant-logos')],
   },
   fields: [
     {

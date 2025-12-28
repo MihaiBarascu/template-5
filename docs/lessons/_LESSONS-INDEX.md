@@ -13,6 +13,44 @@ tags: [lessons, bugs, fixes, tips]
 
 ---
 
+## SEED CONTENT FOR EXISTING TENANT (2025-12-25) - NOU!
+
+### Workflow: Admin creează tenant → CLI populează cu template
+
+| Pas | Acțiune | Rezultat |
+|-----|---------|----------|
+| 1 | Super Admin → Admin Panel → Create Tenant | Tenant gol creat (nume, slug, domain) |
+| 2 | `TENANT_ID=<id> SEED_TYPE=frizerie pnpm seed` | Tenant populat cu conținut frizerie |
+
+### Comenzi disponibile
+
+```bash
+# STANDARD: Creează tenant nou și populează
+SEED_TYPE=frizerie pnpm seed
+
+# EXISTING TENANT: Populează tenant creat în Admin
+TENANT_ID=abc123 SEED_TYPE=salon pnpm seed
+
+# APPEND: Adaugă fără să șteargă (risc duplicate!)
+SEED_TYPE=frizerie pnpm seed --skip-clear
+
+# CU IMAGINI: Re-uploadează media
+SEED_TYPE=frizerie pnpm seed --with-images
+```
+
+### Fișiere modificate
+
+| Fișier | Modificare |
+|--------|-----------|
+| `src/seed/index.ts` | Suport `TENANT_ID` env var + `--skip-clear` flag |
+| `src/seed/tenant-helpers.ts` | `useExistingTenant()`, `setSeedTenantId()` |
+
+### Templates disponibile (SEED_TYPE)
+
+`frizerie`, `dentist`, `avocat`, `restaurant`, `auto-service`, `constructii`, `salon`, `magazin`, `fitness`, `multiweb`, `terapii-energetice`
+
+---
+
 ## MULTI-TENANT R2 STORAGE (2025-12-24) - NOU!
 
 ### Implementare prefix per tenant pentru fișiere R2/S3

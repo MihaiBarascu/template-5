@@ -2,7 +2,7 @@ import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Logo } from '@/components/Logo'
-import type { Footer as FooterType, BusinessInfo, Logo as LogoType, Media } from '@/payload-types'
+import type { TenantFooter, TenantBusinessInfo, TenantLogo, Media } from '@/payload-types'
 
 interface WorkingHoursItem {
   days: string
@@ -10,9 +10,9 @@ interface WorkingHoursItem {
 }
 
 interface FooterProps {
-  data: FooterType | null
-  businessInfo: BusinessInfo | null
-  logo: LogoType | null
+  data: TenantFooter | null
+  businessInfo: TenantBusinessInfo | null
+  logo: TenantLogo | null
 }
 
 export function Footer({ data, businessInfo, logo }: FooterProps) {
@@ -248,11 +248,13 @@ export function Footer({ data, businessInfo, logo }: FooterProps) {
         {data?.showPaymentIcons && data?.paymentMethods && data.paymentMethods.length > 0 && (
           <div className={`border-t ${borderClass} pt-6 pb-4 flex justify-center`}>
             <div className="flex items-center gap-3">
-              {data.paymentMethods.map((method) => (
+              {data.paymentMethods.map((item) => {
+                const method = item.method
+                return (
                 <div
-                  key={method}
+                  key={item.id || method}
                   className={`w-12 h-8 ${socialBgClass} rounded flex items-center justify-center text-xs font-medium ${textMutedClass}`}
-                  title={method}
+                  title={method || undefined}
                 >
                   {method === 'visa' && (
                     <svg className="w-8 h-5" viewBox="0 0 48 32" fill="currentColor">
@@ -267,9 +269,9 @@ export function Footer({ data, businessInfo, logo }: FooterProps) {
                   )}
                   {method === 'paypal' && 'PayPal'}
                   {method === 'cash' && 'Cash'}
-                  {method === 'bank' && 'Bank'}
+                  {method === 'transfer' && 'Bank'}
                 </div>
-              ))}
+              )})}
             </div>
           </div>
         )}

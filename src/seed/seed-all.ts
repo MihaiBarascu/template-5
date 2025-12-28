@@ -216,95 +216,37 @@ async function seedAll() {
  * Clear ALL data from ALL tenants
  */
 async function clearAllData(payload: Payload, clearMedia: boolean = false) {
-  // Reset globals to clean state
-  console.log('   Resetting globals...')
+  // Clear tenant-specific settings (now stored in collections, not globals)
+  console.log('   Clearing tenant settings collections...')
 
-  // Reset site-theme to defaults
-  await payload.updateGlobal({
-    slug: 'site-theme',
-    data: {
-      variant: 'dark-gold',
-      borderRadius: undefined,
-      shadows: undefined,
-      animations: 'moderate',
-      containerWidth: '1280',
-      sectionSpacing: 'normal',
-      headingScale: 'normal',
-      bodyTextSize: 'normal',
-      cardGap: 'normal',
-      useCustomColors: false,
-      colors: {
-        primary: '#000000',
-        secondary: '#666666',
-        accent: '#c9a962',
-        dark: '#1a1a1a',
-        light: '#f5f5f5',
-        surface: '#ffffff',
-        text: '#1a1a1a',
-        textLight: '#666666',
-        border: '#e5e5e5',
-        textOnPrimary: '#ffffff',
-        textOnSecondary: '#ffffff',
-        textOnAccent: '#000000',
-        textOnDark: '#ffffff',
-        textOnLight: '#1a1a1a',
-        textOnSurface: '#1a1a1a',
-      },
-      headingFont: undefined,
-      bodyFont: undefined,
-    },
-  })
+  // Tenant settings collections to clear
+  const tenantSettingsCollections = [
+    'tenant-site-themes',
+    'tenant-business-info',
+    'tenant-headers',
+    'tenant-footers',
+    'tenant-logos',
+    'tenant-shop-settings',
+    'tenant-system-pages',
+  ] as const
 
-  // Reset business-info
-  await payload.updateGlobal({
-    slug: 'business-info',
-    data: {
-      name: 'Business Name',
-      social: {
-        facebook: '',
-        instagram: '',
-        tiktok: '',
-        youtube: '',
-        linkedin: '',
-      },
-      whatsappFloat: {
-        enabled: false,
-        position: 'bottom-right',
-        showOnMobile: true,
-        defaultMessage: '',
-        tooltipText: '',
-        pulseAnimation: false,
-      },
-      announcementBar: {
-        enabled: false,
-        message: '',
-        linkText: '',
-        linkUrl: '',
-      },
-    },
-  })
-
-  // Reset shop-settings
-  await payload.updateGlobal({
-    slug: 'shop-settings',
-    data: {
-      enabled: false,
-    },
-  })
-  console.log('   Shop settings reset (ecommerce disabled)')
-
-  // Reset Footer badges when clearing media
-  if (clearMedia) {
-    await payload.updateGlobal({
-      slug: 'footer',
-      data: {
-        badges: [],
-      },
-    })
-    console.log('   Footer badges cleared')
+  for (const collection of tenantSettingsCollections) {
+    try {
+      const docs = await payload.find({
+        collection: collection as keyof Config['collections'],
+        limit: 1000,
+      })
+      for (const doc of docs.docs) {
+        await payload.delete({
+          collection: collection as keyof Config['collections'],
+          id: doc.id,
+        })
+      }
+    } catch {
+      // Collection might not exist yet, skip
+    }
   }
-
-  console.log('   Globals reset to clean state')
+  console.log('   Tenant settings cleared')
 
   // Collections to clear
   const collections: (keyof Config['collections'])[] = [

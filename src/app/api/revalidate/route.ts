@@ -30,9 +30,11 @@ export async function POST(request: NextRequest) {
     const revalidated: { tags: string[]; paths: string[] } = { tags: [], paths: [] }
 
     // Revalidate specific tags if provided
+    // Using { expire: 0 } for immediate invalidation (not SWR)
+    // See: https://nextjs.org/docs/app/api-reference/functions/revalidateTag
     if (tags && Array.isArray(tags)) {
       for (const tag of tags) {
-        revalidateTag(tag, 'max')
+        revalidateTag(tag, { expire: 0 })
         revalidated.tags.push(tag)
       }
     }
@@ -72,7 +74,7 @@ export async function POST(request: NextRequest) {
       ]
 
       for (const tag of [...globalTags, ...collectionTags]) {
-        revalidateTag(tag, 'max')
+        revalidateTag(tag, { expire: 0 })
         revalidated.tags.push(tag)
       }
 
@@ -125,7 +127,7 @@ export async function GET() {
   ]
 
   for (const tag of allTags) {
-    revalidateTag(tag, 'max')
+    revalidateTag(tag, { expire: 0 })
   }
   revalidatePath('/', 'layout')
 

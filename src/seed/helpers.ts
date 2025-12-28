@@ -1,4 +1,4 @@
-import type { Page, SiteTheme, Service, Product, Post, Form, SystemPage, Team } from '@/payload-types';
+import type { Page, TenantSiteTheme as SiteTheme, Service, Product, Post, Form, TenantSystemPage as SystemPage, Team } from '@/payload-types';
 import fs from 'fs';
 import path from 'path';
 import type { Payload, Where } from 'payload';
@@ -577,19 +577,14 @@ export async function seedSiteTheme(
   };
 
   // Multi-tenant: create in tenant-site-themes collection if tenant is set
-  if (hasSeedTenant()) {
-    await payload.create({
-      collection: 'tenant-site-themes',
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      data: withTenant(themeData) as any,
-    });
-  } else {
-    // Single-tenant fallback: update TRUE global
-    await payload.updateGlobal({
-      slug: 'site-theme',
-      data: themeData,
-    });
+  if (!hasSeedTenant()) {
+    throw new Error('Multi-tenant mode required: Set SEED_TYPE environment variable');
   }
+  await payload.create({
+    collection: 'tenant-site-themes',
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data: withTenant(themeData) as any,
+  });
   console.log(`   Site theme configured: ${options.variant}${options.headingFont ? ` (fonts: ${options.headingFont}/${options.bodyFont})` : ''}${options.headingWeight ? ` (weight: ${options.headingWeight})` : ''}${options.buttonRounding ? ` (btn: ${options.buttonRounding})` : ''}`);
 }
 
@@ -678,20 +673,15 @@ export async function seedBusinessInfo(
     floatingCta: data.floatingCta,
   };
 
-  // Multi-tenant: create in tenant-business-info collection if tenant is set
-  if (hasSeedTenant()) {
-    await payload.create({
-      collection: 'tenant-business-info',
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      data: withTenant(businessData) as any,
-    });
-  } else {
-    // Single-tenant fallback: update TRUE global
-    await payload.updateGlobal({
-      slug: 'business-info',
-      data: businessData,
-    });
+  // Multi-tenant: create in tenant-business-info collection
+  if (!hasSeedTenant()) {
+    throw new Error('Multi-tenant mode required: Set SEED_TYPE environment variable');
   }
+  await payload.create({
+    collection: 'tenant-business-info',
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data: withTenant(businessData) as any,
+  });
   console.log('   Business info configured');
 }
 
@@ -722,20 +712,15 @@ export async function seedLogo(
     },
   };
 
-  // Multi-tenant: create in tenant-logos collection if tenant is set
-  if (hasSeedTenant()) {
-    await payload.create({
-      collection: 'tenant-logos',
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      data: withTenant(logoData) as any,
-    });
-  } else {
-    // Single-tenant fallback: update TRUE global
-    await payload.updateGlobal({
-      slug: 'logo',
-      data: logoData,
-    });
+  // Multi-tenant: create in tenant-logos collection
+  if (!hasSeedTenant()) {
+    throw new Error('Multi-tenant mode required: Set SEED_TYPE environment variable');
   }
+  await payload.create({
+    collection: 'tenant-logos',
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data: withTenant(logoData) as any,
+  });
   console.log('   Logo configured');
 }
 
@@ -817,20 +802,15 @@ export async function seedHeader(
     transparentTextColor: data.transparentTextColor || 'white',
   };
 
-  // Multi-tenant: create in tenant-headers collection if tenant is set
-  if (hasSeedTenant()) {
-    await payload.create({
-      collection: 'tenant-headers',
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      data: withTenant(headerData) as any,
-    });
-  } else {
-    // Single-tenant fallback: update TRUE global
-    await payload.updateGlobal({
-      slug: 'header',
-      data: headerData,
-    });
+  // Multi-tenant: create in tenant-headers collection
+  if (!hasSeedTenant()) {
+    throw new Error('Multi-tenant mode required: Set SEED_TYPE environment variable');
   }
+  await payload.create({
+    collection: 'tenant-headers',
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data: withTenant(headerData) as any,
+  });
   console.log('   Header configured');
 }
 
@@ -947,20 +927,15 @@ export async function seedFooter(
     decorativeSize: data.decorativeSize || 'medium',
   };
 
-  // Multi-tenant: create in tenant-footers collection if tenant is set
-  if (hasSeedTenant()) {
-    await payload.create({
-      collection: 'tenant-footers',
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      data: withTenant(footerData) as any,
-    });
-  } else {
-    // Single-tenant fallback: update TRUE global
-    await payload.updateGlobal({
-      slug: 'footer',
-      data: footerData,
-    });
+  // Multi-tenant: create in tenant-footers collection
+  if (!hasSeedTenant()) {
+    throw new Error('Multi-tenant mode required: Set SEED_TYPE environment variable');
   }
+  await payload.create({
+    collection: 'tenant-footers',
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data: withTenant(footerData) as any,
+  });
   console.log('   Footer configured');
 }
 
@@ -2208,7 +2183,8 @@ export async function seedForms(
       const created = await payload.create({
         collection: 'forms',
         // Cast to Omit<Form, 'id' | ...> - types are complex due to Lexical rich text
-        data: formData as Omit<Form, 'id' | 'createdAt' | 'updatedAt'>,
+        // Multi-tenant: add tenant to form data
+        data: withTenant(formData) as Omit<Form, 'id' | 'createdAt' | 'updatedAt'>,
       });
 
       formMap.set(form.title, created.id);
@@ -2732,10 +2708,15 @@ export async function seedSystemPages(
     ...data,
   }
 
-  await payload.updateGlobal({
-    slug: 'system-pages',
-    data: mergedData,
-  })
+  // Multi-tenant: create in tenant-system-pages collection
+  if (!hasSeedTenant()) {
+    throw new Error('Multi-tenant mode required: Set SEED_TYPE environment variable');
+  }
+  await payload.create({
+    collection: 'tenant-system-pages',
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data: withTenant(mergedData) as any,
+  });
   console.log('   System pages configured')
 }
 
@@ -2753,24 +2734,33 @@ export async function seedShopSettings(
     freeShippingThreshold?: number
   },
 ) {
-  await payload.updateGlobal({
-    slug: 'shop-settings',
-    data: {
-      enabled: data.enabled,
-      shopName: data.shopName || 'Magazin',
-      currency: data.currency || 'RON',
-      currencySymbol: data.currencySymbol || 'lei',
-      pricePosition: 'after',
-      vatEnabled: data.vatEnabled ?? true,
-      pricesIncludeVat: data.pricesIncludeVat ?? true,
-      displayPricesWithVat: true,
-      vatRates: {
-        standard: 19,
-        reduced: 9,
-        zero: 0,
-      },
-      defaultVatRate: 'standard',
+  const shopData = {
+    enabled: data.enabled,
+    shopName: data.shopName || 'Magazin',
+    currency: data.currency || 'RON',
+    currencySymbol: data.currencySymbol || 'lei',
+    pricePosition: 'after',
+    vatEnabled: data.vatEnabled ?? true,
+    pricesIncludeVat: data.pricesIncludeVat ?? true,
+    displayPricesWithVat: true,
+    vatRates: {
+      standard: 19,
+      reduced: 9,
+      zero: 0,
     },
-  })
+    defaultVatRate: 'standard',
+    shippingCost: data.shippingCost,
+    freeShippingThreshold: data.freeShippingThreshold,
+  };
+
+  // Multi-tenant: create in tenant-shop-settings collection
+  if (!hasSeedTenant()) {
+    throw new Error('Multi-tenant mode required: Set SEED_TYPE environment variable');
+  }
+  await payload.create({
+    collection: 'tenant-shop-settings',
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data: withTenant(shopData) as any,
+  });
   console.log(`   Shop settings configured (enabled: ${data.enabled})`)
 }
