@@ -290,13 +290,29 @@ export async function uploadLocalImage(
       return null;
     }
 
+    // Copy to temp folder with unique filename to avoid conflicts
+    const tempDir = path.join(process.cwd(), 'temp-uploads');
+    if (!fs.existsSync(tempDir)) {
+      fs.mkdirSync(tempDir, { recursive: true });
+    }
+
+    const ext = path.extname(filename);
+    const baseName = path.basename(filename, ext);
+    const uniqueFilename = `${baseName}-${Date.now()}${ext}`;
+    const tempPath = path.join(tempDir, uniqueFilename);
+
+    fs.copyFileSync(filePath, tempPath);
+
     const media = await payload.create({
       collection: 'media',
       data: withTenant({
         alt,
       }),
-      filePath: filePath,
+      filePath: tempPath,
     });
+
+    // Clean up temp file
+    fs.unlinkSync(tempPath);
 
     imageCache.set(cacheKey, media.id);
     console.log(`   ✅ Uploaded: ${filename}`);
