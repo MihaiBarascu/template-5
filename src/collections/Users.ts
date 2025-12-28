@@ -48,7 +48,7 @@ export const Users: CollectionConfig = {
     update: multiTenantUserUpdateAccess,
   },
   admin: {
-    defaultColumns: ['name', 'email', 'roles', 'tenants'],
+    defaultColumns: ['name', 'email', 'roles'],
     useAsTitle: 'name',
     group: 'Administrare',
   },
